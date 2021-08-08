@@ -6,6 +6,9 @@ var cookieDuration = 14; // Number of days before the cookie expires, and the ba
 var cookieName = "complianceCookie"; // Name of our cookie
 var cookieValue = "on"; // Value of cookie
 
+var textMaxLength = ""; // Previous value of maxlength of #text
+var textRows = ""; // Previous value of rows of #text
+
 var $mentionedList = u("#mentioned-list").first(); // node list of mentioned users
 var lastSymbol = ""; // last char in textarea
 
@@ -456,20 +459,35 @@ u("#usrBtn").on("click", function(e) {
 u("#writeBtn").on("click", function(e) {
   e.preventDefault();
 
-  u("#title").attr("type", "");
+  if (u("#writeBtn").attr("style") == "" || u("#writeBtn").attr("style") == null) {
+    u("#writeBtn").attr("style", "color:red");
 
-  var title = localStorage.getItem('title');
-  if (title) {
-    if (u("input#title").attr("type") != 'hidden') {
-      insertText(u("input#title"), title);
+    u("#title").attr("type", "");
+
+    var title = localStorage.getItem('title');
+    if (title) {
+      if (u("input#title").attr("type") != 'hidden') {
+        insertText(u("input#title"), title);
+      }
     }
-  }
 
-  u("#title").first().focus();
-  u("#post").html('<i class="icss-floppy"></i>&nbsp;Save!');
-  u("#text").attr("maxlength", "");
-  u("#text").attr("rows", 24);
-  u("#form").attr("action", "/blog");
+    textMaxlength = u("#text").attr("maxlength");
+    textRows = u("#text").attr("rows");
+
+    u("#title").first().focus();
+    u("#post").html('<i class="icss-floppy"></i>&nbsp;Save!');
+    u("#text").attr("maxlength", "");
+    u("#text").attr("rows", 24);
+    u("#form").attr("action", "/blog");
+  } else {
+    u("#writeBtn").attr("style", "")
+
+    u("#title").attr("type", "hidden");
+    u("#post").html('<i class="icss-paper-plane"></i>&nbsp;Post');
+    u("#text").attr("maxlength", textMaxLength);
+    u("#text").attr("rows", textRows);
+    u("#form").attr("action", "/post");
+  }
 });
 
 u("textarea#text").on("keydown", function(e) {
