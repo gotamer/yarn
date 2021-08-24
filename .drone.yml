@@ -29,6 +29,24 @@ steps:
       event:
         - push
 
+  - name: dockerhub-push
+    image: r.mills.io/drone_plugins/docker
+    settings:
+      repo: prologic/yarnd
+      tags: latest
+      build_args:
+        - VERSION=master
+        - COMMIT=${DRONE_COMMIT_SHA:0:8}
+      username:
+        from_secret: dockerhub_username
+      password:
+        from_secret: dockerhub_password
+    when:
+      branch:
+        - master
+      event:
+        - push
+
   - name: build-image-tag
     image: r.mills.io/drone_plugins/docker
     settings:
