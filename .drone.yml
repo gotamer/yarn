@@ -11,7 +11,7 @@ steps:
       - make test
 
   - name: build-image-push
-    image: r.mills.io/drone_plugins/docker
+    image: plugins/kaniko
     settings:
       registry: r.mills.io
       repo: r.mills.io/prologic/yarn
@@ -30,7 +30,7 @@ steps:
         - push
 
   - name: dockerhub-push
-    image: r.mills.io/drone_plugins/docker
+    image: plugins/kaniko
     settings:
       repo: prologic/yarnd
       tags: latest
@@ -48,7 +48,7 @@ steps:
         - push
 
   - name: build-image-tag
-    image: r.mills.io/drone_plugins/docker
+    image: plugins/kaniko
     settings:
       registry: r.mills.io
       repo: r.mills.io/prologic/yarn
