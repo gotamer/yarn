@@ -23,6 +23,8 @@ steps:
         from_secret: docker_username
       password:
         from_secret: docker_password
+    depends_on:
+      - build-and-test
     when:
       branch:
         - master
@@ -41,6 +43,8 @@ steps:
         from_secret: dockerhub_username
       password:
         from_secret: dockerhub_password
+    depends_on:
+      - build-and-test
     when:
       branch:
         - master
@@ -60,6 +64,28 @@ steps:
         from_secret: docker_username
       password:
         from_secret: docker_password
+    depends_on:
+      - build-and-test
+    when:
+      branch:
+        - master
+      event:
+        - tag
+
+  - name: dockerhub-tag
+    image: plugins/kaniko
+    settings:
+      repo: prologic/yarnd
+      tags: latest
+      build_args:
+        - VERSION=${DRONE_SEMVER_SHORT##v}
+        - COMMIT=${DRONE_COMMIT_SHA:0:8}
+      username:
+        from_secret: dockerhub_username
+      password:
+        from_secret: dockerhub_password
+    depends_on:
+      - build-and-test
     when:
       branch:
         - master

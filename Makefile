@@ -9,8 +9,8 @@ GOCMD=go
 all: build
 
 deps:
-	@$(GOCMD) get -u github.com/tdewolff/minify/v2/cmd/...
-	@$(GOCMD) get -u github.com/nicksnyder/go-i18n/v2/goi18n
+	@$(GOCMD) install github.com/tdewolff/minify/v2/cmd/minify@latest
+	@$(GOCMD) install github.com/nicksnyder/go-i18n/v2/goi18n@latest
 
 dev : DEBUG=1
 dev : build
