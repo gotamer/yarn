@@ -156,6 +156,9 @@
       <li>&nbsp;</li>
       {{ end }}
       <li><a class="reply" href="#" data-reply="{{ $.User.Reply $.Twt }}"><i class="icss-arrow-left"></i>{{tr $.Ctx "TwtReplyLinkTitle"}}</a></li>
+      {{ if eq $.view "conv" }}
+        <li><a class="fork" href="#" data-fork="{{ $.User.Fork $.Twt }}"><i class="icss-arrows"></i>{{tr $.Ctx "TwtForkLinkTitle"}}</a></li>
+      {{ end }}
       <li>&nbsp;</li>
       {{ end }}
       {{ with urlForBlog $.Twt }}
@@ -176,7 +179,7 @@
   <div>
     {{ template "pager" (dict "Pager" $.Pager "Ctx" $.Ctx)}}
     {{ range $idx, $twt := $.Twts }}
-    {{ template "twt" (dict "Authenticated" $.Authenticated "User" $.User "Profile" $.Profile "LastTwt" $.LastTwt "Twt" $twt "Ctx" $.Ctx) }}
+    {{ template "twt" (dict "Authenticated" $.Authenticated "User" $.User "Profile" $.Profile "LastTwt" $.LastTwt "Twt" $twt "Ctx" $.Ctx "view" $.view) }}
     {{ else }}
     <small><i>{{tr $.Ctx "NoTwts"}}</i></small>
     {{ end }}

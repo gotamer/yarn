@@ -6,7 +6,7 @@
     </hgroup>
     {{ template "twt" (dict "Authenticated" $.Authenticated "User" $.User "Profile" $.Profile "LastTwt" $.LastTwt "Twt" ( $.Twts | first) "Ctx" . )}}
   </article>
-  {{ template "feed" (dict "Authenticated" $.Authenticated "User" $.User "Profile" $.Profile "LastTwt" $.LastTwt "Pager" $.Pager "Twts" ($.Twts | rest) "Ctx" .)}}
+  {{ template "feed" (dict "Authenticated" $.Authenticated "User" $.User "Profile" $.Profile "LastTwt" $.LastTwt "Pager" $.Pager "Twts" ($.Twts | rest) "Ctx" . "view" "conv") }}
   {{ if .Authenticated }}
     {{ template "post" (dict "Authenticated" $.Authenticated "User" $.User "TwtPrompt" $.TwtPrompt "MaxTwtLength" $.MaxTwtLength "Reply" $.Reply "AutoFocus" false "CSRFToken" $.CSRFToken "Ctx" .)}}
   {{ else }}

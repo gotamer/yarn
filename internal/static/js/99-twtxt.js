@@ -151,6 +151,23 @@ function replyTo(e) {
   text.setSelectionRange(size, size);
 }
 
+function forkFrom(e) {
+  e.preventDefault();
+
+  var el = u("textarea#text");
+  var text = document.getElementById("text");
+
+  el.empty();
+  text.value = u(e.target).data("fork");
+  el.scroll();
+
+  text.focus();
+
+  var size = text.value.length;
+
+  text.setSelectionRange(size, size);
+}
+
 function editTwt(e) {
   e.preventDefault();
 
@@ -212,6 +229,7 @@ u("input#title").on("change", persist);
 u("textarea#text").on("change", persist);
 
 u(".reply").on("click", replyTo);
+u(".fork").on("click", forkFrom);
 u(".edit").on("click", editTwt);
 u(".delete").on("click", deleteTwt);
 

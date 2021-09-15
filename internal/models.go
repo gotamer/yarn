@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/creasty/defaults"
 	"git.mills.io/yarnsocial/yarn/types"
+	"github.com/creasty/defaults"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -558,6 +558,10 @@ func (u *User) Reply(twt types.Twt) string {
 	mentions = append(mentions, twt.Subject().String())
 
 	return fmt.Sprintf("%s ", strings.Join(mentions, " "))
+}
+
+func (u *User) Fork(twt types.Twt) string {
+	return fmt.Sprintf("(#%s) ", twt.Hash())
 }
 
 func (u *User) Bytes() ([]byte, error) {
