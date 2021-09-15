@@ -10,13 +10,12 @@ WORKDIR /src
 # Copy Makefile
 COPY Makefile ./
 
+# Install deps
+RUN make deps
+
 # Copy go.mod and go.sum and install and cache dependencies
 COPY go.mod .
 COPY go.sum .
-
-# Install deps
-RUN make deps
-RUN go mod download
 
 # Copy static assets
 COPY ./internal/static/css/* ./internal/static/css/
