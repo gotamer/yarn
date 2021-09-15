@@ -47,11 +47,11 @@ install: build
 
 ifeq ($(PUBLISH), 1)
 image:
-	@docker build --build-arg VERSION="$(VERSION)" --build-arg COMMIT="$(COMMIT)" -t prologic/yarn .
-	@docker push prologic/yarn
+	@docker build --build-arg VERSION="$(VERSION)" --build-arg COMMIT="$(COMMIT)" -t prologic/yarnd .
+	@docker push prologic/yarnd
 else
 image:
-	@docker build --build-arg VERSION="$(VERSION)" --build-arg COMMIT="$(COMMIT)" -t prologic/yarn .
+	@docker build --build-arg VERSION="$(VERSION)" --build-arg COMMIT="$(COMMIT)" -t prologic/yarnd .
 endif
 
 release:
