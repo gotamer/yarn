@@ -413,6 +413,9 @@ func (s *Server) RstUserHandler() httprouter.Handle {
 
 		username := NormalizeUsername(r.FormValue("username"))
 
+		trdata := map[string]interface{}{}
+		trdata["Nick"] = username
+
 		user, err := s.db.GetUser(username)
 		if err != nil {
 			log.WithError(err).Errorf("error loading user object for %s", username)
@@ -437,7 +440,8 @@ func (s *Server) RstUserHandler() httprouter.Handle {
 		// Save user
 		if err := s.db.SetUser(username, user); err != nil {
 			ctx.Error = true
-			ctx.Message = s.tr(ctx, "ErrorSetUser")
+			trdata["Error"] = err.Error()
+			ctx.Message = s.tr(ctx, "ErrorSetUser", trdata)
 			s.render("error", w, ctx)
 			return
 		}
