@@ -31,6 +31,7 @@ import (
 	_ "image/jpeg"
 	"image/png"
 
+	"git.mills.io/prologic/go-gopher"
 	"git.mills.io/yarnsocial/yarn"
 	"git.mills.io/yarnsocial/yarn/types"
 	"github.com/PuerkitoBio/goquery"
@@ -214,6 +215,11 @@ func ImageToPng(fn string) error {
 }
 
 func GetExternalAvatar(conf *Config, nick, uri string) string {
+	// Don't try to discover Avatars for gopher:// URI(s) (to be polite!)
+	if strings.HasPrefix(uri, "gopher://") {
+		return ""
+	}
+
 	slug := Slugify(uri)
 
 	fn := filepath.Join(conf.Data, externalDir, fmt.Sprintf("%s.webp", slug))
@@ -260,6 +266,20 @@ func GetExternalAvatar(conf *Config, nick, uri string) string {
 	log.Warnf("unable to find a suitable avatar for %s", uri)
 
 	return ""
+}
+
+func RequestGopher(conf *Config, uri string) (*gopher.Response, error) {
+	res, err := gopher.Get(uri)
+	if err != nil {
+		log.WithError(err).Errorf("%s: client.Do fail: %s", uri, err)
+		return nil, err
+	}
+
+	if res.Type != gopher.FILE {
+		return nil, fmt.Errorf("unexpected type %s (expected FILE)", res.Type)
+	}
+
+	return res, nil
 }
 
 func Request(conf *Config, method, url string, headers http.Header) (*http.Response, error) {
@@ -1069,21 +1089,33 @@ func NormalizeFeedName(name string) string {
 }
 
 func ValidateFeed(conf *Config, nick, url string) error {
-	res, err := Request(conf, http.MethodGet, url, nil)
-	if err != nil {
-		log.WithError(err).Errorf("error fetching feed %s", url)
-		return err
-	}
-	defer res.Body.Close()
+	var body io.ReadCloser
 
-	if res.StatusCode != 200 {
-		return ErrBadRequest
+	if strings.HasPrefix(url, "gopher://") {
+		res, err := RequestGopher(conf, url)
+		if err != nil {
+			log.WithError(err).Errorf("error fetching feed %s", url)
+			return err
+		}
+		body = res.Body
+	} else {
+		res, err := Request(conf, http.MethodGet, url, nil)
+		if err != nil {
+			log.WithError(err).Errorf("error fetching feed %s", url)
+			return err
+		}
+		if res.StatusCode != 200 {
+			return ErrBadRequest
+		}
+		body = res.Body
 	}
 
-	limitedReader := &io.LimitedReader{R: res.Body, N: conf.MaxFetchLimit}
+	defer body.Close()
+
+	limitedReader := &io.LimitedReader{R: body, N: conf.MaxFetchLimit}
 	twter := types.Twter{Nick: nick, URL: url}
 	log.Debugf("utils: parsing %s for %s", url, twter)
-	_, err = types.ParseFile(limitedReader, twter)
+	_, err := types.ParseFile(limitedReader, twter)
 	if err != nil {
 		return err
 	}

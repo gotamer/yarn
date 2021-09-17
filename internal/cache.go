@@ -203,6 +203,67 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 				wg.Done()
 			}()
 
+			// Handle Gopher feeds
+			// TODO: Refactor this into some kind of sensible interface
+			if strings.HasPrefix(feed.URL, "gopher://") {
+				res, err := RequestGopher(conf, feed.URL)
+				if err != nil {
+					log.WithError(err).Errorf("error fetching feed %s", feed)
+					twtsch <- nil
+					return
+				}
+
+				limitedReader := &io.LimitedReader{R: res.Body, N: conf.MaxFetchLimit}
+
+				twter := types.Twter{Nick: feed.Nick, URL: feed.URL}
+				log.Debugf("cache: parsing %s for %s", feed.URL, twter)
+				twtFile, err := types.ParseFile(limitedReader, twter)
+				if err != nil {
+					log.WithError(err).Errorf("error parsing feed %s", feed)
+					twtsch <- nil
+					return
+				}
+				twts, old := types.SplitTwts(twtFile.Twts(), conf.MaxCacheTTL, conf.MaxCacheItems)
+
+				// If N == 0 we possibly exceeded conf.MaxFetchLimit when
+				// reading this feed. Log it and bump a cache_limited counter
+				if limitedReader.N <= 0 {
+					log.Warnf(
+						"feed size possibly exceeds MaxFetchLimit of %s for %s",
+						humanize.Bytes(uint64(conf.MaxFetchLimit)),
+						feed,
+					)
+					metrics.Counter("cache", "limited").Inc()
+				}
+
+				// Archive twts (opportunistically)
+				archiveTwts := func(twts []types.Twt) {
+					for _, twt := range twts {
+						if !archive.Has(twt.Hash()) {
+							if err := archive.Archive(twt); err != nil {
+								log.WithError(err).Errorf("error archiving twt %s aborting", twt.Hash())
+								metrics.Counter("archive", "error").Inc()
+							} else {
+								metrics.Counter("archive", "size").Inc()
+							}
+						}
+					}
+				}
+				archiveTwts(old)
+				archiveTwts(twts)
+
+				cache.mu.Lock()
+				cache.Twts[feed.URL] = &Cached{
+					cache:        make(map[string]types.Twt),
+					Twts:         twts,
+					Lastmodified: "",
+				}
+				cache.mu.Unlock()
+
+				twtsch <- twts
+				return
+			}
+
 			headers := make(http.Header)
 
 			if publicFollowers != nil {

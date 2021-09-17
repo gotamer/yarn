@@ -1593,6 +1593,9 @@ func (s *Server) ExternalHandler() httprouter.Handle {
 			ctx.Twter = ctx.Twts[0].Twter()
 		} else {
 			ctx.Twter = types.Twter{Nick: nick, URL: uri}
+		}
+
+		if ctx.Twter.Avatar == "" {
 			avatar := GetExternalAvatar(s.config, nick, uri)
 			if avatar != "" {
 				ctx.Twter.Avatar = URLForExternalAvatar(s.config, uri)
