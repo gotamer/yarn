@@ -253,18 +253,6 @@ func (s *Server) UnfollowHandler() httprouter.Handle {
 						log.WithError(err).Warnf("error updating user object for followee %s", followee.Username)
 					}
 				}
-				if _, err := AppendSpecial(
-					s.config, s.db,
-					twtxtBot,
-					fmt.Sprintf(
-						"UNFOLLOW: @<%s %s> from @<%s %s> using %s/%s",
-						followee.Username, URLForUser(s.config.BaseURL, followee.Username),
-						user.Username, URLForUser(s.config.BaseURL, user.Username),
-						"yarnd", yarn.FullVersion(),
-					),
-				); err != nil {
-					log.WithError(err).Warnf("error appending special FOLLOW post")
-				}
 			}
 		}
 
