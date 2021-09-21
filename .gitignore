@@ -10,11 +10,11 @@
 
 /dist
 
-/yarn
+/yarnc
 /yarnd
 /.envrc
 
-/cmd/yarn/yarn
+/cmd/yarnc/yarnc
 /cmd/yarnd/yarnd
 
 /data/msgs
