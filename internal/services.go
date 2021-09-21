@@ -82,7 +82,6 @@ func (m *mboxHandler) AuthenticatePASS(username, password string) error {
 		return fmt.Errorf("error: invalid credentials")
 	}
 
-	log.Debugf("Logged in with username %q and password %q", username, password)
 	m.username = username
 	m.mboxFile = filepath.Join(msgsDir, username)
 	return nil
@@ -97,10 +96,6 @@ func (m *mboxHandler) DeleteMessages(numbers []uint64) error {
 	for i, number := range numbers {
 		strNums[i] = fmt.Sprintf("%d", number)
 	}
-	log.Debugf(
-		"Following messages would be deleted: %q",
-		strings.Join(strNums, ", "),
-	)
 	return nil
 }
 
@@ -125,17 +120,14 @@ func (m *mboxHandler) HandleSessionError(err error) {
 }
 
 func (m *mboxHandler) LockMaildrop() error {
-	log.Debugf("Mailbox for user %q would be locked", m.username)
 	return nil
 }
 
 func (m *mboxHandler) SetBanner(banner string) error {
-	log.Debugf("Banner would be set to %q", banner)
 	return nil
 }
 
 func (m *mboxHandler) UnlockMaildrop() error {
-	log.Debugf("Mailbox for user %q would be unlocked", m.username)
 	return nil
 }
 

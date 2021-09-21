@@ -184,8 +184,6 @@ func NewContext(conf *Config, db Store, req *http.Request) *Context {
 	if lang != "" && lang != "auto" {
 		ctx.Lang = lang
 	}
-	log.Debugf("acceptLangs: %s", ctx.AcceptLangs)
-	log.Debugf("lang: %s", lang)
 
 	return ctx
 }

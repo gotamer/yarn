@@ -178,7 +178,6 @@ func GetAllTwts(conf *Config, name string) (types.Twts, error) {
 		log.WithError(err).Warnf("error opening feed: %s", fn)
 		return nil, err
 	}
-	log.Debugf("twt: parsing %s for %s", name, twter)
 	t, err := types.ParseFile(f, twter)
 	if err != nil {
 		log.WithError(err).Errorf("error processing feed %s", fn)

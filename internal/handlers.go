@@ -205,8 +205,6 @@ func (s *Server) UserConfigHandler() httprouter.Handle {
 // ProfileHandler ...
 func (s *Server) ProfileHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		log.Debugf("in ProfileHandler()...")
-
 		ctx := NewContext(s.config, s.db, r)
 		ctx.Translate(s.translator)
 
@@ -217,8 +215,6 @@ func (s *Server) ProfileHandler() httprouter.Handle {
 			s.render("error", w, ctx)
 			return
 		}
-
-		log.Debugf("nick: %s", nick)
 
 		var profile types.Profile
 
@@ -603,7 +599,6 @@ func (s *Server) PostHandler() httprouter.Handle {
 
 		hash := r.FormValue("hash")
 		lastTwt, _, err := GetLastTwt(s.config, ctx.User)
-		// log.Debugf("form.hash=%v,lastTwt.hash=%v", hash, lastTwt.Hash())
 		if err != nil {
 			ctx.Error = true
 			ctx.Message = s.tr(ctx, "ErrorDeleteLastTwt")
@@ -753,12 +748,7 @@ func (s *Server) TimelineHandler() httprouter.Handle {
 			ctx.LastTwt = lastTwt
 		}
 
-		// log.Debugf("lastTwt.hash()=%s", ctx.LastTwt.Hash())
 		ctx.Twts = FilterTwts(ctx.User, pagedTwts)
-		// log.Debugf("twt filter.list(%v)", len(ctx.Twts))
-		// for _, twt := range ctx.Twts {
-		// 	log.Debugf("\ttwt.hash()=%s", twt.Hash())
-		// }
 		ctx.Pager = &pager
 
 		s.render("timeline", w, ctx)

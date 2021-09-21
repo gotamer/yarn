@@ -40,8 +40,6 @@ func runStats(args []string) {
 		os.Exit(2)
 	}
 
-	log.Debugf("Reading: %s", url)
-
 	switch url.Scheme {
 	case "", "file":
 		f, err := os.Open(url.Path)
@@ -74,14 +72,11 @@ func runStats(args []string) {
 }
 
 func doStats(r io.Reader) {
-	log.Debug("Parsing file...")
-
 	twt, err := lextwt.ParseFile(r, types.NilTwt.Twter())
 	if err != nil {
 		log.WithError(err).Error("error parsing feed")
 		os.Exit(2)
 	}
-	log.Debug("Complete!")
 
 	fmt.Println(twt.Info())
 

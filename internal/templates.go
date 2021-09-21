@@ -12,9 +12,9 @@ import (
 	"sync"
 	"time"
 
+	"git.mills.io/yarnsocial/yarn/types"
 	"github.com/Masterminds/sprig"
 	humanize "github.com/dustin/go-humanize"
-	"git.mills.io/yarnsocial/yarn/types"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -48,7 +48,6 @@ func NewTemplateManager(conf *Config, translator *Translator, blogs *BlogsCache,
 	funcMap["formatTwtText"] = func() func(text string) template.HTML {
 		fn := FormatTwtFactory(conf)
 		return func(text string) template.HTML {
-			log.Debugf("text: %q", text)
 			twt := types.MakeTwt(types.Twter{}, time.Time{}, text)
 			return fn(twt)
 		}

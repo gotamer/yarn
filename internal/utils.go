@@ -1114,7 +1114,6 @@ func ValidateFeed(conf *Config, nick, url string) error {
 
 	limitedReader := &io.LimitedReader{R: body, N: conf.MaxFetchLimit}
 	twter := types.Twter{Nick: nick, URL: url}
-	log.Debugf("utils: parsing %s for %s", url, twter)
 	_, err := types.ParseFile(limitedReader, twter)
 	if err != nil {
 		return err
