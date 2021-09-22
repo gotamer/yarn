@@ -14,15 +14,15 @@ deps:
 
 dev : DEBUG=1
 dev : build
-	@./yarn -v
-	./yarnd -D -O -R $(FLAGS)
+	@./yarnc -v
+	@./yarnd -D -O -R $(FLAGS)
 
 cli:
 	@$(GOCMD) build -tags "netgo static_build" -installsuffix netgo \
 		-ldflags "-w \
 		-X $(shell go list).Version=$(VERSION) \
 		-X $(shell go list).Commit=$(COMMIT)" \
-		./cmd/yarn/...
+		./cmd/yarnc/...
 
 server: generate
 	@$(GOCMD) build -tags "netgo static_build" -installsuffix netgo \
@@ -42,7 +42,7 @@ generate:
 	fi
 
 install: build
-	@$(GOCMD) install ./cmd/yarn/...
+	@$(GOCMD) install ./cmd/yarnc/...
 	@$(GOCMD) install ./cmd/yarnd/...
 
 ifeq ($(PUBLISH), 1)
