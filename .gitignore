@@ -34,6 +34,7 @@
 
 /docs/_site/
 /docs/_errors/
+/docs/.jekyll-cache/
 
 /internal/static/css/twtxt.min.css
 /internal/static/js/twtxt.min.js

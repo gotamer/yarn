@@ -31,6 +31,24 @@ steps:
       event:
         - push
 
+  - name: build-dev-site
+    image: plugins/kaniko
+    settings:
+      registry: r.mills.io
+      repo: r.mills.io/prologic/dev.twtxt.net
+      tags: latest
+      dockerfile: docs/Dockerfile
+      context: docs
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+    when:
+      branch:
+        - master
+      event:
+        - push
+
   - name: dockerhub-push
     image: plugins/kaniko
     settings:
