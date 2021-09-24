@@ -17,7 +17,7 @@
         </label>
         <label for="logo">
           Change logo:
-          <textarea id="logo" name="podLogo">{{ $.Logo }}</textarea>
+          <textarea id="logo" name="podLogo" rows=10>{{ $.Logo }}</textarea>
         </label>
         <div class="grid">
             <div>
@@ -38,6 +38,10 @@
                 </label>
             </div>
         </div>
+        <label for="whitelistedDomains">
+          Whitelisted Domains:
+          <textarea id="whitelistedDomains" name="whitelistedDomains" rows=5>{{ $.WhitelistedDomains | join "\r\n" }}</textarea>
+        </label>
 
         <button type="submit" class="primary">Update</button>
       </form>

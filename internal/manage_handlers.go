@@ -39,9 +39,12 @@ func (s *Server) ManagePodHandler() httprouter.Handle {
 		maxTwtLength := SafeParseInt(r.FormValue("maxTwtLength"), s.config.MaxTwtLength)
 		openProfiles := r.FormValue("enableOpenProfiles") == "on"
 		openRegistrations := r.FormValue("enableOpenRegistrations") == "on"
+		whitelistedDomains := r.FormValue("whitelistedDomains")
 
 		// Clean lines from DOS (\r\n) to UNIX (\n)
 		logo = strings.ReplaceAll(logo, "\r\n", "\n")
+
+		whitelistedDomains = strings.ReplaceAll(whitelistedDomains, "\r\n", "\n")
 
 		// Update pod name
 		if name != "" {
@@ -80,10 +83,21 @@ func (s *Server) ManagePodHandler() httprouter.Handle {
 		// Update open registrations
 		s.config.OpenRegistrations = openRegistrations
 
+		// Update WhitelistedDomains
+		if err := WithWhitelistedDomains(strings.Split(whitelistedDomains, "\n"))(s.config); err != nil {
+			ctx.Error = true
+			ctx.Message = "Error appliying whitelisted domains"
+			s.render("error", w, ctx)
+			return
+		}
+
 		// Save config file
 		if err := s.config.Settings().Save(filepath.Join(s.config.Data, "settings.yaml")); err != nil {
 			log.WithError(err).Error("error saving config")
-			os.Exit(1)
+			ctx.Error = true
+			ctx.Message = "Error saving pod settings"
+			s.render("error", w, ctx)
+			return
 		}
 
 		ctx.Error = false

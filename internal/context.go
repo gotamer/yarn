@@ -42,6 +42,7 @@ type Context struct {
 	RegisterDisabled        bool
 	OpenProfiles            bool
 	RegisterDisabledMessage string
+	WhitelistedDomains      []string
 
 	Timezones []*timezones.Zoneinfo
 
@@ -96,16 +97,17 @@ func NewContext(conf *Config, db Store, req *http.Request) *Context {
 	ctx := &Context{
 		Debug: conf.Debug,
 
-		Logo:             template.HTML(conf.Logo),
-		BaseURL:          conf.BaseURL,
-		InstanceName:     conf.Name,
-		SoftwareVersion:  yarn.FullVersion(),
-		TwtsPerPage:      conf.TwtsPerPage,
-		TwtPrompt:        conf.RandomTwtPrompt(),
-		MaxTwtLength:     conf.MaxTwtLength,
-		RegisterDisabled: !conf.OpenRegistrations,
-		OpenProfiles:     conf.OpenProfiles,
-		LastTwt:          types.NilTwt,
+		Logo:               template.HTML(conf.Logo),
+		BaseURL:            conf.BaseURL,
+		InstanceName:       conf.Name,
+		SoftwareVersion:    yarn.FullVersion(),
+		TwtsPerPage:        conf.TwtsPerPage,
+		TwtPrompt:          conf.RandomTwtPrompt(),
+		MaxTwtLength:       conf.MaxTwtLength,
+		RegisterDisabled:   !conf.OpenRegistrations,
+		OpenProfiles:       conf.OpenProfiles,
+		LastTwt:            types.NilTwt,
+		WhitelistedDomains: conf.WhitelistedDomains,
 
 		Commit:      yarn.Commit,
 		Theme:       conf.Theme,

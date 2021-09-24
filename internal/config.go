@@ -11,9 +11,9 @@ import (
 	"strings"
 	"time"
 
+	"git.mills.io/yarnsocial/yarn/types"
 	"github.com/gabstv/merger"
 	"github.com/goccy/go-yaml"
-	"git.mills.io/yarnsocial/yarn/types"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -31,6 +31,8 @@ type Settings struct {
 
 	OpenProfiles      bool `yaml:"open_profiles"`
 	OpenRegistrations bool `yaml:"open_registrations"`
+
+	WhitelistedDomains []string `yaml:"whitelisted_domains"`
 }
 
 // Config contains the server configuration parameters

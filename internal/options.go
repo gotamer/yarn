@@ -468,6 +468,7 @@ func WithAPISigningKey(key string) Option {
 // WithWhitelistedDomains sets the list of domains whitelisted and permitted for external iamges
 func WithWhitelistedDomains(whitelistedDomains []string) Option {
 	return func(cfg *Config) error {
+		cfg.WhitelistedDomains = whitelistedDomains
 		for _, whitelistedDomain := range whitelistedDomains {
 			re, err := regexp.Compile(whitelistedDomain)
 			if err != nil {
