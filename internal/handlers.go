@@ -786,18 +786,40 @@ func (s *Server) PermalinkHandler() httprouter.Handle {
 			if s.archive.Has(hash) {
 				twt, err = s.archive.Get(hash)
 				if err != nil {
-					ctx.Error = true
-					ctx.Message = s.tr(ctx, "ErrorLoadingTwtFromArchive")
-					s.render("error", w, ctx)
+					if accept.PreferredContentTypeLike(r.Header, "text/html") == "text/html" {
+						ctx.Error = true
+						ctx.Message = s.tr(ctx, "ErrorLoadingTwtFromArchive")
+						s.render("error", w, ctx)
+					} else {
+						http.Error(w, "Error loading twt from archive", http.StatusInternalServerError)
+					}
 					return
 				}
 			}
 		}
 
 		if twt.IsZero() {
-			ctx.Error = true
-			ctx.Message = s.tr(ctx, "ErrorNoMatchingTwt")
-			s.render("404", w, ctx)
+			if accept.PreferredContentTypeLike(r.Header, "text/html") == "text/html" {
+				ctx.Error = true
+				ctx.Message = s.tr(ctx, "ErrorNoMatchingTwt")
+				s.render("404", w, ctx)
+			} else {
+				http.Error(w, "No matching twt by that hash", http.StatusNotFound)
+			}
+			return
+		}
+
+		if accept.PreferredContentTypeLike(r.Header, "application/json") == "application/json" {
+			data, err := json.Marshal(twt)
+			if err != nil {
+				log.WithError(err).Error("error serializing twt response")
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+			w.Header().Set("Last-Modified", twt.Created().Format(http.TimeFormat))
+			_, _ = w.Write(data)
 			return
 		}
 
@@ -878,7 +900,6 @@ func (s *Server) PermalinkHandler() httprouter.Handle {
 
 		ctx.Twts = FilterTwts(ctx.User, types.Twts{twt})
 		s.render("permalink", w, ctx)
-
 	}
 }
 
