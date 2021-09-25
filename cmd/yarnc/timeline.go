@@ -18,7 +18,8 @@ var timelineCmd = &cobra.Command{
 	Use:     "timeline [flags]",
 	Aliases: []string{"view", "show", "events"},
 	Short:   "Display your timeline",
-	Long:    `...`,
+	Long: `The timeline command retrieve the timeline from the logged in
+Yarn.social account.`,
 	//Args:    cobra.NArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
 		uri := viper.GetString("uri")

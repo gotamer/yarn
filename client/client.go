@@ -121,8 +121,8 @@ func (c *Client) Login(username, password string) (res types.AuthResponse, err e
 }
 
 // Post ...
-func (c *Client) Post(text string) (res types.AuthResponse, err error) {
-	req, err := c.newRequest("POST", "/post", types.PostRequest{Text: text})
+func (c *Client) Post(text, as string) (res types.AuthResponse, err error) {
+	req, err := c.newRequest("POST", "/post", types.PostRequest{Text: text, PostAs: as})
 	if err != nil {
 		return types.AuthResponse{}, err
 	}

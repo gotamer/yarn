@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/mitchellh/go-homedir"
@@ -16,14 +17,33 @@ import (
 	"git.mills.io/yarnsocial/yarn/types/retwt"
 )
 
-var configFile string
+const (
+	DefaultConfigFilename = ".yarnc.yml"
+	DefaultEnvPrefix      = "YARNC"
+)
+
+var (
+	ConfigFile        string
+	DefaultConfigFile string
+)
+
+func init() {
+	homeDir, err := homedir.Dir()
+	if err != nil {
+		log.WithError(err).Fatal("error finding user home directory")
+	}
+
+	DefaultConfigFile = filepath.Join(homeDir, DefaultConfigFilename)
+}
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
-	Use:     "yarn",
+	Use:     "yarnc",
 	Version: yarn.FullVersion(),
-	Short:   "Command-line client for twtxt",
-	Long:    `...`,
+	Short:   "Command-line client for yarnd",
+	Long: `This is the command-line client for Yarn.social pods running
+yarnd. This tool allows a user to interact with a pod to view their timeline,
+following feeds, make posts and managing their account.`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		// set logging level
 		if viper.GetBool("debug") {
@@ -47,9 +67,9 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	RootCmd.PersistentFlags().StringVar(
-		&configFile, "config", "",
-		"config file (default: $HOME/.twt.yaml)",
+	RootCmd.PersistentFlags().StringVarP(
+		&ConfigFile, "config", "c", DefaultConfigFile,
+		"set a custom config file",
 	)
 
 	RootCmd.PersistentFlags().BoolP(
@@ -58,25 +78,25 @@ func init() {
 	)
 
 	parser := RootCmd.PersistentFlags().StringP(
-		"parser", "P", "lextwt",
+		"parser", "p", "lextwt",
 		"Set active parse engine [lextwt, retwt]",
 	)
 
 	RootCmd.PersistentFlags().StringP(
 		"uri", "u", client.DefaultURI,
-		"twt API endpoint URI to connect to",
+		"yarnd API endpoint URI to connect to",
 	)
 
 	RootCmd.PersistentFlags().StringP(
-		"token", "t", "$TWT_TOKEN",
-		"twt API token to use to authenticate to endpoints",
+		"token", "t", fmt.Sprintf("$%s_TOKEN", DefaultEnvPrefix),
+		"yarnd API token to use to authenticate to endpoints",
 	)
 
 	viper.BindPFlag("uri", RootCmd.PersistentFlags().Lookup("uri"))
 	viper.SetDefault("uri", client.DefaultURI)
 
 	viper.BindPFlag("token", RootCmd.PersistentFlags().Lookup("token"))
-	viper.SetDefault("token", os.Getenv("TWT_TOKEN"))
+	viper.SetDefault("token", os.Getenv(fmt.Sprintf("%_TOKEN", DefaultEnvPrefix)))
 
 	viper.BindPFlag("debug", RootCmd.PersistentFlags().Lookup("debug"))
 	viper.SetDefault("debug", false)
@@ -89,43 +109,23 @@ func init() {
 	case "retwt":
 		retwt.DefaultTwtManager()
 	default:
-		log.Errorf("unknown parse engine: %s", *parser)
-		os.Exit(1)
+		log.Fatalf("unknown parse engine: %s", *parser)
 	}
-
 }
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	if configFile != "" {
-		// Use config file from the flag.
-		viper.SetConfigFile(configFile)
+	viper.SetConfigFile(ConfigFile)
 
-		// If a config file is found, read it in.
-		if err := viper.ReadInConfig(); err != nil {
-			log.WithError(err).Errorf("error loading config file")
-			os.Exit(1)
-		}
-		log.Infof("Using config file: %s", viper.ConfigFileUsed())
+	// If a config file is found, read it in.
+	if err := viper.ReadInConfig(); err != nil {
+		log.WithError(err).Warnf("error loading config file: %s", viper.ConfigFileUsed())
 	} else {
-		// Find home directory.
-		home, err := homedir.Dir()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".twt")
-
-		// If a config file is found, read it in.
-		if err := viper.ReadInConfig(); err != nil {
-			log.WithError(err).Warn("error loading config file")
-		}
+		log.Debugf("Using config file: %s", viper.ConfigFileUsed())
 	}
 
 	// from the environment
-	viper.SetEnvPrefix("TWT")
+	viper.SetEnvPrefix(DefaultEnvPrefix)
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.AutomaticEnv() // read in environment variables that match
 }

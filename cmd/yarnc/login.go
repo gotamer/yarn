@@ -4,10 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"path/filepath"
 	"syscall"
 
-	"github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -20,9 +18,13 @@ import (
 var loginCmd = &cobra.Command{
 	Use:     "login [flags]",
 	Aliases: []string{"auth"},
-	Short:   "Login and euthenticate to thw twt API",
-	Long:    `...`,
-	Args:    cobra.MaximumNArgs(0),
+	Short:   "Login and euthenticate to a Yarn.social pod",
+	Long: `The login command allows you to login a user ot login to a
+Yarn.social pod running yarnd. Once successfully authenticated with a valid
+account a API token is generated on the account and a configuration file is
+written to store the endpoint logged in to and the token for future used by
+the command-line client.`,
+	Args: cobra.MaximumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
 		uri := viper.GetString("uri")
 		cli, err := client.NewClient(client.WithURI(uri))
@@ -75,15 +77,8 @@ func login(cli *client.Client) {
 
 	log.Info("login successful")
 
-	// Find home directory.
-	home, err := homedir.Dir()
-	if err != nil {
-		log.WithError(err).Error("error finding home directory")
-		os.Exit(1)
-	}
-
 	cli.Config.Token = res.Token
-	if err := cli.Config.Save(filepath.Join(home, ".twt.yaml")); err != nil {
+	if err := cli.Config.Save(viper.ConfigFileUsed()); err != nil {
 		log.WithError(err).Error("error saving config")
 		os.Exit(1)
 	}
