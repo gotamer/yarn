@@ -679,13 +679,21 @@ func (s *Server) PostHandler() httprouter.Handle {
 		s.cache.GetByPrefix(s.config.BaseURL, true)
 
 		// WebMentions ...
-		for _, m := range twt.Mentions() {
-			twter := m.Twter()
-			if !isLocalURL(twter.URL) || isExternalFeed(twter.URL) {
-				if err := WebMention(twter.URL, URLForTwt(s.config.BaseURL, twt.Hash())); err != nil {
-					log.WithError(err).Warnf("error sending webmention to %s", twter.URL)
+		// TODO: Use a queue here instead?
+		if uuid, err := s.tasks.Dispatch(NewFuncTask(func() error {
+			for _, m := range twt.Mentions() {
+				twter := m.Twter()
+				if !isLocalURL(twter.URL) || isExternalFeed(twter.URL) {
+					if err := WebMention(twter.URL, URLForTwt(s.config.BaseURL, twt.Hash())); err != nil {
+						log.WithError(err).Warnf("error sending webmention to %s", twter.URL)
+					}
 				}
 			}
+			return nil
+		})); err != nil {
+			log.WithError(err).Warn("error submitting task for webmentions")
+		} else {
+			log.Debugf("submitted webmentions task %s", URLForTask(s.config.BaseURL, uuid))
 		}
 
 		http.Redirect(w, r, RedirectRefererURL(r, s.config, "/"), http.StatusFound)
