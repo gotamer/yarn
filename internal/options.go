@@ -30,7 +30,7 @@ const (
 	// DefaultAdminXXX is the default admin user / pod operator
 	DefaultAdminUser  = "admin"
 	DefaultAdminName  = "Administrator"
-	DefaultAdminEmail = "support@twt.social"
+	DefaultAdminEmail = "support@yarn.social"
 
 	// DefaultName is the default instance name
 	DefaultName = "twtxt.net"
@@ -41,9 +41,9 @@ const (
 
 	// DefaultMetaxxx are the default set of <meta> tags used on non-specific views
 	DefaultMetaTitle       = ""
-	DefaultMetaAuthor      = "twtxt.net / twt.social"
+	DefaultMetaAuthor      = "twtxt.net / Yarn.social"
 	DefaultMetaKeywords    = "twtxt, twt, blog, micro-blogging, social, media, decentralised, pod"
-	DefaultMetaDescription = "📕 twtxt is a Self-Hosted, Twitter™-like Decentralised microBlogging platform. No ads, no tracking, your content, your data!"
+	DefaultMetaDescription = "🧶 Yarn.social is a Self-Hosted, Twitter™-like Decentralised microBlogging platform. No ads, no tracking, your content, your data!"
 
 	// DefaultTheme is the default theme to use ('light' or 'dark')
 	DefaultTheme = "auto"
@@ -123,8 +123,8 @@ var (
 	// DefaultFeedSources is the default list of external feed sources
 	DefaultFeedSources = []string{
 		"https://feeds.twtxt.net/we-are-feeds.txt",
-		"https://raw.githubusercontent.com/jointwt/we-are-twtxt/master/we-are-bots.txt",
-		"https://raw.githubusercontent.com/jointwt/we-are-twtxt/master/we-are-twtxt.txt",
+		"https://git.mills.io/yarnsocial/we-are-twtxt/raw/branch/master/we-are-bots.txt",
+		"https://git.mills.io/yarnsocial/we-are-twtxt/raw/branch/master/we-are-twtxt.txt",
 	}
 
 	// DefaultTwtPrompts are the set of default prompts  for twt text(s)

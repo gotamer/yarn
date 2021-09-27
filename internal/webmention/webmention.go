@@ -175,7 +175,7 @@ func searchLinks(node *html.Node, link *url.URL) bool {
 			if href := getAttr(node, "href"); href != "" {
 				target, err := url.Parse(href)
 				if err == nil {
-					// jointwt/twtxt pods have the form
+					// pods have the form
 					// http://pod.domain.tld/external?uri=uri&nick=nick
 					if strings.HasPrefix(target.Path, "/external") && target.Query().Get("url") == link.String() {
 						return true

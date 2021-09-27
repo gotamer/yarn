@@ -47,7 +47,7 @@ title: Help on how to use Twtxt.net
 <details>
   <summary>How do I format my posts?</summary>
 
-  The software that powers this pod {{ .InstanceName }} ([jointwt/twtxt](https://git.mills.io/yarnsocial/yarn))
+  The software that powers this pod {{ .InstanceName }} ([a Yarn.social pod](https://git.mills.io/yarnsocial/yarn))
   supports what's called [Markdown](https://en.wikipedia.org/wiki/Markdown).
   (_It actually support the full syntax of Markdown really but it is not recommended as twtxt posts are limited  to single lines and length_)
 
