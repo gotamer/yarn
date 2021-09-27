@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"sort"
@@ -33,15 +34,27 @@ Yarn.social account.`,
 			os.Exit(1)
 		}
 
-		timeline(cli, args)
+		outputJSON, err := cmd.Flags().GetBool("json")
+		if err != nil {
+			log.WithError(err).Error("error getting json flag")
+			os.Exit(1)
+		}
+
+		timeline(cli, outputJSON, args)
 	},
 }
 
 func init() {
 	RootCmd.AddCommand(timelineCmd)
+
+	timelineCmd.Flags().Bool(
+		"json", false,
+		"Output raw JSON for processing with eg jq",
+	)
+
 }
 
-func timeline(cli *client.Client, args []string) {
+func timeline(cli *client.Client, outputJSON bool, args []string) {
 	// TODO: How do we get more pages?
 	res, err := cli.Timeline(0)
 	if err != nil {
@@ -51,8 +64,17 @@ func timeline(cli *client.Client, args []string) {
 
 	sort.Sort(sort.Reverse(res.Twts))
 
-	for _, twt := range res.Twts {
-		PrintTwt(twt, time.Now())
-		fmt.Println()
+	if outputJSON {
+		data, err := json.Marshal(res)
+		if err != nil {
+			log.WithError(err).Error("error marshalling json")
+			os.Exit(1)
+		}
+		fmt.Println(string(data))
+	} else {
+		for _, twt := range res.Twts {
+			PrintTwt(twt, time.Now())
+			fmt.Println()
+		}
 	}
 }
