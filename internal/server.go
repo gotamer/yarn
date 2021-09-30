@@ -539,6 +539,8 @@ func (s *Server) initRoutes() {
 	s.router.GET("/u/:nick", s.OldTwtxtHandler())
 	s.router.HEAD("/u/:nick", s.OldTwtxtHandler())
 
+	// TODO: Figure out how to internally rewrite/proxy /~:nick -> /user/:nick
+
 	// Redirect old URIs (twtxt <= v0.1.0) of the form /user/<nick>/avatar.png -> /user/<nick>/avatar
 	// TODO: Remove this after v1
 	s.router.GET("/user/:nick/avatar.png", s.OldAvatarHandler())
@@ -562,6 +564,32 @@ func (s *Server) initRoutes() {
 	// WebMentions
 	s.router.POST("/user/:nick/webmention", s.WebMentionHandler())
 
+	// Syndication Formats (RSS, Atom, JSON Feed)
+	s.router.HEAD("/user/:nick/atom.xml", s.SyndicationHandler())
+	s.router.GET("/user/:nick/atom.xml", s.SyndicationHandler())
+
+	if s.config.OpenProfiles {
+		s.router.GET("/~:nick/", s.ProfileHandler())
+		s.router.GET("/~:nick/config.yaml", s.UserConfigHandler())
+	} else {
+		s.router.GET("/~:nick/", s.am.MustAuth(s.ProfileHandler()))
+		s.router.GET("/~:nick/config.yaml", s.am.MustAuth(s.UserConfigHandler()))
+	}
+	s.router.GET("/~:nick/avatar", s.AvatarHandler())
+	s.router.HEAD("/~:nick/avatar", s.AvatarHandler())
+	s.router.HEAD("/~:nick/twtxt.txt", s.TwtxtHandler())
+	s.router.GET("/~:nick/twtxt.txt", s.TwtxtHandler())
+	s.router.GET("/~:nick/followers", s.FollowersHandler())
+	s.router.GET("/~:nick/following", s.FollowingHandler())
+	s.router.GET("/~:nick/bookmarks", s.BookmarksHandler())
+
+	// WebMentions
+	s.router.POST("/~:nick/webmention", s.WebMentionHandler())
+
+	// Syndication Formats (RSS, Atom, JSON Feed)
+	s.router.HEAD("/~:nick/atom.xml", s.SyndicationHandler())
+	s.router.GET("/~:nick/atom.xml", s.SyndicationHandler())
+
 	// External Feeds
 	s.router.GET("/external", s.ExternalHandler())
 	s.router.GET("/externalAvatar", s.ExternalAvatarHandler())
@@ -572,9 +600,7 @@ func (s *Server) initRoutes() {
 
 	// Syndication Formats (RSS, Atom, JSON Feed)
 	s.router.HEAD("/atom.xml", s.SyndicationHandler())
-	s.router.HEAD("/user/:nick/atom.xml", s.SyndicationHandler())
 	s.router.GET("/atom.xml", s.SyndicationHandler())
-	s.router.GET("/user/:nick/atom.xml", s.SyndicationHandler())
 
 	s.router.GET("/feed/:name/manage", s.am.MustAuth(s.ManageFeedHandler()))
 	s.router.POST("/feed/:name/manage", s.am.MustAuth(s.ManageFeedHandler()))
