@@ -5,8 +5,12 @@ CGO_ENABLED=0
 VERSION=$(shell git describe --abbrev=0 --tags 2>/dev/null || echo "$VERSION")
 COMMIT=$(shell git rev-parse --short HEAD || echo "$COMMIT")
 GOCMD=go
+GOVER=$(shell go version | grep -o -E 'go1\.17\.[0-9]+')
 
-all: build
+all: preflight build
+
+preflight:
+	@./preflight.sh
 
 deps:
 	@$(GOCMD) install github.com/tdewolff/minify/v2/cmd/minify@latest
