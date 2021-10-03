@@ -94,8 +94,13 @@ check_path() {
     return 1
   fi
 
-  if ! echo "$PATH" | grep "$gopath/bin" > /dev/null; then
+  if [ -n "$gopath" ] && ! echo "$PATH" | grep "$gopath/bin" > /dev/null; then
     log2 "\$GOPATH/bin '$gopath/bin' is not in your \$PATH"
+    return 1
+  fi
+
+  if ! echo "$PATH" | grep "$HOME/go/bin" > /dev/null; then
+    log2 "\$HOME/go/bin is not in your \$PATH"
     return 1
   fi
 
