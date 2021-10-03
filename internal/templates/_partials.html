@@ -150,23 +150,23 @@
     <ul>
       {{ if $.Authenticated }}
       {{ if eq $.LastTwt.Hash $.Twt.Hash }}
-      <li><a class="edit" href="#" data-hash="{{ $.Twt.Hash }}" data-text="{{ $.Twt.Text | unparseTwt }}"><i class="icss-edit"></i>{{tr $.Ctx "TwtEditLinkTitle"}}</a></li>
+      <li><a class="edit" href="#" data-hash="{{ $.Twt.Hash }}" data-text="{{ $.Twt.Text | unparseTwt }}"><i class="icss-edit"></i> {{tr $.Ctx "TwtEditLinkTitle"}}</a></li>
       <li>&nbsp;</li>
-      <li><a class="delete" href="#" data-hash="{{ $.Twt.Hash }}"><i class="icss-x"></i>{{tr $.Ctx "TwtDeleteLinkTitle"}}</a></li>
+      <li><a class="delete" href="#" data-hash="{{ $.Twt.Hash }}"><i class="icss-x"></i> {{tr $.Ctx "TwtDeleteLinkTitle"}}</a></li>
       <li>&nbsp;</li>
       {{ end }}
-      <li><a class="reply" href="#" data-reply="{{ $.User.Reply $.Twt }}"><i class="icss-arrow-left"></i>{{tr $.Ctx "TwtReplyLinkTitle"}}</a></li>
+      <li><a class="reply" href="#" data-reply="{{ $.User.Reply $.Twt }}"><i class="icss-arrow-left"></i> {{tr $.Ctx "TwtReplyLinkTitle"}}</a></li>
       {{ if eq $.view "conv" }}
-        <li><a class="fork" href="#" data-fork="{{ $.User.Fork $.Twt }}"><i class="icss-arrows"></i>{{tr $.Ctx "TwtForkLinkTitle"}}</a></li>
+        <li><a class="fork" href="#" data-fork="{{ $.User.Fork $.Twt }}"><i class="icss-arrows"></i> {{tr $.Ctx "TwtForkLinkTitle"}}</a></li>
       {{ end }}
       <li>&nbsp;</li>
       {{ end }}
       {{ with urlForBlog $.Twt }}
-      <li><a class="blog" href="{{ urlForBlog $.Twt }}"><i class="icss-quill-pen"></i>{{tr $.Ctx "BlogLinkTitle"}}</a></li>
+      <li><a class="blog" href="{{ urlForBlog $.Twt }}"><i class="icss-quill-pen"></i> {{tr $.Ctx "BlogLinkTitle"}}</a></li>
       <li>&nbsp;</li>
       {{ end }}
       {{ with urlForConv $.Twt }}
-      <li><a class="conv" href="{{ urlForConv $.Twt }}"><i class="icss-comment"></i>{{tr $.Ctx "TwtConversationLinkTitle"}}</a></li>
+      <li><a class="conv" href="{{ urlForConv $.Twt }}"><i class="icss-comment"></i> {{tr $.Ctx "TwtConversationLinkTitle"}}</a></li>
       <li>&nbsp;</li>
       {{ end }}
     </ul>

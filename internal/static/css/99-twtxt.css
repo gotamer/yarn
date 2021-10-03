@@ -15,6 +15,10 @@ article hgroup footer {
     margin-left: 60px;
 }
 
+article nav li {
+  padding: 0rem 0.5rem;
+}
+
 .logo {
   height: 56px;
 }
