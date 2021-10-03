@@ -96,7 +96,7 @@ func init() {
 	viper.SetDefault("uri", client.DefaultURI)
 
 	viper.BindPFlag("token", RootCmd.PersistentFlags().Lookup("token"))
-	viper.SetDefault("token", os.Getenv(fmt.Sprintf("%_TOKEN", DefaultEnvPrefix)))
+	viper.SetDefault("token", os.Getenv(fmt.Sprintf("%s_TOKEN", DefaultEnvPrefix)))
 
 	viper.BindPFlag("debug", RootCmd.PersistentFlags().Lookup("debug"))
 	viper.SetDefault("debug", false)
