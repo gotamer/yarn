@@ -320,6 +320,7 @@ article .p-summary a em, em.twt-hash {
 em.twt-hash {
   float: right;
   font-size: small;
+  padding-top: 0.25rem;
 }
 
 /* Footer Style */
