@@ -26,6 +26,31 @@
           {{ end }}
         </h3>
         <p><i>{{ .Profile.Tagline }}</i></p>
+        <details>
+            <summary>{{tr . "ProfileBlockUserTitle"}}</summary>
+            {{(tr . "ProfileBlockUserContent" (dict "InstanceName" .InstanceName))|html}}
+          <ul>
+            <li>
+              {{ if $.User.HasMuted .Profile.TwtURL }}
+                <a href="/unmute?nick={{ .Profile.Username }}">
+                  <i class="icss-sound-3"></i>
+                  {{tr . "ProfileUnmuteLinkTitle"}}
+                </a>
+              {{ else }}
+                <a href="/mute?nick={{ .Profile.Username }}&url={{ .Profile.TwtURL }}">
+                  <i class="icss-sound-0"></i>
+                  {{tr . "ProfileMuteLinkTitle"}}
+                </a>
+              {{ end }}
+            </li>
+            <li>
+              <a href="/report?nick={{ .Profile.Username  }}&url={{ .Profile.TwtURL }}">
+                <i class="icss-exclamation-circle" style="color:red;"></i>
+                {{tr . "ProfileReportLinkTitle"}}
+              </a>
+            </li>
+          </ul>
+        </details>
         <ul>
           <li><a href="{{ .Profile.TwtURL }}">Twtxt<i class="icss-link"></i></a></li>
         </ul>
