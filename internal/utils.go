@@ -1810,7 +1810,7 @@ func GetMediaNamesFromText(text string) []string {
 func NewFeedLookup(conf *Config, db Store, user *User) types.FeedLookup {
 	return types.FeedLookupFn(func(nick string) *types.Twter {
 		for followedNick, followedURL := range user.Following {
-			if nick == followedNick {
+			if strings.ToLower(nick) == strings.ToLower(followedNick) {
 				return &types.Twter{Nick: followedNick, URL: followedURL}
 			}
 		}
