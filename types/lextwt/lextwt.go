@@ -3,6 +3,7 @@ package lextwt
 import (
 	"fmt"
 	"io"
+	"net/url"
 	"strings"
 	"time"
 
@@ -70,11 +71,15 @@ func ParseFile(r io.Reader, twter types.Twter) (types.TwtFile, error) {
 	}
 
 	if v, ok := f.Info().GetN("url", 0); ok {
-		f.twter.URL = v.Value()
+		if _, err := url.Parse(v.Value()); err == nil {
+			f.twter.URL = v.Value()
+		}
 	}
 
 	if v, ok := f.Info().GetN("twturl", 0); ok {
-		f.twter.URL = v.Value()
+		if _, err := url.Parse(v.Value()); err == nil {
+			f.twter.URL = v.Value()
+		}
 	}
 
 	if v, ok := f.Info().GetN("avatar", 0); ok {
