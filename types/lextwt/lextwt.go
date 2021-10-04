@@ -67,27 +67,37 @@ func ParseFile(r io.Reader, twter types.Twter) (types.TwtFile, error) {
 	}
 
 	if v, ok := f.Info().GetN("nick", 0); ok {
-		f.twter.Nick = v.Value()
+		if strings.TrimSpace(v.Value()) != "" {
+			f.twter.Nick = v.Value()
+		}
 	}
 
 	if v, ok := f.Info().GetN("url", 0); ok {
-		if _, err := url.Parse(v.Value()); err == nil {
-			f.twter.URL = v.Value()
+		if strings.TrimSpace(v.Value()) != "" {
+			if _, err := url.Parse(v.Value()); err == nil {
+				f.twter.URL = v.Value()
+			}
 		}
 	}
 
 	if v, ok := f.Info().GetN("twturl", 0); ok {
-		if _, err := url.Parse(v.Value()); err == nil {
-			f.twter.URL = v.Value()
+		if strings.TrimSpace(v.Value()) != "" {
+			if _, err := url.Parse(v.Value()); err == nil {
+				f.twter.URL = v.Value()
+			}
 		}
 	}
 
 	if v, ok := f.Info().GetN("avatar", 0); ok {
-		f.twter.Avatar = v.Value()
+		if strings.TrimSpace(v.Value()) != "" {
+			f.twter.Avatar = v.Value()
+		}
 	}
 
 	if v, ok := f.Info().GetN("description", 0); ok {
-		f.twter.Tagline = v.Value()
+		if strings.TrimSpace(v.Value()) != "" {
+			f.twter.Tagline = v.Value()
+		}
 	}
 
 	return f, nil
