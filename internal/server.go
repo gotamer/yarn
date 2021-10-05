@@ -590,6 +590,10 @@ func (s *Server) initRoutes() {
 	s.router.HEAD("/~:nick/atom.xml", s.SyndicationHandler())
 	s.router.GET("/~:nick/atom.xml", s.SyndicationHandler())
 
+	// Blogs
+	s.router.GET("/~:nick/post/:year/:month/:date/:slug", s.ViewBlogHandler())
+	s.router.HEAD("/~:nick/post/:year/:month/:date/:slug", s.ViewBlogHandler())
+
 	// External Feeds
 	s.router.GET("/external", s.ExternalHandler())
 	s.router.GET("/externalAvatar", s.ExternalAvatarHandler())

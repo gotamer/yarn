@@ -191,6 +191,10 @@ func BlogPostFromFile(conf *Config, fn string) (*BlogPost, error) {
 
 func BlogPostFromParams(conf *Config, p httprouter.Params) *BlogPost {
 	author := p.ByName("author")
+	if author == "" {
+		author = p.ByName("nick")
+	}
+
 	year := SafeParseInt(p.ByName("year"), 1970)
 	month := SafeParseInt(p.ByName("month"), 1)
 	date := SafeParseInt(p.ByName("date"), 1)
