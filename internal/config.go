@@ -161,6 +161,10 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("error: API_SIGNING_KEY is not configured!")
 	}
 
+	if err := WithWhitelistedDomains(c.WhitelistedDomains)(c); err != nil {
+		return fmt.Errorf("error applying whitelisted domains: %w", err)
+	}
+
 	return nil
 }
 
