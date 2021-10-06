@@ -86,7 +86,7 @@ func (s *Server) ManagePodHandler() httprouter.Handle {
 		// Update WhitelistedDomains
 		if err := WithWhitelistedDomains(strings.Split(whitelistedDomains, "\n"))(s.config); err != nil {
 			ctx.Error = true
-			ctx.Message = "Error appliying whitelisted domains"
+			ctx.Message = "Error applying white list domains"
 			s.render("error", w, ctx)
 			return
 		}
