@@ -111,7 +111,7 @@ func (s *Server) ConversationHandler() httprouter.Handle {
 		}
 
 		twts := getTweetsByHash(hash, twt)
-		sort.Sort(twts)
+		sort.Sort(sort.Reverse(twts))
 
 		var pagedTwts types.Twts
 
