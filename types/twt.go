@@ -154,14 +154,14 @@ func (twts Twts) Len() int {
 }
 func (twts Twts) Less(i, j int) bool {
 	if twts[i].Created().Before(twts[j].Created()) {
-		return true
-	}
-
-	if twts[i].Created().After(twts[j].Created()) {
 		return false
 	}
 
-	return twts[i].Hash() < twts[j].Hash()
+	if twts[i].Created().After(twts[j].Created()) {
+		return true
+	}
+
+	return twts[i].Hash() > twts[j].Hash()
 }
 
 func (twts Twts) Swap(i, j int) {
