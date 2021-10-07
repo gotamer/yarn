@@ -8,10 +8,10 @@ import (
 	"strings"
 	"time"
 
+	"git.mills.io/yarnsocial/yarn/types"
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/html"
 	"github.com/gomarkdown/markdown/parser"
-	"git.mills.io/yarnsocial/yarn/types"
 	"github.com/julienschmidt/httprouter"
 	"github.com/securisec/go-keywords"
 	log "github.com/sirupsen/logrus"
@@ -64,7 +64,7 @@ func (s *Server) ViewBlogHandler() httprouter.Handle {
 
 		twts := getTweetsByTag(blogPost.Hash())
 
-		sort.Sort(sort.Reverse(twts))
+		sort.Sort(twts)
 
 		extensions := parser.CommonExtensions |
 			parser.NoEmptyLineBeforeBlock |

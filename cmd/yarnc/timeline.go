@@ -62,7 +62,7 @@ func timeline(cli *client.Client, outputJSON bool, args []string) {
 		os.Exit(1)
 	}
 
-	sort.Sort(sort.Reverse(res.Twts))
+	sort.Sort(res.Twts)
 
 	if outputJSON {
 		data, err := json.Marshal(res)
