@@ -1177,7 +1177,15 @@ func (a *API) FetchTwtsEndpoint() httprouter.Handle {
 		var profile types.Profile
 		var twts types.Twts
 
-		if a.db.HasUser(nick) && (req.URL == "" || !isLocal(req.URL)) {
+		if req.URL != "" && !isLocal(req.URL) {
+			if !a.cache.IsCached(req.URL) {
+				sources := make(types.Feeds)
+				sources[types.Feed{Nick: nick, URL: req.URL}] = true
+				a.cache.FetchTwts(a.config, a.archive, sources, nil)
+			}
+
+			twts = a.cache.GetByURL(req.URL)
+		} else if a.db.HasUser(nick) {
 			user, err := a.db.GetUser(nick)
 			if err != nil {
 				log.WithError(err).Errorf("error loading user object for %s", nick)
@@ -1186,7 +1194,7 @@ func (a *API) FetchTwtsEndpoint() httprouter.Handle {
 			}
 			profile = user.Profile(a.config.BaseURL, loggedInUser)
 			twts = a.cache.GetByURL(profile.URL)
-		} else if a.db.HasFeed(nick) && (req.URL == "" || !isLocal(req.URL)) {
+		} else if a.db.HasFeed(nick) {
 			feed, err := a.db.GetFeed(nick)
 			if err != nil {
 				log.WithError(err).Errorf("error loading feed object for %s", nick)
@@ -1196,14 +1204,6 @@ func (a *API) FetchTwtsEndpoint() httprouter.Handle {
 			profile = feed.Profile(a.config.BaseURL, loggedInUser)
 
 			twts = a.cache.GetByURL(profile.URL)
-		} else if req.URL != "" {
-			if !a.cache.IsCached(req.URL) {
-				sources := make(types.Feeds)
-				sources[types.Feed{Nick: nick, URL: req.URL}] = true
-				a.cache.FetchTwts(a.config, a.archive, sources, nil)
-			}
-
-			twts = a.cache.GetByURL(req.URL)
 		} else {
 			http.Error(w, "User/Feed not found", http.StatusNotFound)
 			return
