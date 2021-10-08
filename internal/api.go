@@ -1156,6 +1156,8 @@ func (a *API) ConversationEndpoint() httprouter.Handle {
 
 // FetchTwtsEndpoint ...
 func (a *API) FetchTwtsEndpoint() httprouter.Handle {
+	isLocal := IsLocalURLFactory(a.config)
+
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		loggedInUser := a.getLoggedInUser(r)
 
@@ -1175,7 +1177,7 @@ func (a *API) FetchTwtsEndpoint() httprouter.Handle {
 		var profile types.Profile
 		var twts types.Twts
 
-		if a.db.HasUser(nick) {
+		if a.db.HasUser(nick) && (req.URL == "" || !isLocal(req.URL)) {
 			user, err := a.db.GetUser(nick)
 			if err != nil {
 				log.WithError(err).Errorf("error loading user object for %s", nick)
@@ -1184,7 +1186,7 @@ func (a *API) FetchTwtsEndpoint() httprouter.Handle {
 			}
 			profile = user.Profile(a.config.BaseURL, loggedInUser)
 			twts = a.cache.GetByURL(profile.URL)
-		} else if a.db.HasFeed(nick) {
+		} else if a.db.HasFeed(nick) && (req.URL == "" || !isLocal(req.URL)) {
 			feed, err := a.db.GetFeed(nick)
 			if err != nil {
 				log.WithError(err).Errorf("error loading feed object for %s", nick)
