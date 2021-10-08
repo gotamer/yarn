@@ -531,6 +531,17 @@ func RemoveString(xs []string, e string) []string {
 	return res
 }
 
+func UniqueKeyFor(kv map[string]string, k string) string {
+	K := k
+	for i := 1; i < 99; i++ {
+		if _, ok := kv[K]; !ok {
+			return K
+		}
+		K = fmt.Sprintf("%s_%d", k, i)
+	}
+	return fmt.Sprintf("%s_???", k)
+}
+
 func IsImage(fn string) bool {
 	f, err := os.Open(fn)
 	if err != nil {

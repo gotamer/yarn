@@ -284,8 +284,9 @@ func LoadUser(data []byte) (user *User, err error) {
 
 func (f *Feed) AddFollower(nick, url string) {
 	url = NormalizeURL(url)
-	f.Followers[nick] = url
-	f.remotes[url] = nick
+	key := UniqueKeyFor(f.Followers, nick)
+	f.Followers[key] = url
+	f.remotes[url] = key
 }
 
 func (f *Feed) FollowedBy(url string) bool {
@@ -399,8 +400,9 @@ func (u *User) Bookmarked(hash string) bool {
 
 func (u *User) AddFollower(nick, url string) {
 	url = NormalizeURL(url)
-	u.Followers[nick] = url
-	u.remotes[url] = nick
+	key := UniqueKeyFor(u.Followers, nick)
+	u.Followers[key] = url
+	u.remotes[url] = key
 }
 
 func (u *User) FollowedBy(url string) bool {
