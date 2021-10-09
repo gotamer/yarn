@@ -45,7 +45,7 @@ func BenchmarkAll(b *testing.B) {
 					b.FailNow()
 				}
 				for _, twt := range twts.Twts() {
-					twt.ExpandLinks(opts, opts)
+					twt.ExpandMentions(opts, opts)
 					fmt.Fprintf(wr, "%h", twt)
 				}
 			}
@@ -115,7 +115,7 @@ func BenchmarkOutput(b *testing.B) {
 
 			for i := 0; i < b.N; i++ {
 				for _, twt := range twts.Twts() {
-					twt.ExpandLinks(opts, opts)
+					twt.ExpandMentions(opts, opts)
 					twt.FormatText(types.HTMLFmt, opts)
 				}
 			}
@@ -131,7 +131,7 @@ func BenchmarkOutput(b *testing.B) {
 
 			for i := 0; i < b.N; i++ {
 				for _, twt := range twts.Twts() {
-					twt.ExpandLinks(opts, opts)
+					twt.ExpandMentions(opts, opts)
 					twt.FormatText(types.MarkdownFmt, opts)
 				}
 			}
@@ -147,7 +147,7 @@ func BenchmarkOutput(b *testing.B) {
 
 			for i := 0; i < b.N; i++ {
 				for _, twt := range twts.Twts() {
-					twt.ExpandLinks(opts, opts)
+					twt.ExpandMentions(opts, opts)
 					twt.FormatText(types.TextFmt, opts)
 				}
 			}
@@ -163,7 +163,7 @@ func BenchmarkOutput(b *testing.B) {
 
 			for i := 0; i < b.N; i++ {
 				for _, twt := range twts.Twts() {
-					twt.ExpandLinks(opts, opts)
+					twt.ExpandMentions(opts, opts)
 					fmt.Fprintf(wr, "%+l", twt)
 				}
 			}
@@ -216,60 +216,59 @@ func (m mockFmtOpts) FeedLookup(s string) *types.Twter {
 }
 
 type preambleTestCase struct {
-	in string
+	in       string
 	preamble string
-	drain string
+	drain    string
 }
 
 func TestPreambleFeed(t *testing.T) {
 	tests := []preambleTestCase{
 		{
-			in: "# testing\n\n2020-...",
+			in:       "# testing\n\n2020-...",
 			preamble: "# testing",
-			drain: "\n\n2020-...",
+			drain:    "\n\n2020-...",
 		},
 
 		{
-			in: "# testing\nmulti\nlines\n\n2020-...",
+			in:       "# testing\nmulti\nlines\n\n2020-...",
 			preamble: "# testing\nmulti\nlines",
-			drain: "\n\n2020-...",
+			drain:    "\n\n2020-...",
 		},
 
 		{
-			in: "2020-...NO PREAMBLE",
+			in:       "2020-...NO PREAMBLE",
 			preamble: "",
-			drain: "2020-...NO PREAMBLE",
+			drain:    "2020-...NO PREAMBLE",
 		},
 
 		{
-			in: "#onlyonen\n2020-...OOPS ALL PREAMBLE",
+			in:       "#onlyonen\n2020-...OOPS ALL PREAMBLE",
 			preamble: "#onlyonen\n2020-...OOPS ALL PREAMBLE",
-			drain: "",
+			drain:    "",
 		},
 
-
 		{
-			in: "#onlypreamble\n",
+			in:       "#onlypreamble\n",
 			preamble: "#onlypreamble\n",
-			drain: "",
+			drain:    "",
 		},
 
 		{
-			in: "",
+			in:       "",
 			preamble: "",
-			drain: "",
+			drain:    "",
 		},
 
 		{
-			in: "X",
+			in:       "X",
 			preamble: "",
-			drain: "X",
+			drain:    "X",
 		},
 
 		{
-			in: "#",
+			in:       "#",
 			preamble: "#",
-			drain: "",
+			drain:    "",
 		},
 	}
 
