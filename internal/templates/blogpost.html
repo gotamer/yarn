@@ -50,7 +50,7 @@
       <h3>{{tr . "BlogCommentsSummary"}}</h3>
   </hgroup>
   {{ $ctx:=. }}
-  {{ template "feed" (dict "Authenticated" $.Authenticated "User" $.User "Profile" $.Profile "LastTwt" $.LastTwt "Pager" $.Pager "Twts" $.Twts "Ctx" $ctx) }}
+  {{ template "feed" (dict "Authenticated" $.Authenticated "User" $.User "Profile" $.Profile "LastTwt" $.LastTwt "Pager" $.Pager "Twts" $.Twts "Ctx" $ctx "view" "blogpost") }}
   {{ if .Authenticated }}
   <hgroup>
       <h2>{{tr . "BlogCommentPostTitle"}}</h2>
