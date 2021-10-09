@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	securejoin "github.com/cyphar/filepath-securejoin"
 	"git.mills.io/yarnsocial/yarn/types"
+	securejoin "github.com/cyphar/filepath-securejoin"
 	"github.com/julienschmidt/httprouter"
 	log "github.com/sirupsen/logrus"
 )
@@ -25,6 +25,9 @@ const defaultPreambleTemplate = `# Twtxt is an open, distributed microblogging p
 # url         = {{ .Profile.URL }}
 # avatar      = {{ .Profile.AvatarURL }}
 # description = {{ .Profile.Tagline }}
+#
+# followers   = {{ if .Profile.ShowFollowers }}{{ len .Profile.Followers }}{{ end }}
+# following   = {{ if .Profile.ShowFollowing }}{{ len .Profile.Following }}{{ end }}
 #
 {{- if .Profile.ShowFollowing }}
 {{ range $nick, $url := .Profile.Following -}}
