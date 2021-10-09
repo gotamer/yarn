@@ -80,13 +80,12 @@ type Twt interface {
 	Links() LinkList
 	Tags() TagList
 
-	ExpandLinks(FmtOpts, FeedLookup)
-	// ReplaceLinks(FmtOpts)
+	ExpandMentions(FmtOpts, FeedLookup)
+
+	fmt.Formatter
 
 	// TODO: remove FormatText and add func to update links for UI
 	FormatText(TwtTextFormat, FmtOpts) string
-
-	fmt.Formatter
 }
 
 type TwtMention interface {
@@ -314,7 +313,7 @@ func (nilTwt) Mentions() MentionList { return nil }
 func (nilTwt) Tags() TagList         { return nil }
 func (nilTwt) Links() LinkList       { return nil }
 
-func (nilTwt) ExpandLinks(FmtOpts, FeedLookup)          {}
+func (nilTwt) ExpandMentions(FmtOpts, FeedLookup)       {}
 func (nilTwt) Format(state fmt.State, c rune)           {}
 func (nilTwt) FormatTwt() string                        { return "" }
 func (nilTwt) FormatText(TwtTextFormat, FmtOpts) string { return "" }

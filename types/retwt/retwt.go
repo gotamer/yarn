@@ -183,14 +183,17 @@ func (twt reTwt) FormatTwt() string {
 	return twt.String()
 }
 func (twt reTwt) FormatText(textFmt types.TwtTextFormat, fmtOpts types.FmtOpts) string {
-	twt.ExpandLinks(fmtOpts, nil)
+	twt.ExpandMentions(fmtOpts, nil)
+	twt.ExpandTags(fmtOpts, nil)
 	text := strings.ReplaceAll(twt.text, "\u2028", "\n")
 	text = formatMentionsAndTags(fmtOpts, text, textFmt)
 	return text
 }
-func (twt *reTwt) ExpandLinks(opts types.FmtOpts, lookup types.FeedLookup) {
-	twt.text = ExpandTag(opts, twt.text)
+func (twt *reTwt) ExpandMentions(opts types.FmtOpts, lookup types.FeedLookup) {
 	twt.text = ExpandMentions(opts, lookup, twt.text)
+}
+func (twt *reTwt) ExpandTags(opts types.FmtOpts, lookup types.FeedLookup) {
+	twt.text = ExpandTag(opts, twt.text)
 }
 
 func (twt reTwt) Created() time.Time { return twt.created }

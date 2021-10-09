@@ -379,9 +379,6 @@ func (u *User) OwnsFeed(name string) bool {
 }
 
 func (u *User) Is(url string) bool {
-	if NormalizeURL(url) == "" {
-		return false
-	}
 	return u.URL == NormalizeURL(url)
 }
 
@@ -543,27 +540,67 @@ func (u *User) Filter(twts []types.Twt) (filtered []types.Twt) {
 }
 
 func (u *User) Reply(twt types.Twt) string {
+	// Create a unique set of mentions by @nick from the twt
+	// excluding ourselves and anything we don't follow
 	mentionsSet := make(map[string]bool)
 	for _, m := range twt.Mentions() {
 		twter := m.Twter()
-		if _, ok := mentionsSet[twter.Nick]; !ok && twter.Nick != u.Username {
-			mentionsSet[twter.Nick] = true
+		if u.Follows(twter.URL) && !u.Is(twter.URL) {
+			if _, ok := mentionsSet[twter.Nick]; !ok {
+				mentionsSet[twter.Nick] = true
+			}
 		}
 	}
 
-	mentions := []string{fmt.Sprintf("@%s", twt.Twter().Nick)}
-	for nick := range mentionsSet {
-		mentions = append(mentions, fmt.Sprintf("@%s", nick))
+	// Initialise the list of tokens with the twt's Subject
+	tokens := []string{twt.Subject().String()}
+
+	// If we follow the original twt's Twter, add them as the first mention
+	// only if the original twter isn't ourselves!
+	if u.Follows(twt.Twter().URL) && !u.Is(twt.Twter().URL) {
+		tokens = append(tokens, fmt.Sprintf("@%s", twt.Twter().Nick))
 	}
 
-	mentions = UniqStrings(mentions)
-	mentions = append(mentions, twt.Subject().String())
+	// Add all other mentions
+	for nick := range mentionsSet {
+		tokens = append(tokens, fmt.Sprintf("@%s", nick))
+	}
 
-	return fmt.Sprintf("%s ", strings.Join(mentions, " "))
+	tokens = UniqStrings(tokens)
+
+	return fmt.Sprintf("%s ", strings.Join(tokens, " "))
 }
 
 func (u *User) Fork(twt types.Twt) string {
-	return fmt.Sprintf("(#%s) ", twt.Hash())
+	// Create a unique set of mentions by @nick from the twt
+	// excluding ourselves and anything we don't follow
+	mentionsSet := make(map[string]bool)
+	for _, m := range twt.Mentions() {
+		twter := m.Twter()
+		if u.Follows(twter.URL) && !u.Is(twter.URL) {
+			if _, ok := mentionsSet[twter.Nick]; !ok {
+				mentionsSet[twter.Nick] = true
+			}
+		}
+	}
+
+	// Initialise the list of tokens with the twt's Hash (forking from)
+	tokens := []string{fmt.Sprintf("(#%s)", twt.Hash())}
+
+	// If we follow the original twt's Twter, add them as the first mention
+	// only if the original twter isn't ourselves!
+	if u.Follows(twt.Twter().URL) && !u.Is(twt.Twter().URL) {
+		tokens = append(tokens, fmt.Sprintf("@%s", twt.Twter().Nick))
+	}
+
+	// Add all other mentions
+	for nick := range mentionsSet {
+		tokens = append(tokens, fmt.Sprintf("@%s", nick))
+	}
+
+	tokens = UniqStrings(tokens)
+
+	return fmt.Sprintf("%s ", strings.Join(tokens, " "))
 }
 
 func (u *User) Bytes() ([]byte, error) {

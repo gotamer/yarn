@@ -600,9 +600,9 @@ var _ types.Twt = (*Twt)(nil)
 
 func NewTwt(twter types.Twter, dt *DateTime, elems ...Elem) *Twt {
 	twt := &Twt{
-		twter:      &twter,
-		dt:         dt,
-		msg:        make([]Elem, 0, len(elems)),
+		twter: &twter,
+		dt:    dt,
+		msg:   make([]Elem, 0, len(elems)),
 	}
 
 	for _, elem := range elems {
@@ -832,7 +832,8 @@ func (twt Twt) FormatTwt() string {
 }
 func (twt Twt) FormatText(mode types.TwtTextFormat, opts types.FmtOpts) string {
 	twt = *twt.CloneTwt()
-	twt.ExpandLinks(opts, nil)
+	twt.ExpandMentions(opts, nil)
+	twt.ExpandTags(opts, nil)
 	if opts != nil {
 		for i := range twt.tags {
 			switch mode {
@@ -878,14 +879,15 @@ func (twt Twt) FormatText(mode types.TwtTextFormat, opts types.FmtOpts) string {
 		return fmt.Sprintf("%l", twt)
 	}
 }
-func (twt *Twt) ExpandLinks(opts types.FmtOpts, lookup types.FeedLookup) {
+func (twt *Twt) ExpandTags(opts types.FmtOpts, lookup types.FeedLookup) {
 	for i, tag := range twt.tags {
 		if opts != nil && tag.target == "" {
 			tag.target = opts.URLForTag(tag.tag)
 		}
 		twt.tags[i] = tag
 	}
-
+}
+func (twt *Twt) ExpandMentions(opts types.FmtOpts, lookup types.FeedLookup) {
 	for i, m := range twt.mentions {
 		if lookup != nil && m.target == "" {
 			twter := lookup.FeedLookup(m.name)

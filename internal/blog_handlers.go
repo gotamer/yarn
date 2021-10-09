@@ -396,9 +396,7 @@ func (s *Server) CreateOrUpdateBlogHandler() httprouter.Handle {
 			return
 		}
 
-		// Expand Mentions and Tags
 		twt := types.MakeTwt(types.NilTwt.Twter(), time.Time{}, text)
-		twt.ExpandLinks(s.config, NewFeedLookup(s.config, s.db, ctx.User))
 		text = twt.FormatText(types.MarkdownFmt, s.config)
 
 		hash := r.FormValue("hash")

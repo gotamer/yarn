@@ -1717,7 +1717,6 @@ func FormatTwtFactory(conf *Config) func(twt types.Twt) template.HTML {
 		}
 		renderer := html.NewRenderer(opts)
 
-		twt.ExpandLinks(conf, nil)
 		md := []byte(twt.FormatText(types.HTMLFmt, conf))
 		maybeUnsafeHTML := markdown.ToHTML(md, mdParser, renderer)
 

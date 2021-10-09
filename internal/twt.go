@@ -79,7 +79,7 @@ func AppendTwt(conf *Config, db Store, user *User, text string, args ...interfac
 
 	twt := types.MakeTwt(user.Twter(), now, strings.TrimSpace(text))
 
-	twt.ExpandLinks(conf, NewFeedLookup(conf, db, user))
+	twt.ExpandMentions(conf, NewFeedLookup(conf, db, user))
 	if _, err = fmt.Fprintf(f, "%+l\n", twt); err != nil {
 		return types.NilTwt, err
 	}
