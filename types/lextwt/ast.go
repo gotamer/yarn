@@ -957,20 +957,3 @@ func (twt Twt) Subject() types.Subject {
 	}
 	return twt.subject
 }
-
-// Twts typedef to be able to attach sort methods
-type Twts []*Twt
-
-func (twts Twts) Len() int {
-	return len(twts)
-}
-func (twts Twts) Less(i, j int) bool {
-	if twts == nil {
-		return false
-	}
-
-	return twts[i].Created().After(twts[j].Created())
-}
-func (twts Twts) Swap(i, j int) {
-	twts[i], twts[j] = twts[j], twts[i]
-}
