@@ -702,7 +702,6 @@ func (s *Server) PostHandler() httprouter.Handle {
 
 // TimelineHandler ...
 func (s *Server) TimelineHandler() httprouter.Handle {
-	isLocal := IsLocalURLFactory(s.config)
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		if r.Method == http.MethodHead {
@@ -719,19 +718,7 @@ func (s *Server) TimelineHandler() httprouter.Handle {
 
 		if !ctx.Authenticated {
 			if s.config.Features.IsEnabled(FeatureDiscoverAllPosts) {
-				twts = s.cache.FilterBy(func(twt types.Twt) bool {
-					twter := twt.Twter()
-					if strings.HasPrefix(twter.URL, "https://feeds.twtxt.net") {
-						return false
-					}
-					if strings.HasPrefix(twter.URL, "https://search.twtxt.net") {
-						return false
-					}
-					if isLocal(twter.URL) && HasString(twtxtBots, twter.Nick) {
-						return false
-					}
-					return true
-				})
+				twts = s.cache.FilterBy(FilterOutFeedsAndBotsFactory(s.config))
 			} else {
 				twts = s.cache.GetByPrefix(s.config.BaseURL, false)
 			}
@@ -930,8 +917,6 @@ func (s *Server) PermalinkHandler() httprouter.Handle {
 
 // DiscoverHandler ...
 func (s *Server) DiscoverHandler() httprouter.Handle {
-	isLocal := IsLocalURLFactory(s.config)
-
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		ctx := NewContext(s.config, s.db, r)
 		ctx.Translate(s.translator)
@@ -939,19 +924,7 @@ func (s *Server) DiscoverHandler() httprouter.Handle {
 		var twts types.Twts
 
 		if s.config.Features.IsEnabled(FeatureDiscoverAllPosts) {
-			twts = s.cache.FilterBy(func(twt types.Twt) bool {
-				twter := twt.Twter()
-				if strings.HasPrefix(twter.URL, "https://feeds.twtxt.net") {
-					return false
-				}
-				if strings.HasPrefix(twter.URL, "https://search.twtxt.net") {
-					return false
-				}
-				if isLocal(twter.URL) && HasString(twtxtBots, twter.Nick) {
-					return false
-				}
-				return true
-			})
+			twts = s.cache.FilterBy(FilterOutFeedsAndBotsFactory(s.config))
 		} else {
 			twts = s.cache.GetByPrefix(s.config.BaseURL, false)
 		}

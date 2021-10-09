@@ -483,7 +483,13 @@ func (a *API) DiscoverEndpoint() httprouter.Handle {
 			return
 		}
 
-		twts := a.cache.GetByPrefix(a.config.BaseURL, false)
+		var twts types.Twts
+
+		if a.config.Features.IsEnabled(FeatureDiscoverAllPosts) {
+			twts = a.cache.FilterBy(FilterOutFeedsAndBotsFactory(a.config))
+		} else {
+			twts = a.cache.GetByPrefix(a.config.BaseURL, false)
+		}
 
 		var pagedTwts types.Twts
 

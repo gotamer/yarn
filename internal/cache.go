@@ -28,6 +28,23 @@ const (
 // FilterFunc...
 type FilterFunc func(twt types.Twt) bool
 
+func FilterOutFeedsAndBotsFactory(conf *Config) FilterFunc {
+	isLocal := IsLocalURLFactory(conf)
+	return func(twt types.Twt) bool {
+		twter := twt.Twter()
+		if strings.HasPrefix(twter.URL, "https://feeds.twtxt.net") {
+			return false
+		}
+		if strings.HasPrefix(twter.URL, "https://search.twtxt.net") {
+			return false
+		}
+		if isLocal(twter.URL) && HasString(twtxtBots, twter.Nick) {
+			return false
+		}
+		return true
+	}
+}
+
 // Cached ...
 type Cached struct {
 	mu           sync.RWMutex
