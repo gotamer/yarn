@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"sync"
@@ -144,6 +145,26 @@ func (f *FeatureFlags) IsEnabled(feature FeatureType) bool {
 	defer f.RUnlock()
 
 	return f.flags[feature]
+}
+
+func (f FeatureFlags) MarshalJSON() ([]byte, error) {
+	var vs []FeatureType
+	for flag := range f.flags {
+		vs = append(vs, flag)
+	}
+	return json.Marshal(vs)
+}
+
+func (f *FeatureFlags) UnmarshalJSON(b []byte) error {
+	var vs []FeatureType
+	if err := json.Unmarshal(b, &vs); err != nil {
+		return err
+	}
+	f.flags = make(map[FeatureType]bool)
+	for _, v := range vs {
+		f.flags[v] = true
+	}
+	return nil
 }
 
 func (f FeatureFlags) MarshalYAML() ([]byte, error) {
