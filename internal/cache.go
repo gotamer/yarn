@@ -29,8 +29,14 @@ const (
 type FilterFunc func(twt types.Twt) bool
 
 func FilterOutFeedsAndBotsFactory(conf *Config) FilterFunc {
+	seen := make(map[string]bool)
 	isLocal := IsLocalURLFactory(conf)
 	return func(twt types.Twt) bool {
+		if seen[twt.Hash()] {
+			return false
+		}
+		seen[twt.Hash()] = true
+
 		twter := twt.Twter()
 		if strings.HasPrefix(twter.URL, "https://feeds.twtxt.net") {
 			return false
