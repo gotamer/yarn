@@ -25,12 +25,13 @@ var (
 
 func init() {
 	version = SoftwareConfig{
-		Software:  "yarnd",
-		Author:    "Yarn.social",
-		Copyright: "Copyright (C) 2021-present Yarn.social",
-		License:   "MIT License",
-		Version:   yarn.Version,
-		Commit:    yarn.Commit,
+		Software:    "yarnd",
+		Author:      "Yarn.social",
+		Copyright:   "Copyright (C) 2021-present Yarn.social",
+		License:     "MIT License",
+		FullVersion: yarn.FullVersion(),
+		Version:     yarn.Version,
+		Commit:      yarn.Commit,
 	}
 }
 
@@ -51,12 +52,15 @@ type Settings struct {
 
 // SoftwareConfig contains the server version information
 type SoftwareConfig struct {
-	Software  string
-	Version   string
-	Commit    string
+	Software string
+
+	FullVersion string
+	Version     string
+	Commit      string
+
 	Author    string
-	Copyright string
 	License   string
+	Copyright string
 }
 
 // Config contains the server configuration parameters

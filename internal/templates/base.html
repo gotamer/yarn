@@ -141,7 +141,9 @@
     {{template "content" . }}
   </main>
   <footer class="container">
-    <div class="footer-copyright"><a href="https://git.mills.io/yarnsocial/yarn" target="_blank">yarnd {{ .SoftwareVersion }}</a>
+    <div class="footer-copyright">
+      <a href="https://git.mills.io/yarnsocial/yarn" target="_blank">yarnd</a>
+      <a href="/version">{{ .SoftwareVersion.FullVersion }}</a>
         ·
         {{(tr . "CopyrightCreator")|html}}
         ·

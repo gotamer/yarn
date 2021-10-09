@@ -35,7 +35,7 @@ type Context struct {
 	Logo                    template.HTML
 	BaseURL                 string
 	InstanceName            string
-	SoftwareVersion         string
+	SoftwareVersion         SoftwareConfig
 	TwtsPerPage             int
 	TwtPrompt               string
 	MaxTwtLength            int
@@ -101,7 +101,7 @@ func NewContext(conf *Config, db Store, req *http.Request) *Context {
 		Logo:               template.HTML(conf.Logo),
 		BaseURL:            conf.BaseURL,
 		InstanceName:       conf.Name,
-		SoftwareVersion:    yarn.FullVersion(),
+		SoftwareVersion:    conf.Version,
 		TwtsPerPage:        conf.TwtsPerPage,
 		TwtPrompt:          conf.RandomTwtPrompt(),
 		MaxTwtLength:       conf.MaxTwtLength,

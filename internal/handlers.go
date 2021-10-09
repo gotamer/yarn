@@ -2058,15 +2058,20 @@ func (s *Server) SyndicationHandler() httprouter.Handle {
 // PodVersionHandler ...
 func (s *Server) PodVersionHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		data, err := json.Marshal(s.config.Version)
-		if err != nil {
-			log.WithError(err).Error("error serializing pod version response")
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			return
-		}
+		if r.Header.Get("Accept") == "application/json" {
+			data, err := json.Marshal(s.config.Version)
+			if err != nil {
+				log.WithError(err).Error("error serializing pod version response")
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
 
-		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write(data)
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write(data)
+		} else {
+			ctx := NewContext(s.config, s.db, r)
+			s.render("version", w, ctx)
+		}
 	}
 }
 
