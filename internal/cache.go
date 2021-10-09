@@ -25,6 +25,9 @@ const (
 	feedCacheVersion = 1 // increase this if breaking changes occur to cache file.
 )
 
+// FilterFunc...
+type FilterFunc func(twt types.Twt) bool
+
 // Cached ...
 type Cached struct {
 	mu           sync.RWMutex
@@ -450,7 +453,22 @@ func (cache *Cache) GetAll() types.Twts {
 		alltwts = append(alltwts, cached.Twts...)
 	}
 
+	sort.Sort(alltwts)
 	return alltwts
+}
+
+// FilterBy ...
+func (cache *Cache) FilterBy(f FilterFunc) types.Twts {
+	var filteredtwts types.Twts
+
+	alltwts := cache.GetAll()
+	for _, twt := range alltwts {
+		if f(twt) {
+			filteredtwts = append(filteredtwts, twt)
+		}
+	}
+
+	return filteredtwts
 }
 
 // GetMentions ...

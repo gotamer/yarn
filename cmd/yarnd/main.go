@@ -20,6 +20,29 @@ import (
 	"git.mills.io/yarnsocial/yarn/types/retwt"
 )
 
+type flagSliceOfFeatureType []internal.FeatureType
+
+func (f *flagSliceOfFeatureType) String() string {
+	var fs []string
+	for _, feature := range *f {
+		fs = append(fs, feature.String())
+	}
+	return strings.Join(fs, ",")
+}
+
+func (f *flagSliceOfFeatureType) Type() string {
+	return "feature"
+}
+
+func (f *flagSliceOfFeatureType) Set(value string) error {
+	feature, err := internal.FeatureFromString(value)
+	if err != nil {
+		return err
+	}
+	*f = append(*f, feature)
+	return nil
+}
+
 var (
 	bind    string
 	debug   bool
@@ -78,6 +101,9 @@ var (
 	// Whitelists, Sources
 	feedSources        []string
 	whitelistedDomains []string
+
+	// Optional Features
+	enabledFeatures flagSliceOfFeatureType
 )
 
 func init() {
@@ -192,6 +218,9 @@ func init() {
 		&whitelistedDomains, "whitelist-domain", internal.DefaultWhitelistedDomains,
 		"whitelist of external domains to permit for display of inline images",
 	)
+
+	// Optional Features
+	flag.Var(&enabledFeatures, "enable-feature", "enable the named feature")
 }
 
 func flagNameFromEnvironmentName(s string) string {
@@ -308,6 +337,9 @@ func main() {
 		// Whitelists, Sources
 		internal.WithFeedSources(feedSources),
 		internal.WithWhitelistedDomains(whitelistedDomains),
+
+		// Optional Features
+		internal.WithEnabledFeatures(enabledFeatures),
 	)
 	if err != nil {
 		log.WithError(err).Fatal("error creating server")

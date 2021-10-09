@@ -702,6 +702,7 @@ func (s *Server) PostHandler() httprouter.Handle {
 
 // TimelineHandler ...
 func (s *Server) TimelineHandler() httprouter.Handle {
+	isLocal := IsLocalURLFactory(s.config)
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		if r.Method == http.MethodHead {
@@ -717,7 +718,23 @@ func (s *Server) TimelineHandler() httprouter.Handle {
 		var twts types.Twts
 
 		if !ctx.Authenticated {
-			twts = s.cache.GetByPrefix(s.config.BaseURL, false)
+			if s.config.Features.IsEnabled(FeatureDiscoverAllPosts) {
+				twts = s.cache.FilterBy(func(twt types.Twt) bool {
+					twter := twt.Twter()
+					if strings.HasPrefix(twter.URL, "https://feeds.twtxt.net") {
+						return false
+					}
+					if strings.HasPrefix(twter.URL, "https://search.twtxt.net") {
+						return false
+					}
+					if isLocal(twter.URL) && HasString(twtxtBots, twter.Nick) {
+						return false
+					}
+					return true
+				})
+			} else {
+				twts = s.cache.GetByPrefix(s.config.BaseURL, false)
+			}
 			ctx.Title = s.tr(ctx, "PageLocalTimelineTitle")
 		} else {
 			ctx.Title = s.tr(ctx, "PageUserTimelineTitle")
@@ -913,16 +930,36 @@ func (s *Server) PermalinkHandler() httprouter.Handle {
 
 // DiscoverHandler ...
 func (s *Server) DiscoverHandler() httprouter.Handle {
+	isLocal := IsLocalURLFactory(s.config)
+
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		ctx := NewContext(s.config, s.db, r)
 		ctx.Translate(s.translator)
 
-		localTwts := s.cache.GetByPrefix(s.config.BaseURL, false)
+		var twts types.Twts
+
+		if s.config.Features.IsEnabled(FeatureDiscoverAllPosts) {
+			twts = s.cache.FilterBy(func(twt types.Twt) bool {
+				twter := twt.Twter()
+				if strings.HasPrefix(twter.URL, "https://feeds.twtxt.net") {
+					return false
+				}
+				if strings.HasPrefix(twter.URL, "https://search.twtxt.net") {
+					return false
+				}
+				if isLocal(twter.URL) && HasString(twtxtBots, twter.Nick) {
+					return false
+				}
+				return true
+			})
+		} else {
+			twts = s.cache.GetByPrefix(s.config.BaseURL, false)
+		}
 
 		var pagedTwts types.Twts
 
 		page := SafeParseInt(r.FormValue("p"), 1)
-		pager := paginator.New(adapter.NewSliceAdapter(localTwts), s.config.TwtsPerPage)
+		pager := paginator.New(adapter.NewSliceAdapter(twts), s.config.TwtsPerPage)
 		pager.SetPage(page)
 
 		if err := pager.Results(&pagedTwts); err != nil {

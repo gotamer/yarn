@@ -43,6 +43,11 @@
           <textarea id="whitelistedDomains" name="whitelistedDomains" rows=5>{{ $.WhitelistedDomains | join "\r\n" }}</textarea>
         </label>
 
+        <label for="enabledFeatures">
+          Enabled Optional Features
+          <textarea id="enabledFeatures" name="enabledFeatures" rows=3>{{ $.EnabledFeatures | join "\r\n" }}</textarea>
+        </label>
+
         <button type="submit" class="primary">Update</button>
       </form>
     </div>

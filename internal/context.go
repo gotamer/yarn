@@ -43,6 +43,7 @@ type Context struct {
 	OpenProfiles            bool
 	RegisterDisabledMessage string
 	WhitelistedDomains      []string
+	EnabledFeatures         []string
 
 	Timezones []*timezones.Zoneinfo
 
@@ -108,6 +109,7 @@ func NewContext(conf *Config, db Store, req *http.Request) *Context {
 		OpenProfiles:       conf.OpenProfiles,
 		LastTwt:            types.NilTwt,
 		WhitelistedDomains: conf.WhitelistedDomains,
+		EnabledFeatures:    conf.Features.AsStrings(),
 
 		Commit:      yarn.Commit,
 		Theme:       conf.Theme,

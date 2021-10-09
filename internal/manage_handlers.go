@@ -40,11 +40,13 @@ func (s *Server) ManagePodHandler() httprouter.Handle {
 		openProfiles := r.FormValue("enableOpenProfiles") == "on"
 		openRegistrations := r.FormValue("enableOpenRegistrations") == "on"
 		whitelistedDomains := r.FormValue("whitelistedDomains")
+		enabledFeatures := r.FormValue("enabledFeatures")
 
 		// Clean lines from DOS (\r\n) to UNIX (\n)
 		logo = strings.ReplaceAll(logo, "\r\n", "\n")
 
 		whitelistedDomains = strings.ReplaceAll(whitelistedDomains, "\r\n", "\n")
+		enabledFeatures = strings.ReplaceAll(enabledFeatures, "\r\n", "\n")
 
 		// Update pod name
 		if name != "" {
@@ -86,9 +88,26 @@ func (s *Server) ManagePodHandler() httprouter.Handle {
 		// Update WhitelistedDomains
 		if err := WithWhitelistedDomains(strings.Split(whitelistedDomains, "\n"))(s.config); err != nil {
 			ctx.Error = true
-			ctx.Message = "Error applying white list domains"
+			ctx.Message = fmt.Sprintf("Error applying white list domains: %s", err)
 			s.render("error", w, ctx)
 			return
+		}
+
+		// Update Enabled Optional Features
+
+		features, err := FeaturesFromStrings(strings.Split(enabledFeatures, "\n"))
+		if err != nil {
+			ctx.Error = true
+			ctx.Message = fmt.Sprintf("Error extracting features: %s", err)
+			s.render("error", w, ctx)
+			return
+		} else {
+			if err := WithEnabledFeatures(features)(s.config); err != nil {
+				ctx.Error = true
+				ctx.Message = fmt.Sprintf("Error applying features: %s", err)
+				s.render("error", w, ctx)
+				return
+			}
 		}
 
 		// Save config file

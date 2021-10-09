@@ -32,7 +32,8 @@ type Settings struct {
 	OpenProfiles      bool `yaml:"open_profiles"`
 	OpenRegistrations bool `yaml:"open_registrations"`
 
-	WhitelistedDomains []string `yaml:"whitelisted_domains"`
+	WhitelistedDomains []string     `yaml:"whitelisted_domains"`
+	Features           FeatureFlags `yaml:"features"`
 }
 
 // Config contains the server configuration parameters
@@ -89,7 +90,7 @@ type Config struct {
 	whitelistedDomains []*regexp.Regexp
 	WhitelistedDomains []string
 
-	// path string
+	Features FeatureFlags
 }
 
 var _ types.FmtOpts = (*Config)(nil)
