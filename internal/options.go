@@ -149,7 +149,8 @@ var (
 
 func NewConfig() *Config {
 	return &Config{
-		Debug: DefaultDebug,
+		Version: version,
+		Debug:   DefaultDebug,
 
 		Name:              DefaultName,
 		Logo:              DefaultLogo,

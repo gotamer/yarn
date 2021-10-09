@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"git.mills.io/yarnsocial/yarn"
 	"git.mills.io/yarnsocial/yarn/types"
 	"github.com/gabstv/merger"
 	"github.com/goccy/go-yaml"
@@ -18,8 +19,20 @@ import (
 )
 
 var (
+	version              SoftwareConfig
 	ErrConfigPathMissing = errors.New("error: config file missing")
 )
+
+func init() {
+	version = SoftwareConfig{
+		Software:  "yarnd",
+		Author:    "Yarn.social",
+		Copyright: "Copyright (C) 2021-present Yarn.social",
+		License:   "MIT License",
+		Version:   yarn.Version,
+		Commit:    yarn.Commit,
+	}
+}
 
 // Settings contains Pod Settings that can be customised via the Web UI
 type Settings struct {
@@ -36,8 +49,20 @@ type Settings struct {
 	Features           FeatureFlags `yaml:"features"`
 }
 
+// SoftwareConfig contains the server version information
+type SoftwareConfig struct {
+	Software  string
+	Version   string
+	Commit    string
+	Author    string
+	Copyright string
+	License   string
+}
+
 // Config contains the server configuration parameters
 type Config struct {
+	Version SoftwareConfig
+
 	Debug  bool
 	Parser string
 

@@ -657,6 +657,7 @@ func (s *Server) initRoutes() {
 	s.router.POST("/settings", s.am.MustAuth(s.SettingsHandler()))
 	s.router.POST("/token/delete/:signature", s.am.MustAuth(s.DeleteTokenHandler()))
 
+	s.router.GET("/version", s.PodVersionHandler())
 	s.router.GET("/config", s.am.MustAuth(s.PodConfigHandler()))
 	s.router.GET("/manage/pod", s.ManagePodHandler())
 	s.router.POST("/manage/pod", s.ManagePodHandler())
