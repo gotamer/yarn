@@ -119,14 +119,7 @@
             {{tr . "NavLogin"}}
           </a>
         </li>
-        {{ if .RegisterDisabled }}
-          <li>
-            <a href="#" data-tooltip="{{ with .RegisterDisabledMessage }}{{ .RegisterDisabledMessage }}{{ else }}Registrations are disabled on this instance. Please contact the operator.{{ end }}">
-              <i class="icss-exclamation-circle" style="color:red;"></i>
-              {{tr . "NavRegister"}}
-            </a>
-          </li>
-        {{ else }}
+        {{ if not .RegisterDisabled }}
           <li>
             <a href="/register">
               <i class="icss-smiley"></i>
