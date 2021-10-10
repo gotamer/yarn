@@ -157,7 +157,7 @@ func (a *API) getLoggedInUser(r *http.Request) *User {
 		user.Following = make(map[string]string)
 	}
 
-	user.Following[user.Username] = user.URL
+	user.Follow(user.Username, user.URL)
 
 	return user
 
@@ -194,7 +194,7 @@ func (a *API) isAuthorized(endpoint httprouter.Handle) httprouter.Handle {
 			if user.Following == nil {
 				user.Following = make(map[string]string)
 			}
-			user.Following[user.Username] = user.URL
+			user.Follow(user.Username, user.URL)
 
 			ctx := context.WithValue(r.Context(), TokenContextKey, token)
 			ctx = context.WithValue(ctx, UserContextKey, user)

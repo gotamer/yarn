@@ -422,11 +422,20 @@ func (u *User) Unmute(nick string) {
 	}
 }
 
-func (u *User) Follow(nick, url string) {
-	if !u.Follows(url) {
-		u.Following[nick] = url
-		u.sources[url] = nick
+func (u *User) Follow(nick, uri string) error {
+	if !u.Follows(uri) {
+		if _, ok := u.Following[nick]; ok {
+			if _u, err := url.Parse(uri); err == nil {
+				nick = fmt.Sprintf("%s@%s", nick, _u.Hostname())
+			} else {
+				nick = UniqueKeyFor(u.Following, nick)
+			}
+		}
+
+		u.Following[nick] = uri
+		u.sources[uri] = nick
 	}
+	return nil
 }
 
 func (u *User) FollowAndValidate(conf *Config, nick, url string) error {
@@ -438,10 +447,7 @@ func (u *User) FollowAndValidate(conf *Config, nick, url string) error {
 		return ErrAlreadyFollows
 	}
 
-	u.Following[nick] = url
-	u.sources[url] = nick
-
-	return nil
+	return u.Follow(nick, url)
 }
 
 func (u *User) Follows(url string) bool {

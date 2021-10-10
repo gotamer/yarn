@@ -176,7 +176,7 @@ func (s *Server) ImportHandler() httprouter.Handle {
 				nick := strings.TrimSpace(matches[1])
 				url := NormalizeURL(strings.TrimSpace(matches[2]))
 				if nick != "" && url != "" {
-					user.Following[nick] = url
+					user.Follow(nick, url)
 					imported++
 				}
 			}
