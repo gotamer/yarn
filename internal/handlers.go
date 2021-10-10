@@ -10,6 +10,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -41,6 +42,8 @@ const (
 	AvatarResolution = 360 // 360x360
 	AsyncTaskLimit   = 5
 	MaxFailedLogins  = 3 // By default 3 failed login attempts per 5 minutes
+
+	bookmarkletTemplate = `(function(){window.location.href="%s/?title="+document.title+"&url="+document.URL;})();`
 )
 
 var (
@@ -1356,6 +1359,7 @@ func (s *Server) SettingsHandler() httprouter.Handle {
 
 		if r.Method == "GET" {
 			ctx.Title = s.tr(ctx, "PageSettingsTitle")
+			ctx.Bookmarklet = url.QueryEscape(fmt.Sprintf(bookmarkletTemplate, s.config.BaseURL))
 			s.render("settings", w, ctx)
 			return
 		}
@@ -1438,7 +1442,6 @@ func (s *Server) SettingsHandler() httprouter.Handle {
 		ctx.Error = false
 		ctx.Message = s.tr(ctx, "MsgUpdateSettingsSuccess")
 		s.render("error", w, ctx)
-
 	}
 }
 

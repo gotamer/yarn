@@ -105,6 +105,16 @@
     </form>
 
     <details>
+      <summary>Tools</summary>
+      <p><strong>Bookmarklet:</strong> You can share links to websites you are on in your browser
+      by adding the following bookmarklet to your browsers bookmark bar. The next
+      time you want to shRe a link, just click on the "Share via {{ .InstanceName }}"
+      button. Simply drag and drop the button below on to your browsers bookmarks bar!</p>
+
+      <a role="button" href="javascript:{{ .Bookmarklet }}">Share via {{ .InstanceName }}</a>
+    </details>
+
+    <details>
         <summary>{{tr . "SettingsAPITitle"}}</summary>
       <table>
         <thead>

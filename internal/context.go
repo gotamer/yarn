@@ -82,6 +82,9 @@ type Context struct {
 	FeedSources FeedSourceMap
 	Pager       *paginator.Paginator
 
+	// Tools
+	Bookmarklet string
+
 	// Report abuse
 	ReportNick string
 	ReportURL  string
