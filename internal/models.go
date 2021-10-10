@@ -282,11 +282,17 @@ func LoadUser(data []byte) (user *User, err error) {
 	return
 }
 
-func (f *Feed) AddFollower(nick, url string) {
-	url = NormalizeURL(url)
-	key := UniqueKeyFor(f.Followers, nick)
-	f.Followers[key] = url
-	f.remotes[url] = key
+func (f *Feed) AddFollower(nick, uri string) {
+	uri = NormalizeURL(uri)
+	if _, ok := f.Followers[nick]; ok {
+		if _u, err := url.Parse(uri); err == nil {
+			nick = fmt.Sprintf("%s@%s", nick, _u.Hostname())
+		} else {
+			nick = UniqueKeyFor(f.Followers, nick)
+		}
+	}
+	f.Followers[nick] = uri
+	f.remotes[uri] = nick
 }
 
 func (f *Feed) FollowedBy(url string) bool {
@@ -395,11 +401,17 @@ func (u *User) Bookmarked(hash string) bool {
 	return ok
 }
 
-func (u *User) AddFollower(nick, url string) {
-	url = NormalizeURL(url)
-	key := UniqueKeyFor(u.Followers, nick)
-	u.Followers[key] = url
-	u.remotes[url] = key
+func (u *User) AddFollower(nick, uri string) {
+	uri = NormalizeURL(uri)
+	if _, ok := u.Followers[nick]; ok {
+		if _u, err := url.Parse(uri); err == nil {
+			nick = fmt.Sprintf("%s@%s", nick, _u.Hostname())
+		} else {
+			nick = UniqueKeyFor(u.Followers, nick)
+		}
+	}
+	u.Followers[nick] = uri
+	u.remotes[uri] = nick
 }
 
 func (u *User) FollowedBy(url string) bool {
