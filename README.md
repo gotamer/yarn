@@ -88,7 +88,7 @@ gmake
 
 ### Command-line Client
 
-1. Login to  your [Twt.social](https://twt.social) pod:
+1. Login to  your [Yarn.social](https://yarn.social) pod:
 
 ```#!console
 $ ./yarn login
@@ -145,35 +145,46 @@ You can configure other options by specifying them on the command-line:
 ```console
 $ ./yarnd --help
 Usage of ./yarnd:
-  -E, --admin-email string          default admin user email (default "support@twt.social")
-  -N, --admin-name string           default admin user name (default "Administrator")
-  -A, --admin-user string           default admin user to use (default "admin")
-      --api-session-time duration   timeout for api tokens to expire (default 240h0m0s)
-      --api-signing-key string      secret to use for signing api tokens (default "PLEASE_CHANGE_ME!!!")
-  -u, --base-url string             base url to use (default "http://0.0.0.0:8000")
-  -b, --bind string                 [int]:<port> to bind to (default "0.0.0.0:8000")
-      --cookie-secret string        cookie secret to use secure sessions (default "PLEASE_CHANGE_ME!!!")
-  -d, --data string                 data directory (default "./data")
-  -D, --debug                       enable debug logging
-      --feed-sources strings        external feed sources for discovery of other feeds (default [https://feeds.twtxt.net/we-are-feeds.txt,https://raw.githubusercontent.com/jointwt/we-are-twtxt/master/we-are-bots.txt,https://raw.githubusercontent.com/jointwt/we-are-twtxt/master/we-are-twtxt.txt])
-      --magiclink-secret string     magiclink secret to use for password reset tokens (default "PLEASE_CHANGE_ME!!!")
-  -F, --max-fetch-limit int         maximum feed fetch limit in bytes (default 2097152)
-  -L, --max-twt-length int          maximum length of posts (default 288)
-  -U, --max-upload-size int         maximum upload size of media (default 16777216)
-  -n, --name string                 set the pod's name (default "twtxt.net")
-  -O, --open-profiles               whether or not to have open user profiles
-  -R, --open-registrations          whether or not to have open user registgration
-      --session-expiry duration     timeout for sessions to expire (default 240h0m0s)
-      --smtp-from string            SMTP From to use for email sending (default "PLEASE_CHANGE_ME!!!")
-      --smtp-host string            SMTP Host to use for email sending (default "smtp.gmail.com")
-      --smtp-pass string            SMTP Pass to use for email sending (default "PLEASE_CHANGE_ME!!!")
-      --smtp-port int               SMTP Port to use for email sending (default 587)
-      --smtp-user string            SMTP User to use for email sending (default "PLEASE_CHANGE_ME!!!")
-  -s, --store string                store to use (default "bitcask://twtxt.db")
-  -t, --theme string                set the default theme (default "dark")
-  -T, --twts-per-page int           maximum twts per page to display (default 50)
-  -v, --version                     display version information
-      --whitelist-domain strings    whitelist of external domains to permit for display of inline images (default [imgur\.com,giphy\.com,reactiongifs\.com,githubusercontent\.com])
+  -E, --admin-email string            default admin user email (default "support@yarn.social")
+  -N, --admin-name string             default admin user name (default "Administrator")
+  -A, --admin-user string             default admin user to use (default "admin")
+      --api-session-time duration     timeout for api tokens to expire (default 240h0m0s)
+      --api-signing-key string        secret to use for signing api tokens (default "INVALID CONFIG VALUE - PLEASE CHANGE THIS VALUE")
+  -u, --base-url string               base url to use (default "http://0.0.0.0:8000")
+  -b, --bind string                   [int]:<port> to bind to (default "0.0.0.0:8000")
+      --cookie-secret string          cookie secret to use secure sessions (default "INVALID CONFIG VALUE - PLEASE CHANGE THIS VALUE")
+  -d, --data string                   data directory (default "./data")
+  -D, --debug                         enable debug logging
+  -m, --description string            set the pod's description (default "🧶 Yarn.social is a Self-Hosted, Twitter™-like Decentralised microBlogging platform. No ads, no tracking, your content, your data!")
+      --enable-feature feature        enable the named feature
+      --feed-sources strings          external feed sources for discovery of other feeds (default [https://feeds.twtxt.net/we-are-feeds.txt,https://git.mills.io/yarnsocial/we-are-twtxt/raw/branch/master/we-are-bots.txt,https://git.mills.io/yarnsocial/we-are-twtxt/raw/branch/master/we-are-twtxt.txt])
+      --fetch-interval string         cache fetch interval (how often to update feeds) in cron syntax (https://pkg.go.dev/github.com/robfig/cron) (default "@every 5m")
+  -l, --lang string                   set the default language (default "auto")
+      --magiclink-secret string       magiclink secret to use for password reset tokens (default "INVALID CONFIG VALUE - PLEASE CHANGE THIS VALUE")
+  -I, --max-cache-items int           maximum cache items (per feed source) of cached twts in memory (default 150)
+  -C, --max-cache-ttl duration        maximum cache ttl (time-to-live) of cached twts in memory (default 240h0m0s)
+  -F, --max-fetch-limit int           maximum feed fetch limit in bytes (default 2097152)
+  -L, --max-twt-length int            maximum length of posts (default 288)
+  -U, --max-upload-size int           maximum upload size of media (default 16777216)
+  -n, --name string                   set the pod's name (default "twtxt.net")
+  -O, --open-profiles                 whether or not to have open user profiles
+  -R, --open-registrations            whether or not to have open user registgration
+  -P, --parser string                 set active parsing engine (default "lextwt")
+      --pop3-bind string              POP3 interface and port to bind to (default "0.0.0.0:8110")
+      --session-cache-ttl duration    time-to-live for cached sessions (default 1h0m0s)
+      --session-expiry duration       timeout for sessions to expire (default 240h0m0s)
+      --smtp-bind string              SMTP interface and port to bind to (default "0.0.0.0:8025")
+      --smtp-from string              SMTP From to use for email sending (default "INVALID CONFIG VALUE - PLEASE CHANGE THIS VALUE")
+      --smtp-host string              SMTP Host to use for email sending (default "smtp.gmail.com")
+      --smtp-pass string              SMTP Pass to use for email sending (default "INVALID CONFIG VALUE - PLEASE CHANGE THIS VALUE")
+      --smtp-port int                 SMTP Port to use for email sending (default 587)
+      --smtp-user string              SMTP User to use for email sending (default "INVALID CONFIG VALUE - PLEASE CHANGE THIS VALUE")
+  -s, --store string                  store to use (default "bitcask://twtxt.db")
+  -t, --theme string                  set the default theme (default "auto")
+      --transcoder-timeout duration   timeout for the video transcoder (default 10m0s)
+  -T, --twts-per-page int             maximum twts per page to display (default 50)
+  -v, --version                       display version information
+      --whitelist-domain strings      whitelist of external domains to permit for display of inline images (default [imgur\.com,giphy\.com,imgs\.xkcd\.com,tube\.mills\.io,reactiongifs\.com,githubusercontent\.com])
 pflag: help requested
 ```
 
@@ -246,11 +257,10 @@ You can find an [AUTHORS](/AUTHORS) file where we keep a list of contributors to
 
 ## Related Projects
 
-- [Yarn.social](https://git.mills.io/yarnsocial/yarn.social) -- Yarn.social landing page
+- [Yarn.social](https://git.mills.io/yarnsocial/yarn.social) -- [Yarn.social](https://yarn.social) landing page
+- [Yarns](https://git.mills.io/yarnsocial/yarns) -- The [Yarn.social](https://yarn.social) search engine hosted at [search.twtxt.net](https://search.twtxt.net)
 - [Goryon](https://git.mills.io/yarnsocial/goryon) -- Our Flutter iOS and Android Mobile App
-- [rss2twtxt](https://git.mills.io/yarnsocial/rss2twtxt) -- RSS/Atom/Twitter to [Twtxt](https://twtxt.readthedocs.org) aggregator
-- [Twt.js](https://git.mills.io/yarnsocial/twt.js) -- Our JavaScript / NodeJS library for using the API
-- [we-are-twtxt](https://git.mills.io/yarnsocial/we-are-twtxt) -- A voluntary user contributed registry of users, bots and interesting feeds
+- [rss2twtxt](https://git.mills.io/yarnsocial/rss2twtxt) -- RSS/Atom/Twitter to [Twtxt](https://twtxt.readthedocs.org) aggregator service hosted at [feeds.twtxt.net](https://feeds.twtxt.net)
 
 ## License
 
