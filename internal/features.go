@@ -33,6 +33,8 @@ func (f FeatureType) String() string {
 	switch f {
 	case FeatureDiscoverAllPosts:
 		return "discover_all_posts"
+	case FeatureShorterPermalinkTitle:
+		return "shorter_permalink_title"
 	}
 	return "invalid_feature"
 }
@@ -42,6 +44,8 @@ func FeatureFromString(s string) (FeatureType, error) {
 	switch s {
 	case "discover_all_posts":
 		return FeatureDiscoverAllPosts, nil
+	case "shorter_permalink_title":
+		return FeatureShorterPermalinkTitle, nil
 	}
 	return FeatureInvalid, fmt.Errorf("Error unrecognised feature: %s", s)
 }
