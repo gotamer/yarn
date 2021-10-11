@@ -118,6 +118,36 @@ INFO[0015] posting twt...
 INFO[0016] post successful
 ```
 
+For additional help on using the `yarnc` command-line client:
+
+```#!console
+$ yarnc help
+This is the command-line client for Yarn.social pods running
+yarnd. This tool allows a user to interact with a pod to view their timeline,
+following feeds, make posts and managing their account.
+
+Usage:
+  yarnc [command]
+
+Available Commands:
+  completion  generate the autocompletion script for the specified shell
+  help        Help about any command
+  login       Login and euthenticate to a Yarn.social pod
+  post        Post a new twt to a Yarn.social pod
+  stats       Parses and performs statistical analytis on a Twtxt feed given a URL or local file
+  timeline    Display your timeline
+
+Flags:
+  -c, --config string   set a custom config file (default "/Users/prologic/.yarnc.yml")
+  -d, --debug           Enable debug logging
+  -h, --help            help for yarnc
+  -p, --parser string   Set active parse engine [lextwt, retwt] (default "lextwt")
+  -t, --token string    yarnd API token to use to authenticate to endpoints (default "$YARNC_TOKEN")
+  -u, --uri string      yarnd API endpoint URI to connect to (default "http://localhost:8000/api/v1/")
+
+Use "yarnc [command] --help" for more information about a command.
+```
+
 ### Deploy with Docker Compose
 
 Run the compose configuration:
