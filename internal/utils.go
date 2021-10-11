@@ -1833,3 +1833,12 @@ func NewFeedLookup(conf *Config, db Store, user *User) types.FeedLookup {
 		return &types.Twter{Nick: nick}
 	})
 }
+
+// TextWithEllipsis formats a a string with at most `maxLength` characters
+// using an ellipsis (...) tto indicate more content...
+func TextWithEllipsis(text string, maxLength int) string {
+	if len(text) > maxLength {
+		return fmt.Sprintf("%s ...", text[:maxLength])
+	}
+	return text
+}

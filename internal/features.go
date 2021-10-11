@@ -19,6 +19,9 @@ const (
 	// posts from the local pod's cache regardless of who posted, otherwise
 	// by default the Discover timeline only shows local user posts.
 	FeatureDiscoverAllPosts
+
+	// FeatureShorterPermalinkTitle shortens the <title> tag of Twt permalinks
+	FeatureShorterPermalinkTitle
 )
 
 var (
