@@ -135,12 +135,9 @@
   </main>
   <footer class="container">
     <div class="footer-copyright">
-      <a href="https://git.mills.io/yarnsocial/yarn" target="_blank">yarnd</a>
-      <a href="/version">{{ .SoftwareVersion.FullVersion }}</a>
-        ·
-        {{(tr . "CopyrightCreator")|html}}
-        ·
-        {{(tr . "Copyright")|html}}
+      running <a href="https://git.mills.io/yarnsocial/yarn" target="_blank">yarnd</a>
+      <a href="/version" target="_blank">{{ .SoftwareVersion.FullVersion }}</a> ·
+      a <a href="https://yarn.social" target="_blank">Yarn.social</a> pod
     </div>
     <div class="footer-menu">
         <a href="/about" target="_blank" class="menu-item">{{tr . "MenuAbout"}}</a>
