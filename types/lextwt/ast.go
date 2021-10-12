@@ -890,13 +890,17 @@ func (twt *Twt) ExpandTags(opts types.FmtOpts, lookup types.FeedLookup) {
 func (twt *Twt) ExpandMentions(opts types.FmtOpts, lookup types.FeedLookup) {
 	for i, m := range twt.mentions {
 		if lookup != nil && m.target == "" {
-			twter := lookup.FeedLookup(m.name)
-			m.name = twter.Nick
-			if sp := strings.SplitN(twter.Nick, "@", 2); len(sp) == 2 {
-				m.name = sp[0]
-				m.domain = sp[1]
+			twter := lookup.FeedLookup(fmt.Sprintf("%s@%s", m.name, m.domain))
+			if twter.IsZero() {
+				twter = lookup.FeedLookup(m.name)
 			}
-			m.target = twter.URL
+			if !twter.IsZero() {
+				if sp := strings.SplitN(twter.Nick, "@", 2); len(sp) == 2 {
+					m.name = sp[0]
+					m.domain = sp[1]
+				}
+				m.target = twter.URL
+			}
 		}
 
 		twt.mentions[i] = m

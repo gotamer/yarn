@@ -467,6 +467,13 @@ func (u *User) Follows(url string) bool {
 	return ok
 }
 
+func (u *User) FollowsAs(url string) string {
+	if url, ok := u.sources[NormalizeURL(url)]; ok {
+		return url
+	}
+	return ""
+}
+
 func (u *User) HasMuted(url string) bool {
 	_, ok := u.muted[NormalizeURL(url)]
 	return ok
@@ -564,8 +571,9 @@ func (u *User) Reply(twt types.Twt) string {
 	for _, m := range twt.Mentions() {
 		twter := m.Twter()
 		if u.Follows(twter.URL) && !u.Is(twter.URL) {
-			if _, ok := mentionsSet[twter.Nick]; !ok {
-				mentionsSet[twter.Nick] = true
+			as := fmt.Sprintf("@%s", u.FollowsAs(twter.URL))
+			if _, ok := mentionsSet[as]; !ok {
+				mentionsSet[as] = true
 			}
 		}
 	}
@@ -576,12 +584,12 @@ func (u *User) Reply(twt types.Twt) string {
 	// If we follow the original twt's Twter, add them as the first mention
 	// only if the original twter isn't ourselves!
 	if u.Follows(twt.Twter().URL) && !u.Is(twt.Twter().URL) {
-		tokens = append(tokens, fmt.Sprintf("@%s", twt.Twter().Nick))
+		tokens = append(tokens, fmt.Sprintf("@%s", u.FollowsAs(twt.Twter().URL)))
 	}
 
 	// Add all other mentions
-	for nick := range mentionsSet {
-		tokens = append(tokens, fmt.Sprintf("@%s", nick))
+	for mention := range mentionsSet {
+		tokens = append(tokens, mention)
 	}
 
 	tokens = UniqStrings(tokens)

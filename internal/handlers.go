@@ -694,8 +694,6 @@ func (s *Server) PostHandler() httprouter.Handle {
 			return nil
 		})); err != nil {
 			log.WithError(err).Warn("error submitting task for webmentions")
-		} else {
-			log.Debugf("submitted webmentions task %s", URLForTask(s.config.BaseURL, uuid))
 		}
 
 		http.Redirect(w, r, RedirectRefererURL(r, s.config, "/"), http.StatusFound)

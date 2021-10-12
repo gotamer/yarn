@@ -1818,19 +1818,30 @@ func GetMediaNamesFromText(text string) []string {
 }
 
 func NewFeedLookup(conf *Config, db Store, user *User) types.FeedLookup {
-	return types.FeedLookupFn(func(nick string) *types.Twter {
-		for followedNick, followedURL := range user.Following {
-			if strings.ToLower(nick) == strings.ToLower(followedNick) {
-				return &types.Twter{Nick: followedNick, URL: followedURL}
+	return types.FeedLookupFn(func(alias string) *types.Twter {
+		for followedAs, followedURL := range user.Following {
+			if strings.ToLower(alias) == strings.ToLower(followedAs) {
+				u, err := url.Parse(followedURL)
+				if err != nil {
+					log.WithError(err).Warnf("error looking up follow alias %s for user %s", alias, user)
+					return &types.Twter{}
+				}
+				parts := strings.SplitN(followedAs, "@", 2)
+
+				if len(parts) == 2 && u.Hostname() == parts[1] {
+					return &types.Twter{Nick: parts[0], URL: followedURL}
+				}
+
+				return &types.Twter{Nick: followedAs, URL: followedURL}
 			}
 		}
 
-		username := NormalizeUsername(nick)
+		username := NormalizeUsername(alias)
 		if db.HasUser(username) || db.HasFeed(username) {
 			return &types.Twter{Nick: username, URL: URLForUser(conf.BaseURL, username)}
 		}
 
-		return &types.Twter{Nick: nick}
+		return &types.Twter{}
 	})
 }
 

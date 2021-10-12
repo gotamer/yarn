@@ -474,24 +474,20 @@ func (r reSubject) String() string {
 // or if they exist on the local pod. Also turns @user@domain into
 // @<user URL> as a convenient way to mention users across pods.
 func ExpandMentions(opts types.FmtOpts, lookup types.FeedLookup, text string) string {
-	re := regexp.MustCompile(`@([a-zA-Z0-9][a-zA-Z0-9_-]+)(?:@)?((?:[_a-z0-9](?:[_a-z0-9-]{0,61}[a-z0-9]\.)|(?:[0-9]+/[0-9]{2})\.)+(?:[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?)?)?`)
+	re := regexp.MustCompile(`@([a-zA-Z0-9][a-zA-Z0-9_-]+)(?:@)?((?:[_a-z0-9](?:[_a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?)?)?`)
 	return re.ReplaceAllStringFunc(text, func(match string) string {
 		parts := re.FindStringSubmatch(match)
 		mentionedNick := parts[1]
 		mentionedDomain := parts[2]
 
-		if mentionedNick != "" && mentionedDomain != "" {
-			// TODO: Validate the remote end for a valid Twtxt pod?
-			// XXX: Should we always assume https:// ?
-			return fmt.Sprintf(
-				"@<%s https://%s/user/%s/twtxt.txt>",
-				mentionedNick, mentionedDomain, mentionedNick,
-			)
-		}
-
 		if lookup != nil {
-			twter := lookup.FeedLookup(mentionedNick)
-			return fmt.Sprintf("@<%s %s>", twter.Nick, twter.URL)
+			twter := lookup.FeedLookup(fmt.Sprintf("%s@%s", mentionedNick, mentionedDomain))
+			if twter.IsZero() {
+				twter = lookup.FeedLookup(mentionedNick)
+			}
+			if !twter.IsZero() {
+				return fmt.Sprintf("@<%s %s>", twter.Nick, twter.URL)
+			}
 		}
 
 		// Not expanding if we're not following, not a local user/feed
