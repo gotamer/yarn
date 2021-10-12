@@ -434,18 +434,18 @@ func (u *User) Unmute(nick string) {
 	}
 }
 
-func (u *User) Follow(nick, uri string) error {
+func (u *User) Follow(alias, uri string) error {
 	if !u.Follows(uri) {
-		if _, ok := u.Following[nick]; ok {
+		if _, ok := u.Following[alias]; ok {
 			if _u, err := url.Parse(uri); err == nil {
-				nick = fmt.Sprintf("%s@%s", nick, _u.Hostname())
+				alias = fmt.Sprintf("%s@%s", alias, _u.Hostname())
 			} else {
-				nick = UniqueKeyFor(u.Following, nick)
+				alias = UniqueKeyFor(u.Following, alias)
 			}
 		}
 
-		u.Following[nick] = uri
-		u.sources[uri] = nick
+		u.Following[alias] = uri
+		u.sources[uri] = alias
 	}
 	return nil
 }
