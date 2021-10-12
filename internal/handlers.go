@@ -682,7 +682,7 @@ func (s *Server) PostHandler() httprouter.Handle {
 
 		// WebMentions ...
 		// TODO: Use a queue here instead?
-		if uuid, err := s.tasks.Dispatch(NewFuncTask(func() error {
+		if _, err := s.tasks.Dispatch(NewFuncTask(func() error {
 			for _, m := range twt.Mentions() {
 				twter := m.Twter()
 				if !isLocalURL(twter.URL) || isExternalFeed(twter.URL) {
