@@ -898,6 +898,8 @@ func (twt *Twt) ExpandMentions(opts types.FmtOpts, lookup types.FeedLookup) {
 				if sp := strings.SplitN(twter.Nick, "@", 2); len(sp) == 2 {
 					m.name = sp[0]
 					m.domain = sp[1]
+				} else {
+					m.name = twter.Nick
 				}
 				m.target = twter.URL
 			}

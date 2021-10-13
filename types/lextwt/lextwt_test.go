@@ -1018,8 +1018,7 @@ func TestExpandLinks(t *testing.T) {
 
 	is := is.New(t)
 
-	for i, tt := range tests {
-		t.Logf("TestExpandLinks %d - %s", i, tt.target)
+	for _, tt := range tests {
 		lookup := types.FeedLookupFn(func(s string) *types.Twter { return tt.target })
 		tt.twt.ExpandMentions(conf, lookup)
 		is.Equal(tt.twt.Mentions()[0].Twter().Nick, tt.target.Nick)
