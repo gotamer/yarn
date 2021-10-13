@@ -94,6 +94,7 @@ type Config struct {
 	MsgsPerPage       int
 	OpenProfiles      bool
 	OpenRegistrations bool
+	DisableGzip       bool
 	SessionExpiry     time.Duration
 	SessionCacheTTL   time.Duration
 	TranscoderTimeout time.Duration

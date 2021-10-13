@@ -54,6 +54,9 @@ const (
 	// DefaultOpenRegistrations is the default for open user registrations
 	DefaultOpenRegistrations = false
 
+	// DefaultDisableGzip is the default for disabling Gzip compression
+	DefaultDisableGzip = false
+
 	// DefaultRegisterMessage is the default message displayed when  registrations are disabled
 	DefaultRegisterMessage = ""
 
@@ -168,6 +171,7 @@ func NewConfig() *Config {
 		MsgsPerPage:       DefaultMsgsPerPage,
 		OpenProfiles:      DefaultOpenProfiles,
 		OpenRegistrations: DefaultOpenRegistrations,
+		DisableGzip:       DefaultDisableGzip,
 		SessionExpiry:     DefaultSessionExpiry,
 		MagicLinkSecret:   DefaultMagicLinkSecret,
 		SMTPHost:          DefaultSMTPHost,
@@ -285,6 +289,14 @@ func WithTheme(theme string) Option {
 func WithOpenRegistrations(openRegistrations bool) Option {
 	return func(cfg *Config) error {
 		cfg.OpenRegistrations = openRegistrations
+		return nil
+	}
+}
+
+// WithDisableGzip sets the disable Gzip flag
+func WithDisableGzip(disableGzip bool) Option {
+	return func(cfg *Config) error {
+		cfg.DisableGzip = disableGzip
 		return nil
 	}
 }

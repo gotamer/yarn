@@ -783,8 +783,18 @@ func NewServer(bind string, options ...Option) (*Server, error) {
 
 	smtpService := NewSMTPService(config, db, pm, msgs, tasks)
 
+	var handler http.Handler
+
 	csrfHandler := nosurf.New(router)
 	csrfHandler.ExemptGlob("/api/v1/*")
+
+	// Useful for Safari / Mobile Safari when behind Cloudflare to streaming
+	// videos _actually_ works :O
+	if config.DisableGzip {
+		handler = sm.Handler(csrfHandler)
+	} else {
+		handler = gziphandler.GzipHandler(sm.Handler(csrfHandler))
+	}
 
 	server := &Server{
 		bind:    bind,
@@ -797,11 +807,7 @@ func NewServer(bind string, options ...Option) (*Server, error) {
 			Handler: logger.New(logger.Options{
 				Prefix:               "twtxt",
 				RemoteAddressHeaders: []string{"X-Forwarded-For"},
-			}).Handler(
-				gziphandler.GzipHandler(
-					sm.Handler(csrfHandler),
-				),
-			),
+			}).Handler(handler),
 		},
 
 		// API

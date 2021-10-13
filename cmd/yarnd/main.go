@@ -66,6 +66,7 @@ var (
 	// Pod Settings
 	openProfiles      bool
 	openRegistrations bool
+	disableGzip       bool
 
 	// Pod Limits
 	twtsPerPage   int
@@ -134,6 +135,10 @@ func init() {
 	flag.BoolVarP(
 		&openProfiles, "open-profiles", "O", internal.DefaultOpenProfiles,
 		"whether or not to have open user profiles",
+	)
+	flag.BoolVar(
+		&disableGzip, "disable-gzip", internal.DefaultDisableGzip,
+		"whether or not to disable Gzip compression",
 	)
 
 	// Pod Limits
@@ -302,6 +307,7 @@ func main() {
 		// Pod Settings
 		internal.WithOpenProfiles(openProfiles),
 		internal.WithOpenRegistrations(openRegistrations),
+		internal.WithDisableGzip(disableGzip),
 
 		// Pod Limits
 		internal.WithTwtsPerPage(twtsPerPage),
