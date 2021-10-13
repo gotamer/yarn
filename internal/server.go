@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"git.mills.io/prologic/observe"
+	"github.com/NYTimes/gziphandler"
 	"github.com/andyleap/microformats"
 	humanize "github.com/dustin/go-humanize"
 	"github.com/gabstv/merger"
@@ -796,7 +797,11 @@ func NewServer(bind string, options ...Option) (*Server, error) {
 			Handler: logger.New(logger.Options{
 				Prefix:               "twtxt",
 				RemoteAddressHeaders: []string{"X-Forwarded-For"},
-			}).Handler(sm.Handler(csrfHandler)),
+			}).Handler(
+				gziphandler.GzipHandler(
+					sm.Handler(csrfHandler),
+				),
+			),
 		},
 
 		// API
