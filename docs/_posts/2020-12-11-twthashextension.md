@@ -45,8 +45,8 @@ up the twt hash.
 This addresses setups where the same feed is served over multiple protocols
 (HTTP, HTTPS, Gopher, ...).
 
-Feeds can include metadata at the beginning. This includes one or more `url`
-fields:
+Feeds can include [metadata](metadataextension.html) at the beginning. This
+includes one or more `url` fields:
 
 ```
 # nick = cathy
