@@ -121,7 +121,10 @@ hash = hash[len(hash)-7:]
 ### Python 3
 
 ```python
-created = twt.created.isoformat().replace("+00:00", "Z")
+created = twt.created
+if created.tzinfo is None:
+    created = created.replace(tzinfo=datetime.timezone.utc)
+created = created.isoformat().replace("+00:00", "Z")
 payload = "%s\n%s\n%s" % (twt.twter.url, created, twt.text)
 sum256 = hashlib.blake2b(payload.encode("utf-8"), digest_size=32).digest()
 hash = base64.b32encode(sum256).decode("ascii").replace("=", "").lower()[-7:]
