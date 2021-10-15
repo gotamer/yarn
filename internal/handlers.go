@@ -963,6 +963,7 @@ func (s *Server) FeedHandler() httprouter.Handle {
 func (s *Server) FeedsHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		ctx := NewContext(s.config, s.db, r)
+		user := ctx.User
 
 		feeds, err := s.db.GetAllFeeds()
 		if err != nil {
@@ -980,8 +981,17 @@ func (s *Server) FeedsHandler() httprouter.Handle {
 			return
 		}
 
+		var userFeeds []*Feed
+
+		for _, feed := range feeds {
+			if user.OwnsFeed(feed.Name) {
+				userFeeds = append(userFeeds, feed)
+			}
+		}
+
 		ctx.Title = s.tr(ctx, "PageFeedsTitle")
 		ctx.Feeds = feeds
+		ctx.UserFeeds = userFeeds
 		ctx.FeedSources = feedsources.Sources
 
 		s.render("feeds", w, ctx)

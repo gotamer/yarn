@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"git.mills.io/yarnsocial/yarn/types"
-	"github.com/Masterminds/sprig"
+	"github.com/Masterminds/sprig/v3"
 	humanize "github.com/dustin/go-humanize"
 	log "github.com/sirupsen/logrus"
 )

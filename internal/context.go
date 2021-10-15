@@ -79,6 +79,7 @@ type Context struct {
 	BlogPost    *BlogPost
 	BlogPosts   BlogPosts
 	Feeds       []*Feed
+	UserFeeds   []*Feed
 	FeedSources FeedSourceMap
 	Pager       *paginator.Paginator
 

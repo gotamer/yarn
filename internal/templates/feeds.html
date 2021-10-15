@@ -1,61 +1,61 @@
 {{define "content"}}
 <article id="create">
-    <hgroup>
-        <h2>{{tr . "FeedsTitle"}}</h2>
-        <h3>{{tr . "FeedsSummary"}}</h3>
-    </hgroup>
-    <p>
+  <hgroup>
+    <h2>{{tr . "FeedsTitle"}}</h2>
+    <h3>{{tr . "FeedsSummary"}}</h3>
+  </hgroup>
+  <p>
     {{(tr . "FeedsHowToContent")|html}}
-    </p>
-    <form action="/feed" method="POST">
-        <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
-        <input type="text" name="name" placeholder="{{tr . "FeedsFormName"}}" aria-label="Username" autofocus required />
-        <button type="submit" class="primary">{{tr . "FeedsFormCreate"}}</button>
-    </form>
+  </p>
+  <form action="/feed" method="POST">
+    <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
+    <input type="text" name="name" placeholder="{{tr . "FeedsFormName"}}" aria-label="Username" autofocus required />
+    <button type="submit" class="primary">{{tr . "FeedsFormCreate"}}</button>
+  </form>
 </article>
 <article id="myfeeds">
-    <hgroup>
-        <h2>{{tr . "FeedsMyFeedsTitle"}}</h2>
-        <h3>{{tr . "FeedsMyFeedsSummary"}}</h3>
-    </hgroup>
-    <div class="grid">
-        {{ if .User.Feeds }}
-        {{$ctx:=.}}
-        {{ range .Feeds }}
-        <div>
-            {{ if $.User.OwnsFeed .Name }}
+  <hgroup>
+    <h2>{{tr . "FeedsMyFeedsTitle"}}</h2>
+    <h3>{{tr . "FeedsMyFeedsSummary"}}</h3>
+  </hgroup>
+  {{ if .User.Feeds }}
+    {{$ctx:=.}}
+    {{ range $idx, $feeds := (chunk 3 .UserFeeds) }}
+      <div class="grid">
+        {{ range $feeds }}
+          <div>
             <div class="u-author h-card">
-                <div>
-                    <a href="{{ .URL | trimSuffix "/twtxt.txt" }}" class="u-url">
-                        <img class="avatar u-photo" src="/user/{{ $.User.Username }}/avatar" alt="" />
-                    </a>
-                </div>
-                <div class="author">
-                    <a href="{{ .URL | trimSuffix "/twtxt.txt" }}" class="p-name">{{ .Name }}</a>
-                </div>
+              <div>
+                <a href="{{ .URL | trimSuffix "/twtxt.txt" }}" class="u-url">
+                  <img class="avatar u-photo" src="/user/{{ .Name }}/avatar" alt="" />
+                </a>
+              </div>
+              <div class="author">
+                <a href="{{ .URL | trimSuffix "/twtxt.txt" }}" class="p-name">{{ .Name }}</a>
+              </div>
             </div>
             {{ if .Description }}
-            <div class="p-summary">
+              <div class="p-summary">
                 {{ .Description }}
-            </div>
+              </div>
             {{ end }}
             <nav>
-                <ul>
-                    {{ if $.User.Follows .URL }}
-                    <li><a href="/unfollow?nick={{ .Name  }}"><i class="icss-minus" aria-hidden="true"></i> {{tr $ctx "UnfollowLinkTitle"}}</a></li>
-                    {{ else }}
-                    <li><a href="/follow?nick={{ .Name  }}&url={{ .URL }}"><i class="icss-plus" aria-hidden="true"></i> {{tr $ctx "FollowLinkTitle"}}</a></li>
-                    {{ end }}
-                    <li><a href="/feed/{{ .Name  }}/manage">{{tr $ctx "FeedManageLinkTitle"}}</a></li>
-                </ul>
+              <ul>
+                {{ if $.User.Follows .URL }}
+                  <li><a href="/unfollow?nick={{ .Name }}"><i class="icss-minus" aria-hidden="true"></i> {{tr $ctx "UnfollowLinkTitle"}}</a></li>
+                {{ else }}
+                  <li><a href="/follow?nick={{ .Name }}&url={{ .URL }}"><i class="icss-plus" aria-hidden="true"></i> {{tr $ctx "FollowLinkTitle"}}</a></li>
+                {{ end }}
+                <li><a href="/feed/{{ .Name  }}/manage">{{tr $ctx "FeedManageLinkTitle"}}</a></li>
+              </ul>
             </nav>
-        </div>
+          </div>
         {{ end }}
-        {{ end }}
-    </div>
-    {{ else }}
-    <p><small>{{(tr . "FeedsNoFeedsSummary")|html}}</small></p>
+      </div>
     {{ end }}
+  {{ else }}
+    <p><small>{{(tr . "FeedsNoFeedsSummary")|html}}</small></p>
+  {{ end }}
 </article>
 <article id="localfeeds">
     <hgroup>
@@ -65,39 +65,41 @@
     <p>
     {{(tr . "FeedsLocalFeedsContent" (dict "InstanceName" .InstanceName))|html}}
     </p>
-    <div class="grid">
-        {{$ctx:=.}}
-        {{ range .Feeds }}
-        {{ if not ($.User.OwnsFeed .Name) }}
-        <div>
-            <div class="u-author h-card">
+    {{$ctx:=.}}
+    {{ range $idx, $feeds := (chunk 3 .Feeds) }}
+      <div class="grid">
+        {{ range $feeds }}
+          {{ if not ($.User.OwnsFeed .Name) }}
+            <div>
+              <div class="u-author h-card">
                 <div>
-                    <a href="{{ .URL | trimSuffix "/twtxt.txt" }}" class="u-url">
-                        <img class="avatar u-photo" src="/user/{{ $.User.Username }}/avatar" alt="" />
-                    </a>
+                  <a href="{{ .URL | trimSuffix "/twtxt.txt" }}" class="u-url">
+                    <img class="avatar u-photo" src="/user/{{ .Name }}/avatar" alt="" />
+                  </a>
                 </div>
                 <div class="author">
-                    <a href="{{ .URL | trimSuffix "/twtxt.txt" }}" class="p-name">{{ .Name }}</a>
+                  <a href="{{ .URL | trimSuffix "/twtxt.txt" }}" class="p-name">{{ .Name }}</a>
                 </div>
-            </div>
-            {{ if .Description }}
-            <div class="p-summary">
-                {{ .Description }}
-            </div>
-            {{ end }}
-            <nav>
+              </div>
+              {{ if .Description }}
+                <div class="p-summary">
+                  {{ .Description }}
+                </div>
+              {{ end }}
+              <nav>
                 <ul>
-                    {{ if $.User.Follows .URL }}
+                  {{ if $.User.Follows .URL }}
                     <li><a href="/unfollow?nick={{ .Name  }}"><i class="icss-minus" aria-hidden="true"></i> {{tr $ctx "UnfollowLinkTitle"}}</a></li>
-                    {{ else }}
+                  {{ else }}
                     <li><a href="/follow?nick={{ .Name  }}&url={{ .URL }}"><i class="icss-plus" aria-hidden="true"></i> {{tr $ctx "FollowLinkTitle"}}</a></li>
-                    {{ end }}
+                  {{ end }}
                 </ul>
-            </nav>
-        </div>
+              </nav>
+            </div>
+          {{ end }}
         {{ end }}
-        {{ end }}
-    </div>
+      </div>
+    {{ end }}
 </article>
 <article id="externalfeeds">
     <hgroup>
