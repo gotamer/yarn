@@ -965,7 +965,7 @@ func (s *Server) FeedsHandler() httprouter.Handle {
 		ctx := NewContext(s.config, s.db, r)
 		user := ctx.User
 
-		feeds, err := s.db.GetAllFeeds()
+		allFeeds, err := s.db.GetAllFeeds()
 		if err != nil {
 			ctx.Error = true
 			ctx.Message = s.tr(ctx, "ErrorLoadingFeeds")
@@ -973,7 +973,7 @@ func (s *Server) FeedsHandler() httprouter.Handle {
 			return
 		}
 
-		feedsources, err := LoadFeedSources(s.config.Data)
+		feedSources, err := LoadFeedSources(s.config.Data)
 		if err != nil {
 			ctx.Error = true
 			ctx.Message = s.tr(ctx, "ErrorLoadingFeeds")
@@ -981,18 +981,23 @@ func (s *Server) FeedsHandler() httprouter.Handle {
 			return
 		}
 
-		var userFeeds []*Feed
+		var (
+			userFeeds  []*Feed
+			localFeeds []*Feed
+		)
 
-		for _, feed := range feeds {
+		for _, feed := range allFeeds {
 			if user.OwnsFeed(feed.Name) {
 				userFeeds = append(userFeeds, feed)
+			} else {
+				localFeeds = append(localFeeds, feed)
 			}
 		}
 
 		ctx.Title = s.tr(ctx, "PageFeedsTitle")
-		ctx.Feeds = feeds
+		ctx.LocalFeeds = localFeeds
 		ctx.UserFeeds = userFeeds
-		ctx.FeedSources = feedsources.Sources
+		ctx.FeedSources = feedSources.Sources
 
 		s.render("feeds", w, ctx)
 	}
@@ -2223,8 +2228,9 @@ func (s *Server) DeleteAllHandler() httprouter.Handle {
 func (s *Server) DeleteAccountHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		ctx := NewContext(s.config, s.db, r)
+		user := ctx.User
 
-		feeds, err := s.db.GetAllFeeds()
+		allFeeds, err := s.db.GetAllFeeds()
 		if err != nil {
 			ctx.Error = true
 			ctx.Message = s.tr(ctx, "ErrorLoadingFeeds")
@@ -2232,7 +2238,15 @@ func (s *Server) DeleteAccountHandler() httprouter.Handle {
 			return
 		}
 
-		ctx.Feeds = feeds
+		var userFeeds []*Feed
+
+		for _, feed := range allFeeds {
+			if user.OwnsFeed(feed.Name) {
+				userFeeds = append(userFeeds, feed)
+			}
+		}
+
+		ctx.UserFeeds = userFeeds
 		s.render("deleteAccount", w, ctx)
 	}
 }

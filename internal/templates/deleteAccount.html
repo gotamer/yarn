@@ -11,7 +11,7 @@
     <div id="myfeeds" class="grid">
       {{ if .User.Feeds }}
         <ul>
-          {{ range .Feeds }}
+          {{ range .UserFeeds }}
             {{ if $.User.OwnsFeed .Name }}
               <li>
                 <p><i>{{ .Name }}</i></p>
@@ -20,7 +20,7 @@
           {{ end }}
         </ul>
       {{ else }}
-      <p><small>{{tr . "DeleteAccountNoFeedsSummary"}}</small></p>
+        <p><small>{{tr . "DeleteAccountNoFeedsSummary"}}</small></p>
       {{ end }}
     </div>
     <div class="grid">

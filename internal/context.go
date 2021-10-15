@@ -78,7 +78,7 @@ type Context struct {
 	Twts        types.Twts
 	BlogPost    *BlogPost
 	BlogPosts   BlogPosts
-	Feeds       []*Feed
+	LocalFeeds  []*Feed
 	UserFeeds   []*Feed
 	FeedSources FeedSourceMap
 	Pager       *paginator.Paginator
