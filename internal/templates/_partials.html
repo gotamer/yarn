@@ -154,7 +154,7 @@
           <li><a class="delete" href="#" data-hash="{{ $.Twt.Hash }}"><i class="icss-x"></i> {{tr $.Ctx "TwtDeleteLinkTitle"}}</a></li>
         {{ end }}
         <li><a class="reply" href="#" data-reply="{{ $.User.Reply $.Twt }}"><i class="icss-arrow-left"></i> {{tr $.Ctx "TwtReplyLinkTitle"}}</a></li>
-        {{ if or (eq $.view "conv") (not (eq $.view "rootconv")) }}
+        {{ if and (eq $.view "conv") (not (eq $.view "rootconv")) }}
           <li><a class="fork" href="#" data-fork="{{ $.User.Fork $.Twt }}"><i class="icss-arrows"></i> {{tr $.Ctx "TwtForkLinkTitle"}}</a></li>
         {{ end }}
       {{ end }}
