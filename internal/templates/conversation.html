@@ -4,7 +4,7 @@
         <h2>{{tr . "ConversationTitle"}} <a href="/conv/{{ ($.Twts | first).Hash  }}">#{{ ($.Twts | first).Hash }}</a></h2>
         <h3>{{tr . "ConversationSummary"}} <a href="/twt/{{ ($.Twts | first).Hash  }}">#{{ ($.Twts | first).Hash }}</a></h3>
     </hgroup>
-    {{ template "twt" (dict "Authenticated" $.Authenticated "User" $.User "Profile" $.Profile "LastTwt" $.LastTwt "Twt" ( $.Twts | first) "Ctx" .  "view" "conv")}}
+    {{ template "twt" (dict "Authenticated" $.Authenticated "User" $.User "Profile" $.Profile "LastTwt" $.LastTwt "Twt" ( $.Twts | first) "Ctx" .  "view" "rootconv")}}
   </article>
   {{ template "feed" (dict "Authenticated" $.Authenticated "User" $.User "Profile" $.Profile "LastTwt" $.LastTwt "Pager" $.Pager "Twts" ($.Twts | rest) "Ctx" . "view" "conv") }}
   {{ if .Authenticated }}
