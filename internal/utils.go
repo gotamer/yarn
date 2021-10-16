@@ -1416,6 +1416,43 @@ func URLForConvFactory(conf *Config, cache *Cache, archive Archiver) func(twt ty
 	}
 }
 
+func URLForRootConvFactory(conf *Config, cache *Cache, archive Archiver) func(twt types.Twt) string {
+	return func(twt types.Twt) string {
+		subject := twt.Subject().String()
+		if subject == "" {
+			return ""
+		}
+
+		var hash string
+
+		re := regexp.MustCompile(`\(#([a-z0-9]+)\)`)
+		match := re.FindStringSubmatch(subject)
+		if match != nil {
+			hash = match[1]
+		} else {
+			re = regexp.MustCompile(`(@|#)<([^ ]+) *([^>]+)>`)
+			match = re.FindStringSubmatch(subject)
+			if match != nil {
+				hash = match[2]
+			}
+		}
+
+		if _, ok := cache.Lookup(hash); !ok && !archive.Has(hash) {
+			return ""
+		}
+
+		if twt.Hash() == hash {
+			return ""
+		}
+
+		return fmt.Sprintf(
+			"%s/conv/%s",
+			strings.TrimSuffix(conf.BaseURL, "/"),
+			hash,
+		)
+	}
+}
+
 func URLForTag(baseURL, tag string) string {
 	return fmt.Sprintf(
 		"%s/search?tag=%s",
