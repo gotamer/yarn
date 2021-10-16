@@ -105,6 +105,8 @@ func ParseFile(r io.Reader, twter types.Twter) (types.TwtFile, error) {
 		if n, err := strconv.Atoi(v.Value()); err == nil {
 			f.twter.Following = n
 		}
+	} else {
+		f.twter.Following = len(f.Info().Followers())
 	}
 
 	if v, ok := f.Info().GetN("followers", 0); ok {
