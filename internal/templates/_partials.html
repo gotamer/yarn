@@ -287,14 +287,18 @@
   {{ end }}
   {{ if $.Profile.ShowFollowers }}
     {{ if eq $.Profile.Type "External" }}
-      <li><a href="#">{{tr $.Ctx "ProfileFollowersLinkTitle"}} {{ $.Profile.NFollowers }}</a></li>
+      {{ if gt $.Profile.NFollowers 0 }}
+        <li><a href="#">{{tr $.Ctx "ProfileFollowersLinkTitle"}} {{ $.Profile.NFollowers }}</a></li>
+      {{ end }}
     {{ else }}
       <li><a href="/user/{{ $.Profile.Username }}/followers">{{tr $.Ctx "ProfileFollowersLinkTitle"}} {{ $.Profile.NFollowers | len }}</a></li>
     {{ end }}
   {{ end }}
   {{ if $.Profile.ShowFollowing }}
     {{ if eq $.Profile.Type "External" }}
-      <li><a href="#">{{tr $.Ctx "ProfileFollowingLinkTitle"}} {{ $.Profile.NFollowing }}</a></li>
+      {{ if gt $.Profile.NFollowing 0 }}
+        <li><a href="#">{{tr $.Ctx "ProfileFollowingLinkTitle"}} {{ $.Profile.NFollowing }}</a></li>
+      {{ end }}
     {{ else }}
       <li><a href="/user/{{ $.Profile.Username }}/following">{{tr $.Ctx "ProfileFollowingLinkTitle"}} {{ $.Profile.NFollowing | len }}</a></li>
     {{ end }}
