@@ -156,6 +156,10 @@
         <li><a class="reply" href="#" data-reply="{{ $.User.Reply $.Twt }}"><i class="icss-arrow-left"></i> {{tr $.Ctx "TwtReplyLinkTitle"}}</a></li>
         {{ if and (eq $.view "conv") (not (eq $.view "rootconv")) }}
           <li><a class="fork" href="#" data-fork="{{ $.User.Fork $.Twt }}"><i class="icss-arrows"></i> {{tr $.Ctx "TwtForkLinkTitle"}}</a></li>
+        {{ else if eq $.view "rootconv" }} 
+          {{ with urlForConv $.Twt }}
+            <li><a class="conv" href="{{ urlForConv $.Twt }}"><i class="icss-comment"></i> {{tr $.Ctx "TwtRootLinkTitle"}}</a></li>
+          {{ end }}
         {{ end }}
       {{ end }}
       {{ with urlForBlog $.Twt }}
@@ -180,8 +184,7 @@
     {{ else }}
       {{ if eq $.view "timeline" }}
         <p>{{tr $.Ctx "NoTwts"}}</p>
-        <p>
-        Try checking out the <a href="/discover">{{tr $.Ctx "NavDiscover"}}</a>
+        <p>Try checking out the <a href="/discover">{{tr $.Ctx "NavDiscover"}}</a>
         timeline to see what's happenning on the {{ $.Ctx.InstanceName }} pod or
         <a href="/follow">{{tr $.Ctx "NavFollow" }}</a> a feed</p>
       {{ end }}
