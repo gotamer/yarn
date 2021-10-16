@@ -24,6 +24,9 @@ type Profile struct {
 	Followers map[string]string
 	Following map[string]string
 
+	NFollowers int
+	NFollowing int
+
 	// `true` if the User viewing the Profile has permissions to show the
 	// bookmarks/followers/followings of this user/feed
 	ShowBookmarks bool

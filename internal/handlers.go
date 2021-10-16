@@ -1508,9 +1508,18 @@ func (s *Server) ExternalHandler() httprouter.Handle {
 		}
 
 		ctx.Profile = types.Profile{
+			Type: "External",
+
 			Username: nick,
+			Tagline:  ctx.Twter.Tagline,
 			TwtURL:   uri,
 			URL:      URLForExternalProfile(s.config, nick, uri),
+
+			NFollowing: ctx.Twter.Following,
+			NFollowers: ctx.Twter.Followers,
+
+			ShowFollowing: true,
+			ShowFollowers: true,
 
 			Follows:    ctx.User.Follows(uri),
 			FollowedBy: ctx.User.FollowedBy(uri),

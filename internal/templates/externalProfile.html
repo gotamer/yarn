@@ -51,9 +51,7 @@
             </li>
           </ul>
         </details>
-        <ul>
-          <li><a href="{{ .Profile.TwtURL }}">Twtxt<i class="icss-link"></i></a></li>
-        </ul>
+        {{ template "profileLinks" (dict "Profile" .Profile "ShowConfig" false "Ctx" .) }}
       </hgroup>
       <p>
         {{ if $.Profile.FollowedBy }}

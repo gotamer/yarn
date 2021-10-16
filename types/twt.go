@@ -19,11 +19,13 @@ const (
 
 // Twter ...
 type Twter struct {
-	Nick    string
-	URL     string
-	Avatar  string
-	Tagline string
-	Follow  map[string]Twter
+	Nick      string
+	URL       string
+	Avatar    string
+	Tagline   string
+	Following int
+	Followers int
+	Follow    map[string]Twter
 }
 
 func (twter Twter) IsZero() bool {

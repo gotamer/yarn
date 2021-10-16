@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
@@ -97,6 +98,18 @@ func ParseFile(r io.Reader, twter types.Twter) (types.TwtFile, error) {
 	if v, ok := f.Info().GetN("description", 0); ok {
 		if strings.TrimSpace(v.Value()) != "" {
 			f.twter.Tagline = v.Value()
+		}
+	}
+
+	if v, ok := f.Info().GetN("following", 0); ok {
+		if n, err := strconv.Atoi(v.Value()); err == nil {
+			f.twter.Following = n
+		}
+	}
+
+	if v, ok := f.Info().GetN("followers", 0); ok {
+		if n, err := strconv.Atoi(v.Value()); err == nil {
+			f.twter.Followers = n
 		}
 	}
 
