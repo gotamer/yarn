@@ -1270,12 +1270,44 @@ func (a *API) ExternalProfileEndpoint() httprouter.Handle {
 			nick = "unknown"
 		}
 
+		if !a.cache.IsCached(url) {
+			sources := make(types.Feeds)
+			sources[types.Feed{Nick: nick, URL: url}] = true
+			a.cache.FetchTwts(a.config, a.archive, sources, nil)
+		}
+
+		twts := a.cache.GetByURL(url)
+
+		var twter types.Twter
+
+		if len(twts) > 0 {
+			twter = twts[0].Twter()
+		} else {
+			twter = types.Twter{Nick: nick, URL: url}
+		}
+
+		if twter.Avatar == "" {
+			avatar := GetExternalAvatar(a.config, nick, url)
+			if avatar != "" {
+				twter.Avatar = URLForExternalAvatar(a.config, url)
+			}
+		}
+
 		profileResponse := types.ProfileResponse{}
 
 		profileResponse.Profile = types.Profile{
+			Type: "External",
+
 			Username: nick,
+			Tagline:  twter.Tagline,
 			TwtURL:   url,
 			URL:      url,
+
+			NFollowing: twter.Following,
+			NFollowers: twter.Followers,
+
+			ShowFollowing: true,
+			ShowFollowers: true,
 
 			Follows:    loggedInUser.Follows(url),
 			FollowedBy: loggedInUser.FollowedBy(url),
