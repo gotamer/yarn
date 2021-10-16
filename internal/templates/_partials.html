@@ -291,7 +291,7 @@
         <li><a href="#">{{tr $.Ctx "ProfileFollowersLinkTitle"}} {{ $.Profile.NFollowers }}</a></li>
       {{ end }}
     {{ else }}
-      <li><a href="/user/{{ $.Profile.Username }}/followers">{{tr $.Ctx "ProfileFollowersLinkTitle"}} {{ $.Profile.NFollowers | len }}</a></li>
+      <li><a href="/user/{{ $.Profile.Username }}/followers">{{tr $.Ctx "ProfileFollowersLinkTitle"}} {{ $.Profile.NFollowers }}</a></li>
     {{ end }}
   {{ end }}
   {{ if $.Profile.ShowFollowing }}
@@ -300,7 +300,7 @@
         <li><a href="#">{{tr $.Ctx "ProfileFollowingLinkTitle"}} {{ $.Profile.NFollowing }}</a></li>
       {{ end }}
     {{ else }}
-      <li><a href="/user/{{ $.Profile.Username }}/following">{{tr $.Ctx "ProfileFollowingLinkTitle"}} {{ $.Profile.NFollowing | len }}</a></li>
+      <li><a href="/user/{{ $.Profile.Username }}/following">{{tr $.Ctx "ProfileFollowingLinkTitle"}} {{ $.Profile.NFollowing }}</a></li>
     {{ end }}
   {{ end }}
   {{ if $.Profile.ShowBookmarks }}
