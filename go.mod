@@ -14,7 +14,6 @@ require (
 	github.com/andreadipersio/securecookie v0.0.0-20131119095127-e3c3b33544ec
 	github.com/andyleap/microformats v0.0.0-20150523144534-25ae286f528b
 	github.com/audiolion/ipip v1.0.0
-	github.com/bakape/thumbnailer/v2 v2.7.0
 	github.com/chai2010/webp v1.1.0
 	github.com/creasty/defaults v1.5.1
 	github.com/cyphar/filepath-securejoin v0.2.3

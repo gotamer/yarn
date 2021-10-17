@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/julienschmidt/httprouter"
-	"github.com/rickb777/accept"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -36,9 +35,6 @@ func (s *Server) MediaHandler() httprouter.Handle {
 		case ".mp4":
 			w.Header().Set("Content-Type", "video/mp4")
 			fn = filepath.Join(s.config.Data, mediaDir, name)
-		case ".webm":
-			w.Header().Set("Content-Type", "video/webm")
-			fn = filepath.Join(s.config.Data, mediaDir, name)
 		case ".ogg":
 			w.Header().Set("Content-Type", "audio/ogg")
 			fn = filepath.Join(s.config.Data, mediaDir, name)
@@ -46,15 +42,9 @@ func (s *Server) MediaHandler() httprouter.Handle {
 			w.Header().Set("Content-Type", "audio/mp3")
 			fn = filepath.Join(s.config.Data, mediaDir, name)
 		default:
-			if accept.PreferredContentTypeLike(r.Header, "image/webp") == "image/webp" {
-				w.Header().Set("Content-Type", "image/webp")
-				fn = filepath.Join(s.config.Data, mediaDir, fmt.Sprintf("%s.webp", name))
-			} else {
-				// Support older browsers like IE11 that don't support WebP :/
-				metrics.Counter("media", "old_media").Inc()
-				w.Header().Set("Content-Type", "image/png")
-				fn = filepath.Join(s.config.Data, mediaDir, fmt.Sprintf("%s.png", name))
-			}
+			metrics.Counter("media", "old_media").Inc()
+			w.Header().Set("Content-Type", "image/png")
+			fn = filepath.Join(s.config.Data, mediaDir, fmt.Sprintf("%s.png", name))
 		}
 
 		if !FileExists(fn) {

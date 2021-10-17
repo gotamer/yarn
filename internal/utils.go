@@ -36,7 +36,6 @@ import (
 	"git.mills.io/yarnsocial/yarn/types"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/audiolion/ipip"
-	"github.com/bakape/thumbnailer/v2"
 	"github.com/chai2010/webp"
 	"github.com/disintegration/gift"
 	"github.com/disintegration/imageorient"
@@ -121,13 +120,6 @@ var (
 	ErrInvalidAudio     = errors.New("error: invalid audio")
 	ErrInvalidVideo     = errors.New("error: invalid video")
 	ErrInvalidVideoSize = errors.New("error: invalid video size")
-
-	thumbnailerOpts = thumbnailer.Options{
-		ThumbDims: thumbnailer.Dims{
-			Width:  640,
-			Height: 480,
-		},
-	}
 )
 
 func GenerateRandomToken() string {
@@ -911,9 +903,9 @@ func TranscodeVideo(conf *Config, ifn string, resource, name string, opts *Video
 
 	if name == "" {
 		uuid := shortuuid.New()
-		ofn = filepath.Join(p, fmt.Sprintf("%s.webm", uuid))
+		ofn = filepath.Join(p, fmt.Sprintf("%s.mp4", uuid))
 	} else {
-		ofn = fmt.Sprintf("%s.webm", filepath.Join(p, name))
+		ofn = fmt.Sprintf("%s.mp4", filepath.Join(p, name))
 	}
 
 	of, err := os.OpenFile(ofn, os.O_WRONLY|os.O_CREATE, 0644)
@@ -924,50 +916,6 @@ func TranscodeVideo(conf *Config, ifn string, resource, name string, opts *Video
 	defer of.Close()
 
 	wg := sync.WaitGroup{}
-
-	TranscodeWebM := func(ctx context.Context, errs chan error) {
-		defer wg.Done()
-
-		args := []string{"-y", "-i", ifn}
-
-		if opts.Resize {
-			var scale string
-
-			switch opts.Size {
-			case 640:
-				scale = "scale=640:-2"
-			default:
-				log.Warnf("error invalid video size: %d", opts.Size)
-				errs <- ErrInvalidVideoSize
-				return
-			}
-
-			args = append(args, []string{
-				"-vf", scale,
-			}...)
-		}
-
-		args = append(args, []string{
-			"-c:v", "libvpx",
-			"-c:a", "libvorbis",
-			"-crf", "18",
-			"-r", "24",
-			"-preset", "ultrafast",
-			"-strict", "-2",
-			"-loglevel", "quiet",
-			ofn,
-		}...)
-
-		if err := RunCmd(
-			conf.TranscoderTimeout,
-			"ffmpeg",
-			args...,
-		); err != nil {
-			log.WithError(err).Error("error transcoding video")
-			errs <- err
-			return
-		}
-	}
 
 	TranscodeMP4 := func(ctx context.Context, errs chan error) {
 		defer wg.Done()
@@ -983,7 +931,7 @@ func TranscodeVideo(conf *Config, ifn string, resource, name string, opts *Video
 			"-acodec", "aac",
 			"-strict", "-2",
 			"-loglevel", "quiet",
-			ReplaceExt(ofn, ".mp4"),
+			ofn,
 		); err != nil {
 			log.WithError(err).Error("error transcoding video")
 			errs <- err
@@ -994,38 +942,18 @@ func TranscodeVideo(conf *Config, ifn string, resource, name string, opts *Video
 	GeneratePoster := func(ctx context.Context, errs chan error) {
 		defer wg.Done()
 
-		f, err := os.Open(ifn)
-		if err != nil {
-			log.WithError(err).Error("error generating video poster thumbnail")
-			errs <- err
-			return
-		}
-		defer f.Close()
-
-		// Generate poster / thumbnail
-		_, thumb, err := thumbnailer.Process(f, thumbnailerOpts)
-		if err != nil {
-			log.WithError(err).Error("error generating video poster thumbnail")
-			errs <- err
-			return
-		}
-
-		pf, err := os.OpenFile(ReplaceExt(ofn, ".webp"), os.O_WRONLY|os.O_CREATE, 0644)
-		if err != nil {
-			log.WithError(err).Error("error opening thumbnail output file")
-			errs <- err
-			return
-		}
-		defer pf.Close()
-
-		if err := webp.Encode(pf, thumb, &webp.Options{Lossless: true}); err != nil {
-			log.WithError(err).Error("error reencoding thumbnail image")
-			errs <- err
-			return
-		}
-
-		if err := ImageToPng(ReplaceExt(ofn, ".webp")); err != nil {
-			log.WithError(err).Errorf("error reencoding thumbnail image to PNG (for older browsers: %s", ofn)
+		if err := RunCmd(
+			conf.TranscoderTimeout,
+			"ffmpeg",
+			"-ss", "00:00:03.000",
+			"-i", ifn,
+			"-y",
+			"-vframes", "1",
+			"-strict", "-2",
+			"-loglevel", "quiet",
+			ReplaceExt(ofn, ".png"),
+		); err != nil {
+			log.WithError(err).Error("error generating video poster")
 			errs <- err
 			return
 		}
@@ -1039,9 +967,8 @@ func TranscodeVideo(conf *Config, ifn string, resource, name string, opts *Video
 	nErrors := 0
 	errChan := make(chan error)
 
-	wg.Add(3)
+	wg.Add(2)
 
-	go TranscodeWebM(ctx, errChan)
 	go TranscodeMP4(ctx, errChan)
 	go GeneratePoster(ctx, errChan)
 
@@ -1605,19 +1532,13 @@ func RenderVideo(conf *Config, uri string) string {
 			return ""
 		}
 
-		webmURI := u.String()
-
-		u.Path = ReplaceExt(u.Path, ".mp4")
-		mp4URI := u.String()
-
 		u.Path = ReplaceExt(u.Path, "")
 		posterURI := u.String()
 
 		return fmt.Sprintf(`<video controls playsinline preload="auto" poster="%s">
-    <source type="video/webm" src="%s" />
     <source type="video/mp4" src="%s" />
     Your browser does not support the video element.
-  </video>`, posterURI, webmURI, mp4URI)
+  </video>`, posterURI, uri)
 	}
 
 	return fmt.Sprintf(`<video controls playsinline preload="auto">
