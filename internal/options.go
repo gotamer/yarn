@@ -57,6 +57,9 @@ const (
 	// DefaultDisableGzip is the default for disabling Gzip compression
 	DefaultDisableGzip = false
 
+	// DefaultDisableFfmpeg is the default for disabling ffmpeg support
+	DefaultDisableFfmpeg = false
+
 	// DefaultRegisterMessage is the default message displayed when  registrations are disabled
 	DefaultRegisterMessage = ""
 
@@ -172,6 +175,7 @@ func NewConfig() *Config {
 		OpenProfiles:      DefaultOpenProfiles,
 		OpenRegistrations: DefaultOpenRegistrations,
 		DisableGzip:       DefaultDisableGzip,
+		DisableFfmpeg:     DefaultDisableFfmpeg,
 		SessionExpiry:     DefaultSessionExpiry,
 		MagicLinkSecret:   DefaultMagicLinkSecret,
 		SMTPHost:          DefaultSMTPHost,
@@ -297,6 +301,14 @@ func WithOpenRegistrations(openRegistrations bool) Option {
 func WithDisableGzip(disableGzip bool) Option {
 	return func(cfg *Config) error {
 		cfg.DisableGzip = disableGzip
+		return nil
+	}
+}
+
+// WithDisableFfmpeg sets the disable ffmpeg flag
+func WithDisableFfmpeg(disableFfmpeg bool) Option {
+	return func(cfg *Config) error {
+		cfg.DisableFfmpeg = disableFfmpeg
 		return nil
 	}
 }

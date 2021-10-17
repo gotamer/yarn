@@ -906,6 +906,12 @@ func NewServer(bind string, options ...Option) (*Server, error) {
 		log.Warn("Open Registrations are disabled as per configuration (no -R/--open-registrations)")
 	}
 
+	// Warn about `ffmpeg` not installed or available
+	if !CmdExists("ffmpeg") {
+		log.Warn("ffmpeg not found, audio and video support will be disabled")
+		server.config.DisableFfmpeg = true
+	}
+
 	server.initRoutes()
 	api.initRoutes()
 

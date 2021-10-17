@@ -41,6 +41,7 @@ type Context struct {
 	MaxTwtLength            int
 	RegisterDisabled        bool
 	OpenProfiles            bool
+	DisableFfmpeg           bool
 	RegisterDisabledMessage string
 	WhitelistedDomains      []string
 	EnabledFeatures         []string
@@ -111,6 +112,7 @@ func NewContext(conf *Config, db Store, req *http.Request) *Context {
 		MaxTwtLength:       conf.MaxTwtLength,
 		RegisterDisabled:   !conf.OpenRegistrations,
 		OpenProfiles:       conf.OpenProfiles,
+		DisableFfmpeg:      conf.DisableFfmpeg,
 		LastTwt:            types.NilTwt,
 		WhitelistedDomains: conf.WhitelistedDomains,
 		EnabledFeatures:    conf.Features.AsStrings(),

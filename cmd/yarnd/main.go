@@ -67,6 +67,7 @@ var (
 	openProfiles      bool
 	openRegistrations bool
 	disableGzip       bool
+	disableFfmpeg     bool
 
 	// Pod Limits
 	twtsPerPage   int
@@ -139,6 +140,10 @@ func init() {
 	flag.BoolVar(
 		&disableGzip, "disable-gzip", internal.DefaultDisableGzip,
 		"whether or not to disable Gzip compression",
+	)
+	flag.BoolVar(
+		&disableFfmpeg, "disable-ffmpeg", internal.DefaultDisableFfmpeg,
+		"whether or not to disable ffmpeg support for video and audio",
 	)
 
 	// Pod Limits
@@ -308,6 +313,7 @@ func main() {
 		internal.WithOpenProfiles(openProfiles),
 		internal.WithOpenRegistrations(openRegistrations),
 		internal.WithDisableGzip(disableGzip),
+		internal.WithDisableFfmpeg(disableFfmpeg),
 
 		// Pod Limits
 		internal.WithTwtsPerPage(twtsPerPage),
