@@ -7,7 +7,6 @@ type Profile struct {
 	Username  string
 	Tagline   string
 	URL       string
-	TwtURL    string
 	BlogsURL  string
 	AvatarURL string
 

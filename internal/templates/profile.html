@@ -63,12 +63,12 @@
       </hgroup>
       <p>
         {{ if $.Profile.FollowedBy }}
-          <a href="{{ .Profile.TwtURL }}">@{{ .Profile.Username }}
+          <a href="{{ .Profile.URL }}">@{{ .Profile.Username }}
             <i class="icss-exchagne"></i>
           </a>
           {{tr . "ProfileFollowsYou"}}
         {{ else }}
-          <a href="{{ .Profile.TwtURL }}">@{{ .Profile.Username }}
+          <a href="{{ .Profile.URL }}">@{{ .Profile.Username }}
             <i class="icss-x"></i>
           </a>
           {{(tr . "ProfileDoesNotFollowYou")|html}}

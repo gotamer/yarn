@@ -283,7 +283,7 @@
   {{ with $.Profile.BlogsURL }}
     <li><a href="{{ $.Profile.BlogsURL }}">{{tr $.Ctx "ProfileBlogsLinkTitle"}}&nbsp;<i class="icss-quill-pen"></i></a></li>
   {{ end }}
-  <li><a target="_blank" href="{{ $.Profile.TwtURL }}">{{tr $.Ctx "ProfileTwtxtLinkTitle"}}&nbsp;<i class="icss-link"></i></a></li>
+  <li><a target="_blank" href="{{ $.Profile.URL }}">{{tr $.Ctx "ProfileTwtxtLinkTitle"}}&nbsp;<i class="icss-link"></i></a></li>
   {{ if eq $.Profile.Type "User" }}
     <li><a target="_blank" href="{{ $.Profile.URL | trimSuffix "/twtxt.txt" }}/atom.xml">{{tr $.Ctx "ProfileAtomLinkTitle"}}&nbsp;<i class="icss-rss"></i></a></li>
   {{ end }}

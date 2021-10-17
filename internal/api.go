@@ -1300,7 +1300,6 @@ func (a *API) ExternalProfileEndpoint() httprouter.Handle {
 
 			Username: nick,
 			Tagline:  twter.Tagline,
-			TwtURL:   url,
 			URL:      url,
 
 			NFollowing: twter.Following,
