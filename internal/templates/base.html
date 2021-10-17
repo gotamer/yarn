@@ -136,16 +136,16 @@
   <footer class="container">
     <div class="footer-copyright">
       running <a href="https://git.mills.io/yarnsocial/yarn" target="_blank">yarnd</a>
-      <a href="/version" target="_blank">{{ .SoftwareVersion.FullVersion }}</a> ·
+      <a href="/version">{{ .SoftwareVersion.FullVersion }}</a> ·
       a <a href="https://yarn.social" target="_blank">Yarn.social</a> pod
     </div>
     <div class="footer-menu">
-        <a href="/about" target="_blank" class="menu-item">{{tr . "MenuAbout"}}</a>
-      <a href="/privacy" target="_blank" class="menu-item">{{tr . "MenuPrivacy"}}</a>
-      <a href="/abuse" target="_blank" class="menu-item">{{tr . "MenuAbuse"}}</a>
-      <a href="/help" target="_blank" class="menu-item">{{tr . "MenuHelp"}}</a>
-      <a href="/support" target="_blank" class="menu-item">{{tr . "MenuSupport"}}</a>
-      <a href="/atom.xml" target="_blank"> <i class="icss-rss"></i></a>
+        <a href="/about" class="menu-item">{{tr . "MenuAbout"}}</a>
+      <a href="/privacy" class="menu-item">{{tr . "MenuPrivacy"}}</a>
+      <a href="/abuse" class="menu-item">{{tr . "MenuAbuse"}}</a>
+      <a href="/help" class="menu-item">{{tr . "MenuHelp"}}</a>
+      <a href="/support" class="menu-item">{{tr . "MenuSupport"}}</a>
+      <a href="/atom.xml"> <i class="icss-rss"></i></a>
     </div>
   </footer>
   {{ if $.Debug }}

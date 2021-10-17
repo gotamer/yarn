@@ -278,7 +278,7 @@
 {{ define "profileLinks" }}
 <ul>
   {{ if $.ShowConfig }}
-    <li><a target="_blank" href="/user/{{ $.Profile.Username }}/config.yaml">{{tr $.Ctx "ProfileConfigLinkTitle"}}&nbsp;<i class="icss-gear"></i></a></li>
+    <li><a  href="/user/{{ $.Profile.Username }}/config.yaml">{{tr $.Ctx "ProfileConfigLinkTitle"}}&nbsp;<i class="icss-gear"></i></a></li>
   {{ end }}
   {{ with $.Profile.BlogsURL }}
     <li><a href="{{ $.Profile.BlogsURL }}">{{tr $.Ctx "ProfileBlogsLinkTitle"}}&nbsp;<i class="icss-quill-pen"></i></a></li>
