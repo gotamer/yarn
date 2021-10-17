@@ -36,7 +36,6 @@ import (
 	"git.mills.io/yarnsocial/yarn/types"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/audiolion/ipip"
-	"github.com/chai2010/webp"
 	"github.com/disintegration/gift"
 	"github.com/disintegration/imageorient"
 	"github.com/gomarkdown/markdown"
@@ -173,39 +172,6 @@ func ReplaceExt(fn, newExt string) string {
 	return fmt.Sprintf("%s%s", strings.TrimSuffix(fn, oldExt), newExt)
 }
 
-func ImageToPng(fn string) error {
-	if !IsImage(fn) {
-		return ErrInvalidImage
-	}
-
-	f, err := os.Open(fn)
-	if err != nil {
-		log.WithError(err).Errorf("error opening image  %s", fn)
-		return err
-	}
-	defer f.Close()
-
-	img, _, err := image.Decode(f)
-	if err != nil {
-		log.WithError(err).Error("image.Decode failed")
-		return err
-	}
-
-	of, err := os.OpenFile(ReplaceExt(fn, ".png"), os.O_WRONLY|os.O_CREATE, 0644)
-	if err != nil {
-		log.WithError(err).Error("error opening output file")
-		return err
-	}
-	defer of.Close()
-
-	if err := png.Encode(of, img); err != nil {
-		log.WithError(err).Error("error reencoding image")
-		return err
-	}
-
-	return nil
-}
-
 func GetExternalAvatar(conf *Config, nick, uri string) string {
 	// Don't try to discover Avatars for gopher:// URI(s) (to be polite!)
 	if strings.HasPrefix(uri, "gopher://") {
@@ -214,7 +180,7 @@ func GetExternalAvatar(conf *Config, nick, uri string) string {
 
 	slug := Slugify(uri)
 
-	fn := filepath.Join(conf.Data, externalDir, fmt.Sprintf("%s.webp", slug))
+	fn := filepath.Join(conf.Data, externalDir, fmt.Sprintf("%s.png", slug))
 	if FileExists(fn) {
 		return URLForExternalAvatar(conf, uri)
 	}
@@ -230,7 +196,6 @@ func GetExternalAvatar(conf *Config, nick, uri string) string {
 	}
 
 	candidates := []string{
-		"../avatar.webp", "./avatar.webp",
 		"../avatar.png", "./avatar.png",
 		"../logo.png", "./logo.png",
 		"../avatar.jpg", "./avatar.jpg",
@@ -826,9 +791,9 @@ func ProcessImage(conf *Config, ifn string, resource, name string, opts *ImageOp
 
 	if name == "" {
 		uuid := shortuuid.New()
-		ofn = filepath.Join(p, fmt.Sprintf("%s.webp", uuid))
+		ofn = filepath.Join(p, fmt.Sprintf("%s.png", uuid))
 	} else {
-		ofn = fmt.Sprintf("%s.webp", filepath.Join(p, name))
+		ofn = fmt.Sprintf("%s.png", filepath.Join(p, name))
 	}
 
 	f, err := os.Open(ifn)
@@ -872,17 +837,9 @@ func ProcessImage(conf *Config, ifn string, resource, name string, opts *ImageOp
 	}
 	defer of.Close()
 
-	if err := webp.Encode(of, newImg, &webp.Options{Lossless: true}); err != nil {
-		log.WithError(err).Error("error reencoding image")
+	if err := png.Encode(of, newImg); err != nil {
+		log.WithError(err).Error("error encoding image")
 		return "", err
-	}
-
-	// Re-encode to PNG (for older browsers)
-	if err := of.Close(); err != nil {
-		log.WithError(err).Warnf("error closing file %s", ofn)
-	}
-	if err := ImageToPng(ofn); err != nil {
-		log.WithError(err).Warnf("error reencoding image to PNG (for older browsers: %s", ofn)
 	}
 
 	return fmt.Sprintf(

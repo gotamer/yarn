@@ -18,7 +18,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/chai2010/webp"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/html"
@@ -26,7 +25,6 @@ import (
 	"github.com/gorilla/feeds"
 	"github.com/james4k/fmatter"
 	"github.com/julienschmidt/httprouter"
-	"github.com/rickb777/accept"
 	log "github.com/sirupsen/logrus"
 	"github.com/vcraescu/go-paginator"
 	"github.com/vcraescu/go-paginator/adapter"
@@ -468,27 +466,8 @@ func (s *Server) AvatarHandler() httprouter.Handle {
 			return
 		}
 
-		preferredContentType := accept.PreferredContentTypeLike(r.Header, "image/webp")
-
-		// Apple iOS 14.x is lying. It claims it can support WebP and sends
-		// an Accept: image/webp,... however it doesn't render the WebP
-		// correctly at all.
-		// XXX: https://git.mills.io/yarnsocial/yarn/issues/337 for details
-		if preferredContentType == "image/webp" && strings.Contains(r.UserAgent(), "iPhone OS 14") {
-			preferredContentType = "image/png"
-		}
-
-		var fn string
-
-		if preferredContentType == "image/webp" {
-			fn = filepath.Join(s.config.Data, avatarsDir, fmt.Sprintf("%s.webp", nick))
-			w.Header().Set("Content-Type", "image/webp")
-		} else {
-			// Support older browsers like IE11 that don't support WebP :/
-			metrics.Counter("media", "old_avatar").Inc()
-			fn = filepath.Join(s.config.Data, avatarsDir, fmt.Sprintf("%s.png", nick))
-			w.Header().Set("Content-Type", "image/png")
-		}
+		fn := filepath.Join(s.config.Data, avatarsDir, fmt.Sprintf("%s.png", nick))
+		w.Header().Set("Content-Type", "image/png")
 
 		if fileInfo, err := os.Stat(fn); err == nil {
 			etag := fmt.Sprintf("W/\"%s-%s\"", r.RequestURI, fileInfo.ModTime().Format(time.RFC3339))
@@ -540,19 +519,6 @@ func (s *Server) AvatarHandler() httprouter.Handle {
 		if err != nil {
 			log.WithError(err).Errorf("error generating avatar for %s", nick)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			return
-		}
-
-		if preferredContentType == "image/webp" {
-			w.Header().Set("Content-Type", "image/webp")
-			if r.Method == http.MethodHead {
-				return
-			}
-			if err := webp.Encode(w, img, &webp.Options{Lossless: true}); err != nil {
-				log.WithError(err).Error("error encoding auto generated avatar")
-				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-				return
-			}
 			return
 		}
 
@@ -1548,27 +1514,8 @@ func (s *Server) ExternalAvatarHandler() httprouter.Handle {
 		}
 		slug := Slugify(uri)
 
-		var fn string
-
-		preferredContentType := accept.PreferredContentTypeLike(r.Header, "image/webp")
-
-		// Apple iOS 14.x is lying. It claims it can support WebP and sends
-		// an Accept: image/webp,... however it doesn't render the WebP
-		// correctly at all.
-		// XXX: https://git.mills.io/yarnsocial/yarn/issues/337 for details
-		if preferredContentType == "image/webp" && strings.Contains(r.UserAgent(), "iPhone OS 14") {
-			preferredContentType = "image/png"
-		}
-
-		if preferredContentType == "image/webp" {
-			fn = filepath.Join(s.config.Data, externalDir, fmt.Sprintf("%s.webp", slug))
-			w.Header().Set("Content-Type", "image/webp")
-		} else {
-			// Support older browsers like IE11 that don't support WebP :/
-			metrics.Counter("media", "old_avatar").Inc()
-			fn = filepath.Join(s.config.Data, externalDir, fmt.Sprintf("%s.png", slug))
-			w.Header().Set("Content-Type", "image/png")
-		}
+		fn := filepath.Join(s.config.Data, externalDir, fmt.Sprintf("%s.png", slug))
+		w.Header().Set("Content-Type", "image/png")
 
 		if !FileExists(fn) {
 			log.Warnf("no external avatar found for %s", slug)
@@ -2104,17 +2051,6 @@ func (s *Server) DeleteAllHandler() httprouter.Handle {
 										return
 									}
 								}
-
-								// Delete .webp
-								fn = filepath.Join(s.config.Data, mediaDir, fmt.Sprintf("%s.webp", mediaPath))
-								if FileExists(fn) {
-									if err := os.Remove(fn); err != nil {
-										ctx.Error = true
-										ctx.Message = s.tr(ctx, "ErrorDeletingAccount")
-										s.render("error", w, ctx)
-										return
-									}
-								}
 							}
 						}
 					}
@@ -2169,17 +2105,6 @@ func (s *Server) DeleteAllHandler() httprouter.Handle {
 			for _, mediaPath := range mediaPaths {
 				// Delete .png
 				fn := filepath.Join(s.config.Data, mediaDir, fmt.Sprintf("%s.png", mediaPath))
-				if FileExists(fn) {
-					if err := os.Remove(fn); err != nil {
-						log.WithError(err).Error("error removing media")
-						ctx.Error = true
-						ctx.Message = s.tr(ctx, "ErrorDeletingAccount")
-						s.render("error", w, ctx)
-					}
-				}
-
-				// Delete .webp
-				fn = filepath.Join(s.config.Data, mediaDir, fmt.Sprintf("%s.webp", mediaPath))
 				if FileExists(fn) {
 					if err := os.Remove(fn); err != nil {
 						log.WithError(err).Error("error removing media")

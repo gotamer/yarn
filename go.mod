@@ -4,18 +4,18 @@ go 1.16
 
 require (
 	git.mills.io/prologic/bitcask v1.0.0
-	git.mills.io/prologic/go-gopher v0.0.0-20210712135410-b7ebb55feece
-	git.mills.io/prologic/observe v0.0.0-20210710122508-45e27ec8bb27
+	git.mills.io/prologic/go-gopher v0.0.0-20210723054659-c5e856b800b8
+	git.mills.io/prologic/observe v0.0.0-20210712230028-fc31c7aa2bd1
 	git.mills.io/prologic/read-file-last-line v0.0.0-20210710073401-af293d63a6d0
 	git.mills.io/prologic/smtpd v0.0.0-20210710122116-a525b76c287a
 	github.com/Masterminds/sprig/v3 v3.2.2
 	github.com/NYTimes/gziphandler v1.1.1
 	github.com/PuerkitoBio/goquery v1.7.1
 	github.com/andreadipersio/securecookie v0.0.0-20131119095127-e3c3b33544ec
+	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/andyleap/microformats v0.0.0-20150523144534-25ae286f528b
 	github.com/audiolion/ipip v1.0.0
-	github.com/chai2010/webp v1.1.0
-	github.com/creasty/defaults v1.5.1
+	github.com/creasty/defaults v1.5.2
 	github.com/cyphar/filepath-securejoin v0.2.3
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/disintegration/gift v1.2.1
@@ -24,12 +24,12 @@ require (
 	github.com/elithrar/simple-scrypt v1.3.0
 	github.com/emersion/go-mbox v1.0.2
 	github.com/emersion/go-message v0.15.0
-	github.com/fatih/color v1.12.0 // indirect
+	github.com/fatih/color v1.13.0 // indirect
 	github.com/gabstv/merger v1.0.1
 	github.com/go-mail/mail v2.3.1+incompatible
-	github.com/goccy/go-yaml v1.8.10
+	github.com/goccy/go-yaml v1.9.4
 	github.com/gofrs/flock v0.8.1 // indirect
-	github.com/gomarkdown/markdown v0.0.0-20210514010506-3b9f47219fe7
+	github.com/gomarkdown/markdown v0.0.0-20210918233619-6c1113f12c4a
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/feeds v1.1.1
 	github.com/goware/urlx v0.3.1
@@ -47,7 +47,7 @@ require (
 	github.com/marksalpeter/sugar v0.0.0-20160713164314-a69afe358ea8 // indirect
 	github.com/marksalpeter/token/v2 v2.0.0
 	github.com/matryer/is v1.4.0
-	github.com/mattn/go-isatty v0.0.13 // indirect
+	github.com/mattn/go-colorable v0.1.11 // indirect
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
 	github.com/microcosm-cc/bluemonday v1.0.15
 	github.com/mitchellh/copystructure v1.2.0 // indirect
@@ -57,18 +57,19 @@ require (
 	github.com/nicksnyder/go-i18n/v2 v2.1.2
 	github.com/nullrocks/identicon v0.0.0-20180626043057-7875f45b0022
 	github.com/patrickmn/go-cache v2.1.0+incompatible
-	github.com/prometheus/common v0.29.0 // indirect
-	github.com/prometheus/procfs v0.7.0 // indirect
+	github.com/prometheus/common v0.31.1 // indirect
+	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/rainycape/unidecode v0.0.0-20150907023854-cb7f23ec59be // indirect
 	github.com/renstrom/shortuuid v3.0.0+incompatible
 	github.com/rickb777/accept v0.0.0-20170318132422-d5183c44530d
 	github.com/robfig/cron v1.2.0
 	github.com/securisec/go-keywords v0.0.0-20200619134240-769e7273f2ed
+	github.com/shopspring/decimal v1.3.0 // indirect
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/pflag v1.0.5
-	github.com/spf13/viper v1.8.1
-	github.com/steambap/captcha v1.3.1
+	github.com/spf13/viper v1.9.0
+	github.com/steambap/captcha v1.4.1
 	github.com/stretchr/testify v1.7.0
 	github.com/tebeka/selenium v0.9.9
 	github.com/theplant-retired/timezones v0.0.0-20150304063004-f9bd3c0ef9db
@@ -77,15 +78,13 @@ require (
 	github.com/wblakecaldwell/profiler v0.0.0-20150908040756-6111ef1313a1
 	github.com/writeas/slug v1.2.0
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
-	golang.org/x/exp v0.0.0-20210722180016-6781d3edade3 // indirect
-	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d // indirect
-	golang.org/x/net v0.0.0-20210614182718-04defd469f4e
-	golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c // indirect
-	golang.org/x/term v0.0.0-20210615171337-6886f2dfbf5b // indirect
-	golang.org/x/text v0.3.6
-	google.golang.org/protobuf v1.27.1 // indirect
+	golang.org/x/exp v0.0.0-20211012155715-ffe10e552389 // indirect
+	golang.org/x/net v0.0.0-20211015210444-4f30a5c0130f
+	golang.org/x/sys v0.0.0-20211015200801-69063c4bb744 // indirect
+	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
+	golang.org/x/text v0.3.7
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/mail.v2 v2.3.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0
-	gorm.io/gorm v1.21.11 // indirect
+	gorm.io/gorm v1.21.16 // indirect
 )

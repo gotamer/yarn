@@ -302,17 +302,6 @@ func (s *Server) DelUserHandler() httprouter.Handle {
 										return
 									}
 								}
-
-								// Delete .webp
-								fn = filepath.Join(s.config.Data, mediaDir, fmt.Sprintf("%s.webp", mediaPath))
-								if FileExists(fn) {
-									if err := os.Remove(fn); err != nil {
-										ctx.Error = true
-										ctx.Message = "An error occured whilst deleting your account"
-										s.render("error", w, ctx)
-										return
-									}
-								}
 							}
 						}
 					}
@@ -367,17 +356,6 @@ func (s *Server) DelUserHandler() httprouter.Handle {
 			for _, mediaPath := range mediaPaths {
 				// Delete .png
 				fn := filepath.Join(s.config.Data, mediaDir, fmt.Sprintf("%s.png", mediaPath))
-				if FileExists(fn) {
-					if err := os.Remove(fn); err != nil {
-						log.WithError(err).Error("error removing media")
-						ctx.Error = true
-						ctx.Message = "An error occured whilst deleting your account"
-						s.render("error", w, ctx)
-					}
-				}
-
-				// Delete .webp
-				fn = filepath.Join(s.config.Data, mediaDir, fmt.Sprintf("%s.webp", mediaPath))
 				if FileExists(fn) {
 					if err := os.Remove(fn); err != nil {
 						log.WithError(err).Error("error removing media")

@@ -29,14 +29,8 @@ func (s *Server) MediaHandler() httprouter.Handle {
 			metrics.Counter("media", "old_media").Inc()
 			w.Header().Set("Content-Type", "image/png")
 			fn = filepath.Join(s.config.Data, mediaDir, name)
-		case ".webp":
-			w.Header().Set("Content-Type", "image/webp")
-			fn = filepath.Join(s.config.Data, mediaDir, name)
 		case ".mp4":
 			w.Header().Set("Content-Type", "video/mp4")
-			fn = filepath.Join(s.config.Data, mediaDir, name)
-		case ".ogg":
-			w.Header().Set("Content-Type", "audio/ogg")
 			fn = filepath.Join(s.config.Data, mediaDir, name)
 		case ".mp3":
 			w.Header().Set("Content-Type", "audio/mp3")
