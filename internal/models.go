@@ -563,6 +563,7 @@ func (u *User) Filter(twts []types.Twt) (filtered []types.Twt) {
 		return twts
 	}
 
+	filtered = make([]types.Twt, 0)
 	for _, twt := range twts {
 		if u.HasMuted(twt.Twter().URL) {
 			continue
