@@ -100,17 +100,18 @@
       </a>
       {{ else }}
         {{ if isLocalURL $.Twt.Twter.URL }}
-      <a href="{{ $.Twt.Twter.URL | trimSuffix "/twtxt.txt" }}" class="u-url">
-        <img class="avatar u-photo" src="/user/{{ $.Twt.Twter.Nick }}/avatar" alt="" loading=lazy />
+          <a href="{{ $.Twt.Twter.URL | trimSuffix "/twtxt.txt" }}" class="u-url">
+            <img class="avatar u-photo" src="/user/{{ $.Twt.Twter.Nick }}/avatar" alt="" loading=lazy />
+          </a>
         {{ else }}
-        <a href="/external?uri={{ $.Twt.Twter.URL }}&nick={{ $.Twt.Twter.Nick }}" class="u-url">
-          {{ if $.Twt.Twter.Avatar }}
-          <img class="avatar u-photo" src="{{ $.Twt.Twter.Avatar }}" alt="" loading=lazy />
-          {{ else }}
-          <i class="icss-rss" style="font-size:3em"></i>
-          {{ end }}
+          <a href="/external?uri={{ $.Twt.Twter.URL }}&nick={{ $.Twt.Twter.Nick }}" class="u-url">
+            {{ if $.Twt.Twter.Avatar }}
+              <img class="avatar u-photo" src="{{ $.Twt.Twter.Avatar }}" alt="" loading=lazy />
+            {{ else }}
+              <i class="icss-rss" style="font-size:3em"></i>
+            {{ end }}
+          </a>
         {{ end }}
-        </a>
       {{ end }}
     </div>
     <div class="author">

@@ -23,7 +23,7 @@ const defaultPreambleTemplate = `# Twtxt is an open, distributed microblogging p
 #
 # nick        = {{ .Profile.Username }}
 # url         = {{ .Profile.URL }}
-# avatar      = {{ .Profile.AvatarURL }}
+# avatar      = {{ .Profile.Avatar }}
 # description = {{ .Profile.Tagline }}
 #
 # followers   = {{ if .Profile.ShowFollowers }}{{ len .Profile.Followers }}{{ end }}

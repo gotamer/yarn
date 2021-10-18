@@ -4,11 +4,15 @@ package types
 type Profile struct {
 	Type string
 
-	Username  string
-	Tagline   string
-	URL       string
-	BlogsURL  string
-	AvatarURL string
+	URL string
+	// TODO: Rename to Nick
+	Username string
+	Avatar   string
+	// TODO: Rename to Description
+	Tagline string
+
+	// TODO: Replace with Links []Link
+	BlogsURL string
 
 	// `true` if the User viewing the Profile has muted this user/feed
 	Muted bool

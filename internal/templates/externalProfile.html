@@ -3,17 +3,17 @@
     <div>
       <hgroup>
         <h2 class="u-author h-card">
-          <a href="{{ .Profile.URL }}" class="u-url p-name">
-            {{ if $.Twter.Avatar }}
-              <img class="avatar u-photo" src="{{ $.Twter.Avatar }}" alt="" />
+          <a href="/external?uri={{ .Profile.URL }}&nick={{ .Profile.Username }}" class="u-url">
+            {{ if .Profile.Avatar }}
+              <img class="avatar u-photo" src="{{ .Profile.Avatar }}" alt="" loading=lazy />
             {{ else }}
-              <i class="icss-rss" style="font-size:1.75em"></i>
+              <i class="icss-rss" style="font-size:3em"></i>
             {{ end }}
             <span class="p-name">{{ .Profile.Username }}</span>
           </a><span class="p-org">@{{ .Profile.URL | hostnameFromURL }}</span>
         </h2>
         <h3>
-          {{ if $.User.Follows .Profile.URL }}
+          {{ if .Profile.Follows }}
             <a href="/unfollow?nick={{ .Profile.Username  }}">
             <i class="icss-minus"></i>
             {{tr . "UnfollowLinkTitle"}}
@@ -31,7 +31,7 @@
             {{(tr . "ProfileBlockUserContent" (dict "InstanceName" .InstanceName))|html}}
           <ul>
             <li>
-              {{ if $.User.HasMuted .Profile.URL }}
+              {{ if $.Profile.Muted }}
                 <a href="/unmute?nick={{ .Profile.Username }}">
                   <i class="icss-sound-3"></i>
                   {{tr . "ProfileUnmuteLinkTitle"}}
@@ -54,7 +54,7 @@
         {{ template "profileLinks" (dict "Profile" .Profile "ShowConfig" false "Ctx" .) }}
       </hgroup>
       <p>
-        {{ if $.Profile.FollowedBy }}
+        {{ if .Profile.FollowedBy }}
           <a href="{{ .Profile.URL }}">@{{ .Profile.Username }}
             <i class="icss-exchagne"></i>
           </a>

@@ -1432,7 +1432,6 @@ func (s *Server) ExternalHandler() httprouter.Handle {
 
 		if nick == "" {
 			log.Warn("no nick given to external profile request")
-			nick = "unknown"
 		}
 
 		if !s.cache.IsCached(uri) {
@@ -1473,11 +1472,41 @@ func (s *Server) ExternalHandler() httprouter.Handle {
 			}
 		}
 
+		// If noc &nick= provided try to guess a suitable nick
+		// from the feed or some heuristics from the feed's URI
+		// (borrowed from Yarns)
+		if nick == "" {
+			if ctx.Twter.Nick != "" {
+				nick = ctx.Twter.Nick
+			} else {
+				// TODO: Move this logic into types/lextwt and types/retwt
+				if u, err := url.Parse(uri); err == nil {
+					if strings.HasSuffix(u.Path, "/twtxt.txt") {
+						if rest := strings.TrimSuffix(u.Path, "/twtxt.txt"); rest != "" {
+							nick = strings.Trim(rest, "/")
+						} else {
+							nick = u.Hostname()
+						}
+					} else if strings.HasSuffix(u.Path, ".txt") {
+						base := filepath.Base(u.Path)
+						if name := strings.TrimSuffix(base, filepath.Ext(base)); name != "" {
+							nick = name
+						} else {
+							nick = u.Hostname()
+						}
+					} else {
+						nick = Slugify(uri)
+					}
+				}
+			}
+		}
+
 		ctx.Profile = types.Profile{
 			Type: "External",
 
 			Username: nick,
 			Tagline:  ctx.Twter.Tagline,
+			Avatar:   ctx.Twter.Avatar,
 			URL:      uri,
 
 			NFollowing: ctx.Twter.Following,
