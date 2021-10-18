@@ -1444,11 +1444,8 @@ func (s *Server) ExternalHandler() httprouter.Handle {
 			ctx.Twter = types.Twter{Nick: nick, URL: uri}
 		}
 
-		if ctx.Twter.Avatar == "" {
-			avatar := GetExternalAvatar(s.config, nick, uri)
-			if avatar != "" {
-				ctx.Twter.Avatar = URLForExternalAvatar(s.config, uri)
-			}
+		if err := GetExternalAvatar(s.config, &ctx.Twter); err != nil {
+			log.WithError(err).Warnf("error fetching avatar for %s", ctx.Twter)
 		}
 
 		// If noc &nick= provided try to guess a suitable nick

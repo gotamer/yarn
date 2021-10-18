@@ -1233,11 +1233,8 @@ func (a *API) ExternalProfileEndpoint() httprouter.Handle {
 			twter = types.Twter{Nick: nick, URL: url}
 		}
 
-		if twter.Avatar == "" {
-			avatar := GetExternalAvatar(a.config, nick, url)
-			if avatar != "" {
-				twter.Avatar = URLForExternalAvatar(a.config, url)
-			}
+		if err := GetExternalAvatar(a.config, &twter); err != nil {
+			log.WithError(err).Warnf("error fetching avatar for %s", twter)
 		}
 
 		profileResponse := types.ProfileResponse{}
