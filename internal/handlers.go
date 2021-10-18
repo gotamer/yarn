@@ -429,27 +429,6 @@ func (s *Server) ArchiveFeedHandler() httprouter.Handle {
 	}
 }
 
-// OldAvatarHandler ...
-// Redirect old URIs (twtxt <= v0.1.0) of the form /user/<nick>/avatar.png -> /user/<nick>/avatar
-// TODO: Remove this after v1
-func (s *Server) OldAvatarHandler() httprouter.Handle {
-	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		nick := NormalizeUsername(p.ByName("nick"))
-		if nick == "" {
-			http.Error(w, "Bad Request", http.StatusBadRequest)
-			return
-		}
-
-		newURI := fmt.Sprintf(
-			"%s/user/%s/avatar",
-			strings.TrimSuffix(s.config.BaseURL, "/"),
-			nick,
-		)
-
-		http.Redirect(w, r, newURI, http.StatusMovedPermanently)
-	}
-}
-
 // AvatarHandler ...
 func (s *Server) AvatarHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
