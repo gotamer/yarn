@@ -534,7 +534,17 @@ func (s *Server) initRoutes() {
 	s.router.GET("/blog/:author/:year/:month/:date/:slug/delete", s.DeleteBlogHandler())
 	s.router.GET("/blog/:author/:year/:month/:date/:slug/publish", s.PublishBlogHandler())
 
+	// Redirect old URIs (twtxt <= v0.0.8) of the form /u/<nick> -> /user/<nick>/twtxt.txt
+	// TODO: Remove this after v1
+	s.router.GET("/u/:nick", s.OldTwtxtHandler())
+	s.router.HEAD("/u/:nick", s.OldTwtxtHandler())
+
 	// TODO: Figure out how to internally rewrite/proxy /~:nick -> /user/:nick
+
+	// Redirect old URIs (twtxt <= v0.1.0) of the form /user/<nick>/avatar.png -> /user/<nick>/avatar
+	// TODO: Remove this after v1
+	s.router.GET("/user/:nick/avatar.png", s.OldAvatarHandler())
+	s.router.HEAD("/user/:nick/avatar.png", s.OldAvatarHandler())
 
 	if s.config.OpenProfiles {
 		s.router.GET("/user/:nick/", s.ProfileHandler())

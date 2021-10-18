@@ -828,9 +828,62 @@ func (a *API) SettingsEndpoint() httprouter.Handle {
 	}
 }
 
+// OldUploadMediaEndpoint ...
+// TODO: Remove when the api_old_upload_media counter nears zero
+// XXX: Used for Goryon < v1.0.3
+func (a *API) OldUploadMediaEndpoint() httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		// Limit request body to to abuse
+		r.Body = http.MaxBytesReader(w, r.Body, a.config.MaxUploadSize)
+		defer r.Body.Close()
+
+		mediaFile, _, err := r.FormFile("media_file")
+		if err != nil && err != http.ErrMissingFile {
+			log.WithError(err).Error("error parsing form file")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		var mediaURI string
+
+		if mediaFile != nil {
+			opts := &ImageOptions{Resize: true, Width: MediaResolution, Height: 0}
+			mediaURI, err = StoreUploadedImage(
+				a.config, mediaFile,
+				mediaDir, "",
+				opts,
+			)
+
+			if err != nil {
+				log.WithError(err).Error("error storing the file")
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+		}
+
+		uri := URI{"mediaURI", mediaURI}
+		data, err := json.Marshal(uri)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write(data)
+	}
+}
+
 // UploadMediaHandler ...
 func (a *API) UploadMediaEndpoint() httprouter.Handle {
+	oldUploadMediaEndpoint := a.OldUploadMediaEndpoint()
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		// Support for older clients pre v1.0.3 (See: OldMediaEndpoint)
+		//
+		if strings.HasPrefix(r.UserAgent(), "Dart") {
+			oldUploadMediaEndpoint(w, r, p)
+			return
+		}
+
 		// Limit request body to to abuse
 		r.Body = http.MaxBytesReader(w, r.Body, a.config.MaxUploadSize)
 
