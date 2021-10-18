@@ -361,8 +361,9 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 					twter.Avatar = URLForAvatar(conf.BaseURL, feed.Nick)
 				} else {
 					twter.URL = feed.URL
-					if err := GetExternalAvatar(conf, &twter); err != nil {
-						log.WithError(err).Warnf("error fetching avatar for %s", twter)
+					avatar := GetExternalAvatar(conf, feed.Nick, feed.URL)
+					if avatar != "" {
+						twter.Avatar = URLForExternalAvatar(conf, feed.URL)
 					}
 				}
 				twtFile, err := types.ParseFile(limitedReader, twter)

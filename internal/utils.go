@@ -172,51 +172,27 @@ func ReplaceExt(fn, newExt string) string {
 	return fmt.Sprintf("%s%s", strings.TrimSuffix(fn, oldExt), newExt)
 }
 
-func GetExternalAvatar(conf *Config, twter *types.Twter) error {
-	uri := twter.URL
-
+func GetExternalAvatar(conf *Config, nick, uri string) string {
 	// Don't try to discover Avatars for gopher:// URI(s) (to be polite!)
 	if strings.HasPrefix(uri, "gopher://") {
-		return nil
+		return ""
 	}
 
 	slug := Slugify(uri)
 
 	fn := filepath.Join(conf.Data, externalDir, fmt.Sprintf("%s.png", slug))
 	if FileExists(fn) {
-		twter.Avatar = URLForExternalAvatar(conf, uri)
-		return nil
-	}
-
-	// Use the Avatar advertised in the feed
-	if twter.Avatar != "" {
-		u, err := url.Parse(twter.Avatar)
-		if err != nil {
-			log.WithError(err).Errorf("error parsing avatar url %s", twter.Avatar)
-			return fmt.Errorf("error parsing avatar url %s: %w", twter.Avatar, err)
-		}
-
-		opts := &ImageOptions{Resize: true, Width: AvatarResolution, Height: AvatarResolution}
-		if _, err := DownloadImage(conf, u.String(), externalDir, slug, opts); err != nil {
-			log.WithError(err).Error("error downloading external avatar")
-			return fmt.Errorf("error downloading external avatar: %w", err)
-		}
-		twter.Avatar = URLForExternalAvatar(conf, uri)
-		return nil
+		return URLForExternalAvatar(conf, uri)
 	}
 
 	if !strings.HasSuffix(uri, "/") {
 		uri += "/"
 	}
 
-	//
-	// Try to discover an avatar next to the feed or on the domain
-	//
-
 	base, err := url.Parse(uri)
 	if err != nil {
 		log.WithError(err).Errorf("error parsing uri: %s", uri)
-		return fmt.Errorf("error parsing uri %s: %w", uri, err)
+		return ""
 	}
 
 	candidates := []string{
@@ -238,16 +214,15 @@ func GetExternalAvatar(conf *Config, twter *types.Twter) error {
 					WithField("base", base.String()).
 					WithField("source", source.String()).
 					Error("error downloading external avatar")
-				return fmt.Errorf("error downloading external avatar: %w", err)
+				return ""
 			}
-			twter.Avatar = URLForExternalAvatar(conf, uri)
-			return nil
+			return URLForExternalAvatar(conf, uri)
 		}
 	}
 
 	log.Warnf("unable to find a suitable avatar for %s", uri)
 
-	return nil
+	return ""
 }
 
 func RequestGopher(conf *Config, uri string) (*gopher.Response, error) {
