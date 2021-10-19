@@ -95,9 +95,12 @@ func TestHash(t *testing.T) {
 	assert := assert.New(t)
 
 	CET := time.FixedZone("UTC+1", 1*60*60)
+	CEST := time.FixedZone("UTC+2", 2*60*60)
 	testCases := []struct {
 		name     string
+		url      string
 		created  time.Time
+		text     string
 		expected string
 	}{
 		{
@@ -121,13 +124,30 @@ func TestHash(t *testing.T) {
 			created:  time.Date(2020, 12, 9, 15, 38, 42, 0, time.UTC),
 			expected: "74qtyjq",
 		},
+		{
+			name:     "Weird bug with adi's twt",
+			url:      "https://f.adi.onl/user/adi/twtxt.txt",
+			created:  time.Date(2021, 10, 19, 13, 48, 56, 0, CEST),
+			text:     "@<eldersnake https://yarn.andrewjvpowell.com/user/eldersnake/twtxt.txt> (#zva4kjq) I was talking to a girl over Tinder 1-2 months ago that the most boring documentary to put you to sleep would be one about a single cricket. Only one! The whole documentary. He would be walking, jumping and chirping.",
+			expected: "tkdjrmq",
+		},
 	}
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
+			url := testCase.url
+			if url == "" {
+				url = "https://example.com/twtxt.txt"
+			}
+
+			text := testCase.text
+			if text == "" {
+				text = "The twt hash now uses the RFC 3339 timestamp format."
+			}
+
 			twt := retwt.NewReTwt(
-				types.Twter{URL: "https://example.com/twtxt.txt"},
-				"The twt hash now uses the RFC 3339 timestamp format.",
+				types.Twter{URL: url},
+				text,
 				testCase.created,
 			)
 			assert.Equal(testCase.expected, twt.Hash())
