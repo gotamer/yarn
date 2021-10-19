@@ -873,7 +873,7 @@ func TestParseFile(t *testing.T) {
 	is := is.New(t)
 
 	twter := types.Twter{Nick: "example", URL: "https://example.com/twtxt.txt"}
-	override := types.Twter{Nick: "override", URL: "https://example.com/twtxt.txt"}
+	override := types.Twter{Nick: "override", URL: "https://example.com/twtxt.txt", Following: 1}
 
 	tests := []fileTestCase{
 		{
