@@ -72,48 +72,51 @@ func runStats(args []string) {
 }
 
 func doStats(r io.Reader) {
-	twt, err := lextwt.ParseFile(r, types.NilTwt.Twter())
+	tf, err := lextwt.ParseFile(r, types.NilTwt.Twter())
 	if err != nil {
 		log.WithError(err).Error("error parsing feed")
 		os.Exit(2)
 	}
 
-	fmt.Println(twt.Info())
+	fmt.Println(tf.Info())
 
-	twter := twt.Twter()
-	m := lextwt.NewMention(twter.Nick, twter.URL)
-	fmt.Printf("twter: %s@%s url: %s\n", m.Name(), m.Domain(), m.URL())
+	twter := tf.Twter()
+	fmt.Printf("twter: %s\n", twter.DomainNick())
+	fmt.Printf("nick: %s\n", twter.Nick)
+	fmt.Printf("url: %s\n", twter.URL)
+	fmt.Printf("avatar: %s\n", twter.Avatar)
+	fmt.Printf("tagline: %s\n", twter.Tagline)
 
 	fmt.Println("metadata:")
-	for _, c := range twt.Info().GetAll("") {
+	for _, c := range tf.Info().GetAll("") {
 		fmt.Printf("  %s = %s\n", c.Key(), c.Value())
 	}
 
 	fmt.Println("followers:")
-	for _, c := range twt.Info().Followers() {
+	for _, c := range tf.Info().Followers() {
 		fmt.Printf("  % -30s = %s\n", c.Nick, c.URL)
 	}
 
-	fmt.Println("twts: ", len(twt.Twts()))
+	fmt.Println("twts: ", len(tf.Twts()))
 
-	fmt.Printf("days of week:\n%v\n", daysOfWeek(twt.Twts()))
+	fmt.Printf("days of week:\n%v\n", daysOfWeek(tf.Twts()))
 
-	fmt.Println("tags: ", len(twt.Twts().Tags()))
-	fmt.Println(getTags(twt.Twts().Tags()))
+	fmt.Println("tags: ", len(tf.Twts().Tags()))
+	fmt.Println(getTags(tf.Twts().Tags()))
 
-	fmt.Println("mentions: ", len(twt.Twts().Mentions()))
-	fmt.Println(getMentions(twt.Twts(), twt.Info().Followers()))
+	fmt.Println("mentions: ", len(tf.Twts().Mentions()))
+	fmt.Println(getMentions(tf.Twts(), tf.Info().Followers()))
 
-	fmt.Println("subjects: ", len(twt.Twts().Subjects()))
+	fmt.Println("subjects: ", len(tf.Twts().Subjects()))
 	var subjects stats
-	for subject, count := range twt.Twts().SubjectCount() {
+	for subject, count := range tf.Twts().SubjectCount() {
 		subjects = append(subjects, stat{count, subject})
 	}
 	fmt.Println(subjects)
 
-	fmt.Println("links: ", len(twt.Twts().Links()))
+	fmt.Println("links: ", len(tf.Twts().Links()))
 	var links stats
-	for link, count := range twt.Twts().LinkCount() {
+	for link, count := range tf.Twts().LinkCount() {
 		links = append(links, stat{count, link})
 	}
 	fmt.Println(links)
