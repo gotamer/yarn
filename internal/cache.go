@@ -200,6 +200,8 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 		)
 	}()
 
+	isLocalURL := IsLocalURLFactory(conf)
+
 	// buffered to let goroutines write without blocking before the main thread
 	// begins reading
 	twtsch := make(chan types.Twts, len(feeds))
@@ -241,14 +243,29 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 
 				limitedReader := &io.LimitedReader{R: res.Body, N: conf.MaxFetchLimit}
 
-				twter := types.Twter{Nick: feed.Nick, URL: feed.URL}
-				twtFile, err := types.ParseFile(limitedReader, twter)
+				twter := types.Twter{Nick: feed.Nick}
+				if isLocalURL(feed.URL) {
+					twter.URL = URLForUser(conf.BaseURL, feed.Nick)
+					twter.Avatar = URLForAvatar(conf.BaseURL, feed.Nick)
+				} else {
+					twter.URL = feed.URL
+					avatar := GetExternalAvatar(conf, twter)
+					if avatar != "" {
+						twter.Avatar = URLForExternalAvatar(conf, feed.URL)
+					}
+				}
+
+				tf, err := types.ParseFile(limitedReader, twter)
 				if err != nil {
 					log.WithError(err).Errorf("error parsing feed %s", feed)
 					twtsch <- nil
 					return
 				}
-				twts, old := types.SplitTwts(twtFile.Twts(), conf.MaxCacheTTL, conf.MaxCacheItems)
+				twter = tf.Twter()
+				if !isLocalURL(twter.Avatar) {
+					_ = GetExternalAvatar(conf, twter)
+				}
+				twts, old := types.SplitTwts(tf.Twts(), conf.MaxCacheTTL, conf.MaxCacheItems)
 
 				// If N == 0 we possibly exceeded conf.MaxFetchLimit when
 				// reading this feed. Log it and bump a cache_limited counter
@@ -356,23 +373,28 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 				limitedReader := &io.LimitedReader{R: res.Body, N: conf.MaxFetchLimit}
 
 				twter := types.Twter{Nick: feed.Nick}
-				if strings.HasPrefix(feed.URL, conf.BaseURL) {
+				if isLocalURL(feed.URL) {
 					twter.URL = URLForUser(conf.BaseURL, feed.Nick)
 					twter.Avatar = URLForAvatar(conf.BaseURL, feed.Nick)
 				} else {
 					twter.URL = feed.URL
-					avatar := GetExternalAvatar(conf, feed.Nick, feed.URL)
+					avatar := GetExternalAvatar(conf, twter)
 					if avatar != "" {
 						twter.Avatar = URLForExternalAvatar(conf, feed.URL)
 					}
 				}
-				twtFile, err := types.ParseFile(limitedReader, twter)
+
+				tf, err := types.ParseFile(limitedReader, twter)
 				if err != nil {
 					log.WithError(err).Errorf("error parsing feed %s", feed)
 					twtsch <- nil
 					return
 				}
-				twts, old := types.SplitTwts(twtFile.Twts(), conf.MaxCacheTTL, conf.MaxCacheItems)
+				twter = tf.Twter()
+				if !isLocalURL(twter.Avatar) {
+					_ = GetExternalAvatar(conf, twter)
+				}
+				twts, old := types.SplitTwts(tf.Twts(), conf.MaxCacheTTL, conf.MaxCacheItems)
 
 				// If N == 0 we possibly exceeded conf.MaxFetchLimit when
 				// reading this feed. Log it and bump a cache_limited counter

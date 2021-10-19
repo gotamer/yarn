@@ -1466,13 +1466,13 @@ func (s *Server) ExternalHandler() httprouter.Handle {
 		}
 
 		if ctx.Twter.Avatar == "" {
-			avatar := GetExternalAvatar(s.config, nick, uri)
+			avatar := GetExternalAvatar(s.config, ctx.Twter)
 			if avatar != "" {
 				ctx.Twter.Avatar = URLForExternalAvatar(s.config, uri)
 			}
 		}
 
-		// If noc &nick= provided try to guess a suitable nick
+		// If no &nick= provided try to guess a suitable nick
 		// from the feed or some heuristics from the feed's URI
 		// (borrowed from Yarns)
 		if nick == "" {
@@ -1501,14 +1501,20 @@ func (s *Server) ExternalHandler() httprouter.Handle {
 			}
 		}
 
+		following := make(map[string]string)
+		for followingNick, followingTwter := range ctx.Twter.Follow {
+			following[followingNick] = followingTwter.URL
+		}
+
 		ctx.Profile = types.Profile{
 			Type: "External",
 
 			Username: nick,
 			Tagline:  ctx.Twter.Tagline,
-			Avatar:   ctx.Twter.Avatar,
+			Avatar:   URLForExternalAvatar(s.config, uri),
 			URL:      uri,
 
+			Following:  following,
 			NFollowing: ctx.Twter.Following,
 			NFollowers: ctx.Twter.Followers,
 

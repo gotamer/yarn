@@ -5,7 +5,7 @@
         <h2 class="u-author h-card">
           <a href="/external?uri={{ .Profile.URL }}&nick={{ .Profile.Username }}" class="u-url">
             {{ if .Profile.Avatar }}
-              <img class="avatar u-photo" src="{{ .Profile.Avatar }}" alt="" loading=lazy />
+              <img class="avatar u-photo" src="/externalAvatar?uri={{ .Profile.URL }}" alt="" loading=lazy />
             {{ else }}
               <i class="icss-rss" style="font-size:3em"></i>
             {{ end }}

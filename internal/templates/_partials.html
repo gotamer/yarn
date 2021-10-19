@@ -106,7 +106,7 @@
         {{ else }}
           <a href="/external?uri={{ $.Twt.Twter.URL }}&nick={{ $.Twt.Twter.Nick }}" class="u-url">
             {{ if $.Twt.Twter.Avatar }}
-              <img class="avatar u-photo" src="{{ $.Twt.Twter.Avatar }}" alt="" loading=lazy />
+              <img class="avatar u-photo" src="/externalAvatar?uri={{ $.Twt.Twter.URL }}" alt="" loading=lazy />
             {{ else }}
               <i class="icss-rss" style="font-size:3em"></i>
             {{ end }}
