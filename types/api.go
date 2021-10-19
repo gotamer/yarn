@@ -139,10 +139,8 @@ func NewUnfollowRequest(r io.Reader) (req UnfollowRequest, err error) {
 
 // ProfileResponse ...
 type ProfileResponse struct {
-	Profile      Profile      `json:"profile"`
-	Links        Links        `json:"links"`
-	Alternatives Alternatives `json:"alternatives"`
-	Twter        Twter        `json:"twter"`
+	Profile Profile `json:"profile"`
+	Twter   Twter   `json:"twter"`
 }
 
 // ConversationRequest ...

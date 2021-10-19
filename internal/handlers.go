@@ -247,18 +247,18 @@ func (s *Server) ProfileHandler() httprouter.Handle {
 
 		ctx.Profile = profile
 
-		ctx.Links = append(ctx.Links, types.Link{
+		ctx.Links = append(ctx.Links, Link{
 			Href: fmt.Sprintf("%s/webmention", UserURL(profile.URL)),
 			Rel:  "webmention",
 		})
 
-		ctx.Alternatives = append(ctx.Alternatives, types.Alternatives{
-			types.Alternative{
+		ctx.Alternatives = append(ctx.Alternatives, Alternatives{
+			Alternative{
 				Type:  "text/plain",
 				Title: fmt.Sprintf("%s's Twtxt Feed", profile.Username),
 				URL:   profile.URL,
 			},
-			types.Alternative{
+			Alternative{
 				Type:  "application/atom+xml",
 				Title: fmt.Sprintf("%s's Atom Feed", profile.Username),
 				URL:   fmt.Sprintf("%s/atom.xml", UserURL(profile.URL)),

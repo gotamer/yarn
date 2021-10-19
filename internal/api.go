@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"sort"
@@ -83,7 +84,7 @@ func (a *API) initRoutes() {
 	router.POST("/timeline", a.isAuthorized(a.TimelineEndpoint()))
 	router.POST("/discover", a.DiscoverEndpoint())
 
-	router.GET("/profile/:nick", a.ProfileEndpoint())
+	router.GET("/profile/:username", a.ProfileEndpoint())
 	router.POST("/fetch-twts", a.FetchTwtsEndpoint())
 	router.POST("/conv", a.ConversationEndpoint())
 
@@ -988,20 +989,20 @@ func (a *API) ProfileEndpoint() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		loggedInUser := a.getLoggedInUser(r)
 
-		nick := NormalizeUsername(p.ByName("nick"))
-		if nick == "" {
+		username := NormalizeUsername(p.ByName("username"))
+		if username == "" {
 			http.Error(w, "Bad Request", http.StatusBadRequest)
 			return
 		}
 
-		nick = NormalizeUsername(nick)
+		username = NormalizeUsername(username)
 
 		var profile types.Profile
 
-		if a.db.HasUser(nick) {
-			user, err := a.db.GetUser(nick)
+		if a.db.HasUser(username) {
+			user, err := a.db.GetUser(username)
 			if err != nil {
-				log.WithError(err).Errorf("error loading user object for %s", nick)
+				log.WithError(err).Errorf("error loading user object for %s", username)
 				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 				return
 			}
@@ -1015,10 +1016,10 @@ func (a *API) ProfileEndpoint() httprouter.Handle {
 					profile.Following = map[string]string{}
 				}
 			}
-		} else if a.db.HasFeed(nick) {
-			feed, err := a.db.GetFeed(nick)
+		} else if a.db.HasFeed(username) {
+			feed, err := a.db.GetFeed(username)
 			if err != nil {
-				log.WithError(err).Errorf("error loading feed object for %s", nick)
+				log.WithError(err).Errorf("error loading feed object for %s", username)
 				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 				return
 			}
@@ -1028,37 +1029,25 @@ func (a *API) ProfileEndpoint() httprouter.Handle {
 			return
 		}
 
-		profileResponse := types.ProfileResponse{}
-
-		profileResponse.Profile = profile
-
-		profileResponse.Links = types.Links{types.Link{
-			Href: fmt.Sprintf("%s/webmention", UserURL(profile.URL)),
-			Rel:  "webmention",
-		}}
-
-		profileResponse.Alternatives = types.Alternatives{
-			types.Alternative{
-				Type:  "application/atom+xml",
-				Title: fmt.Sprintf("%s local feed", a.config.Name),
-				URL:   fmt.Sprintf("%s/atom.xml", a.config.BaseURL),
-			},
-			types.Alternative{
-				Type:  "text/plain",
-				Title: fmt.Sprintf("%s's Twtxt Feed", profile.Username),
-				URL:   profile.URL,
-			},
-			types.Alternative{
-				Type:  "application/atom+xml",
-				Title: fmt.Sprintf("%s's Atom Feed", profile.Username),
-				URL:   fmt.Sprintf("%s/atom.xml", UserURL(profile.URL)),
-			},
+		if !a.cache.IsCached(profile.URL) {
+			sources := make(types.Feeds)
+			sources[types.Feed{Nick: profile.Username, URL: profile.URL}] = true
+			a.cache.FetchTwts(a.config, a.archive, sources, nil)
 		}
 
-		profileResponse.Twter = types.Twter{
-			Nick:   profile.Username,
-			Avatar: URLForAvatar(a.config.BaseURL, profile.Username),
-			URL:    URLForUser(a.config.BaseURL, profile.Username),
+		twts := a.cache.GetByURL(profile.URL)
+
+		var twter types.Twter
+
+		if len(twts) > 0 {
+			twter = twts[0].Twter()
+		} else {
+			twter = types.Twter{Nick: profile.Username, URL: profile.URL}
+		}
+
+		profileResponse := types.ProfileResponse{
+			Profile: profile,
+			Twter:   twter,
 		}
 
 		data, err := json.Marshal(profileResponse)
@@ -1257,66 +1246,97 @@ func (a *API) ExternalProfileEndpoint() httprouter.Handle {
 			return
 		}
 
-		url := req.URL
+		uri := req.URL
 		nick := req.Nick
 
-		if url == "" {
+		if uri == "" {
 			http.Error(w, "Bad Request", http.StatusBadRequest)
 			return
 		}
 
-		if nick == "" {
-			log.Warn("no nick given to external profile request")
-			nick = "unknown"
-		}
-
-		if !a.cache.IsCached(url) {
+		if !a.cache.IsCached(uri) {
 			sources := make(types.Feeds)
-			sources[types.Feed{Nick: nick, URL: url}] = true
+			sources[types.Feed{Nick: nick, URL: uri}] = true
 			a.cache.FetchTwts(a.config, a.archive, sources, nil)
 		}
 
-		twts := a.cache.GetByURL(url)
+		twts := a.cache.GetByURL(uri)
 
 		var twter types.Twter
 
 		if len(twts) > 0 {
 			twter = twts[0].Twter()
 		} else {
-			twter = types.Twter{Nick: nick, URL: url}
+			twter = types.Twter{Nick: nick, URL: uri}
 		}
 
 		if twter.Avatar == "" {
-			avatar := GetExternalAvatar(a.config, nick, url)
+			avatar := GetExternalAvatar(a.config, twter)
 			if avatar != "" {
-				twter.Avatar = URLForExternalAvatar(a.config, url)
+				twter.Avatar = URLForExternalAvatar(a.config, uri)
 			}
 		}
 
-		profileResponse := types.ProfileResponse{}
+		// Set nick to what the user follows as (if any)
+		nick = loggedInUser.FollowsAs(uri)
 
-		profileResponse.Profile = types.Profile{
+		// If no nick provided try to guess a suitable nick
+		// from the feed or some heuristics from the feed's URI
+		// (borrowed from Yarns)
+		if nick == "" {
+			if twter.Nick != "" {
+				nick = twter.Nick
+			} else {
+				// TODO: Move this logic into types/lextwt and types/retwt
+				if u, err := url.Parse(uri); err == nil {
+					if strings.HasSuffix(u.Path, "/twtxt.txt") {
+						if rest := strings.TrimSuffix(u.Path, "/twtxt.txt"); rest != "" {
+							nick = strings.Trim(rest, "/")
+						} else {
+							nick = u.Hostname()
+						}
+					} else if strings.HasSuffix(u.Path, ".txt") {
+						base := filepath.Base(u.Path)
+						if name := strings.TrimSuffix(base, filepath.Ext(base)); name != "" {
+							nick = name
+						} else {
+							nick = u.Hostname()
+						}
+					} else {
+						nick = Slugify(uri)
+					}
+				}
+			}
+		}
+
+		following := make(map[string]string)
+		for followingNick, followingTwter := range twter.Follow {
+			following[followingNick] = followingTwter.URL
+		}
+
+		profile := types.Profile{
 			Type: "External",
 
 			Username: nick,
 			Tagline:  twter.Tagline,
-			URL:      url,
+			Avatar:   URLForExternalAvatar(a.config, uri),
+			URL:      uri,
 
+			Following:  following,
 			NFollowing: twter.Following,
 			NFollowers: twter.Followers,
 
 			ShowFollowing: true,
 			ShowFollowers: true,
 
-			Follows:    loggedInUser.Follows(url),
-			FollowedBy: loggedInUser.FollowedBy(url),
-			Muted:      loggedInUser.HasMuted(url),
+			Follows:    loggedInUser.Follows(uri),
+			FollowedBy: loggedInUser.FollowedBy(uri),
+			Muted:      loggedInUser.HasMuted(uri),
 		}
 
-		profileResponse.Twter = types.Twter{
-			Nick:   nick,
-			Avatar: URLForExternalAvatar(a.config, url),
-			URL:    URLForExternalProfile(a.config, nick, url),
+		profileResponse := types.ProfileResponse{
+			Profile: profile,
+			Twter:   twter,
 		}
 
 		data, err := json.Marshal(profileResponse)

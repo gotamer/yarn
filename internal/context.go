@@ -17,6 +17,20 @@ import (
 	"github.com/theplant-retired/timezones"
 )
 
+type Link struct {
+	Href string
+	Rel  string
+}
+
+type Alternative struct {
+	Type  string
+	Title string
+	URL   string
+}
+
+type Alternatives []Alternative
+type Links []Link
+
 type Meta struct {
 	Title       string
 	Description string
@@ -69,8 +83,8 @@ type Context struct {
 
 	Title        string
 	Meta         Meta
-	Links        types.Links
-	Alternatives types.Alternatives
+	Links        Links
+	Alternatives Alternatives
 
 	Messages    Messages
 	NewMessages int
@@ -132,8 +146,8 @@ func NewContext(conf *Config, db Store, req *http.Request) *Context {
 			Description: conf.Description,
 		},
 
-		Alternatives: types.Alternatives{
-			types.Alternative{
+		Alternatives: Alternatives{
+			Alternative{
 				Type:  "application/atom+xml",
 				Title: fmt.Sprintf("%s local feed", conf.Name),
 				URL:   fmt.Sprintf("%s/atom.xml", conf.BaseURL),

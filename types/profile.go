@@ -13,6 +13,7 @@ type Profile struct {
 
 	// TODO: Replace with Links []Link
 	BlogsURL string
+	Links    Links
 
 	// `true` if the User viewing the Profile has muted this user/feed
 	Muted bool
@@ -38,15 +39,8 @@ type Profile struct {
 }
 
 type Link struct {
-	Href string
-	Rel  string
-}
-
-type Alternative struct {
-	Type  string
 	Title string
 	URL   string
 }
 
-type Alternatives []Alternative
 type Links []Link
