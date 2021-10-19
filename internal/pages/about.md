@@ -1,5 +1,5 @@
 ---
-title: About {{ .InstanceName }} a self-hosted, Twitter™-like decentralised micro-blogging platform.
+title: About {{ .InstanceName }}
 ---
 
 # About {{ .InstanceName }}
