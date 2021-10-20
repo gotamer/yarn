@@ -422,6 +422,18 @@ func RenderPlainText(tpl string, ctx *Context) (string, error) {
 	return buf.String(), nil
 }
 
+// RenderLogo ...
+func RenderLogo(logo string, podName string) (template.HTML, error) {
+	t := text_template.Must(text_template.New("logo").Parse(logo))
+	buf := bytes.NewBuffer([]byte{})
+	err := t.Execute(buf, map[string]string{"PodName": podName})
+	if err != nil {
+		return "", err
+	}
+
+	return template.HTML(buf.String()), nil
+}
+
 func IsExternalFeedFactory(conf *Config) func(url string) bool {
 	baseURL := NormalizeURL(conf.BaseURL)
 	externalBaseURL := fmt.Sprintf("%s/external", strings.TrimSuffix(baseURL, "/"))
