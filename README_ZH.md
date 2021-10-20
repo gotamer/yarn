@@ -46,9 +46,9 @@ Goryon for Twt可在App Store和Play商店中使用。
 
 ## 托管 Pods
 
-该项目提供了该平台的完全托管式一键式实例，我们称其为[Twt.social](https://twt.social) pods。
+该项目提供了该平台的完全托管式一键式实例，我们称其为[Yarn.social](https://yarn.social) pods。
 
-请访问 [Twt.social](https://twt.social) 获取您的 pod !
+请访问 [Yarn.social](https://yarn.social) 获取您的 pod !
 
 > 注意：截至2020年8月15日（评论 公告 博客），这是完全免费的，我们邀请任何人与我们联系以获取邀请码，成为最早的几个pod所有者之一！
 
@@ -126,7 +126,7 @@ gmake
 
 ### 命令行客户端
 
-1. 登录您的 [Twt.social](https://twt.social) pod:
+1. 登录您的 [Yarn.social](https://yarn.social) pod:
 
 ```#!console
 $ ./twt login
@@ -183,7 +183,7 @@ __NOTE:__ 默认是禁止用户注册的, 使用 `-R` 标记打开注册选项
 ```console
 $ ./yarnd --help
 Usage of ./yarnd:
-  -E, --admin-email string          default admin user email (default "support@twt.social")
+  -E, --admin-email string          default admin user email (default "support@yarn.social")
   -N, --admin-name string           default admin user name (default "Administrator")
   -A, --admin-user string           default admin user to use (default "admin")
       --api-session-time duration   timeout for api tokens to expire (default 240h0m0s)
@@ -308,7 +308,7 @@ docker stack deploy -c twtxt.yml
 ## 相关项目
 
 - [rss2twtxt](https://github.com/prologic/rss2twtxt) -- RSS/Atom to [Twtxt](https://twtxt.readthedocs.org) aggregator.
-- [Twt.social](https://twt.social) -- Hosted platform for Twt.social pods like [twtxt.net](https://twtxt.net).
+- [Yarn.social](https://yarn.social) -- Hosted platform for Yarn.social pods like [twtxt.net](https://twtxt.net).
 - [Goryon](https://github.com/jointwt/goryon) -- Our Flutter iOS and Android Mobile App.
 - [Twt.js](https://github.com/jointwt/twt.js) -- Our JavaScript / NodeJS library for using the API.
 - [we-are-twtxt](https://github.com/jointwt/we-are-twtxt) -- A voluntary user contributed registry of users, bots and interesting feeds.

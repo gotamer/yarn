@@ -940,7 +940,7 @@ other = "我同意遵守 <a href='/abuse'>社区准则及相关政策</a>."
 
 [RegisterHowToContent]
 hash = "sha1-0d58603b0b6a7a7d38c0ea9d73a9c54f68f76535"
-other = "<p>\n你将在{{ .InstanceName }}创建一个新的<a href='https://twt.social' target='_blank'>Twt.social</a>\n\n</p>\n<p>\n在 {{ .InstanceName }} 注册一个账号, 遵守<a href='/abuse'>政策</a>中的社区准则.\n</p>\n<p>\n<ul>\n<li>选择一个用户名</li>\n<li>创建一个安全的密码</li>\n<li>提供电子邮件用于找回您的密码</li>\n</ul>\n</p>\n<p>\n选择任何你喜欢的用户 (<i>只要在 {{ .InstanceName }}可用</i>).\n</p>\n<p>\n请注意: 我们 <b>不储存</b> 电子邮件地址, 请记住您的电子邮件地址,  如果电子邮件地址丢失或忘记, 我们将不能恢复您的账号或帮您找回密码\n</p>"
+other = "<p>\n你将在{{ .InstanceName }}创建一个新的<a href='https://yarn.social' target='_blank'>Yarn.social</a>\n\n</p>\n<p>\n在 {{ .InstanceName }} 注册一个账号, 遵守<a href='/abuse'>政策</a>中的社区准则.\n</p>\n<p>\n<ul>\n<li>选择一个用户名</li>\n<li>创建一个安全的密码</li>\n<li>提供电子邮件用于找回您的密码</li>\n</ul>\n</p>\n<p>\n选择任何你喜欢的用户 (<i>只要在 {{ .InstanceName }}可用</i>).\n</p>\n<p>\n请注意: 我们 <b>不储存</b> 电子邮件地址, 请记住您的电子邮件地址,  如果电子邮件地址丢失或忘记, 我们将不能恢复您的账号或帮您找回密码\n</p>"
 
 [RegisterHowToTitle]
 hash = "sha1-61b07a27c8f9b25d9065b26390b2884fb025586e"
@@ -1032,7 +1032,7 @@ other = "更新电子邮件"
 
 [SettingsFormChangeEmailSummary]
 hash = "sha1-2b2a92b2a28c580effa22db980e7748472873fb6"
-other = "<b>注意:</b>我们实际上并不存储此信息！如果您忘记或失去对此处提供的电子邮件帐户的访问权限，将无法恢复您的Twt.social帐户！"
+other = "<b>注意:</b>我们实际上并不存储此信息！如果您忘记或失去对此处提供的电子邮件帐户的访问权限，将无法恢复您的Yarn.social帐户！"
 
 [SettingsFormChangeEmailTitle]
 hash = "sha1-03e8c409bff190a9756ced3e3af8f175885d2bd3"
