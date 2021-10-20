@@ -174,17 +174,12 @@ func ReplaceExt(fn, newExt string) string {
 
 func GetExternalAvatar(conf *Config, twter types.Twter) string {
 	uri := twter.URL
+	slug := Slugify(uri)
+	fn := filepath.Join(conf.Data, externalDir, fmt.Sprintf("%s.png", slug))
 
 	// Don't try to discover Avatars for gopher:// URI(s) (to be polite!)
 	if strings.HasPrefix(uri, "gopher://") {
 		return ""
-	}
-
-	slug := Slugify(uri)
-
-	fn := filepath.Join(conf.Data, externalDir, fmt.Sprintf("%s.png", slug))
-	if FileExists(fn) {
-		return URLForExternalAvatar(conf, uri)
 	}
 
 	// Use the Avatar advertised in the feed
@@ -200,6 +195,14 @@ func GetExternalAvatar(conf *Config, twter types.Twter) string {
 			log.WithError(err).Error("error downloading external avatar")
 			return ""
 		}
+		return URLForExternalAvatar(conf, uri)
+	}
+
+	//
+	// Use an already cached Avatar
+	//
+
+	if FileExists(fn) {
 		return URLForExternalAvatar(conf, uri)
 	}
 
@@ -241,6 +244,10 @@ func GetExternalAvatar(conf *Config, twter types.Twter) string {
 			return URLForExternalAvatar(conf, uri)
 		}
 	}
+
+	//
+	// Auto-generate one
+	//
 
 	log.Warnf("unable to find a suitable avatar for %s", uri)
 
