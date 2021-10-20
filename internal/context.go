@@ -113,11 +113,18 @@ type Context struct {
 }
 
 func NewContext(conf *Config, db Store, req *http.Request) *Context {
+	// build logo
+	logo, err := RenderLogo(conf.Logo, conf.Name)
+	if err != nil {
+		log.WithError(err).Error("error rendering logo")
+		logo = template.HTML("")
+	}
+
 	// context
 	ctx := &Context{
 		Debug: conf.Debug,
 
-		Logo:               template.HTML(conf.Logo),
+		Logo:               logo,
 		BaseURL:            conf.BaseURL,
 		InstanceName:       conf.Name,
 		SoftwareVersion:    conf.Version,
