@@ -574,19 +574,6 @@ func (u *User) Filter(twts []types.Twt) (filtered []types.Twt) {
 }
 
 func (u *User) Reply(twt types.Twt) string {
-	// Create a unique set of mentions by @nick from the twt
-	// excluding ourselves and anything we don't follow
-	mentionsSet := make(map[string]bool)
-	for _, m := range twt.Mentions() {
-		twter := m.Twter()
-		if u.Follows(twter.URL) && !u.Is(twter.URL) {
-			as := fmt.Sprintf("@%s", u.FollowsAs(twter.URL))
-			if _, ok := mentionsSet[as]; !ok {
-				mentionsSet[as] = true
-			}
-		}
-	}
-
 	// Initialise the list of tokens with the twt's Subject
 	tokens := []string{twt.Subject().String()}
 
@@ -595,13 +582,6 @@ func (u *User) Reply(twt types.Twt) string {
 	if u.Follows(twt.Twter().URL) && !u.Is(twt.Twter().URL) {
 		tokens = append(tokens, fmt.Sprintf("@%s", u.FollowsAs(twt.Twter().URL)))
 	}
-
-	// Add all other mentions
-	for mention := range mentionsSet {
-		tokens = append(tokens, mention)
-	}
-
-	tokens = UniqStrings(tokens)
 
 	return fmt.Sprintf("%s ", strings.Join(tokens, " "))
 }
