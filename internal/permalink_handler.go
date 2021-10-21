@@ -78,16 +78,12 @@ func (s *Server) PermalinkHandler() httprouter.Handle {
 			return
 		}
 
-		var (
-			who   string
-			image string
-		)
+		who := twt.Twter().DomainNick()
 
+		var image string
 		if isLocal(twt.Twter().URL) {
-			who = fmt.Sprintf("%s@%s", twt.Twter().Nick, s.config.baseURL.Hostname())
 			image = URLForAvatar(s.config.BaseURL, twt.Twter().Nick)
 		} else {
-			who = fmt.Sprintf("@<%s %s>", twt.Twter().Nick, twt.Twter().URL)
 			image = URLForExternalAvatar(s.config, twt.Twter().URL)
 		}
 
@@ -132,7 +128,7 @@ func (s *Server) PermalinkHandler() httprouter.Handle {
 
 		ctx.Title = title
 		ctx.Meta = Meta{
-			Title:       fmt.Sprintf("Twt #%s", twt.Hash()),
+			Title:       title,
 			Description: what,
 			UpdatedAt:   when,
 			Author:      who,
