@@ -175,7 +175,7 @@ func ReplaceExt(fn, newExt string) string {
 func GetExternalAvatar(conf *Config, twter types.Twter) string {
 	uri := twter.URL
 	slug := Slugify(uri)
-	fn := filepath.Join(conf.Data, externalDir, fmt.Sprintf("%s.png", slug))
+	fn := filepath.Join(conf.Data, externalDir, fmt.Sprintf("%s.png", Slugify(uri)))
 
 	// Don't try to discover Avatars for gopher:// URI(s) (to be polite!)
 	if strings.HasPrefix(uri, "gopher://") {
@@ -192,7 +192,7 @@ func GetExternalAvatar(conf *Config, twter types.Twter) string {
 
 		opts := &ImageOptions{Resize: true, Width: AvatarResolution, Height: AvatarResolution}
 		if _, err := DownloadImage(conf, u.String(), externalDir, slug, opts); err != nil {
-			log.WithError(err).Error("error downloading external avatar")
+			log.WithError(err).Error("error downloading external avatar: %s", u)
 			return ""
 		}
 		return URLForExternalAvatar(conf, uri)
@@ -210,6 +210,40 @@ func GetExternalAvatar(conf *Config, twter types.Twter) string {
 	// Try to discover an avatar next to the feed or on the domain
 	//
 
+	if avatar, err := DiscoverExternalAvatar(conf, uri); err == nil {
+		return avatar
+	}
+
+	//
+	// Auto-generate one
+	//
+
+	log.Warnf("unable to find a suitable avatar for %s generating one", uri)
+
+	img, err := GenerateAvatar(conf, twter.DomainNick())
+	if err != nil {
+		log.WithError(err).Errorf("error generating avatar for %s", twter)
+		return ""
+	}
+
+	of, err := os.OpenFile(fn, os.O_WRONLY|os.O_CREATE, 0644)
+	if err != nil {
+		log.WithError(err).Error("error opening output file")
+		return ""
+	}
+	defer of.Close()
+
+	if err := png.Encode(of, img); err != nil {
+		log.WithError(err).Error("error encoding image")
+		return ""
+	}
+
+	return URLForExternalAvatar(conf, uri)
+}
+
+func DiscoverExternalAvatar(conf *Config, uri string) (string, error) {
+	slug := Slugify(uri)
+
 	if !strings.HasSuffix(uri, "/") {
 		uri += "/"
 	}
@@ -217,7 +251,7 @@ func GetExternalAvatar(conf *Config, twter types.Twter) string {
 	base, err := url.Parse(uri)
 	if err != nil {
 		log.WithError(err).Errorf("error parsing uri: %s", uri)
-		return ""
+		return "", fmt.Errorf("error parsing uri %s: %w", uri, err)
 	}
 
 	candidates := []string{
@@ -239,37 +273,13 @@ func GetExternalAvatar(conf *Config, twter types.Twter) string {
 					WithField("base", base.String()).
 					WithField("source", source.String()).
 					Error("error downloading external avatar")
-				return ""
+				return "", fmt.Errorf("error downloading discovered external avatar %s: %w", source, err)
 			}
-			return URLForExternalAvatar(conf, uri)
+			return URLForExternalAvatar(conf, uri), nil
 		}
 	}
 
-	//
-	// Auto-generate one
-	//
-
-	log.Warnf("unable to find a suitable avatar for %s", uri)
-
-	img, err := GenerateAvatar(conf, twter.DomainNick())
-	if err != nil {
-		log.WithError(err).Errorf("error generating avatar for %s", twter)
-		return ""
-	}
-
-	of, err := os.OpenFile(fn, os.O_WRONLY|os.O_CREATE, 0644)
-	if err != nil {
-		log.WithError(err).Error("error opening output file")
-		return ""
-	}
-	defer of.Close()
-
-	if err := png.Encode(of, img); err != nil {
-		log.WithError(err).Error("error encoding image")
-		return ""
-	}
-
-	return URLForExternalAvatar(conf, uri)
+	return "", fmt.Errorf("unable to discover an external avatar for %s", uri)
 }
 
 func RequestGopher(conf *Config, uri string) (*gopher.Response, error) {
