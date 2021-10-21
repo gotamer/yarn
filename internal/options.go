@@ -128,8 +128,6 @@ var (
 	// DefaultFeedSources is the default list of external feed sources
 	DefaultFeedSources = []string{
 		"https://feeds.twtxt.net/we-are-feeds.txt",
-		"https://git.mills.io/yarnsocial/we-are-twtxt/raw/branch/master/we-are-bots.txt",
-		"https://git.mills.io/yarnsocial/we-are-twtxt/raw/branch/master/we-are-twtxt.txt",
 	}
 
 	// DefaultTwtPrompts are the set of default prompts  for twt text(s)

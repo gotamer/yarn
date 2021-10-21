@@ -110,7 +110,6 @@
         <h2>{{tr . "FeedsExternalFeedsTitle"}}</h2>
         <h3>{{tr . "FeedsExternalFeedsSummary"}}</h3>
     </hgroup>
-    {{(tr . "FeedsExternalFeedsContent" (dict "InstanceName" .InstanceName))|html}}
     {{$ctx:=.}}
     {{ range $Source, $Feeds := .FeedSources }}
     <details>

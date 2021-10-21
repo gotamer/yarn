@@ -187,7 +187,7 @@ Usage of ./yarnd:
   -D, --debug                         enable debug logging
   -m, --description string            set the pod's description (default "🧶 Yarn.social is a Self-Hosted, Twitter™-like Decentralised microBlogging platform. No ads, no tracking, your content, your data!")
       --enable-feature feature        enable the named feature
-      --feed-sources strings          external feed sources for discovery of other feeds (default [https://feeds.twtxt.net/we-are-feeds.txt,https://git.mills.io/yarnsocial/we-are-twtxt/raw/branch/master/we-are-bots.txt,https://git.mills.io/yarnsocial/we-are-twtxt/raw/branch/master/we-are-twtxt.txt])
+      --feed-sources strings          external feed sources for discovery of other feeds (default [https://feeds.twtxt.net/we-are-feeds.txt])
       --fetch-interval string         cache fetch interval (how often to update feeds) in cron syntax (https://pkg.go.dev/github.com/robfig/cron) (default "@every 5m")
   -l, --lang string                   set the default language (default "auto")
       --magiclink-secret string       magiclink secret to use for password reset tokens (default "INVALID CONFIG VALUE - PLEASE CHANGE THIS VALUE")
@@ -294,4 +294,4 @@ You can find an [AUTHORS](/AUTHORS) file where we keep a list of contributors to
 
 ## License
 
-`yarnd` is licensed under the terms of the [MIT License](/LICENSE)
+`yarn` is licensed under the terms of the [MIT License](/LICENSE)

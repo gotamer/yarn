@@ -35,7 +35,6 @@ that are provided:
 - Decentralised micro-Blogging, or short-form Posts
 - Backed by the simple to read, parse and write [twtxt](https://twtxt.nreadthedocs.org) format specification
 - Fully supports [Markdown](https://en.wikipedia.org/wiki/Markdown) rendering including 😺 pictures!
-- Supports [wee-are-twtxt](https://git.mills.io/yarnsocial/we-are-twtxt) feed sources format for discovering external feeds
 - Supports [IndieWeb](https://indieweb.org/) formats and [WebMention](https://www.w3.org/TR/webmention/)
 
 For a list of upcoming features please follow the [Project Page](https://git.mills.io/yarnsocial/yarn).

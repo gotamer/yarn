@@ -193,7 +193,7 @@ Usage of ./yarnd:
       --cookie-secret string        cookie secret to use secure sessions (default "PLEASE_CHANGE_ME!!!")
   -d, --data string                 data directory (default "./data")
   -D, --debug                       enable debug logging
-      --feed-sources strings        external feed sources for discovery of other feeds (default [https://feeds.twtxt.net/we-are-feeds.txt,https://raw.githubusercontent.com/jointwt/we-are-twtxt/master/we-are-bots.txt,https://raw.githubusercontent.com/jointwt/we-are-twtxt/master/we-are-twtxt.txt])
+      --feed-sources strings        external feed sources for discovery of other feeds (default [https://feeds.twtxt.net/we-are-feeds.txt])
       --magiclink-secret string     magiclink secret to use for password reset tokens (default "PLEASE_CHANGE_ME!!!")
   -F, --max-fetch-limit int         maximum feed fetch limit in bytes (default 2097152)
   -L, --max-twt-length int          maximum length of posts (default 288)
@@ -292,29 +292,13 @@ docker stack deploy -c twtxt.yml
 
 您可以找到一个[AUTHORS](/AUTHORS)文件，其中保存了该项目的贡献者列表。如果您提供公关，请考虑在其中添加您的名字。还有Github自己的贡献者[统计数据](https://git.mills.io/yarnsocial/yarn/graphs/contributors)。
 
-[![](https://sourcerer.io/fame/prologic/jointwt/twtxt/images/0)](https://sourcerer.io/fame/prologic/jointwt/twtxt/links/0)
-[![](https://sourcerer.io/fame/prologic/jointwt/twtxt/images/1)](https://sourcerer.io/fame/prologic/jointwt/twtxt/links/1)
-[![](https://sourcerer.io/fame/prologic/jointwt/twtxt/images/2)](https://sourcerer.io/fame/prologic/jointwt/twtxt/links/2)
-[![](https://sourcerer.io/fame/prologic/jointwt/twtxt/images/3)](https://sourcerer.io/fame/prologic/jointwt/twtxt/links/3)
-[![](https://sourcerer.io/fame/prologic/jointwt/twtxt/images/4)](https://sourcerer.io/fame/prologic/jointwt/twtxt/links/4)
-[![](https://sourcerer.io/fame/prologic/jointwt/twtxt/images/5)](https://sourcerer.io/fame/prologic/jointwt/twtxt/links/5)
-[![](https://sourcerer.io/fame/prologic/jointwt/twtxt/images/6)](https://sourcerer.io/fame/prologic/jointwt/twtxt/links/6)
-[![](https://sourcerer.io/fame/prologic/jointwt/twtxt/images/7)](https://sourcerer.io/fame/prologic/jointwt/twtxt/links/7)
-
-## 进展
-
-[![Stargazers over time](https://starcharts.herokuapp.com/jointwt/twtxt.svg)](https://starcharts.herokuapp.com/jointwt/twtxt)
-
 ## 相关项目
 
-- [rss2twtxt](https://github.com/prologic/rss2twtxt) -- RSS/Atom to [Twtxt](https://twtxt.readthedocs.org) aggregator.
-- [Yarn.social](https://yarn.social) -- Hosted platform for Yarn.social pods like [twtxt.net](https://twtxt.net).
-- [Goryon](https://github.com/jointwt/goryon) -- Our Flutter iOS and Android Mobile App.
-- [Twt.js](https://github.com/jointwt/twt.js) -- Our JavaScript / NodeJS library for using the API.
-- [we-are-twtxt](https://github.com/jointwt/we-are-twtxt) -- A voluntary user contributed registry of users, bots and interesting feeds.
-- [jointwt.org](https://github.com/jointwt/jointwt.org) -- Our [JoinTwt.org](https://jointwt.org) landing page.
-
+- [Yarn.social](https://git.mills.io/yarnsocial/yarn.social) -- [Yarn.social](https://yarn.social) landing page
+- [Yarns](https://git.mills.io/yarnsocial/yarns) -- The [Yarn.social](https://yarn.social) search engine hosted at [search.twtxt.net](https://search.twtxt.net)
+- [Goryon](https://git.mills.io/yarnsocial/goryon) -- Our Flutter iOS and Android Mobile App
+- [rss2twtxt](https://git.mills.io/yarnsocial/rss2twtxt) -- RSS/Atom/Twitter to [Twtxt](https://twtxt.readthedocs.org) aggregator service hosted at [feeds.twtxt.net](https://feeds.twtxt.net)
 
 ## 开源协议
 
-`twtxt` 是基于 [MIT 协议](/LICENSE) 构建
+`yarn` 是基于 [MIT 协议](/LICENSE) 构建

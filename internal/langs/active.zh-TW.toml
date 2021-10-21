@@ -386,10 +386,6 @@ other = "用戶名稱驗證失敗：{{.Error}}"
 hash = "sha1-bf58d17e561b1b858e35f9202f811297dac2e9db"
 other = "管理"
 
-[FeedsExternalFeedsContent]
-hash = "sha1-e643a20c31511b08a00bf83fefd065a26311254f"
-other = "<p>\n這是您可以訂閱並關注的外部 Feed 列表。這些 Feed 源由 {{.InstanceName}} 運營商從外部獲取和配置。默認情況下， <a href=\"https://twtxt.net\">twtxt.net</a> 來自以下來源：<ul>\n<li><a href=\"https://feeds.twtxt.net\">feeds.twtxt.net</a> RSS/Atom 到 twtxt feed 的聚合器</li>\n<li><a href=\"https://raw.githubusercontent.com/jointwt/we-are-twtxt/master/we-are-bots.txt\">we-are-bots</a> twtxt機器人目錄(<i>自動 Feeds</i>)</li>\n<li><a href=\"https://raw.githubusercontent.com/jointwt/we-are-twtxt/master/we-are-twtxt.txt\">we-are-twtxt</a> twtxt用戶目錄(<i>由自願將自己添加到此列表的用戶管理</i>)</li>\n</ul>\n</p>\n<p>\n如果要添加新的外部 Feed：<ul>\n<li>首先，確保它是有效的RSS或Atom Feed(<i><a href=\"https://en.wikipedia.org/wiki/Atom_(Web_standard)\">有效Feed?</a></i>)。</li>\n<li>訪問<a href=\"https://feeds.twtxt.net\">feeds.twtxt.net</a>並給 Feed 命名，然後輸入RSS/Atom URL並點擊 Add 提交。</li>\n</ul>\n幾分鍾後，新添加的外部 Feed 將顯示在 {{ .InstanceName }} 實例 <a href=\"https://twtxt.net/feeds\">/feeds</a> 中。\n</p>"
-
 [FeedsExternalFeedsSummary]
 hash = "sha1-55c8dba827a4c56d82c9f2076cc2b31d5a99e726"
 other = "來自新聞和外部用戶的 Feeds"
