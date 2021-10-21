@@ -587,18 +587,6 @@ func (u *User) Reply(twt types.Twt) string {
 }
 
 func (u *User) Fork(twt types.Twt) string {
-	// Create a unique set of mentions by @nick from the twt
-	// excluding ourselves and anything we don't follow
-	mentionsSet := make(map[string]bool)
-	for _, m := range twt.Mentions() {
-		twter := m.Twter()
-		if u.Follows(twter.URL) && !u.Is(twter.URL) {
-			if _, ok := mentionsSet[twter.Nick]; !ok {
-				mentionsSet[twter.Nick] = true
-			}
-		}
-	}
-
 	// Initialise the list of tokens with the twt's Hash (forking from)
 	tokens := []string{fmt.Sprintf("(#%s)", twt.Hash())}
 
@@ -606,11 +594,6 @@ func (u *User) Fork(twt types.Twt) string {
 	// only if the original twter isn't ourselves!
 	if u.Follows(twt.Twter().URL) && !u.Is(twt.Twter().URL) {
 		tokens = append(tokens, fmt.Sprintf("@%s", twt.Twter().Nick))
-	}
-
-	// Add all other mentions
-	for nick := range mentionsSet {
-		tokens = append(tokens, fmt.Sprintf("@%s", nick))
 	}
 
 	tokens = UniqStrings(tokens)
