@@ -18,6 +18,11 @@ func DefaultTwtManager() {
 
 // ParseFile and return time & count limited twts + comments
 func ParseFile(r io.Reader, twter types.Twter) (types.TwtFile, error) {
+	twterURI, err := url.Parse(twter.URL)
+	if err != nil {
+		log.WithError(err).Error("error bad twter url %s", twter.URL)
+		return nil, types.ErrInvalidFeed
+	}
 
 	f := &lextwtFile{twter: &twter}
 
@@ -75,23 +80,23 @@ func ParseFile(r io.Reader, twter types.Twter) (types.TwtFile, error) {
 
 	if v, ok := f.Info().GetN("url", 0); ok {
 		if strings.TrimSpace(v.Value()) != "" {
-			if _, err := url.Parse(v.Value()); err == nil {
-				f.twter.URL = v.Value()
-			}
-		}
-	}
-
-	if v, ok := f.Info().GetN("twturl", 0); ok {
-		if strings.TrimSpace(v.Value()) != "" {
-			if _, err := url.Parse(v.Value()); err == nil {
-				f.twter.URL = v.Value()
+			if u, err := url.Parse(v.Value()); err == nil {
+				if u.Scheme == "" {
+					u.Scheme = twterURI.Scheme
+				}
+				f.twter.URL = u.String()
 			}
 		}
 	}
 
 	if v, ok := f.Info().GetN("avatar", 0); ok {
 		if strings.TrimSpace(v.Value()) != "" {
-			f.twter.Avatar = v.Value()
+			if u, err := url.Parse(v.Value()); err == nil {
+				if u.Scheme == "" {
+					u.Scheme = twterURI.Scheme
+				}
+				f.twter.Avatar = u.String()
+			}
 		}
 	}
 
