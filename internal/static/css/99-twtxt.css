@@ -48,7 +48,7 @@ article nav li {
 }
 
 .badge {
-  background-color: #c11010;
+  background-color: var(--primary);
   color: white;
   border-radius: 100px;
   padding: 0px 4px;
