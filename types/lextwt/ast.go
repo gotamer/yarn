@@ -276,6 +276,8 @@ func (n *Mention) FormatMarkdown(out io.Writer) {
 		line = fmt.Sprintf("<%s>", n.target)
 
 	case n.name != "" && n.target != "":
+		// TODO: This may not be needed by Goryon if it can validate
+		// the mention links via the mentions set sent back via the API
 		line = fmt.Sprintf("[@%s](%s#%s)", n.name, n.target, n.name)
 	}
 
