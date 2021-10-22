@@ -57,6 +57,7 @@ func NewTemplateManager(conf *Config, translator *Translator, blogs *BlogsCache,
 	funcMap["urlForBlog"] = URLForBlogFactory(conf, blogs)
 	funcMap["urlForConv"] = URLForConvFactory(conf, cache, archive)
 	funcMap["urlForRootConv"] = URLForRootConvFactory(conf, cache, archive)
+	funcMap["conversationLength"] = ConversationLength(conf, cache, archive)
 	funcMap["isAdminUser"] = IsAdminUserFactory(conf)
 	funcMap["twtType"] = func(twt types.Twt) string { return fmt.Sprintf("%T", twt) }
 
