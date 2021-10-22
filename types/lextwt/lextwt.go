@@ -20,7 +20,7 @@ func DefaultTwtManager() {
 func ParseFile(r io.Reader, twter types.Twter) (types.TwtFile, error) {
 	twterURI, err := url.Parse(twter.URL)
 	if err != nil {
-		log.WithError(err).Error("error bad twter url %s", twter.URL)
+		log.WithError(err).Errorf("error bad twter url %s", twter.URL)
 		return nil, types.ErrInvalidFeed
 	}
 
