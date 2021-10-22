@@ -968,12 +968,15 @@ func TranscodeVideo(conf *Config, ifn string, resource, name string, opts *Video
 	GeneratePoster := func(ctx context.Context, errs chan error) {
 		defer wg.Done()
 
+		// ffmpeg -ss 00:00:03.000 -i video.mp4 -y -vframes 1 -strict -loglevel quiet poster.png
+		// ffmpeg i video.mp4 -y -vf thumbnail -t 3 -vframes 1 -strict -loglevel quiet poster.png
 		if err := RunCmd(
 			conf.TranscoderTimeout,
 			"ffmpeg",
-			"-ss", "00:00:03.000",
 			"-i", ifn,
 			"-y",
+			"-vf", "thumbnail",
+			"-t", "3",
 			"-vframes", "1",
 			"-strict", "-2",
 			"-loglevel", "quiet",
