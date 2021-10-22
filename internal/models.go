@@ -454,15 +454,16 @@ func (u *User) Follow(alias, uri string) error {
 }
 
 func (u *User) FollowAndValidate(conf *Config, nick, url string) error {
-	if err := ValidateFeed(conf, nick, url); err != nil {
+	twter, err := ValidateFeed(conf, nick, url)
+	if err != nil {
 		return err
 	}
 
-	if u.Follows(url) {
+	if u.Follows(twter.URL) {
 		return ErrAlreadyFollows
 	}
 
-	return u.Follow(nick, url)
+	return u.Follow(twter.Nick, twter.URL)
 }
 
 func (u *User) Follows(url string) bool {

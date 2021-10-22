@@ -7,9 +7,11 @@ import (
 	"html/template"
 	"io"
 	"io/fs"
+	"os"
 	"path/filepath"
 	"strings"
 	"sync"
+	text_template "text/template"
 	"time"
 
 	"git.mills.io/yarnsocial/yarn/types"
@@ -19,8 +21,8 @@ import (
 )
 
 const (
-	baseTemplate     = "templates/base.html"
-	partialsTemplate = "templates/_partials.html"
+	baseTemplate     = "base.html"
+	partialsTemplate = "_partials.html"
 	baseName         = "base"
 )
 
@@ -80,14 +82,27 @@ func (m *TemplateManager) LoadTemplates() error {
 	m.Lock()
 	defer m.Unlock()
 
-	err := fs.WalkDir(templates, "templates", func(path string, info fs.DirEntry, err error) error {
+	var (
+		dirFS fs.FS
+		root  string
+	)
+
+	if m.debug {
+		dirFS = os.DirFS("./internal/templates")
+		root = "."
+	} else {
+		dirFS = templates
+		root = "templates"
+	}
+
+	err := fs.WalkDir(dirFS, root, func(path string, info fs.DirEntry, err error) error {
 		if err != nil {
 			log.WithError(err).Error("error walking templates")
 			return fmt.Errorf("error walking templates: %w", err)
 		}
 
 		fname := info.Name()
-		if !info.IsDir() && path != baseTemplate {
+		if !info.IsDir() && filepath.Base(path) != baseTemplate {
 			// Skip _partials.html and also editor swap files, to improve the development
 			// cycle. Editors often add suffixes to their swap files, e.g "~" or ".swp"
 			// (Vim) and those files are not parsable as templates, causing panics.
@@ -99,22 +114,22 @@ func (m *TemplateManager) LoadTemplates() error {
 			t := template.New(name).Option("missingkey=zero")
 			t.Funcs(m.funcMap)
 
-			if f, err := templates.ReadFile(path); err == nil {
+			if f, err := fs.ReadFile(dirFS, path); err == nil {
 				template.Must(t.Parse(string(f)))
 			} else {
-				return err
+				return fmt.Errorf("error parsing template %s: %w", path, err)
 			}
 
-			if f, err := templates.ReadFile(partialsTemplate); err == nil {
+			if f, err := fs.ReadFile(dirFS, filepath.Join(root, partialsTemplate)); err == nil {
 				template.Must(t.Parse(string(f)))
 			} else {
-				return err
+				return fmt.Errorf("error parsing partials template %s: %w", partialsTemplate, err)
 			}
 
-			if f, err := templates.ReadFile(baseTemplate); err == nil {
+			if f, err := fs.ReadFile(dirFS, filepath.Join(root, baseTemplate)); err == nil {
 				template.Must(t.Parse(string(f)))
 			} else {
-				return err
+				return fmt.Errorf("error parsing base template %s: %w", baseTemplate, err)
 			}
 
 			m.templates[name] = t
@@ -165,4 +180,28 @@ func (m *TemplateManager) Exec(name string, ctx *Context) (io.WriterTo, error) {
 	}
 
 	return buf, nil
+}
+
+// RenderHTML ...
+func RenderHTML(tpl string, ctx *Context) (string, error) {
+	t := template.Must(template.New("tpl").Parse(tpl))
+	buf := bytes.NewBuffer([]byte{})
+	err := t.Execute(buf, ctx)
+	if err != nil {
+		return "", err
+	}
+
+	return buf.String(), nil
+}
+
+// RenderPlainText ...
+func RenderPlainText(tpl string, ctx *Context) (string, error) {
+	t := text_template.Must(text_template.New("tpl").Parse(tpl))
+	buf := bytes.NewBuffer([]byte{})
+	err := t.Execute(buf, ctx)
+	if err != nil {
+		return "", err
+	}
+
+	return buf.String(), nil
 }

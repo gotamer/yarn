@@ -415,30 +415,6 @@ func RunCmd(timeout time.Duration, command string, args ...string) error {
 	return nil
 }
 
-// RenderHTML ...
-func RenderHTML(tpl string, ctx *Context) (string, error) {
-	t := template.Must(template.New("tpl").Parse(tpl))
-	buf := bytes.NewBuffer([]byte{})
-	err := t.Execute(buf, ctx)
-	if err != nil {
-		return "", err
-	}
-
-	return buf.String(), nil
-}
-
-// RenderPlainText ...
-func RenderPlainText(tpl string, ctx *Context) (string, error) {
-	t := text_template.Must(text_template.New("tpl").Parse(tpl))
-	buf := bytes.NewBuffer([]byte{})
-	err := t.Execute(buf, ctx)
-	if err != nil {
-		return "", err
-	}
-
-	return buf.String(), nil
-}
-
 // RenderLogo ...
 func RenderLogo(logo string, podName string) (template.HTML, error) {
 	t := text_template.Must(text_template.New("logo").Parse(logo))
@@ -1055,24 +1031,24 @@ func NormalizeFeedName(name string) string {
 	return name
 }
 
-func ValidateFeed(conf *Config, nick, url string) error {
+func ValidateFeed(conf *Config, nick, url string) (types.Twter, error) {
 	var body io.ReadCloser
 
 	if strings.HasPrefix(url, "gopher://") {
 		res, err := RequestGopher(conf, url)
 		if err != nil {
 			log.WithError(err).Errorf("error fetching feed %s", url)
-			return err
+			return types.Twter{}, err
 		}
 		body = res.Body
 	} else {
 		res, err := Request(conf, http.MethodGet, url, nil)
 		if err != nil {
 			log.WithError(err).Errorf("error fetching feed %s", url)
-			return err
+			return types.Twter{}, err
 		}
 		if res.StatusCode != 200 {
-			return ErrBadRequest
+			return types.Twter{}, ErrBadRequest
 		}
 		body = res.Body
 	}
@@ -1081,12 +1057,12 @@ func ValidateFeed(conf *Config, nick, url string) error {
 
 	limitedReader := &io.LimitedReader{R: body, N: conf.MaxFetchLimit}
 	twter := types.Twter{Nick: nick, URL: url}
-	_, err := types.ParseFile(limitedReader, twter)
+	tf, err := types.ParseFile(limitedReader, twter)
 	if err != nil {
-		return err
+		return types.Twter{}, err
 	}
 
-	return nil
+	return tf.Twter(), nil
 }
 
 func ValidateFeedName(path string, name string) error {

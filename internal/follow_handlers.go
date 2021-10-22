@@ -27,9 +27,9 @@ func (s *Server) FollowHandler() httprouter.Handle {
 			return
 		}
 
-		if nick == "" || url == "" {
+		if url == "" {
 			ctx.Error = true
-			ctx.Message = s.tr(ctx, "ErrorNickOrURLEmpty")
+			ctx.Message = s.tr(ctx, "ErrorNoFeed")
 			s.render("error", w, ctx)
 			return
 		}

@@ -286,10 +286,6 @@ other = "从存档中加载推文出错，请重试"
 hash = "sha1-dbebd52a4449b3d284699bd8f79dc7d55699e754"
 other = "太多次登录失败. 账号临时锁定, 请稍候重试."
 
-[ErrorNickOrURLEmpty]
-hash = "sha1-39346eb648d77a1728736407c7ab8eb83c266df1"
-other = "昵称 和 URL 必须指定"
-
 [ErrorNoExternalFeed]
 hash = "sha1-851bdf435c847926b563a3b23a7249fe1a605734"
 other = "不能找到外部 Feed"

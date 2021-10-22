@@ -5,6 +5,18 @@
         <h2>{{tr . "SettingsTitle"}}</h2>
         <h3>{{tr . "SettingsSummary"}}</h3>
     </hgroup>
+
+    <form id="follow" action="/follow" method="POST">
+      <fieldset>
+        {{ tr . "FollowSummary" }}
+        <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
+        <div class="grid">
+          <input type="url" name="url" placeholder="{{tr . "FollowFormURL"}}" aria-label="URL" required>
+          <button type="submit" class="primary">{{tr . "FollowFormFollow"}}</button>
+        </div>
+      </fieldset>
+    </form>
+
     <form action="/settings" enctype="multipart/form-data" method="POST">
       <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
       <div class="grid">
@@ -65,7 +77,7 @@
         </div>
         <div>
           <fieldset>
-              <legend>{{tr . "SettingsFormPrivacySettingsTitle"}}</legend>
+            <legend>{{tr . "SettingsFormPrivacySettingsTitle"}}</legend>
             <label for="isBookmarksPubliclyVisible">
               <input id="isBookmarksPubliclyVisible" type="checkbox" name="isBookmarksPubliclyVisible" aria-label="Show bookmarks publicly" role="switch" {{ if .User.IsBookmarksPubliclyVisible }}checked{{ end }}>
               {{tr . "SettingsFormPrivacySettingsShowBookmarks"}}
