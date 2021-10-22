@@ -93,24 +93,7 @@ func (s *Server) ConversationHandler() httprouter.Handle {
 			)
 		}
 
-		getTweetsByHash := func(hash string, replyTo types.Twt) types.Twts {
-			var result types.Twts
-			seen := make(map[string]bool)
-			// TODO: Improve this by making this an O(1) lookup on the tag
-			for _, twt := range s.cache.GetAll() {
-				var tags types.TagList = twt.Tags()
-				if HasString(UniqStrings(tags.Tags()), hash) && !seen[twt.Hash()] {
-					result = append(result, twt)
-					seen[twt.Hash()] = true
-				}
-			}
-			if !seen[replyTo.Hash()] {
-				result = append(result, replyTo)
-			}
-			return result
-		}
-
-		twts := getTweetsByHash(hash, twt)
+		twts := s.cache.GetTwtsInConversation(hash, twt)
 		sort.Sort(sort.Reverse(twts))
 
 		var pagedTwts types.Twts

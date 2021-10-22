@@ -1364,11 +1364,15 @@ func URLForConvFactory(conf *Config, cache *Cache, archive Archiver) func(twt ty
 			return ""
 		}
 
-		return fmt.Sprintf(
-			"%s/conv/%s",
-			strings.TrimSuffix(conf.BaseURL, "/"),
-			hash,
-		)
+		if len(cache.GetTwtsInConversation(hash, twt)) > 1 {
+			return fmt.Sprintf(
+				"%s/conv/%s",
+				strings.TrimSuffix(conf.BaseURL, "/"),
+				hash,
+			)
+		}
+
+		return ""
 	}
 }
 

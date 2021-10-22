@@ -585,6 +585,34 @@ func (cache *Cache) GetByURL(url string) types.Twts {
 	return types.Twts{}
 }
 
+// GetTwtsInConversation ...
+func (cache *Cache) GetTwtsInConversation(hash string, replyTo types.Twt) types.Twts {
+	subject := fmt.Sprintf("(#%s)", hash)
+	return cache.GetBySubject(subject, replyTo)
+}
+
+// GetBySubject ...
+func (cache *Cache) GetBySubject(subject string, replyTo types.Twt) types.Twts {
+	var result types.Twts
+
+	// TODO: Improve this by making this an O(1) lookup on the tag
+	// XXX: But maybe this won't matter so much since the active cache
+	//      is held in memory and is usually kept fairly small? 🤷‍♂️
+	allTwts := cache.GetAll()
+
+	seen := make(map[string]bool)
+	for _, twt := range allTwts {
+		if twt.Subject().String() == subject && !seen[twt.Hash()] {
+			result = append(result, twt)
+			seen[twt.Hash()] = true
+		}
+	}
+	if !seen[replyTo.Hash()] {
+		result = append(result, replyTo)
+	}
+	return result
+}
+
 // Delete ...
 func (cache *Cache) Delete(feeds types.Feeds) {
 	cache.mu.Lock()
