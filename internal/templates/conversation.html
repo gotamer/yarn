@@ -1,7 +1,7 @@
 {{define "content"}}
   <article class="container-fluid">
     <hgroup>
-        <h2>{{tr . "ConversationTitle"}} <a href="/conv/{{ ($.Twts | first).Hash  }}">#{{ ($.Twts | first).Hash }}</a></h2>
+        <h2>{{tr . "ConversationTitle"}}</h2>
         <h3>{{tr . "ConversationSummary"}} <a href="/twt/{{ ($.Twts | first).Hash  }}">#{{ ($.Twts | first).Hash }}</a></h3>
     </hgroup>
   </article>
