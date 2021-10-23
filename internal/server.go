@@ -61,9 +61,6 @@ type Server struct {
 	// Blogs Cache
 	blogs *BlogsCache
 
-	// Messages Cache
-	msgs *MessagesCache
-
 	// Feed Cache
 	cache *Cache
 
@@ -89,12 +86,6 @@ type Server struct {
 	// API
 	api *API
 
-	// POP3 Service
-	pop3Service *POP3Service
-
-	// SMTP Service
-	smtpService *SMTPService
-
 	// Passwords
 	pm passwords.Passwords
 
@@ -103,10 +94,6 @@ type Server struct {
 }
 
 func (s *Server) render(name string, w http.ResponseWriter, ctx *Context) {
-	if ctx.Authenticated && ctx.Username != "" {
-		ctx.NewMessages = s.msgs.Get(ctx.User.Username)
-	}
-
 	buf, err := s.tmplman.Exec(name, ctx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -133,7 +120,6 @@ func (s *Server) AddShutdownHook(f func()) {
 func (s *Server) Shutdown(ctx context.Context) error {
 	s.cron.Stop()
 	s.tasks.Stop()
-	s.smtpService.Stop()
 
 	if err := s.server.Shutdown(ctx); err != nil {
 		log.WithError(err).Error("error shutting down server")
@@ -520,12 +506,6 @@ func (s *Server) initRoutes() {
 	s.router.PATCH("/post", s.am.MustAuth(s.PostHandler()))
 	s.router.DELETE("/post", s.am.MustAuth(s.PostHandler()))
 
-	// Private Messages
-	s.router.GET("/messages", s.am.MustAuth(s.ListMessagesHandler()))
-	s.router.GET("/messages/:msgid", s.am.MustAuth(s.ViewMessageHandler()))
-	s.router.POST("/messages/send", s.am.MustAuth(s.SendMessageHandler()))
-	s.router.POST("/messages/delete", s.am.MustAuth(s.DeleteMessagesHandler()))
-
 	s.router.POST("/blog", s.am.MustAuth(s.CreateOrUpdateBlogHandler()))
 	s.router.GET("/blogs/:author", s.ListBlogsHandler())
 	s.router.GET("/blog/:author/:year/:month/:date/:slug", s.ViewBlogHandler())
@@ -713,14 +693,6 @@ func NewServer(bind string, options ...Option) (*Server, error) {
 	log.Info("updating blogs cache")
 	blogs.UpdateBlogs(config)
 
-	msgs, err := LoadMessagesCache(config.Data)
-	if err != nil {
-		log.WithError(err).Error("error loading messages cache (re-creating)")
-		msgs = NewMessagesCache()
-	}
-	log.Info("updating messages cache")
-	msgs.Refresh(config)
-
 	cache, err := LoadCache(config.Data)
 	if err != nil {
 		log.WithError(err).Error("error loading feed cache")
@@ -779,10 +751,6 @@ func NewServer(bind string, options ...Option) (*Server, error) {
 
 	api := NewAPI(router, config, cache, archive, db, pm, tasks)
 
-	pop3Service := NewPOP3Service(config, db, pm, msgs, tasks)
-
-	smtpService := NewSMTPService(config, db, pm, msgs, tasks)
-
 	var handler http.Handler
 
 	csrfHandler := nosurf.New(router)
@@ -813,17 +781,8 @@ func NewServer(bind string, options ...Option) (*Server, error) {
 		// API
 		api: api,
 
-		// POP3 Servicee
-		pop3Service: pop3Service,
-
-		// SMTP Servicee
-		smtpService: smtpService,
-
 		// Blogs Cache
 		blogs: blogs,
-
-		// Messages Cache
-		msgs: msgs,
 
 		// Feed Cache
 		cache: cache,
@@ -863,12 +822,6 @@ func NewServer(bind string, options ...Option) (*Server, error) {
 
 	server.tasks.Start()
 	log.Info("started task dispatcher")
-
-	server.pop3Service.Start()
-	log.Info("started POP3 service")
-
-	server.smtpService.Start()
-	log.Info("started SMTP service")
 
 	server.setupWebMentions()
 	log.Infof("started webmentions processor")
