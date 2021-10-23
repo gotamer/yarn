@@ -43,7 +43,6 @@ type User struct {
 	Username  string
 	Password  string
 	Tagline   string
-	Email     string // DEPRECATED: In favor of storing a Hashed Email
 	URL       string
 	CreatedAt time.Time
 

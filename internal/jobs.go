@@ -35,7 +35,6 @@ func InitJobs(conf *Config) {
 
 		"CreateBots":       NewJobSpec("", NewCreateBotsJob),
 		"CreateAdminFeeds": NewJobSpec("", NewCreateAdminFeedsJob),
-		"RemoveEmails":     NewJobSpec("", NewRemoveEmailsJob),
 	}
 
 	StartupJobs = map[string]JobSpec{
@@ -44,7 +43,6 @@ func InitJobs(conf *Config) {
 		"CreateBots":        Jobs["CreateBots"],
 		"CreateAdminFeeds":  Jobs["CreateAdminFeeds"],
 		"DeleteOldSessions": Jobs["DeleteOldSessions"],
-		"RemoveEmails":      Jobs["RemoveEmails"],
 	}
 
 }
@@ -337,50 +335,4 @@ func (job *DeleteOldSessionsJob) Run() {
 			}
 		}
 	}
-}
-
-type RemoveEmailsJob struct {
-	conf    *Config
-	blogs   *BlogsCache
-	cache   *Cache
-	archive Archiver
-	db      Store
-}
-
-func NewRemoveEmailsJob(conf *Config, blogs *BlogsCache, cache *Cache, archive Archiver, db Store) cron.Job {
-	return &RemoveEmailsJob{
-		conf:    conf,
-		blogs:   blogs,
-		cache:   cache,
-		archive: archive,
-		db:      db,
-	}
-}
-
-func (job *RemoveEmailsJob) Run() {
-	log.Info("removing emails from all user accounts...")
-
-	users, err := job.db.GetAllUsers()
-	if err != nil {
-		log.WithError(err).Warn("unable to get all users from database")
-		return
-	}
-
-	for _, user := range users {
-		if user.Email != "" {
-			user.Email = ""
-			if user.Recovery != "" {
-				recoveryHash := fmt.Sprintf("email:%s", FastHash(user.Email))
-				user.Recovery = recoveryHash
-			}
-
-			if err := job.db.SetUser(user.Username, user); err != nil {
-				log.WithError(err).Warn("error saving user object for AdminUser")
-			}
-		} else {
-			log.Warnf("No email address for %s, skipping...", user.Username)
-		}
-	}
-
-	log.Info("finished removing emails from user accounts")
 }
