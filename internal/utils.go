@@ -192,7 +192,7 @@ func GetExternalAvatar(conf *Config, twter types.Twter) string {
 
 		opts := &ImageOptions{Resize: true, Width: AvatarResolution, Height: AvatarResolution}
 		if _, err := DownloadImage(conf, u.String(), externalDir, slug, opts); err != nil {
-			log.WithError(err).Error("error downloading external avatar: %s", u)
+			log.WithError(err).Errorf("error downloading external avatar: %s", u)
 			return ""
 		}
 		return URLForExternalAvatar(conf, uri)
