@@ -219,14 +219,6 @@ func GetExternalAvatar(conf *Config, twter types.Twter) string {
 	}
 
 	//
-	// Try to discover an avatar next to the feed or on the domain
-	//
-
-	if avatar, err := DiscoverExternalAvatar(conf, uri); err == nil {
-		return avatar
-	}
-
-	//
 	// Auto-generate one
 	//
 
@@ -251,47 +243,6 @@ func GetExternalAvatar(conf *Config, twter types.Twter) string {
 	}
 
 	return URLForExternalAvatar(conf, uri)
-}
-
-func DiscoverExternalAvatar(conf *Config, uri string) (string, error) {
-	slug := Slugify(uri)
-
-	if !strings.HasSuffix(uri, "/") {
-		uri += "/"
-	}
-
-	base, err := url.Parse(uri)
-	if err != nil {
-		log.WithError(err).Errorf("error parsing uri: %s", uri)
-		return "", fmt.Errorf("error parsing uri %s: %w", uri, err)
-	}
-
-	candidates := []string{
-		"../avatar.png", "./avatar.png",
-		"../logo.png", "./logo.png",
-		"../avatar.jpg", "./avatar.jpg",
-		"../logo.jpg", "./logo.jpg",
-		"../avatar.jpeg", "./avatar.jpeg",
-		"../logo.jpeg", "./logo.jpeg",
-	}
-
-	for _, candidate := range candidates {
-		source, _ := base.Parse(candidate)
-		if ResourceExists(conf, source.String()) {
-			opts := &ImageOptions{Resize: true, Width: AvatarResolution, Height: AvatarResolution}
-			_, err := DownloadImage(conf, source.String(), externalDir, slug, opts)
-			if err != nil {
-				log.WithError(err).
-					WithField("base", base.String()).
-					WithField("source", source.String()).
-					Error("error downloading external avatar")
-				return "", fmt.Errorf("error downloading discovered external avatar %s: %w", source, err)
-			}
-			return URLForExternalAvatar(conf, uri), nil
-		}
-	}
-
-	return "", fmt.Errorf("unable to discover an external avatar for %s", uri)
 }
 
 func RequestGopher(conf *Config, uri string) (*gopher.Response, error) {
@@ -343,17 +294,6 @@ func Request(conf *Config, method, url string, headers http.Header) (*http.Respo
 	}
 
 	return res, nil
-}
-
-func ResourceExists(conf *Config, url string) bool {
-	res, err := Request(conf, http.MethodHead, url, nil)
-	if err != nil {
-		log.WithError(err).Errorf("error checking if %s exists", url)
-		return false
-	}
-	defer res.Body.Close()
-
-	return res.StatusCode/100 == 2
 }
 
 func LineCount(r io.Reader) (int, error) {
