@@ -1,4 +1,67 @@
 
+<a name="0.3.0"></a>
+## [0.3.0](https://git.mills.io/yarnsocial/yarn/compare/0.2.0...0.3.0) (2021-10-24)
+
+### Bug Fixes
+
+* Fix nav layout and remove unncessary container-fluid class
+* Fix excessive padding, minor CSS tweaks and use a centered layout (#473)
+* Fix bug with User.FollowAndValidate() to use heuristics to set an alias for the feed if none given
+* Fix typo in ad-hoc check-versions.sh tool
+* Fix performance regression of loading timeline
+* Fix CI
+* Fix the Web interface UI/UX to be a bit more compact and cleaner (#468)
+* Fix CI
+* Fix badge color to match primary color
+* Fix video poster generation for short (<3s) videos using thumbnail filter
+* Fix User.Fork() behaviour
+* Fix an edge case with the lextwt feed parser with bad url/avatar metadata missing the scheme
+* Fix bug where external avatars were not generated for some misbehaving feeds
+* Fix the rendering of the Twter in permalink titles
+* Fix overriding alrady cached/discovered Avatars from feed advertised Avatar in feed preamble metadata
+* Fix Reply hints to just the Twter
+* Fix and remove unnecessary footer on every Markdown page
+* Fix tests
+* Fix external feed avatar handling so avatars are always cached and served from the pod
+* Fix up the rendering of the default pages
+* Fix the yarnc stats sub-command to display the right information on feeds
+* Fix User.Filter() to return an empty slice if all twts are filtered
+* Fix handling for external avatars so the local pod has a cached copy and services all external avatars (regression)
+* Fix external profile view to correctly point to the external profile view for the header feed  name and cleanup some of hte code
+* Fix consistency of profileLinks partial and drop use of TwtURL from Profile model
+* Fix internal links to open in same page
+
+### Documentation
+
+* Document todo for removing fragment on mentions from the API as Goryon may not need it now
+
+### Features
+
+* Add arrakis.netbros.com to ad-hoc tools/check-versions.sh
+* Add Follow to Settings page and fix template reloading in debug mode (#454)
+* Add conversation length badges
+* Add shell script to check versions of known pods
+* Add support for templating the logo with the pod name and update the default yarnd logo
+* Add test case for weird bug with adi's twt (#463)
+
+### Updates
+
+* Update 'internal/static/css/01-pico.css'
+* Update 'internal/static/css/01-pico.css'
+* Update 'internal/static/css/01-pico.css'
+* Update 'internal/static/css/99-twtxt.css'
+* Update 'internal/static/css/01-pico.css'
+* Update 'internal/langs/active.en.toml'
+* Update 'internal/templates/base.html'
+* Update 'internal/static/css/01-pico.css'
+* Update 'internal/static/css/99-twtxt.css'
+* Update 'internal/static/css/99-twtxt.css'
+* Update deps
+* Update some of the default options
+* Update 'internal/templates/page.html'
+* Update 'internal/langs/active.en.toml'
+
+
 <a name="0.2.0"></a>
 ## [0.2.0](https://git.mills.io/yarnsocial/yarn/compare/0.1.0...0.2.0) (2021-10-17)
 
@@ -424,6 +487,7 @@
 
 ### Updates
 
+* Update CHANGELOG for 0.2.0
 * Update the footer of the base template to remove James Mills (the original author/creator) and instead link to Yarn.social as the primary branding
 * Update to Bitcask v0.3.14
 * Update bitcask to v0.3.13
