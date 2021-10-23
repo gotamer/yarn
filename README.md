@@ -254,6 +254,12 @@ $ cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 64 | head -n 1
 
 **DO NOT** publish or share these values. **BE SURE** to only set them as env vars.
 
+__NOTE:__ The [Dockerfile](/Dockerfile) specifies that the container run as
+          the user `yarnd` with `uid=1000`. Be sure that any volume(s) you
+          mount into your container and use as the data storage (`-d/--data`)
+          path and database storage path (`-s/--store`) is correctly configured
+          to have the correct user/group ownership. e.g: `chorn -R 1000:1000 /data`
+
 ## Production Deployments
 
 ### Docker Swarm

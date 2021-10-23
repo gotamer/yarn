@@ -59,13 +59,19 @@ FROM alpine:latest
 
 RUN apk --no-cache -U add ca-certificates tzdata ffmpeg
 
-WORKDIR /
+RUN adduser -D -H yarnd yarnd
+RUN mkdir -p /data && chown -R yarnd:yarnd /data
+
 VOLUME /data
+
+WORKDIR /
 
 # force cgo resolver
 ENV GODEBUG=netdns=cgo
 
 COPY --from=build /src/yarnd /yarnd
+
+USER yarnd
 
 ENTRYPOINT ["/yarnd"]
 CMD [""]
