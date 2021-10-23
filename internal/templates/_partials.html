@@ -170,7 +170,7 @@
       {{ end }}
       {{ if and (not (eq $.view "conv")) (not (eq $.view "rootconv")) }}
         {{ with urlForConv $.Twt }}
-          <li><a class="conv" href="{{ urlForConv $.Twt }}"><i class="icss-comment"></i> {{tr $.Ctx "TwtConversationLinkTitle"}}<span class="badge">{{ conversationLength $.Twt }}</span></a></li>
+          <li><a class="conv" href="{{ urlForConv $.Twt }}"><i class="icss-comment"></i> {{tr $.Ctx "TwtConversationLinkTitle"}}</a></li>
         {{ end }}
       {{ end }}
     </ul>

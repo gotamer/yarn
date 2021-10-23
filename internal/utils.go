@@ -1315,35 +1315,6 @@ func URLForBlogFactory(conf *Config, blogs *BlogsCache) func(twt types.Twt) stri
 	}
 }
 
-func ConversationLength(conf *Config, cache *Cache, archive Archiver) func(twt types.Twt) int {
-	return func(twt types.Twt) int {
-		subject := twt.Subject().String()
-		if subject == "" {
-			return 0
-		}
-
-		var hash string
-
-		re := regexp.MustCompile(`\(#([a-z0-9]+)\)`)
-		match := re.FindStringSubmatch(subject)
-		if match != nil {
-			hash = match[1]
-		} else {
-			re = regexp.MustCompile(`(@|#)<([^ ]+) *([^>]+)>`)
-			match = re.FindStringSubmatch(subject)
-			if match != nil {
-				hash = match[2]
-			}
-		}
-
-		if _, ok := cache.Lookup(hash); !ok && !archive.Has(hash) {
-			return 0
-		}
-
-		return len(cache.GetTwtsInConversation(hash, twt))
-	}
-}
-
 func URLForConvFactory(conf *Config, cache *Cache, archive Archiver) func(twt types.Twt) string {
 	return func(twt types.Twt) string {
 		subject := twt.Subject().String()
