@@ -7,7 +7,6 @@ require (
 	git.mills.io/prologic/go-gopher v0.0.0-20210723054659-c5e856b800b8
 	git.mills.io/prologic/observe v0.0.0-20210712230028-fc31c7aa2bd1
 	git.mills.io/prologic/read-file-last-line v0.0.0-20210710073401-af293d63a6d0
-	git.mills.io/prologic/smtpd v0.0.0-20210710122116-a525b76c287a
 	github.com/Masterminds/sprig/v3 v3.2.2
 	github.com/NYTimes/gziphandler v1.1.1
 	github.com/PuerkitoBio/goquery v1.7.1
@@ -22,8 +21,6 @@ require (
 	github.com/disintegration/imageorient v0.0.0-20180920195336-8147d86e83ec
 	github.com/dustin/go-humanize v1.0.0
 	github.com/elithrar/simple-scrypt v1.3.0
-	github.com/emersion/go-mbox v1.0.2
-	github.com/emersion/go-message v0.15.0
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/gabstv/merger v1.0.1
 	github.com/go-mail/mail v2.3.1+incompatible
@@ -43,7 +40,6 @@ require (
 	github.com/justinas/nosurf v1.1.1
 	github.com/kylelemons/godebug v1.1.0 // indirect
 	github.com/lithammer/shortuuid/v3 v3.0.7
-	github.com/marcinwyszynski/popart v0.0.0-20160216095024-f601a19c2970
 	github.com/marksalpeter/sugar v0.0.0-20160713164314-a69afe358ea8 // indirect
 	github.com/marksalpeter/token/v2 v2.0.0
 	github.com/matryer/is v1.4.0

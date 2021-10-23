@@ -53,8 +53,6 @@ git.mills.io/prologic/observe v0.0.0-20210712230028-fc31c7aa2bd1 h1:e6ZyAOFGLZJZ
 git.mills.io/prologic/observe v0.0.0-20210712230028-fc31c7aa2bd1/go.mod h1:/rNXqsTHGrilgNJYH/8wsIRDScyxXUhpbSdNbBatAKY=
 git.mills.io/prologic/read-file-last-line v0.0.0-20210710073401-af293d63a6d0 h1:7sCaYq21VNVj7VWPyFrm9uoGrUEQ0lC3uJfswWt7W1o=
 git.mills.io/prologic/read-file-last-line v0.0.0-20210710073401-af293d63a6d0/go.mod h1:TJx1NvLO37zXX+X22rwv6P8ZErGSsjWB4Ekyi14Qx8Y=
-git.mills.io/prologic/smtpd v0.0.0-20210710122116-a525b76c287a h1:3i+FJ7IpSZHL+VAjtpQeZCRhrpP0odl5XfoLBY4fxJ8=
-git.mills.io/prologic/smtpd v0.0.0-20210710122116-a525b76c287a/go.mod h1:C7hXLmFmPYPjIDGfQl1clsmQ5TMEQfmzWTrJk475bUs=
 github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802 h1:1BDTz0u9nC3//pOCMdNH+CiXJVYJh5UQNCOBG7jbELc=
@@ -182,12 +180,6 @@ github.com/eapache/queue v1.1.0/go.mod h1:6eCeP0CKFpHLu8blIFXhExK/dRa7WDZfr6jVFP
 github.com/edsrzf/mmap-go v1.0.0/go.mod h1:YO35OhQPt3KJa3ryjFM5Bs14WD66h8eGKpfaBNrHW5M=
 github.com/elithrar/simple-scrypt v1.3.0 h1:KIlOlxdoQf9JWKl5lMAJ28SY2URB0XTRDn2TckyzAZg=
 github.com/elithrar/simple-scrypt v1.3.0/go.mod h1:U2XQRI95XHY0St410VE3UjT7vuKb1qPwrl/EJwEqnZo=
-github.com/emersion/go-mbox v1.0.2 h1:tE/rT+lEugK9y0myEymCCHnwlZN04hlXPrbKkxRBA5I=
-github.com/emersion/go-mbox v1.0.2/go.mod h1:Yp9IVuuOYLEuMv4yjgDHvhb5mHOcYH6x92Oas3QqEZI=
-github.com/emersion/go-message v0.15.0 h1:urgKGqt2JAc9NFJcgncQcohHdiYb803YTH9OQwHBHIY=
-github.com/emersion/go-message v0.15.0/go.mod h1:wQUEfE+38+7EW8p8aZ96ptg6bAb1iwdgej19uXASlE4=
-github.com/emersion/go-textwrapper v0.0.0-20200911093747-65d896831594 h1:IbFBtwoTQyw0fIM5xv1HF+Y+3ZijDR839WMulgxCcUY=
-github.com/emersion/go-textwrapper v0.0.0-20200911093747-65d896831594/go.mod h1:aqO8z8wPrjkscevZJFVE1wXJrLpC5LtJG7fqLOsPb2U=
 github.com/envoyproxy/go-control-plane v0.6.9/go.mod h1:SBwIajubJHhxtWwsL9s8ss4safvEdbitLhGGK48rN6g=
 github.com/envoyproxy/go-control-plane v0.9.0/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
@@ -463,8 +455,6 @@ github.com/lyft/protoc-gen-validate v0.0.13/go.mod h1:XbGvPuh87YZc5TdIa2/I4pLk0Q
 github.com/magiconair/properties v1.8.0/go.mod h1:PppfXfuXeibc/6YijjN8zIbojt8czPbwD3XqdrwzmxQ=
 github.com/magiconair/properties v1.8.5 h1:b6kJs+EmPFMYGkow9GiUyCyOvIwYetYJ3fSaWak/Gls=
 github.com/magiconair/properties v1.8.5/go.mod h1:y3VJvCyxH9uVvJTWEGAELF3aiYNyPKd5NZ3oSwXrF60=
-github.com/marcinwyszynski/popart v0.0.0-20160216095024-f601a19c2970 h1:ESBsxVV/MipfxVWDbqKauuBuDdF6/Ed1UDY7lzKmq4I=
-github.com/marcinwyszynski/popart v0.0.0-20160216095024-f601a19c2970/go.mod h1:eIKog88Q6dMlbN4UOKyxGsVLlPH4L6HgnH6sXPFPdhI=
 github.com/marksalpeter/sugar v0.0.0-20160713164314-a69afe358ea8 h1:1gRDEC07kIwBHulf+5qTzbe44xMMJRck54KK3xl6wYc=
 github.com/marksalpeter/sugar v0.0.0-20160713164314-a69afe358ea8/go.mod h1:Pbl6laGVgJOzt66fx/Zxwth5NhgKzyTysQDDqNJxZ3c=
 github.com/marksalpeter/token/v2 v2.0.0 h1:kFg3wSxVzozCH3tUFgcAV3Lao8ngz7sdqE+tUUywbPw=
