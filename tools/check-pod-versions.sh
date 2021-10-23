@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-pods="twtxt.net txt.sour.is twt.nfld.uk tt.vltra.plus f.adi.onl yarn.andrewjvpowell.com we.loveprivacy.club"
+pods="twtxt.net txt.sour.is twt.nfld.uk tt.vltra.plus f.adi.onl yarn.andrewjvpowell.com we.loveprivacy.club arrakis.netbros.com"
 
 printf "Pod Version\n"
 
