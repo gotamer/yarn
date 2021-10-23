@@ -250,7 +250,7 @@ video {
 .p-name {
   left: 0px !important;
   font-size: 34px;
-  color: #1095c1;
+  color: #00bfff;
 }
 .p-org {
   left: 0px !important;
@@ -306,8 +306,7 @@ article .p-summary p img{
 article .p-summary blockquote {
   border-left: 5px solid var(--primary) !important;
   margin: 1.5em 10px;
-  padding: 10px 10px 10px 25px;
-  font-style: italic;
+  padding: 0px 10px 0px 25px;
   position: relative;
 }
 
@@ -324,9 +323,8 @@ em.twt-hash {
 }
 
 /* Footer Style */
-footer{
+footer {
   border-top: 1px solid var(--primary);
-  background-color: rgba(234, 232, 232, 0.1);
   font-size: 85%;
 }
 @media (min-width: 576px) {
