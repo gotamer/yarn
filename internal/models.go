@@ -443,8 +443,8 @@ func (u *User) Follow(alias, uri string) error {
 	return nil
 }
 
-func (u *User) FollowAndValidate(conf *Config, nick, url string) error {
-	twter, err := ValidateFeed(conf, nick, url)
+func (u *User) FollowAndValidate(conf *Config, alias, uri string) error {
+	twter, err := ValidateFeed(conf, alias, uri)
 	if err != nil {
 		return err
 	}
@@ -453,7 +453,36 @@ func (u *User) FollowAndValidate(conf *Config, nick, url string) error {
 		return ErrAlreadyFollows
 	}
 
-	return u.Follow(twter.Nick, twter.URL)
+	// If no nick provided try to guess a suitable nick
+	// from the feed or some heuristics from the feed's URI
+	// (borrowed from Yarns)
+	if alias == "" {
+		if twter.Nick != "" {
+			alias = twter.Nick
+		} else {
+			// TODO: Move this logic into types/lextwt and types/retwt
+			if u, err := url.Parse(uri); err == nil {
+				if strings.HasSuffix(u.Path, "/twtxt.txt") {
+					if rest := strings.TrimSuffix(u.Path, "/twtxt.txt"); rest != "" {
+						alias = strings.Trim(rest, "/")
+					} else {
+						alias = u.Hostname()
+					}
+				} else if strings.HasSuffix(u.Path, ".txt") {
+					base := filepath.Base(u.Path)
+					if name := strings.TrimSuffix(base, filepath.Ext(base)); name != "" {
+						alias = name
+					} else {
+						alias = u.Hostname()
+					}
+				} else {
+					alias = Slugify(uri)
+				}
+			}
+		}
+	}
+
+	return u.Follow(alias, twter.URL)
 }
 
 func (u *User) Follows(url string) bool {
