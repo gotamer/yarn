@@ -58,9 +58,6 @@ type User struct {
 	Feeds  []string `default:"[]"`
 	Tokens []string `default:"[]"`
 
-	SMTPToken string `default:""`
-	POP3Token string `default:""`
-
 	Bookmarks map[string]string `default:"{}"`
 	Followers map[string]string `default:"{}"`
 	Following map[string]string `default:"{}"`
@@ -236,13 +233,6 @@ func LoadUser(data []byte) (user *User, err error) {
 
 	if err = json.Unmarshal(data, &user); err != nil {
 		return nil, err
-	}
-
-	if user.SMTPToken == "" {
-		user.SMTPToken = GenerateRandomToken()
-	}
-	if user.POP3Token == "" {
-		user.POP3Token = GenerateRandomToken()
 	}
 
 	if user.Bookmarks == nil {

@@ -1078,18 +1078,6 @@ other = "更新"
 hash = "sha1-b98795a246f09961ab85071a7f50013203007e9f"
 other = "查看用戶詳情"
 
-[SettingsMessagingPOP3Title]
-hash = "sha1-388d294b27938ce044aa44511baf38334a66eb0e"
-other = "POP3 令牌"
-
-[SettingsMessagingSMTPTitle]
-hash = "sha1-ce3cec9800dd64d6c7a07fe45b2dbeea9ecd9f75"
-other = "SMTP 令牌"
-
-[SettingsMessagingTitle]
-hash = "sha1-a4a53482c7bea90cd4d73f226aa5156f64f913c4"
-other = "訊息令牌"
-
 [SettingsPodManagementTitle]
 hash = "sha1-9a2d74e99197deb098f491ce7fc19ecca9a7c1b1"
 other = "Pod 管理"

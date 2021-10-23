@@ -411,22 +411,6 @@ func WithMagicLinkSecret(secret string) Option {
 	}
 }
 
-// WithSMTPBind sets the interface and port to bind to for SMTP
-func WithSMTPBind(smtpBind string) Option {
-	return func(cfg *Config) error {
-		cfg.SMTPBind = smtpBind
-		return nil
-	}
-}
-
-// WithPOP3Bind sets the interface and port to use for POP3
-func WithPOP3Bind(pop3Bind string) Option {
-	return func(cfg *Config) error {
-		cfg.POP3Bind = pop3Bind
-		return nil
-	}
-}
-
 // WithSMTPHost sets the SMTPHost to use for sending email
 func WithSMTPHost(host string) Option {
 	return func(cfg *Config) error {

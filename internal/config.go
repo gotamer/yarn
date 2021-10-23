@@ -102,9 +102,6 @@ type Config struct {
 
 	MagicLinkSecret string
 
-	SMTPBind string
-	POP3Bind string
-
 	SMTPHost string
 	SMTPPort int
 	SMTPUser string

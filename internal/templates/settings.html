@@ -156,24 +156,6 @@
     </details>
 
     <details>
-        <summary>{{tr . "SettingsMessagingTitle"}}</summary>
-      <div class="grid">
-        <div>
-          <label for="smtpToken">
-              {{tr . "SettingsMessagingSMTPTitle"}}
-            <input value="{{ .User.SMTPToken }}" readonly />
-          </label>
-        </div>
-        <div>
-          <label for="pop3Token">
-            {{tr . "SettingsMessagingPOP3Title"}}
-            <input value="{{ .User.POP3Token }}" readonly />
-          </label>
-        </div>
-      </div>
-    </details>
-
-    <details>
         <summary>{{tr . "SettingsDeleteAccountTitle"}}</summary>
       <p>
       {{(tr . "SettingsDeleteAccountSummary")|html}}
