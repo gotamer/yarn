@@ -39,6 +39,18 @@ func (f FeatureType) String() string {
 	return "invalid_feature"
 }
 
+func AvailableFeatures() []string {
+	features := []string{}
+	for i := 1; i <= 99; i++ {
+		feature := FeatureType(i)
+		if feature.String() == FeatureInvalid.String() {
+			break
+		}
+		features = append(features, feature.String())
+	}
+	return features
+}
+
 func FeatureFromString(s string) (FeatureType, error) {
 	s = strings.TrimSpace(strings.ToLower(s))
 	switch s {
@@ -47,7 +59,8 @@ func FeatureFromString(s string) (FeatureType, error) {
 	case "shorter_permalink_title":
 		return FeatureShorterPermalinkTitle, nil
 	}
-	return FeatureInvalid, fmt.Errorf("Error unrecognised feature: %s", s)
+	fs := fmt.Sprintf("available features: %s", strings.Join(AvailableFeatures(), " "))
+	return FeatureInvalid, fmt.Errorf("Error unrecognised feature: %s (%s)", s, fs)
 }
 
 func FeaturesFromStrings(xs []string) ([]FeatureType, error) {
