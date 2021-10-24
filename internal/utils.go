@@ -1484,8 +1484,8 @@ func FilterTwts(user *User, twts types.Twts) (filtered types.Twts) {
 	return user.Filter(twts)
 }
 
-// CleanTwt cleans a twt's text, replacing new lines with spaces and
-// stripping surrounding spaces.
+// CleanTwt cleans a twt's text, replacing new lines with Unicode LINE
+// SEPARATORs and stripping surrounding spaces.
 func CleanTwt(text string) string {
 	text = strings.TrimSpace(text)
 	text = strings.ReplaceAll(text, "\r\n", "\n")
