@@ -184,14 +184,50 @@ func ReplaceExt(fn, newExt string) string {
 	return fmt.Sprintf("%s%s", strings.TrimSuffix(fn, oldExt), newExt)
 }
 
+func HasExternalAvatarChanged(conf *Config, twter types.Twter) bool {
+	uri := twter.URL
+	slug := Slugify(uri)
+	fn := filepath.Join(conf.Data, externalDir, fmt.Sprintf("%s.cbf", slug))
+
+	// If the %s.cbf doesn't yet exist, then assume the external avatar has changed
+	if !FileExists(fn) {
+		return true
+	}
+
+	// If the twter.Avatar uri is empty but a %s.cbf exists then assume the avatar has not changed
+	if twter.Avatar == "" {
+		return false
+	}
+
+	// If the twter.Avatar uri cannot be parsed but a %s.cbf exists then assume the avatar has not changed
+	u, err := url.Parse(twter.Avatar)
+	if err != nil {
+		log.WithError(err).Warnf("error parsing avatar url for %s", twter.Avatar)
+		return false
+	}
+
+	// if we cannot read the %s.cbf file assume the avatar has not changed
+	data, err := os.ReadFile(fn)
+	if err != nil {
+		log.WithError(err).Warnf("error reading avatar cbf for %s", slug)
+		return false
+	}
+
+	// compare the cbf(s)
+	return string(data) != FastHashString(u.String())
+}
+
 func GetExternalAvatar(conf *Config, twter types.Twter) string {
 	uri := twter.URL
 	slug := Slugify(uri)
-	fn := filepath.Join(conf.Data, externalDir, fmt.Sprintf("%s.png", Slugify(uri)))
+	fn := filepath.Join(conf.Data, externalDir, fmt.Sprintf("%s.png", slug))
 
-	// Don't try to discover Avatars for gopher:// URI(s) (to be polite!)
-	if strings.HasPrefix(uri, "gopher://") {
-		return ""
+	//
+	// Use an already cached Avatar (unless there's a new one!)
+	//
+
+	if FileExists(fn) && !HasExternalAvatarChanged(conf, twter) {
+		return URLForExternalAvatar(conf, uri)
 	}
 
 	// Use the Avatar advertised in the feed
@@ -207,14 +243,9 @@ func GetExternalAvatar(conf *Config, twter types.Twter) string {
 			log.WithError(err).Errorf("error downloading external avatar: %s", u)
 			return ""
 		}
-		return URLForExternalAvatar(conf, uri)
-	}
-
-	//
-	// Use an already cached Avatar
-	//
-
-	if FileExists(fn) {
+		if err := os.WriteFile(ReplaceExt(fn, ".cbf"), []byte(FastHashString(u.String())), 0644); err != nil {
+			log.WithError(err).Warnf("error writing avatar cbf for %s", slug)
+		}
 		return URLForExternalAvatar(conf, uri)
 	}
 
@@ -240,6 +271,14 @@ func GetExternalAvatar(conf *Config, twter types.Twter) string {
 	if err := png.Encode(of, img); err != nil {
 		log.WithError(err).Error("error encoding image")
 		return ""
+	}
+
+	if avatarHash, err := FastHashFile(fn); err == nil {
+		if err := os.WriteFile(ReplaceExt(fn, ".cbf"), []byte(avatarHash), 0644); err != nil {
+			log.WithError(err).Warnf("error writing avatar cbf for %s", slug)
+		}
+	} else {
+		log.WithError(err).Warnf("error computing avatar cbf for %s", fn)
 	}
 
 	return URLForExternalAvatar(conf, uri)

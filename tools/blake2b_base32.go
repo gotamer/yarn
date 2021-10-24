@@ -10,8 +10,8 @@ import (
 	"golang.org/x/crypto/blake2b"
 )
 
-func fastHash(s string) string {
-	sum := blake2b.Sum256([]byte(s))
+func fastHash(data []byte) string {
+	sum := blake2b.Sum256(data)
 
 	// Base32 is URL-safe, unlike Base64, and shorter than hex.
 	encoding := base32.StdEncoding.WithPadding(base32.NoPadding)
@@ -22,5 +22,5 @@ func fastHash(s string) string {
 
 func main() {
 	data, _ := io.ReadAll(os.Stdin)
-	fmt.Print(fastHash(string(data)))
+	fmt.Println(fastHash(data))
 }

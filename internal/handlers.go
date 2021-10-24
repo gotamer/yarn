@@ -360,9 +360,10 @@ func (s *Server) ManageFeedHandler() httprouter.Handle {
 					return
 				}
 				avatarFn := filepath.Join(s.config.Data, avatarsDir, fmt.Sprintf("%s.png", feedName))
-				avatarHash, err := FastHashFile(avatarFn)
-				if err == nil {
+				if avatarHash, err := FastHashFile(avatarFn); err == nil {
 					feed.AvatarHash = avatarHash
+				} else {
+					log.WithError(err).Warnf("error updating avatar hash for %s", feedName)
 				}
 			}
 
@@ -1264,9 +1265,10 @@ func (s *Server) SettingsHandler() httprouter.Handle {
 				return
 			}
 			avatarFn := filepath.Join(s.config.Data, avatarsDir, fmt.Sprintf("%s.png", ctx.Username))
-			avatarHash, err := FastHashFile(avatarFn)
-			if err == nil {
+			if avatarHash, err := FastHashFile(avatarFn); err == nil {
 				user.AvatarHash = avatarHash
+			} else {
+				log.WithError(err).Warnf("error updating avatar hash for %s", ctx.Username)
 			}
 		}
 
