@@ -896,7 +896,7 @@
    color: var(--code-color-1);
    font-size: 85%;
    font-weight: 400;
-   line-height: 1; }
+   line-height: 1.5; }
    @media (min-width: 576px) {
      pre,
      code,
