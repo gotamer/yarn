@@ -127,14 +127,26 @@ func GenerateRandomToken() string {
 	return fmt.Sprintf("%x", b)
 }
 
-func FastHash(s string) string {
-	sum := blake2b.Sum256([]byte(s))
+func FastHash(data []byte) string {
+	sum := blake2b.Sum256(data)
 
 	// Base32 is URL-safe, unlike Base64, and shorter than hex.
 	encoding := base32.StdEncoding.WithPadding(base32.NoPadding)
 	hash := strings.ToLower(encoding.EncodeToString(sum[:]))
 
 	return hash
+}
+
+func FastHashString(s string) string {
+	return FastHash([]byte(s))
+}
+
+func FastHashFile(fn string) (string, error) {
+	data, err := os.ReadFile(fn)
+	if err != nil {
+		return "", err
+	}
+	return FastHash(data), nil
 }
 
 func IntPow(x, y int) int {
@@ -1261,12 +1273,16 @@ func URLForUser(baseURL, username string) string {
 	)
 }
 
-func URLForAvatar(baseURL string, username string) string {
-	return fmt.Sprintf(
+func URLForAvatar(baseURL, username, avatarHash string) string {
+	uri := fmt.Sprintf(
 		"%s/user/%s/avatar",
 		strings.TrimSuffix(baseURL, "/"),
 		username,
 	)
+	if avatarHash != "" {
+		uri += "#" + avatarHash
+	}
+	return uri
 }
 
 func URLForExternalProfile(conf *Config, nick, uri string) string {

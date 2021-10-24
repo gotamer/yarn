@@ -260,7 +260,7 @@ func (a *API) RegisterEndpoint() httprouter.Handle {
 			return
 		}
 
-		recoveryHash := fmt.Sprintf("email:%s", FastHash(email))
+		recoveryHash := fmt.Sprintf("email:%s", FastHashString(email))
 
 		user := &User{
 			Username:  username,
@@ -804,7 +804,7 @@ func (a *API) SettingsEndpoint() httprouter.Handle {
 			}
 		}
 
-		recoveryHash := fmt.Sprintf("email:%s", FastHash(email))
+		recoveryHash := fmt.Sprintf("email:%s", FastHashString(email))
 
 		user.Recovery = recoveryHash
 		user.Tagline = tagline

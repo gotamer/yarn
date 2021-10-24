@@ -33,6 +33,8 @@ type Feed struct {
 	URL         string
 	CreatedAt   time.Time
 
+	AvatarHash string `defaulf:""`
+
 	Followers map[string]string `default:"{}"`
 
 	remotes map[string]string
@@ -48,7 +50,8 @@ type User struct {
 
 	Theme                      string `default:"auto"`
 	Lang                       string `default:""`
-	Recovery                   string `default:"auto"`
+	Recovery                   string `default:""""`
+	AvatarHash                 string `defaulf:""`
 	DisplayDatesInTimezone     string `default:"UTC"`
 	IsFollowersPubliclyVisible bool   `default:"true"`
 	IsFollowingPubliclyVisible bool   `default:"true"`
@@ -314,7 +317,7 @@ func (f *Feed) Profile(baseURL string, viewer *User) types.Profile {
 		Username: f.Name,
 		Tagline:  f.Description,
 		URL:      f.URL,
-		Avatar:   URLForAvatar(baseURL, f.Name),
+		Avatar:   URLForAvatar(baseURL, f.Name, f.AvatarHash),
 
 		// TODO: Replace with Links: []Link
 		BlogsURL: URLForBlogs(baseURL, f.Name),
@@ -550,7 +553,7 @@ func (u *User) Profile(baseURL string, viewer *User) types.Profile {
 		Username: u.Username,
 		Tagline:  u.Tagline,
 		URL:      URLForUser(baseURL, u.Username),
-		Avatar:   URLForAvatar(baseURL, u.Username),
+		Avatar:   URLForAvatar(baseURL, u.Username, u.AvatarHash),
 
 		// TODO: Replace with LInks: []Link
 		BlogsURL: URLForBlogs(baseURL, u.Username),

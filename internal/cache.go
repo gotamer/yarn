@@ -246,7 +246,7 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 				twter := types.Twter{Nick: feed.Nick}
 				if isLocalURL(feed.URL) {
 					twter.URL = URLForUser(conf.BaseURL, feed.Nick)
-					twter.Avatar = URLForAvatar(conf.BaseURL, feed.Nick)
+					twter.Avatar = URLForAvatar(conf.BaseURL, feed.Nick, "")
 				} else {
 					twter.URL = feed.URL
 					avatar := GetExternalAvatar(conf, twter)
@@ -375,7 +375,7 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 				twter := types.Twter{Nick: feed.Nick}
 				if isLocalURL(feed.URL) {
 					twter.URL = URLForUser(conf.BaseURL, feed.Nick)
-					twter.Avatar = URLForAvatar(conf.BaseURL, feed.Nick)
+					twter.Avatar = URLForAvatar(conf.BaseURL, feed.Nick, "")
 				} else {
 					twter.URL = feed.URL
 					avatar := GetExternalAvatar(conf, twter)

@@ -82,7 +82,7 @@ func (s *Server) PermalinkHandler() httprouter.Handle {
 
 		var image string
 		if isLocal(twt.Twter().URL) {
-			image = URLForAvatar(s.config.BaseURL, twt.Twter().Nick)
+			image = URLForAvatar(s.config.BaseURL, twt.Twter().Nick, "")
 		} else {
 			image = URLForExternalAvatar(s.config, twt.Twter().URL)
 		}

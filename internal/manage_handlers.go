@@ -207,7 +207,7 @@ func (s *Server) AddUserHandler() httprouter.Handle {
 			return
 		}
 
-		recoveryHash := fmt.Sprintf("email:%s", FastHash(email))
+		recoveryHash := fmt.Sprintf("email:%s", FastHashString(email))
 
 		user := NewUser()
 		user.Username = username

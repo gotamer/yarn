@@ -359,6 +359,11 @@ func (s *Server) ManageFeedHandler() httprouter.Handle {
 					s.render("error", w, ctx)
 					return
 				}
+				avatarFn := filepath.Join(s.config.Data, avatarsDir, fmt.Sprintf("%s.png", feedName))
+				avatarHash, err := FastHashFile(avatarFn)
+				if err == nil {
+					feed.AvatarHash = avatarHash
+				}
 			}
 
 			if err := s.db.SetFeed(feed.Name, feed); err != nil {
@@ -1130,7 +1135,7 @@ func (s *Server) RegisterHandler() httprouter.Handle {
 			return
 		}
 
-		recoveryHash := fmt.Sprintf("email:%s", FastHash(email))
+		recoveryHash := fmt.Sprintf("email:%s", FastHashString(email))
 
 		user := NewUser()
 		user.Username = username
@@ -1258,9 +1263,14 @@ func (s *Server) SettingsHandler() httprouter.Handle {
 				s.render("error", w, ctx)
 				return
 			}
+			avatarFn := filepath.Join(s.config.Data, avatarsDir, fmt.Sprintf("%s.png", ctx.Username))
+			avatarHash, err := FastHashFile(avatarFn)
+			if err == nil {
+				user.AvatarHash = avatarHash
+			}
 		}
 
-		recoveryHash := fmt.Sprintf("email:%s", FastHash(email))
+		recoveryHash := fmt.Sprintf("email:%s", FastHashString(email))
 
 		user.Recovery = recoveryHash
 		user.Tagline = tagline
@@ -1611,7 +1621,7 @@ func (s *Server) ResetPasswordHandler() httprouter.Handle {
 
 		username := NormalizeUsername(r.FormValue("username"))
 		email := strings.TrimSpace(r.FormValue("email"))
-		recovery := fmt.Sprintf("email:%s", FastHash(email))
+		recovery := fmt.Sprintf("email:%s", FastHashString(email))
 
 		if err := ValidateUsername(username); err != nil {
 			ctx.Error = true
