@@ -24,9 +24,7 @@ const defaultPreambleTemplate = `# Twtxt is an open, distributed microblogging p
 # nick        = {{ .Profile.Username }}
 # url         = {{ .Profile.URL }}
 # avatar      = {{ .Profile.Avatar }}
-{{- if .Profile.Tagline }}
-# description = {{ .Profile.Tagline | cleanTwt }}
-{{ end }}
+# description = {{ .Profile.Tagline }}
 #
 # followers   = {{ if .Profile.ShowFollowers }}{{ len .Profile.Followers }}{{ end }}
 # following   = {{ if .Profile.ShowFollowing }}{{ len .Profile.Following }}{{ end }}
@@ -166,25 +164,25 @@ func (s *Server) TwtxtHandler() httprouter.Handle {
 			return
 		}
 
-		preambleTemplate := pr.Preamble()
+		preampleTemplate := pr.Preamble()
 
-		if preambleTemplate == "" {
-			preambleCustomTemplateFn := filepath.Join(s.config.Data, feedsDir, fmt.Sprintf("%s.tpl", nick))
-			if FileExists(preambleCustomTemplateFn) {
-				if data, err := ioutil.ReadFile(preambleCustomTemplateFn); err == nil {
-					preambleTemplate = string(data)
+		if preampleTemplate == "" {
+			preampleCustomTemplateFn := filepath.Join(s.config.Data, feedsDir, fmt.Sprintf("%s.tpl", nick))
+			if FileExists(preampleCustomTemplateFn) {
+				if data, err := ioutil.ReadFile(preampleCustomTemplateFn); err == nil {
+					preampleTemplate = string(data)
 				} else {
 					log.WithError(err).Warnf("error loading custom preamble template for %s", nick)
-					preambleTemplate = defaultPreambleTemplate
+					preampleTemplate = defaultPreambleTemplate
 				}
 			}
 		}
 
-		if preambleTemplate == "" {
-			preambleTemplate = defaultPreambleTemplate
+		if preampleTemplate == "" {
+			preampleTemplate = defaultPreambleTemplate
 		}
 
-		preamble, err := RenderPlainText(preambleTemplate, ctx)
+		preamble, err := RenderPlainText(preampleTemplate, ctx)
 		if err != nil {
 			log.WithError(err).Warn("error rendering twtxt preamble")
 		}

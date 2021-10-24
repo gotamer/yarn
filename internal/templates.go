@@ -195,9 +195,7 @@ func RenderHTML(tpl string, ctx *Context) (string, error) {
 
 // RenderPlainText ...
 func RenderPlainText(tpl string, ctx *Context) (string, error) {
-	t := text_template.Must(text_template.New("tpl").
-			Funcs(text_template.FuncMap{"cleanTwt": CleanTwt}).
-			Parse(tpl))
+	t := text_template.Must(text_template.New("tpl").Parse(tpl))
 	buf := bytes.NewBuffer([]byte{})
 	err := t.Execute(buf, ctx)
 	if err != nil {
