@@ -97,7 +97,7 @@ is no strict rule to follow for feed authors. Often avatars are square.
 If the `avatar` field is missing, it is up to the client how to visually
 represent the author's feed. Some clients such as
 [yarnd](https://git.mills.io/yarnsocial/yarn) will automatically generate an
-avatar based on available data like the feed's preferred nickname and its url.
+avatar based on available data like the feed's preferred nickname and its URL.
 
 ### `description`
 
