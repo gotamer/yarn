@@ -85,7 +85,7 @@
      --card-background:   #181818;
      --card-sections:     #141d24;
      --card-shadow:       0 0.125rem 1rem rgba(0, 0, 0, 0.08), 0 0.125rem 2rem rgba(0, 0, 0, 0.04), 0 0 0 0.0625rem rgba(0, 0, 0, 0.1);
-     --code-background:   #141d24;
+     --code-background:   #2f2f2f;
      --code-inlined:      rgba(65, 84, 98, 0.25);
      --code-color-1:      #73828c;
      --code-color-2:      #a65980;
@@ -129,7 +129,7 @@
    --card-background:   #181818;
    --card-sections:     #141d24;
    --card-shadow:       0 0.125rem 1rem rgba(0, 0, 0, 0.08), 0 0.125rem 2rem rgba(0, 0, 0, 0.04), 0 0 0 0.0625rem rgba(0, 0, 0, 0.1);
-   --code-background:   #141d24;
+   --code-background:   #2f2f2f;
    --code-inlined:      rgba(65, 84, 98, 0.25);
    --code-color-1:      #73828c;
    --code-color-2:      #a65980;
@@ -921,15 +921,15 @@
  code,
  kbd {
    display: inline-block;
-   padding: .375rem .5rem;
+   padding: .1rem .2rem;
    border-radius: 0.25rem; }
 
  pre {
    display: block;
    margin-bottom: 1rem;
-   padding: 1rem 1rem;
+   padding: 0.5rem 0.5rem;
    overflow-x: auto;
-   background: var(--code-background); }
+   background: #2f2f2f; }
    pre > code {
      display: block;
      padding: 0;
