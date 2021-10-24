@@ -1,4 +1,19 @@
 
+<a name="0.4.0"></a>
+## [0.4.0](https://git.mills.io/yarnsocial/yarn/compare/0.3.0...0.4.0) (2021-10-24)
+
+### Bug Fixes
+
+* Fix abbr of URL
+* Fix padding on code blocks (#476)
+
+### Features
+
+* Add support for auto-refreshing avatars using a cache-busting technique
+* Add a fragment, a blake2b base32 encoded hash of user and feed avatars to avatar metddata
+* Add list of available features if invalid feature supplied to --enable-feature
+
+
 <a name="0.3.0"></a>
 ## [0.3.0](https://git.mills.io/yarnsocial/yarn/compare/0.2.0...0.3.0) (2021-10-24)
 
@@ -46,6 +61,7 @@
 
 ### Updates
 
+* Update CHANGELOG for 0.3.0
 * Update 'internal/static/css/01-pico.css'
 * Update 'internal/static/css/01-pico.css'
 * Update 'internal/static/css/01-pico.css'
