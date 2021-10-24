@@ -94,10 +94,10 @@ displayed along twts, e.g. next to the author. The avatar image is typically in
 JPEG, PNG or WebP format. Different clients prefer different ratios, so there
 is no strict rule to follow for feed authors. Often avatars are square.
 
-If the `avatar` field is missing, some clients like
-[yarnd](https://git.mills.io/yarnsocial/yarn) automatically attempt to fetch
-avatars with the basenames `avatar` or `logo` and file extensions `.webp`,
-`.png`, `.jpg` and `.jpeg` next or one level up to the feed.
+If the `avatar` field is missing, it is up to the client how to visually
+represent the author's feed. Some clients such as
+[yarnd](https://git.mills.io/yarnsocial/yarn) will automatically generate an
+avatar based on available data like the feed's preferred nickname and its url.
 
 ### `description`
 
