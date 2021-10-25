@@ -702,9 +702,9 @@ func TranscodeAudio(conf *Config, ifn string, resource, name string, opts *Audio
 
 	if name == "" {
 		uuid := shortuuid.New()
-		ofn = filepath.Join(p, fmt.Sprintf("%s.ogg", uuid))
+		ofn = filepath.Join(p, fmt.Sprintf("%s.mp3", uuid))
 	} else {
-		ofn = fmt.Sprintf("%s.ogg", filepath.Join(p, name))
+		ofn = fmt.Sprintf("%s.mp3", filepath.Join(p, name))
 	}
 
 	of, err := os.OpenFile(ofn, os.O_WRONLY|os.O_CREATE, 0644)
@@ -715,37 +715,6 @@ func TranscodeAudio(conf *Config, ifn string, resource, name string, opts *Audio
 	defer of.Close()
 
 	wg := sync.WaitGroup{}
-
-	TranscodeOGG := func(ctx context.Context, errs chan error) {
-		defer wg.Done()
-
-		args := []string{"-y", "-i", ifn}
-
-		if opts.Resample {
-			args = append(args, []string{
-				"-ac", fmt.Sprintf("%d", opts.Channels),
-				"-ar", fmt.Sprintf("%d", opts.Samplerate),
-				"-b:a", fmt.Sprintf("%dk", opts.Bitrate),
-			}...)
-		}
-
-		args = append(args, []string{
-			"-c:a", "libvorbis",
-			"-strict", "-2",
-			"-loglevel", "quiet",
-			of.Name(),
-		}...)
-
-		if err := RunCmd(
-			conf.TranscoderTimeout,
-			"ffmpeg",
-			args...,
-		); err != nil {
-			log.WithError(err).Error("error transcoding audio")
-			errs <- err
-			return
-		}
-	}
 
 	TranscodeMP3 := func(ctx context.Context, errs chan error) {
 		defer wg.Done()
@@ -774,9 +743,8 @@ func TranscodeAudio(conf *Config, ifn string, resource, name string, opts *Audio
 	nErrors := 0
 	errChan := make(chan error)
 
-	wg.Add(2)
+	wg.Add(1)
 
-	go TranscodeOGG(ctx, errChan)
 	go TranscodeMP3(ctx, errChan)
 
 	go func(ctx context.Context) {
@@ -1504,15 +1472,12 @@ func RenderAudio(conf *Config, uri string) string {
 			return ""
 		}
 
-		oggURI := u.String()
-		u.Path = ReplaceExt(u.Path, ".mp3")
 		mp3URI := u.String()
 
 		return fmt.Sprintf(`<audio controls="controls">
-  <source type="audio/ogg" src="%s"></source>
   <source type="audio/mp3" src="%s"></source>
   Your browser does not support the audio element.
-</audio>`, oggURI, mp3URI)
+</audio>`, mp3URI)
 	}
 
 	return fmt.Sprintf(`<audio controls="controls">
@@ -1566,9 +1531,9 @@ func PreprocessMedia(conf *Config, u *url.URL, alt string) string {
 		}
 
 		switch filepath.Ext(u.Path) {
-		case ".mp4", ".webm":
+		case ".mp4":
 			html = RenderVideo(conf, u.String())
-		case ".mp3", ".ogg":
+		case ".mp3":
 			html = RenderAudio(conf, u.String())
 		default:
 			src := u.String()
