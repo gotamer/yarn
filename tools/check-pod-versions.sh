@@ -8,7 +8,7 @@ printf "Pod Version\n"
 
 for pod in $pods; do
   printf "%s " "$pod"
-  if ! curl -fqso - -H 'Accept: application/json' "https://${pod}/version" |
+  if ! curl -fqso - -m 5 -H 'Accept: application/json' "https://${pod}/version" |
     jq -er '.FullVersion'; then
     printf "???\n"
   fi
