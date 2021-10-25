@@ -118,7 +118,7 @@ func (s *Server) ConversationHandler() httprouter.Handle {
 
 		ctx.Title = title
 		ctx.Meta = Meta{
-			Title:       fmt.Sprintf("Conv #%s", twt.Hash()),
+			Title:       fmt.Sprintf("%s #%s", s.tr(ctx, "ConversationTitle"), twt.Hash()),
 			Description: what,
 			UpdatedAt:   when,
 			Author:      who,
