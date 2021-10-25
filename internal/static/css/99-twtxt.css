@@ -313,6 +313,7 @@ article .p-summary blockquote {
 /* Twt Hash */
 article .p-summary a em, em.twt-hash {
   color: darkgray;
+  font-style: normal;
   font-weight: 100;
   color: var(--muted-text);
 }
