@@ -845,6 +845,8 @@ func NewServer(bind string, options ...Option) (*Server, error) {
 	log.Infof("Open User Profiles: %t", server.config.OpenProfiles)
 	log.Infof("Open Registrations: %t", server.config.OpenRegistrations)
 	log.Infof("Disable Gzip: %t", server.config.DisableGzip)
+	log.Infof("Disable Media: %t", server.config.DisableMedia)
+	log.Infof("Disable FFMpeg: %t", server.config.DisableFfmpeg)
 	log.Infof("SMTP Host: %s", server.config.SMTPHost)
 	log.Infof("SMTP Port: %d", server.config.SMTPPort)
 	log.Infof("SMTP User: %s", server.config.SMTPUser)

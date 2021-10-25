@@ -67,6 +67,7 @@ var (
 	openProfiles      bool
 	openRegistrations bool
 	disableGzip       bool
+	disableMedia      bool
 	disableFfmpeg     bool
 
 	// Pod Limits
@@ -136,6 +137,10 @@ func init() {
 	flag.BoolVar(
 		&disableGzip, "disable-gzip", internal.DefaultDisableGzip,
 		"whether or not to disable Gzip compression",
+	)
+	flag.BoolVar(
+		&disableMedia, "disable-media", internal.DefaultDisableMedia,
+		"whether or not to disable media support entirely",
 	)
 	flag.BoolVar(
 		&disableFfmpeg, "disable-ffmpeg", internal.DefaultDisableFfmpeg,
@@ -305,6 +310,7 @@ func main() {
 		internal.WithOpenProfiles(openProfiles),
 		internal.WithOpenRegistrations(openRegistrations),
 		internal.WithDisableGzip(disableGzip),
+		internal.WithDisableMedia(disableMedia),
 		internal.WithDisableFfmpeg(disableFfmpeg),
 
 		// Pod Limits

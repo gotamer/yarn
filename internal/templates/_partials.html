@@ -13,34 +13,36 @@
     {{ else }}
     <li><a id="writeBtn" href="#" data-tooltip="Toggle blog post editor"><i class="icss-quill-pen"></i></a></li>
     {{ end }}
-    <li class="toolbar-form-button">
-      <form id="imageUploadForm" action="/upload" enctype="multipart/form-data" method="POST" data-tooltip="Upload image">
-        <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
-        <label for="uploadImage">
-          <i id="uploadImageButton" class="icss-camera"></i>
-        </label>
-        <input id="uploadImage" class="invisible width-none" type="file" accept="image/*" name="media_file" />
-      </form>
-    </li>
-    {{ if not $.Ctx.DisableFfmpeg }}
+    {{ if not $.Ctx.DisableMedia }}
       <li class="toolbar-form-button">
-        <form id="audioUploadForm" action="/upload" enctype="multipart/form-data" method="POST" data-tooltip="Upload audio">
+        <form id="imageUploadForm" action="/upload" enctype="multipart/form-data" method="POST" data-tooltip="Upload image">
           <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
-          <label for="uploadAudio">
-            <i id="uploadAudioButton" class="icss-microphone"></i>
+          <label for="uploadImage">
+            <i id="uploadImageButton" class="icss-camera"></i>
           </label>
-          <input id="uploadAudio" class="invisible width-none" type="file" accept="audio/*" name="media_file" />
+          <input id="uploadImage" class="invisible width-none" type="file" accept="image/*" name="media_file" />
         </form>
       </li>
-      <li class="toolbar-form-button">
-        <form id="videoUploadForm" action="/upload" enctype="multipart/form-data" method="POST" data-tooltip="Upload video">
-          <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
-          <label for="uploadVideo">
-            <i id="uploadVideoButton" class="icss-video-camera"></i>
-          </label>
-          <input id="uploadVideo" class="invisible width-none" type="file" accept="video/*" name="media_file" />
-        </form>
-      </li>
+      {{ if not $.Ctx.DisableFfmpeg }}
+        <li class="toolbar-form-button">
+          <form id="audioUploadForm" action="/upload" enctype="multipart/form-data" method="POST" data-tooltip="Upload audio">
+            <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
+            <label for="uploadAudio">
+              <i id="uploadAudioButton" class="icss-microphone"></i>
+            </label>
+            <input id="uploadAudio" class="invisible width-none" type="file" accept="audio/*" name="media_file" />
+          </form>
+        </li>
+        <li class="toolbar-form-button">
+          <form id="videoUploadForm" action="/upload" enctype="multipart/form-data" method="POST" data-tooltip="Upload video">
+            <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
+            <label for="uploadVideo">
+              <i id="uploadVideoButton" class="icss-video-camera"></i>
+            </label>
+            <input id="uploadVideo" class="invisible width-none" type="file" accept="video/*" name="media_file" />
+          </form>
+        </li>
+      {{ end }}
     {{ end }}
   </ul>
 </nav>

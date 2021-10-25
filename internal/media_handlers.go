@@ -84,6 +84,11 @@ func (s *Server) MediaHandler() httprouter.Handle {
 // UploadMediaHandler ...
 func (s *Server) UploadMediaHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		if s.config.DisableMedia {
+			http.Error(w, "Media support disabled", http.StatusNotFound)
+			return
+		}
+
 		// Limit request body to to abuse
 		r.Body = http.MaxBytesReader(w, r.Body, s.config.MaxUploadSize)
 		defer r.Body.Close()
@@ -126,6 +131,11 @@ func (s *Server) UploadMediaHandler() httprouter.Handle {
 			}
 			uri.Type = "taskURI"
 			uri.Path = URLForTask(s.config.BaseURL, uuid)
+		}
+
+		if s.config.DisableFfmpeg {
+			http.Error(w, "FFMpeg support disabled", http.StatusNotFound)
+			return
 		}
 
 		if strings.HasPrefix(ctype, "audio/") {

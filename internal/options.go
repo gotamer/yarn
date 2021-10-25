@@ -60,6 +60,9 @@ const (
 	// DefaultDisableGzip is the default for disabling Gzip compression
 	DefaultDisableGzip = false
 
+	// DefaultDisableMedia is the default for disabling Media support
+	DefaultDisableMedia = false
+
 	// DefaultDisableFfmpeg is the default for disabling ffmpeg support
 	DefaultDisableFfmpeg = false
 
@@ -302,6 +305,14 @@ func WithOpenRegistrations(openRegistrations bool) Option {
 func WithDisableGzip(disableGzip bool) Option {
 	return func(cfg *Config) error {
 		cfg.DisableGzip = disableGzip
+		return nil
+	}
+}
+
+// WithDisableMedia sets the disable Media flag
+func WithDisableMedia(disablemedia bool) Option {
+	return func(cfg *Config) error {
+		cfg.DisableMedia = disablemedia
 		return nil
 	}
 }
