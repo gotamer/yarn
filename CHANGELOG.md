@@ -1,4 +1,13 @@
 
+<a name="0.4.1"></a>
+## [0.4.1](https://git.mills.io/yarnsocial/yarn/compare/0.4.0...0.4.1) (2021-10-25)
+
+### Updates
+
+* Update the default favicon
+* Update release script to also push the git commit
+
+
 <a name="0.4.0"></a>
 ## [0.4.0](https://git.mills.io/yarnsocial/yarn/compare/0.3.0...0.4.0) (2021-10-24)
 
@@ -12,6 +21,10 @@
 * Add support for auto-refreshing avatars using a cache-busting technique
 * Add a fragment, a blake2b base32 encoded hash of user and feed avatars to avatar metddata
 * Add list of available features if invalid feature supplied to --enable-feature
+
+### Updates
+
+* Update CHANGELOG for 0.4.0
 
 
 <a name="0.3.0"></a>
