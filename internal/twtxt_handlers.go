@@ -20,6 +20,9 @@ const defaultPreambleTemplate = `# Twtxt is an open, distributed microblogging p
 #
 # Learn more about twtxt at  https://github.com/buckket/twtxt
 #
+# This is hosted by a Yarn.social pod {{ .InstanceName }} running yarnd v{{ .SoftwareVersion.FullVersion }}
+# Learn more about Yarn.social at https://yarn.social
+#
 # nick        = {{ .Profile.Username }}
 # url         = {{ .Profile.URL }}
 # avatar      = {{ .Profile.Avatar }}
