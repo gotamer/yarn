@@ -1,11 +1,14 @@
 package internal
 
 import (
-	"encoding/json"
 	"net/http"
+	"sort"
 
+	"git.mills.io/yarnsocial/yarn/types"
 	"github.com/julienschmidt/httprouter"
 	log "github.com/sirupsen/logrus"
+	"github.com/vcraescu/go-paginator"
+	"github.com/vcraescu/go-paginator/adapter"
 )
 
 // BookmarkHandler ...
@@ -71,6 +74,23 @@ func (s *Server) BookmarksHandler() httprouter.Handle {
 
 		nick := NormalizeUsername(p.ByName("nick"))
 
+		var twts types.Twts
+
+		getTwts := func(hashes []string) (twts types.Twts) {
+			for _, hash := range hashes {
+				if twt, ok := s.cache.Lookup(hash); ok {
+					twts = append(twts, twt)
+				} else if s.archive.Has(hash) {
+					if twt, err := s.archive.Get(hash); err == nil {
+						twts = append(twts, twt)
+					} else {
+						log.WithError(err).Error("error loading twt %s from archive", hash)
+					}
+				}
+			}
+			return
+		}
+
 		if s.db.HasUser(nick) {
 			user, err := s.db.GetUser(nick)
 			if err != nil {
@@ -85,7 +105,8 @@ func (s *Server) BookmarksHandler() httprouter.Handle {
 				s.render("401", w, ctx)
 				return
 			}
-			ctx.Profile = user.Profile(s.config.BaseURL, ctx.User)
+			twts = getTwts(StringKeys(user.Bookmarks))
+			sort.Sort(twts)
 		} else {
 			ctx.Error = true
 			ctx.Message = "User Not Found"
@@ -93,22 +114,23 @@ func (s *Server) BookmarksHandler() httprouter.Handle {
 			return
 		}
 
-		if r.Header.Get("Accept") == "application/json" {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOK)
+		var pagedTwts types.Twts
 
-			if err := json.NewEncoder(w).Encode(ctx.Profile.Bookmarks); err != nil {
-				log.WithError(err).Error("error encoding user for display")
-				http.Error(w, "Bad Request", http.StatusBadRequest)
-			}
+		page := SafeParseInt(r.FormValue("p"), 1)
+		pager := paginator.New(adapter.NewSliceAdapter(twts), s.config.TwtsPerPage)
+		pager.SetPage(page)
 
+		if err := pager.Results(&pagedTwts); err != nil {
+			log.WithError(err).Error("error sorting and paging twts")
+			ctx.Error = true
+			ctx.Message = s.tr(ctx, "ErrorTimelineLoad")
+			s.render("error", w, ctx)
 			return
 		}
 
-		trdata := map[string]interface{}{
-			"Username": nick,
-		}
-		ctx.Title = s.tr(ctx, "PageUserBookmarksTitle", trdata)
-		s.render("bookmarks", w, ctx)
+		ctx.Twts = FilterTwts(ctx.User, pagedTwts)
+		ctx.Pager = &pager
+
+		s.render("timeline", w, ctx)
 	}
 }
