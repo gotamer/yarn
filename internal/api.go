@@ -802,6 +802,12 @@ func (a *API) SettingsEndpoint() httprouter.Handle {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
+			avatarFn := filepath.Join(a.config.Data, avatarsDir, fmt.Sprintf("%s.png", user.Username))
+			if avatarHash, err := FastHashFile(avatarFn); err == nil {
+				user.AvatarHash = avatarHash
+			} else {
+				log.WithError(err).Warnf("error updating avatar hash for %s", user.Username)
+			}
 		}
 
 		recoveryHash := fmt.Sprintf("email:%s", FastHashString(email))
