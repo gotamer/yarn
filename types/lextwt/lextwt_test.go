@@ -11,7 +11,6 @@ import (
 
 	"git.mills.io/yarnsocial/yarn/types"
 	"git.mills.io/yarnsocial/yarn/types/lextwt"
-	"git.mills.io/yarnsocial/yarn/types/retwt"
 	"github.com/matryer/is"
 )
 
@@ -468,14 +467,13 @@ func testParseLink(t *testing.T, expect, elem *lextwt.Link) {
 }
 
 type twtTestCase struct {
-	lit       string
-	text      string
-	md        string
-	html      string
-	twt       types.Twt
-	subject   string
-	twter     *types.Twter
-	skipRetwt bool
+	lit     string
+	text    string
+	md      string
+	html    string
+	twt     types.Twt
+	subject string
+	twter   *types.Twter
 }
 
 func TestParseTwt(t *testing.T) {
@@ -652,8 +650,7 @@ func TestParseTwt(t *testing.T) {
 
 		{
 			lit: `2021-02-04T12:54:21Z	@<other http://example.com/other.txt>	example`,
-			twter:     &types.Twter{Nick: "other", URL: "http://example.com/other.txt"},
-			skipRetwt: true,
+			twter: &types.Twter{Nick: "other", URL: "http://example.com/other.txt"},
 			twt: lextwt.NewTwt(
 				types.Twter{Nick: "other", URL: "http://example.com/other.txt"},
 				lextwt.NewDateTime(parseTime("2021-02-04T12:54:21Z"), "2021-02-04T12:54:21Z"),
@@ -680,16 +677,6 @@ func TestParseTwt(t *testing.T) {
 		parser := lextwt.NewParser(lexer)
 		parser.SetTwter(&twter)
 		twt := parser.ParseTwt()
-
-		if !tt.skipRetwt {
-			rt, err := retwt.ParseLine(strings.TrimRight(tt.lit, "\n"), twter)
-			is.NoErr(err)
-			is.True(rt != nil)
-
-			if twt != nil && rt != nil {
-				is.Equal(twt.Hash(), rt.Hash())
-			}
-		}
 
 		is.True(twt != nil)
 		if twt != nil {
@@ -1072,13 +1059,9 @@ func (m mockFmtOpts) URLForUser(username string) string {
 
 // 	b, _ := ioutil.ReadAll(res.Body)
 
-// 	retwt, err := retwt.ParseFile(bytes.NewReader(b), twter)
-// 	is.NoErr(err)
-
 // 	letwt, err := lextwt.ParseFile(bytes.NewReader(b), twter)
 // 	is.NoErr(err)
 
-// 	Rtwts := retwt.Twts()
 // 	Ltwts := letwt.Twts()
 
 // 	t.Logf("R TWTS: %d, L Twts: %d", len(Rtwts), len(Ltwts))

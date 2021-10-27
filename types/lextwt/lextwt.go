@@ -12,7 +12,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func DefaultTwtManager() {
+func init() {
 	types.SetTwtManager(&lextwtManager{})
 }
 

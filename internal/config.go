@@ -67,8 +67,7 @@ type SoftwareConfig struct {
 type Config struct {
 	Version SoftwareConfig
 
-	Debug  bool
-	Parser string
+	Debug bool
 
 	Data              string
 	Name              string

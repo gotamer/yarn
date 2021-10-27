@@ -15,9 +15,6 @@ const (
 	// DefaultDebug is the default debug mode
 	DefaultDebug = false
 
-	// DefaultParser is the default Twt parser used by the backend
-	DefaultParser = "lextwt"
-
 	// DefaultData is the default data directory for storage
 	DefaultData = "./data"
 
@@ -196,14 +193,6 @@ type Option func(*Config) error
 func WithDebug(debug bool) Option {
 	return func(cfg *Config) error {
 		cfg.Debug = debug
-		return nil
-	}
-}
-
-// WithParser sets the parser used by the backend
-func WithParser(parser string) Option {
-	return func(cfg *Config) error {
-		cfg.Parser = parser
 		return nil
 	}
 }

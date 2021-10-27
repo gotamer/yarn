@@ -84,7 +84,7 @@ func (s *Server) BookmarksHandler() httprouter.Handle {
 					if twt, err := s.archive.Get(hash); err == nil {
 						twts = append(twts, twt)
 					} else {
-						log.WithError(err).Error("error loading twt %s from archive", hash)
+						log.WithError(err).Errorf("error loading twt %s from archive", hash)
 					}
 				}
 			}

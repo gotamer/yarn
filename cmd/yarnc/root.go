@@ -13,8 +13,7 @@ import (
 
 	"git.mills.io/yarnsocial/yarn"
 	"git.mills.io/yarnsocial/yarn/client"
-	"git.mills.io/yarnsocial/yarn/types/lextwt"
-	"git.mills.io/yarnsocial/yarn/types/retwt"
+	_ "git.mills.io/yarnsocial/yarn/types/lextwt"
 )
 
 const (
@@ -77,11 +76,6 @@ func init() {
 		"Enable debug logging",
 	)
 
-	parser := RootCmd.PersistentFlags().StringP(
-		"parser", "p", "lextwt",
-		"Set active parse engine [lextwt, retwt]",
-	)
-
 	RootCmd.PersistentFlags().StringP(
 		"uri", "u", client.DefaultURI,
 		"yarnd API endpoint URI to connect to",
@@ -100,17 +94,6 @@ func init() {
 
 	viper.BindPFlag("debug", RootCmd.PersistentFlags().Lookup("debug"))
 	viper.SetDefault("debug", false)
-
-	// I have no idea how to work with cobra :)
-	// put this someplace to run on startup.
-	switch *parser {
-	case "lextwt":
-		lextwt.DefaultTwtManager()
-	case "retwt":
-		retwt.DefaultTwtManager()
-	default:
-		log.Fatalf("unknown parse engine: %s", *parser)
-	}
 }
 
 // initConfig reads in config file and ENV variables if set.

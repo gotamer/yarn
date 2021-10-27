@@ -11,7 +11,6 @@ import (
 
 	"git.mills.io/yarnsocial/yarn/types"
 	"git.mills.io/yarnsocial/yarn/types/lextwt"
-	"git.mills.io/yarnsocial/yarn/types/retwt"
 	"github.com/matryer/is"
 )
 
@@ -31,7 +30,6 @@ func BenchmarkAll(b *testing.B) {
 		name string
 		fn   func(r io.Reader, twter types.Twter) (types.TwtFile, error)
 	}{
-		{"retwt", func(r io.Reader, twter types.Twter) (types.TwtFile, error) { return retwt.ParseFile(r, twter) }},
 		{"lextwt", lextwt.ParseFile},
 	}
 
@@ -67,7 +65,6 @@ func BenchmarkParse(b *testing.B) {
 		name string
 		fn   func(r io.Reader, twter types.Twter) (types.TwtFile, error)
 	}{
-		{"retwt", func(r io.Reader, twter types.Twter) (types.TwtFile, error) { return retwt.ParseFile(r, twter) }},
 		{"lextwt", lextwt.ParseFile},
 	}
 
@@ -100,7 +97,6 @@ func BenchmarkOutput(b *testing.B) {
 		name string
 		fn   func(r io.Reader, twter types.Twter) (types.TwtFile, error)
 	}{
-		{"retwt", func(r io.Reader, twter types.Twter) (types.TwtFile, error) { return retwt.ParseFile(r, twter) }},
 		{"lextwt", lextwt.ParseFile},
 	}
 

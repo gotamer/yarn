@@ -16,8 +16,7 @@ import (
 
 	"git.mills.io/yarnsocial/yarn"
 	"git.mills.io/yarnsocial/yarn/internal"
-	"git.mills.io/yarnsocial/yarn/types/lextwt"
-	"git.mills.io/yarnsocial/yarn/types/retwt"
+	_ "git.mills.io/yarnsocial/yarn/types/lextwt"
 )
 
 type flagSliceOfFeatureType []internal.FeatureType
@@ -56,7 +55,6 @@ var (
 	theme       string
 	lang        string
 	baseURL     string
-	parser      string
 
 	// Pod Oeprator
 	adminUser  string
@@ -107,7 +105,6 @@ var (
 
 func init() {
 	flag.BoolVarP(&debug, "debug", "D", false, "enable debug logging")
-	flag.StringVarP(&parser, "parser", "P", internal.DefaultParser, "set active parsing engine")
 	flag.StringVarP(&bind, "bind", "b", "0.0.0.0:8000", "[int]:<port> to bind to")
 	flag.BoolVarP(&version, "version", "v", false, "display version information")
 
@@ -278,16 +275,6 @@ func main() {
 		log.SetLevel(log.InfoLevel)
 	}
 
-	switch parser {
-	case "lextwt":
-		lextwt.DefaultTwtManager()
-	case "retwt":
-		retwt.DefaultTwtManager()
-	default:
-		log.Errorf("unknown parsing engine: %s", parser)
-		os.Exit(2)
-	}
-
 	svr, err := internal.NewServer(bind,
 		// Debug mode
 		internal.WithDebug(debug),
@@ -299,7 +286,6 @@ func main() {
 		internal.WithStore(store),
 		internal.WithTheme(theme),
 		internal.WithBaseURL(baseURL),
-		internal.WithParser(parser),
 
 		// Pod Oeprator
 		internal.WithAdminUser(adminUser),

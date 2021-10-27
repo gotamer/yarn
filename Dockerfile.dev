@@ -40,7 +40,6 @@ COPY ./internal/session/*.go ./internal/session/
 COPY ./internal/passwords/*.go ./internal/passwords/
 COPY ./internal/webmention/*.go ./internal/webmention/
 COPY ./types/*.go ./types/
-COPY ./types/retwt/*.go ./types/retwt/
 COPY ./types/lextwt/*.go ./types/lextwt/
 COPY ./cmd/yarnd/*.go ./cmd/yarnd/
 

@@ -141,7 +141,6 @@ Flags:
   -c, --config string   set a custom config file (default "/Users/prologic/.yarnc.yml")
   -d, --debug           Enable debug logging
   -h, --help            help for yarnc
-  -p, --parser string   Set active parse engine [lextwt, retwt] (default "lextwt")
   -t, --token string    yarnd API token to use to authenticate to endpoints (default "$YARNC_TOKEN")
   -u, --uri string      yarnd API endpoint URI to connect to (default "http://localhost:8000/api/v1/")
 
