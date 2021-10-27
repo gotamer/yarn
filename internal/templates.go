@@ -82,9 +82,6 @@ func (m *TemplateManager) LoadTemplates() error {
 	m.Lock()
 	defer m.Unlock()
 
-	xs, _ := fs.Glob(m.tmplFS, "*")
-	log.Infof("xs: %q", xs)
-
 	err := fs.WalkDir(m.tmplFS, ".", func(path string, info fs.DirEntry, err error) error {
 		if err != nil {
 			log.WithError(err).Error("error walking templates")

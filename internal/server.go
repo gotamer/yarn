@@ -455,7 +455,7 @@ func (s *Server) initRoutes() {
 			log.WithError(err).Fatalf("error loading builtin theme static assets")
 		}
 	} else {
-		staticDir = s.config.Theme
+		staticDir = filepath.Join(s.config.Theme, "static")
 		staticFS = os.DirFS(staticDir)
 	}
 

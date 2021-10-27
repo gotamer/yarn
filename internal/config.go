@@ -8,6 +8,7 @@ import (
 	"math/rand"
 	"net/url"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -203,8 +204,6 @@ func (c *Config) TemplatesFS() fs.FS {
 		if c.Debug {
 			return os.DirFS("./internal/theme/templates")
 		}
-		xs, _ := fs.Glob(builtinThemeFS, "*")
-		log.Infof("xs: %q", xs)
 		templatesFS, err := fs.Sub(builtinThemeFS, "theme/templates")
 		if err != nil {
 			log.WithError(err).Fatalf("error loading builtin theme templates")
@@ -212,7 +211,7 @@ func (c *Config) TemplatesFS() fs.FS {
 		return templatesFS
 	}
 
-	return os.DirFS(c.Theme)
+	return os.DirFS(filepath.Join(c.Theme, "templates"))
 }
 
 // LoadSettings loads pod settings from the given path
