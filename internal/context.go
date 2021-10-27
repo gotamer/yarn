@@ -76,7 +76,7 @@ type Context struct {
 	Message     string
 	Lang        string // language
 	AcceptLangs string // accept languages
-	Theme       string
+	Theme       string // not to be confused with the config.Theme
 	Commit      string
 
 	Page    string

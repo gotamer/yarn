@@ -2,12 +2,10 @@ package internal
 
 import (
 	"bytes"
-	"embed"
 	"fmt"
 	"html/template"
 	"io"
 	"io/fs"
-	"os"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -22,23 +20,21 @@ import (
 
 const (
 	baseTemplate     = "base.html"
-	partialsTemplate = "_partials.html"
+	partialsTemplate = "partials.html"
 	baseName         = "base"
 )
-
-//go:embed templates/*.html
-var templates embed.FS
 
 type TemplateManager struct {
 	sync.RWMutex
 
-	debug     bool
-	templates map[string]*template.Template
-	funcMap   template.FuncMap
+	debug   bool
+	tmplFS  fs.FS
+	tmplMap map[string]*template.Template
+	funcMap template.FuncMap
 }
 
 func NewTemplateManager(conf *Config, translator *Translator, blogs *BlogsCache, cache *Cache, archive Archiver) (*TemplateManager, error) {
-	templates := make(map[string]*template.Template)
+	tmplMap := make(map[string]*template.Template)
 
 	funcMap := sprig.FuncMap()
 
@@ -67,7 +63,12 @@ func NewTemplateManager(conf *Config, translator *Translator, blogs *BlogsCache,
 		return translator.Translate(ctx, msgid, data...)
 	}
 
-	m := &TemplateManager{debug: conf.Debug, templates: templates, funcMap: funcMap}
+	m := &TemplateManager{
+		debug:   conf.Debug,
+		tmplFS:  conf.TemplatesFS(),
+		tmplMap: tmplMap,
+		funcMap: funcMap,
+	}
 
 	if err := m.LoadTemplates(); err != nil {
 		log.WithError(err).Error("error loading templates")
@@ -81,20 +82,10 @@ func (m *TemplateManager) LoadTemplates() error {
 	m.Lock()
 	defer m.Unlock()
 
-	var (
-		dirFS fs.FS
-		root  string
-	)
+	xs, _ := fs.Glob(m.tmplFS, "*")
+	log.Infof("xs: %q", xs)
 
-	if m.debug {
-		dirFS = os.DirFS("./internal/templates")
-		root = "."
-	} else {
-		dirFS = templates
-		root = "templates"
-	}
-
-	err := fs.WalkDir(dirFS, root, func(path string, info fs.DirEntry, err error) error {
+	err := fs.WalkDir(m.tmplFS, ".", func(path string, info fs.DirEntry, err error) error {
 		if err != nil {
 			log.WithError(err).Error("error walking templates")
 			return fmt.Errorf("error walking templates: %w", err)
@@ -102,7 +93,7 @@ func (m *TemplateManager) LoadTemplates() error {
 
 		fname := info.Name()
 		if !info.IsDir() && filepath.Base(path) != baseTemplate {
-			// Skip _partials.html and also editor swap files, to improve the development
+			// Skip partials.html and also editor swap files, to improve the development
 			// cycle. Editors often add suffixes to their swap files, e.g "~" or ".swp"
 			// (Vim) and those files are not parsable as templates, causing panics.
 			if fname == partialsTemplate || !strings.HasSuffix(fname, ".html") {
@@ -113,25 +104,25 @@ func (m *TemplateManager) LoadTemplates() error {
 			t := template.New(name).Option("missingkey=zero")
 			t.Funcs(m.funcMap)
 
-			if f, err := fs.ReadFile(dirFS, path); err == nil {
+			if f, err := fs.ReadFile(m.tmplFS, path); err == nil {
 				template.Must(t.Parse(string(f)))
 			} else {
 				return fmt.Errorf("error parsing template %s: %w", path, err)
 			}
 
-			if f, err := fs.ReadFile(dirFS, filepath.Join(root, partialsTemplate)); err == nil {
+			if f, err := fs.ReadFile(m.tmplFS, partialsTemplate); err == nil {
 				template.Must(t.Parse(string(f)))
 			} else {
 				return fmt.Errorf("error parsing partials template %s: %w", partialsTemplate, err)
 			}
 
-			if f, err := fs.ReadFile(dirFS, filepath.Join(root, baseTemplate)); err == nil {
+			if f, err := fs.ReadFile(m.tmplFS, baseTemplate); err == nil {
 				template.Must(t.Parse(string(f)))
 			} else {
 				return fmt.Errorf("error parsing base template %s: %w", baseTemplate, err)
 			}
 
-			m.templates[name] = t
+			m.tmplMap[name] = t
 		}
 		return nil
 	})
@@ -146,7 +137,7 @@ func (m *TemplateManager) Add(name string, template *template.Template) {
 	m.Lock()
 	defer m.Unlock()
 
-	m.templates[name] = template
+	m.tmplMap[name] = template
 }
 
 func (m *TemplateManager) Exec(name string, ctx *Context) (io.WriterTo, error) {
@@ -159,7 +150,7 @@ func (m *TemplateManager) Exec(name string, ctx *Context) (io.WriterTo, error) {
 	}
 
 	m.RLock()
-	template, ok := m.templates[name]
+	template, ok := m.tmplMap[name]
 	m.RUnlock()
 
 	if !ok {

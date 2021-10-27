@@ -41,8 +41,8 @@ generate:
 	@if [ x"$(DEBUG)" = x"1"  ]; then		\
 	  echo 'Running in debug mode...';	\
 	else								\
-	  minify -b -o ./internal/static/css/twtxt.min.css ./internal/static/css/[0-9]*-*.css;	\
-	  minify -b -o ./internal/static/js/twtxt.min.js ./internal/static/js/[0-9]*-*.js;		\
+	  minify -b -o ./internal/theme/static/css/twtxt.min.css ./internal/theme/static/css/[0-9]*-*.css;	\
+	  minify -b -o ./internal/theme/static/js/twtxt.min.js ./internal/theme/static/js/[0-9]*-*.js;		\
 	fi
 
 install: build

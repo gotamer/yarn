@@ -18,15 +18,15 @@ COPY go.mod .
 COPY go.sum .
 
 # Copy static assets
-COPY ./internal/static/css/* ./internal/static/css/
-COPY ./internal/static/img/* ./internal/static/img/
-COPY ./internal/static/js/* ./internal/static/js/
+COPY ./internal/theme/static/css/* ./internal/theme/static/css/
+COPY ./internal/theme/static/img/* ./internal/theme/static/img/
+COPY ./internal/theme/static/js/* ./internal/theme/static/js/
 
 # Copy pages
 COPY ./internal/pages/* ./internal/pages/
 
 # Copy templates
-COPY ./internal/templates/* ./internal/templates/
+COPY ./internal/theme/templates/* ./internal/theme/templates/
 
 # Copy langs (localization / i18n)
 COPY ./internal/langs/* ./internal/langs/

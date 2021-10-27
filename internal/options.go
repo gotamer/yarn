@@ -45,8 +45,9 @@ const (
 	DefaultMetaKeywords    = "twtxt, twt, blog, microBlogging, social, media, decentralised, pod"
 	DefaultMetaDescription = "🧶 Yarn.social is a Self-Hosted, Twitter™-like Decentralised microBlogging platform. No ads, no tracking, your content, your data!"
 
-	// DefaultTheme is the default theme to use ('light' or 'dark')
-	DefaultTheme = "auto"
+	// DefaultTheme is the default theme to use for templates and static assets
+	// (en empty value means to use the builtin default theme)
+	DefaultTheme = ""
 
 	// DefaultLang is the default language to use ('en' or 'zh-cn')
 	DefaultLang = "auto"
@@ -274,7 +275,7 @@ func WithDescription(description string) Option {
 	}
 }
 
-// WithTheme sets the default theme to use
+// WithTheme sets the theme to use for templates and static asssets
 func WithTheme(theme string) Option {
 	return func(cfg *Config) error {
 		cfg.Theme = theme

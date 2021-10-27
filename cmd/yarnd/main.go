@@ -113,7 +113,7 @@ func init() {
 	flag.StringVarP(&description, "description", "m", internal.DefaultMetaDescription, "set the pod's description")
 	flag.StringVarP(&data, "data", "d", internal.DefaultData, "data directory")
 	flag.StringVarP(&store, "store", "s", internal.DefaultStore, "store to use")
-	flag.StringVarP(&theme, "theme", "t", internal.DefaultTheme, "set the default theme")
+	flag.StringVarP(&theme, "theme", "t", internal.DefaultTheme, "set the theme to use for templates and static assets (if not specified, uses builtin theme)")
 	flag.StringVarP(&lang, "lang", "l", internal.DefaultLang, "set the default language")
 	flag.StringVarP(&baseURL, "base-url", "u", internal.DefaultBaseURL, "base url to use")
 

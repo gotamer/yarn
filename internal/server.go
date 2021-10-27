@@ -36,14 +36,8 @@ var (
 	metrics     *observe.Metrics
 	webmentions *webmention.WebMention
 
-	//go:embed static/css
-	staticCSS embed.FS
-
-	//go:embed static/js
-	staticJS embed.FS
-
-	//go:embed static/img
-	staticIMG embed.FS
+	//go:embed theme
+	builtinThemeFS embed.FS
 )
 
 func init() {
@@ -448,22 +442,39 @@ func (s *Server) runStartupJobs() {
 }
 
 func (s *Server) initRoutes() {
-	if s.config.Debug {
-		s.router.ServeFiles("/css/*filepath", http.Dir("./internal/static/css"))
-		s.router.ServeFiles("/img/*filepath", http.Dir("./internal/static/img"))
-		s.router.ServeFiles("/js/*filepath", http.Dir("./internal/static/js"))
+	var (
+		staticDir string
+		staticFS  fs.FS
+		err       error
+	)
+
+	if s.config.Theme == "" {
+		staticDir = "./internal/theme/static"
+		staticFS, err = fs.Sub(builtinThemeFS, "theme/static")
+		if err != nil {
+			log.WithError(err).Fatalf("error loading builtin theme static assets")
+		}
 	} else {
-		cssFS, err := fs.Sub(staticCSS, "static/css")
+		staticDir = s.config.Theme
+		staticFS = os.DirFS(staticDir)
+	}
+
+	if s.config.Debug {
+		s.router.ServeFiles("/css/*filepath", http.Dir(filepath.Join(staticDir, "css")))
+		s.router.ServeFiles("/img/*filepath", http.Dir(filepath.Join(staticDir, "img")))
+		s.router.ServeFiles("/js/*filepath", http.Dir(filepath.Join(staticDir, "js")))
+	} else {
+		cssFS, err := fs.Sub(staticFS, "css")
 		if err != nil {
 			log.Fatal("error getting SubFS for static/css")
 		}
 
-		jsFS, err := fs.Sub(staticJS, "static/js")
+		jsFS, err := fs.Sub(staticFS, "js")
 		if err != nil {
 			log.Fatal("error getting SubFS for static/js")
 		}
 
-		imgFS, err := fs.Sub(staticIMG, "static/img")
+		imgFS, err := fs.Sub(staticFS, "img")
 		if err != nil {
 			log.Fatal("error getting SubFS for static/img")
 		}
@@ -823,6 +834,7 @@ func NewServer(bind string, options ...Option) (*Server, error) {
 	log.Infof("Debug: %t", server.config.Debug)
 	log.Infof("Instance Name: %s", server.config.Name)
 	log.Infof("Base URL: %s", server.config.BaseURL)
+	log.Infof("Using Theme: %s", server.config.Theme)
 	log.Infof("Admin User: %s", server.config.AdminUser)
 	log.Infof("Admin Name: %s", server.config.AdminName)
 	log.Infof("Admin Email: %s", server.config.AdminEmail)

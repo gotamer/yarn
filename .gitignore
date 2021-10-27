@@ -38,8 +38,8 @@
 /docs/_errors/
 /docs/.jekyll-cache/
 
-/internal/static/css/twtxt.min.css
-/internal/static/js/twtxt.min.js
+/internal/theme/static/css/twtxt.min.css
+/internal/theme/static/js/twtxt.min.js
 
 bench-twtxt.txt
 

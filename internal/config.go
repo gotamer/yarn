@@ -3,6 +3,7 @@ package internal
 import (
 	"errors"
 	"fmt"
+	"io/fs"
 	"io/ioutil"
 	"math/rand"
 	"net/url"
@@ -195,6 +196,23 @@ func (c *Config) Validate() error {
 	}
 
 	return nil
+}
+
+func (c *Config) TemplatesFS() fs.FS {
+	if c.Theme == "" {
+		if c.Debug {
+			return os.DirFS("./internal/theme/templates")
+		}
+		xs, _ := fs.Glob(builtinThemeFS, "*")
+		log.Infof("xs: %q", xs)
+		templatesFS, err := fs.Sub(builtinThemeFS, "theme/templates")
+		if err != nil {
+			log.WithError(err).Fatalf("error loading builtin theme templates")
+		}
+		return templatesFS
+	}
+
+	return os.DirFS(c.Theme)
 }
 
 // LoadSettings loads pod settings from the given path
