@@ -41,8 +41,8 @@ generate:
 	@if [ x"$(DEBUG)" = x"1"  ]; then		\
 	  echo 'Running in debug mode...';	\
 	else								\
-	  minify -b -o ./internal/theme/static/css/twtxt.min.css ./internal/theme/static/css/[0-9]*-*.css;	\
-	  minify -b -o ./internal/theme/static/js/twtxt.min.js ./internal/theme/static/js/[0-9]*-*.js;		\
+	  minify -b -o ./internal/theme/static/css/yarn.min.css ./internal/theme/static/css/[0-9]*-*.css;	\
+	  minify -b -o ./internal/theme/static/js/yarn.min.js ./internal/theme/static/js/[0-9]*-*.js;		\
 	fi
 
 install: build
@@ -64,10 +64,10 @@ release:
 test:
 	@$(GOCMD) test -v -cover -race ./...
 
-bench: bench-twtxt.txt
+bench: bench-yarn.txt
 	go test -race -benchtime=1x -cpu 16 -benchmem -bench "^(Benchmark)" git.mills.io/yarnsocial/yarn/types
 
-bench-twtxt.txt:
+bench-yarn.txt:
 	curl -s https://twtxt.net/user/prologic/twtxt.txt > $@
 
 clean:

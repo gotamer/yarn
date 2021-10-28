@@ -38,10 +38,10 @@
 /docs/_errors/
 /docs/.jekyll-cache/
 
-/internal/theme/static/css/twtxt.min.css
-/internal/theme/static/js/twtxt.min.js
+/internal/theme/static/css/yarn.min.css
+/internal/theme/static/js/yarn.min.js
 
-bench-twtxt.txt
+bench-yarn.txt
 
 .task/
 /doc/

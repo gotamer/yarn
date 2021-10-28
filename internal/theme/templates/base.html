@@ -6,10 +6,10 @@
       <link href="/css/01-pico.css" rel="stylesheet" />
       <link href="/css/02-icss.css" rel="stylesheet" />
       <link href="/css/03-icons.css" rel="stylesheet" />
-      <link href="/css/99-twtxt.css" rel="stylesheet" />
+      <link href="/css/99-yarn.css" rel="stylesheet" />
       <link rel="icon" type="image/png" href="/img/favicon.png" />
     {{ else }}
-      <link href="/css/{{ .Commit }}/twtxt.min.css" rel="stylesheet" />
+      <link href="/css/{{ .Commit }}/yarn.min.css" rel="stylesheet" />
       <link rel="icon" type="image/png" href="/img/{{ .Commit}}/favicon.png" />
     {{ end }}
 
@@ -128,10 +128,10 @@
     <script type="application/javascript" src="/js/01-umbrella.js"></script>
     <script type="application/javascript" src="/js/02-polyfill.js"></script>
     <script type="application/javascript" src="/js/03-twix.js"></script>
-    <script type="application/javascript" src="/js/99-twtxt.js"></script>
+    <script type="application/javascript" src="/js/99-yarn.js"></script>
     <script type="application/javascript" src="/js/ie11CustomProperties.min.js"></script>
   {{ else }}
-    <script type="application/javascript" src="/js/{{ .Commit }}/twtxt.min.js"></script>
+    <script type="application/javascript" src="/js/{{ .Commit }}/yarn.min.js"></script>
   {{ end }}
 </body>
 </html>

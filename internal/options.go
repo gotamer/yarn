@@ -19,7 +19,7 @@ const (
 	DefaultData = "./data"
 
 	// DefaultStore is the default data store used for accounts, sessions, etc
-	DefaultStore = "bitcask://twtxt.db"
+	DefaultStore = "bitcask://yarn.db"
 
 	// DefaultBaseURL is the default Base URL for the app used to construct feed URLs
 	DefaultBaseURL = "http://0.0.0.0:8000"
