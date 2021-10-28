@@ -1188,14 +1188,6 @@ func UserURL(url string) string {
 	return url
 }
 
-func URLForBlogs(baseURL, author string) string {
-	return fmt.Sprintf(
-		"%s/blogs/%s",
-		strings.TrimSuffix(baseURL, "/"),
-		author,
-	)
-}
-
 func URLForPage(baseURL, page string) string {
 	return fmt.Sprintf(
 		"%s/%s",
@@ -1246,36 +1238,6 @@ func URLForExternalAvatar(conf *Config, uri string) string {
 		strings.TrimSuffix(conf.BaseURL, "/"),
 		uri,
 	)
-}
-
-func URLForBlogFactory(conf *Config, blogs *BlogsCache) func(twt types.Twt) string {
-	return func(twt types.Twt) string {
-		subject := twt.Subject().String()
-		if subject == "" {
-			return ""
-		}
-
-		var hash string
-
-		re := regexp.MustCompile(`\(#([a-z0-9]+)\)`)
-		match := re.FindStringSubmatch(subject)
-		if match != nil {
-			hash = match[1]
-		} else {
-			re = regexp.MustCompile(`(@|#)<([^ ]+) *([^>]+)>`)
-			match = re.FindStringSubmatch(subject)
-			if match != nil {
-				hash = match[2]
-			}
-		}
-
-		blogPost, ok := blogs.Get(hash)
-		if !ok {
-			return ""
-		}
-
-		return blogPost.URL(conf.BaseURL)
-	}
 }
 
 func URLForConvFactory(conf *Config, cache *Cache, archive Archiver) func(twt types.Twt) string {

@@ -9,10 +9,6 @@
     <li><a id="usrBtn" href="#" data-tooltip="Mention"><i class="icss-user-circle"></i></a></li>
     <li><a id="lnkBtn" href="#" data-tooltip="Link"><i class="icss-link"></i></a></li>
     <li><a id="imgBtn" href="#" data-tooltip="Image"><i class="icss-image"></i></a></li>
-    {{ with $.BlogPost }}
-    {{ else }}
-    <li><a id="writeBtn" href="#" data-tooltip="Toggle blog post editor"><i class="icss-quill-pen"></i></a></li>
-    {{ end }}
     {{ if not $.Ctx.DisableMedia }}
       <li class="toolbar-form-button">
         <form id="imageUploadForm" action="/upload" enctype="multipart/form-data" method="POST" data-tooltip="Upload image">
@@ -46,21 +42,13 @@
     {{ end }}
   </ul>
 </nav>
-<form id="form" action="{{ with $.BlogPost }}/blog{{ else }}/post{{ end }}" method="POST">
+<form id="form" action="/post" method="POST">
   <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
-  {{ with $.BlogPost }}
-  <input type="hidden" id="replaceBlog" name="hash" value="{{ $.BlogPost.Hash }}" />
-  {{ else }}
   <input type="hidden" id="replaceTwt" name="hash" value="" />
   <input type="hidden" id="replyTo" name="reply" value="{{ $.Reply }}" />
   <input type="hidden" id="title" name="title" placeholder="{{tr $.Ctx "TwtFormTitle"}}" value="" />
-  {{ end }}
   <div class="textarea-container">
-    {{ with $.BlogPost }}
-    <textarea id="text" name="text" rows=24 autofocus required>{{ $.BlogPost.Content }}</textarea>
-    {{ else }}
     <textarea id="text" name="text" placeholder="{{ $.TwtPrompt }}" rows=3 maxlength={{ $.MaxTwtLength }} {{ if $.AutoFocus }}autofocus{{ end }} required></textarea>
-    {{ end }}
     <div id="mentioned-list" class="users-list">
       <div id="mentioned-list-content" class="mentioned-list-content">
       </div>
@@ -68,23 +56,15 @@
   </div>
   <div class="grid">
     <div>
-      {{ with $.BlogPost }}
-      {{ else }}
       <select id="postas" class="postas" name="postas">
           <option value="{{ $.User.Username }}" selected>{{tr $.Ctx "TwtFormPostAs" (dict "Username" $.User.Username)}}</option>
         {{ range $index, $feed := $.User.Feeds }}
         <option value="{{ $feed }}">{{ $feed }}</option>
         {{ end }}
       </select>
-      {{ end }}
       <button id="post" type="submit">
-        {{ with $.BlogPost }}
-        <i class="icss-print"></i>
-        {{tr $.Ctx "TwtFormSave"}}
-        {{ else }}
         <i class="icss-paper-plane"></i>
         {{tr $.Ctx  "TwtFormPost"}}
-        {{ end }}
       </button>
     </div>
   </div>
@@ -167,9 +147,6 @@
           {{ end }}
         {{ end }}
       {{ end }}
-      {{ with urlForBlog $.Twt }}
-        <li><a class="blog" href="{{ urlForBlog $.Twt }}"><i class="icss-quill-pen"></i> {{tr $.Ctx "BlogLinkTitle"}}</a></li>
-      {{ end }}
       {{ if and (not (eq $.view "conv")) (not (eq $.view "rootconv")) }}
         {{ with urlForConv $.Twt }}
           <li><a class="conv" href="{{ urlForConv $.Twt }}"><i class="icss-comment"></i> {{tr $.Ctx "TwtConversationLinkTitle"}}</a></li>
@@ -195,43 +172,6 @@
       {{ end }}
     {{ end }}
     {{ template "pager" (dict "Pager" $.Pager "Ctx" $.Ctx)}}
-  </div>
-</div>
-{{ end }}
-
-{{ define "blogposts" }}
-<div class="grid h-feed">
-  <div>
-    {{$ctx:=.}}
-    {{ if $.BlogPosts }}
-    {{ template "pager" (dict "Pager" $.Pager "Ctx" $ctx) }}
-    <ul>
-      {{ range $idx, $blogPost := $.BlogPosts }}
-      <li>
-        <a class="u-url" href="{{ $blogPost.URL ($.BaseURL) }}">
-          {{ $blogPost.Title }}
-          <time class="dt-published" datetime="{{ $blogPost.Published | date "2006-01-02" }}">
-            {{ dateInZone "Mon, Jan 2 2006" $blogPost.Published $.User.DisplayDatesInTimezone }}
-          </time>
-        </a>
-        &nbsp;({{ $blogPost.Published | time }})
-        {{ if eq $.User.Username $blogPost.Author }}
-        {{ if $blogPost.Draft }}
-        &nbsp;
-        [<a href="{{ $blogPost.URL $.BaseURL }}/publish" onclick="return confirm('Are you sure you want to publish this blog post? This cannot be undone!');">{{tr $ctx "BlogPublishLinkTitle"}}</a>]
-        {{ end }}
-        &nbsp;
-        [<a href="{{ $blogPost.URL $.BaseURL }}/edit">{{tr $ctx "BlogEditLinkTitle"}}</a>]
-        &nbsp;
-        [<a href="{{ $blogPost.URL $.BaseURL }}/delete" onclick="return confirm('Are you sure you want to delete this blog post? This cannot be undone!');">{{tr $ctx "BlogDeleteLinkTitle"}}</a>]
-        {{ end }}
-      </li>
-      {{ end }}
-    </ul>
-    {{ template "pager" (dict "Pager" $.Pager "Ctx" $ctx) }}
-    {{ else }}
-    <small><i>{{tr $ctx "NoBlogs"}}</i></small>
-    {{ end }}
   </div>
 </div>
 {{ end }}
@@ -282,9 +222,6 @@
 <ul>
   {{ if $.ShowConfig }}
     <li><a  href="/user/{{ $.Profile.Username }}/config.yaml">{{tr $.Ctx "ProfileConfigLinkTitle"}}&nbsp;<i class="icss-gear"></i></a></li>
-  {{ end }}
-  {{ with $.Profile.BlogsURL }}
-    <li><a href="{{ $.Profile.BlogsURL }}">{{tr $.Ctx "ProfileBlogsLinkTitle"}}&nbsp;<i class="icss-quill-pen"></i></a></li>
   {{ end }}
   <li><a target="_blank" href="{{ $.Profile.URL }}">{{tr $.Ctx "ProfileTwtxtLinkTitle"}}&nbsp;<i class="icss-link"></i></a></li>
   {{ if eq $.Profile.Type "User" }}

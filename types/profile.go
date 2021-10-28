@@ -11,9 +11,7 @@ type Profile struct {
 	// TODO: Rename to Description
 	Tagline string
 
-	// TODO: Replace with Links []Link
-	BlogsURL string
-	Links    Links
+	Links Links
 
 	// `true` if the User viewing the Profile has muted this user/feed
 	Muted bool

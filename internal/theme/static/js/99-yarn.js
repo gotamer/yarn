@@ -474,40 +474,6 @@ u("#usrBtn").on("click", function(e) {
   }
 });
 
-u("#writeBtn").on("click", function(e) {
-  e.preventDefault();
-
-  if (u("#writeBtn").attr("style") == "" || u("#writeBtn").attr("style") == null) {
-    u("#writeBtn").attr("style", "color:red");
-
-    u("#title").attr("type", "");
-
-    var title = localStorage.getItem('title');
-    if (title) {
-      if (u("input#title").attr("type") != 'hidden') {
-        insertText(u("input#title"), title);
-      }
-    }
-
-    textMaxlength = u("#text").attr("maxlength");
-    textRows = u("#text").attr("rows");
-
-    u("#title").first().focus();
-    u("#post").html('<i class="icss-floppy"></i>&nbsp;Save!');
-    u("#text").attr("maxlength", "");
-    u("#text").attr("rows", 24);
-    u("#form").attr("action", "/blog");
-  } else {
-    u("#writeBtn").attr("style", "")
-
-    u("#title").attr("type", "hidden");
-    u("#post").html('<i class="icss-paper-plane"></i>&nbsp;Post');
-    u("#text").attr("maxlength", textMaxLength);
-    u("#text").attr("rows", textRows);
-    u("#form").attr("action", "/post");
-  }
-});
-
 u("textarea#text").on("keydown", function(e) {
   if (e.ctrlKey && e.keyCode == 13) {
     e.preventDefault();

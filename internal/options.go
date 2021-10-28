@@ -42,8 +42,8 @@ const (
 	// DefaultMetaxxx are the default set of <meta> tags used on non-specific views
 	DefaultMetaTitle       = ""
 	DefaultMetaAuthor      = "Yarn.social"
-	DefaultMetaKeywords    = "twtxt, twt, blog, microBlogging, social, media, decentralised, pod"
-	DefaultMetaDescription = "🧶 Yarn.social is a Self-Hosted, Twitter™-like Decentralised microBlogging platform. No ads, no tracking, your content, your data!"
+	DefaultMetaKeywords    = "twtxt, twt, yarn, blog, micro-blog, microblogging, social, media, decentralised, pod"
+	DefaultMetaDescription = "🧶 Yarn.social is a Self-Hosted, Twitter™-like Decentralised Microblogging social media platform. No ads, no tracking, your content, your data!"
 
 	// DefaultTheme is the default theme to use for templates and static assets
 	// (en empty value means to use the builtin default theme)

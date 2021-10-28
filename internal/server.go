@@ -52,9 +52,6 @@ type Server struct {
 	router  *Router
 	server  *http.Server
 
-	// Blogs Cache
-	blogs *BlogsCache
-
 	// Feed Cache
 	cache *Cache
 
@@ -237,15 +234,6 @@ func (s *Server) setupMetrics() {
 		"Number of active twts in the global feed cache",
 	)
 
-	// blogs cache size
-	metrics.NewGaugeFunc(
-		"cache", "blogs",
-		"Number of blogs in the blogs cache",
-		func() float64 {
-			return float64(s.blogs.Count())
-		},
-	)
-
 	// feed cache processing time
 	metrics.NewGauge(
 		"cache", "last_processed_seconds",
@@ -415,7 +403,7 @@ func (s *Server) setupCronJobs() error {
 			continue
 		}
 
-		job := jobSpec.Factory(s.config, s.blogs, s.cache, s.archive, s.db)
+		job := jobSpec.Factory(s.config, s.cache, s.archive, s.db)
 		if err := s.cron.AddJob(jobSpec.Schedule, job); err != nil {
 			return fmt.Errorf("invalid cron schedule for job %s: %v (see https://pkg.go.dev/github.com/robfig/cron)", name, err)
 		}
@@ -430,7 +418,7 @@ func (s *Server) runStartupJobs() {
 
 	log.Info("running startup jobs")
 	for name, jobSpec := range StartupJobs {
-		job := jobSpec.Factory(s.config, s.blogs, s.cache, s.archive, s.db)
+		job := jobSpec.Factory(s.config, s.cache, s.archive, s.db)
 		log.Infof("running %s now...", name)
 		job.Run()
 	}
@@ -517,14 +505,6 @@ func (s *Server) initRoutes() {
 	s.router.PATCH("/post", s.am.MustAuth(s.PostHandler()))
 	s.router.DELETE("/post", s.am.MustAuth(s.PostHandler()))
 
-	s.router.POST("/blog", s.am.MustAuth(s.CreateOrUpdateBlogHandler()))
-	s.router.GET("/blogs/:author", s.ListBlogsHandler())
-	s.router.GET("/blog/:author/:year/:month/:date/:slug", s.ViewBlogHandler())
-	s.router.HEAD("/blog/:author/:year/:month/:date/:slug", s.ViewBlogHandler())
-	s.router.GET("/blog/:author/:year/:month/:date/:slug/edit", s.EditBlogHandler())
-	s.router.GET("/blog/:author/:year/:month/:date/:slug/delete", s.DeleteBlogHandler())
-	s.router.GET("/blog/:author/:year/:month/:date/:slug/publish", s.PublishBlogHandler())
-
 	// TODO: Figure out how to internally rewrite/proxy /~:nick -> /user/:nick
 
 	if s.config.OpenProfiles {
@@ -570,10 +550,6 @@ func (s *Server) initRoutes() {
 	// Syndication Formats (RSS, Atom, JSON Feed)
 	s.router.HEAD("/~:nick/atom.xml", s.SyndicationHandler())
 	s.router.GET("/~:nick/atom.xml", s.SyndicationHandler())
-
-	// Blogs
-	s.router.GET("/~:nick/post/:year/:month/:date/:slug", s.ViewBlogHandler())
-	s.router.HEAD("/~:nick/post/:year/:month/:date/:slug", s.ViewBlogHandler())
 
 	// External Feeds
 	s.router.GET("/external", s.ExternalHandler())
@@ -688,14 +664,6 @@ func NewServer(bind string, options ...Option) (*Server, error) {
 		return nil, fmt.Errorf("error validating config: %w", err)
 	}
 
-	blogs, err := LoadBlogsCache(config.Data)
-	if err != nil {
-		log.WithError(err).Error("error loading blogs cache (re-creating)")
-		blogs = NewBlogsCache()
-	}
-	log.Info("updating blogs cache")
-	blogs.UpdateBlogs(config)
-
 	cache, err := LoadCache(config.Data)
 	if err != nil {
 		log.WithError(err).Error("error loading feed cache")
@@ -736,7 +704,7 @@ func NewServer(bind string, options ...Option) (*Server, error) {
 		return nil, err
 	}
 
-	tmplman, err := NewTemplateManager(config, translator, blogs, cache, archive)
+	tmplman, err := NewTemplateManager(config, translator, cache, archive)
 	if err != nil {
 		log.WithError(err).Error("error creating template manager")
 		return nil, err
@@ -793,9 +761,6 @@ func NewServer(bind string, options ...Option) (*Server, error) {
 
 		// API
 		api: api,
-
-		// Blogs Cache
-		blogs: blogs,
 
 		// Feed Cache
 		cache: cache,

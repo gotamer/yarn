@@ -319,9 +319,6 @@ func (f *Feed) Profile(baseURL string, viewer *User) types.Profile {
 		URL:      f.URL,
 		Avatar:   URLForAvatar(baseURL, f.Name, f.AvatarHash),
 
-		// TODO: Replace with Links: []Link
-		BlogsURL: URLForBlogs(baseURL, f.Name),
-
 		Follows:    follows,
 		FollowedBy: followedBy,
 		Muted:      muted,
@@ -554,9 +551,6 @@ func (u *User) Profile(baseURL string, viewer *User) types.Profile {
 		Tagline:  u.Tagline,
 		URL:      URLForUser(baseURL, u.Username),
 		Avatar:   URLForAvatar(baseURL, u.Username, u.AvatarHash),
-
-		// TODO: Replace with LInks: []Link
-		BlogsURL: URLForBlogs(baseURL, u.Username),
 
 		Follows:    follows,
 		FollowedBy: followedBy,

@@ -16,7 +16,6 @@ Allow: /user
 Allow: /feed
 Allow: /about
 Allow: /help
-Allow: /blogs
 Allow: /privacy
 Allow: /support
 Allow: /search

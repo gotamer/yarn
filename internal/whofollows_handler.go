@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/julienschmidt/httprouter"
 	"git.mills.io/yarnsocial/yarn/types"
+	"github.com/julienschmidt/httprouter"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -82,7 +82,6 @@ func (s *Server) WhoFollowsHandler() httprouter.Handle {
 			Username: nick,
 			Tagline:  "",
 			URL:      uri,
-			BlogsURL: "#",
 
 			Follows:    true,
 			FollowedBy: true,
