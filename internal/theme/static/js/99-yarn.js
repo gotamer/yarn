@@ -436,7 +436,7 @@ u("#bBtn").on("click", function(e) {
 
 u("#iBtn").on("click", function(e) {
   e.preventDefault();
-  formatText(u("textarea#text"), "*");
+  formatText(u("textarea#text"), "_");
 });
 
 u("#sBtn").on("click", function(e) {
