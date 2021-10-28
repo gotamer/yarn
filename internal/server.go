@@ -671,13 +671,15 @@ func NewServer(bind string, options ...Option) (*Server, error) {
 		}
 	}
 
-	settings, err := LoadSettings(filepath.Join(config.Data, "settings.yaml"))
-	if err != nil {
-		log.Warnf("error loading pod settings: %s", err)
-	} else {
-		if err := merger.MergeOverwrite(config, settings); err != nil {
-			log.WithError(err).Error("error merging pod settings")
-			return nil, err
+	settingsFn := filepath.Join(config.Data, "settings.yaml")
+	if FileExists(settingsFn) {
+		if settings, err := LoadSettings(settingsFn); err != nil {
+			log.Warnf("error loading pod settings from %s: %s", settingsFn, err)
+		} else {
+			if err := merger.MergeOverwrite(config, settings); err != nil {
+				log.WithError(err).Error("error merging pod settings")
+				return nil, err
+			}
 		}
 	}
 
