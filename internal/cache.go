@@ -265,7 +265,13 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 				if !isLocalURL(twter.Avatar) {
 					_ = GetExternalAvatar(conf, twter)
 				}
-				twts, old := types.SplitTwts(tf.Twts(), conf.MaxCacheTTL, conf.MaxCacheItems)
+				future, twts, old := types.SplitTwts(tf.Twts(), conf.MaxCacheTTL, conf.MaxCacheItems)
+				if len(future) > 0 {
+					log.Warnf(
+						"feed %s has %d posts in the future, possible bad client or misconfigured timezone",
+						feed, len(future),
+					)
+				}
 
 				// If N == 0 we possibly exceeded conf.MaxFetchLimit when
 				// reading this feed. Log it and bump a cache_limited counter
@@ -394,7 +400,13 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 				if !isLocalURL(twter.Avatar) {
 					_ = GetExternalAvatar(conf, twter)
 				}
-				twts, old := types.SplitTwts(tf.Twts(), conf.MaxCacheTTL, conf.MaxCacheItems)
+				future, twts, old := types.SplitTwts(tf.Twts(), conf.MaxCacheTTL, conf.MaxCacheItems)
+				if len(future) > 0 {
+					log.Warnf(
+						"feed %s has %d posts in the future, possible bad client or misconfigured timezone",
+						feed, len(future),
+					)
+				}
 
 				// If N == 0 we possibly exceeded conf.MaxFetchLimit when
 				// reading this feed. Log it and bump a cache_limited counter

@@ -394,24 +394,33 @@ type Value interface {
 	Value() string
 }
 
-// SplitTwts into two groupings. The first with created > ttl or at most N. the second all remaining twts.
-func SplitTwts(twts Twts, ttl time.Duration, N int) (Twts, Twts) {
-	oldTime := time.Now().Add(-ttl)
+// SplitTwts into three groupings.
+// The first with created > now (future?! misbehaving clients or misconfigured timezone)
+// The first with created > ttl or at most N.
+// The third all remaining twts.
+func SplitTwts(twts Twts, ttl time.Duration, N int) (Twts, Twts, Twts) {
+	now := time.Now()
+	oldTime := now.Add(-ttl)
 
 	sort.Sort(twts)
 
 	pos := 0
+	for ; pos < len(twts); pos++ {
+		if twts[pos].Created().Before(now) {
+			break
+		}
+	}
+	future := twts[:pos]
+	twts = twts[pos:]
+
+	pos = 0
 	for ; pos < len(twts) && pos < N; pos++ {
 		if twts[pos].Created().Before(oldTime) {
 			break
 		}
 	}
 
-	if pos < 1 {
-		return nil, twts
-	}
-
-	return twts[:pos], twts[pos:]
+	return future, twts[:pos], twts[pos:]
 }
 
 type FeedLookup interface {

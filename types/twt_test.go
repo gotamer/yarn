@@ -8,10 +8,12 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 
 	"git.mills.io/yarnsocial/yarn/types"
 	"git.mills.io/yarnsocial/yarn/types/lextwt"
 	"github.com/matryer/is"
+	"github.com/stretchr/testify/assert"
 )
 
 // BenchmarkLextwt-16    	      21	  49342715 ns/op	 6567316 B/op	  178333 allocs/op
@@ -279,4 +281,124 @@ func TestPreambleFeed(t *testing.T) {
 		is.NoErr(err)
 		is.Equal(tt.drain, string(drain))
 	}
+}
+
+func TestSplitTwts(t *testing.T) {
+	assert := assert.New(t)
+
+	twter := types.Twter{}
+
+	t.Run("FutureNewOld", func(t *testing.T) {
+		twts := types.Twts{
+			types.MakeTwt(twter, time.Now().Add(time.Minute), "1m"),
+			types.MakeTwt(twter, time.Now(), "0s"),
+			types.MakeTwt(twter, time.Now().Add(-time.Minute), "-1m"),
+		}
+
+		f, n, o := types.SplitTwts(twts, time.Minute, 1)
+		assert.Equal(1, len(f))
+		assert.Equal(f[0], twts[0])
+		assert.Equal(1, len(n))
+		assert.Equal(n[0], twts[1])
+		assert.Equal(1, len(o))
+		assert.Equal(o[0], twts[2])
+	})
+
+	t.Run("AllFuture", func(t *testing.T) {
+		twts := types.Twts{
+			types.MakeTwt(twter, time.Now().Add(5*time.Minute), "5m"),
+			types.MakeTwt(twter, time.Now().Add(3*time.Minute), "3m"),
+			types.MakeTwt(twter, time.Now().Add(time.Minute), "1m"),
+		}
+
+		f, n, o := types.SplitTwts(twts, time.Minute, 1)
+		assert.Equal(3, len(f))
+		assert.Equal(f[0], twts[0])
+		assert.Equal(f[1], twts[1])
+		assert.Equal(f[2], twts[2])
+		assert.Equal(0, len(n))
+		assert.Equal(0, len(o))
+	})
+
+	t.Run("AllOld", func(t *testing.T) {
+		twts := types.Twts{
+			types.MakeTwt(twter, time.Now().Add(-5*time.Minute), "-5m"),
+			types.MakeTwt(twter, time.Now().Add(-3*time.Minute), "-3m"),
+			types.MakeTwt(twter, time.Now().Add(-time.Minute), "-1m"),
+		}
+
+		f, n, o := types.SplitTwts(twts, time.Minute, 1)
+		assert.Equal(0, len(f))
+		assert.Equal(0, len(n))
+		assert.Equal(3, len(o))
+		assert.Equal(o[0], twts[0])
+		assert.Equal(o[1], twts[1])
+		assert.Equal(o[2], twts[2])
+	})
+
+	t.Run("AllNew", func(t *testing.T) {
+		twts := types.Twts{
+			types.MakeTwt(twter, time.Now(), "0s"),
+			types.MakeTwt(twter, time.Now().Add(-5*time.Second), "-5s"),
+			types.MakeTwt(twter, time.Now().Add(-3*time.Second), "-3s"),
+		}
+
+		f, n, o := types.SplitTwts(twts, time.Minute, 3)
+		assert.Equal(0, len(f))
+		assert.Equal(3, len(n))
+		assert.Equal(n[0], twts[0])
+		assert.Equal(n[1], twts[1])
+		assert.Equal(n[2], twts[2])
+		assert.Equal(0, len(o))
+	})
+
+	t.Run("AllNewLimited", func(t *testing.T) {
+		twts := types.Twts{
+			types.MakeTwt(twter, time.Now(), "0s"),
+			types.MakeTwt(twter, time.Now().Add(-5*time.Second), "-5s"),
+			types.MakeTwt(twter, time.Now().Add(-4*time.Second), "-4s"),
+			types.MakeTwt(twter, time.Now().Add(-3*time.Second), "-3s"),
+			types.MakeTwt(twter, time.Now().Add(-2*time.Second), "-2s"),
+			types.MakeTwt(twter, time.Now().Add(-1*time.Second), "-1s"),
+		}
+
+		f, n, o := types.SplitTwts(twts, time.Minute, 3)
+		assert.Equal(0, len(f))
+		assert.Equal(3, len(n))
+		assert.Equal(n[0], twts[0])
+		assert.Equal(n[1], twts[1])
+		assert.Equal(n[2], twts[2])
+		assert.Equal(3, len(o))
+		assert.Equal(o[0], twts[3])
+		assert.Equal(o[1], twts[4])
+		assert.Equal(o[2], twts[5])
+	})
+
+	t.Run("Mixture", func(t *testing.T) {
+		twts := types.Twts{
+			types.MakeTwt(twter, time.Now().Add(5*time.Minute), "5m"),
+			types.MakeTwt(twter, time.Now().Add(3*time.Minute), "3m"),
+			types.MakeTwt(twter, time.Now().Add(time.Minute), "1m"),
+			types.MakeTwt(twter, time.Now(), "0s"),
+			types.MakeTwt(twter, time.Now().Add(-5*time.Second), "-5s"),
+			types.MakeTwt(twter, time.Now().Add(-4*time.Second), "-4s"),
+			types.MakeTwt(twter, time.Now().Add(-3*time.Second), "-3s"),
+			types.MakeTwt(twter, time.Now().Add(-2*time.Second), "-2s"),
+			types.MakeTwt(twter, time.Now().Add(-1*time.Second), "-1s"),
+		}
+
+		f, n, o := types.SplitTwts(twts, time.Minute, 3)
+		assert.Equal(3, len(f))
+		assert.Equal(f[0], twts[0])
+		assert.Equal(f[1], twts[1])
+		assert.Equal(f[2], twts[2])
+		assert.Equal(3, len(n))
+		assert.Equal(n[0], twts[3])
+		assert.Equal(n[1], twts[4])
+		assert.Equal(n[2], twts[5])
+		assert.Equal(3, len(o))
+		assert.Equal(o[0], twts[6])
+		assert.Equal(o[1], twts[7])
+		assert.Equal(o[2], twts[8])
+	})
 }
