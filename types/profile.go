@@ -13,6 +13,9 @@ type Profile struct {
 
 	Links Links
 
+	// Used by the Mobile App for "Post as..."
+	Feeds []string
+
 	// `true` if the User viewing the Profile has muted this user/feed
 	Muted bool
 

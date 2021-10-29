@@ -518,6 +518,7 @@ func (u *User) Sources() types.Feeds {
 
 func (u *User) Profile(baseURL string, viewer *User) types.Profile {
 	var (
+		feeds         []string
 		follows       bool
 		followedBy    bool
 		muted         bool
@@ -528,6 +529,7 @@ func (u *User) Profile(baseURL string, viewer *User) types.Profile {
 
 	if viewer != nil {
 		if viewer.Is(u.URL) {
+			feeds = u.Feeds
 			follows = true
 			followedBy = true
 			showBookmarks = true
@@ -555,6 +557,7 @@ func (u *User) Profile(baseURL string, viewer *User) types.Profile {
 		Follows:    follows,
 		FollowedBy: followedBy,
 		Muted:      muted,
+		Feeds:      feeds,
 
 		Followers: u.Followers,
 		Following: u.Following,
