@@ -1,9 +1,35 @@
 
+<a name="0.5.0"></a>
+## [0.5.0](https://git.mills.io/yarnsocial/yarn/compare/0.4.1...0.5.0) (2021-10-29)
+
+### Bug Fixes
+
+* Fix unnecessary warning on non-existent settings.yaml on startup (Fixes #435)
+* Fix italics formatting toolbar butotn to use _foo_ instead of *foo*
+* Fix the name of the default database, app specific JS and CSS files
+* Fix loading custom templates and static assets with -t/--theme
+* Fix mising AvatarHash for the API SettingsEndpoint()
+* Fix missing translation on Conversation View (Yarn) title
+
+### Features
+
+* Add Feeds to Profile for the Mobile App (only for the user viewing their own profile)
+* Add support for ignoring twts in the future until they become relevant (#491)
+* Add tw.lohn.in to tools/check-versions.sh
+* Add automatic rename of old store path for pod owners that use defaults to smooth over change in 034009e
+* Add first-class support for themes to more easily customize templates and static assets
+* Add support for displaying bookmarks in a timeline view instead of just a list of hashes
+* Add two additional lines of preamble text promoting Yarn.social (shameful plug)
+* Add support for also disabling media in general (--disable-media)
+* Add -m 5 (5s timeout) to tools/check-pod-versions.sh
+
+
 <a name="0.4.1"></a>
 ## [0.4.1](https://git.mills.io/yarnsocial/yarn/compare/0.4.0...0.4.1) (2021-10-25)
 
 ### Updates
 
+* Update CHANGELOG for 0.4.1
 * Update the default favicon
 * Update release script to also push the git commit
 
