@@ -3,18 +3,20 @@ module git.mills.io/yarnsocial/yarn
 go 1.16
 
 require (
-	git.mills.io/prologic/bitcask v1.0.0
+	git.mills.io/prologic/bitcask v1.0.1
 	git.mills.io/prologic/go-gopher v0.0.0-20210723054659-c5e856b800b8
 	git.mills.io/prologic/observe v0.0.0-20210712230028-fc31c7aa2bd1
 	git.mills.io/prologic/read-file-last-line v0.0.0-20210710073401-af293d63a6d0
 	github.com/Masterminds/sprig/v3 v3.2.2
 	github.com/NYTimes/gziphandler v1.1.1
-	github.com/PuerkitoBio/goquery v1.7.1
+	github.com/PuerkitoBio/goquery v1.8.0
 	github.com/andreadipersio/securecookie v0.0.0-20131119095127-e3c3b33544ec
 	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/andyleap/microformats v0.0.0-20150523144534-25ae286f528b
+	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/audiolion/ipip v1.0.0
-	github.com/badgerodon/ioutil v0.0.0-20150716134133-06e58e34b867 // indirect
+	github.com/badgerodon/ioutil v0.0.0-20150716134133-06e58e34b867
+	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/creasty/defaults v1.5.2
 	github.com/cyphar/filepath-securejoin v0.2.3
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
@@ -46,7 +48,7 @@ require (
 	github.com/matryer/is v1.4.0
 	github.com/mattn/go-colorable v0.1.11 // indirect
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
-	github.com/microcosm-cc/bluemonday v1.0.15
+	github.com/microcosm-cc/bluemonday v1.0.16
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/naoina/go-stringutil v0.1.0 // indirect
@@ -54,14 +56,14 @@ require (
 	github.com/nicksnyder/go-i18n/v2 v2.1.2
 	github.com/nullrocks/identicon v0.0.0-20180626043057-7875f45b0022
 	github.com/patrickmn/go-cache v2.1.0+incompatible
-	github.com/prometheus/common v0.31.1 // indirect
+	github.com/prometheus/common v0.32.1 // indirect
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/rainycape/unidecode v0.0.0-20150907023854-cb7f23ec59be // indirect
 	github.com/renstrom/shortuuid v3.0.0+incompatible
 	github.com/rickb777/accept v0.0.0-20170318132422-d5183c44530d
 	github.com/robfig/cron v1.2.0
 	github.com/securisec/go-keywords v0.0.0-20200619134240-769e7273f2ed
-	github.com/shopspring/decimal v1.3.0 // indirect
+	github.com/shopspring/decimal v1.3.1 // indirect
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/pflag v1.0.5
@@ -76,13 +78,14 @@ require (
 	github.com/writeas/slug v1.2.0
 	go4.org v0.0.0-20201209231011-d4a079459e60 // indirect
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
-	golang.org/x/exp v0.0.0-20211012155715-ffe10e552389 // indirect
-	golang.org/x/net v0.0.0-20211015210444-4f30a5c0130f
-	golang.org/x/sys v0.0.0-20211015200801-69063c4bb744 // indirect
+	golang.org/x/exp v0.0.0-20211029182501-9b944d235b9d // indirect
+	golang.org/x/image v0.0.0-20211028202545-6944b10bf410 // indirect
+	golang.org/x/net v0.0.0-20211029224645-99673261e6eb
+	golang.org/x/sys v0.0.0-20211030160813-b3129d9d1021 // indirect
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
 	golang.org/x/text v0.3.7
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/mail.v2 v2.3.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0
-	gorm.io/gorm v1.21.16 // indirect
+	gorm.io/gorm v1.22.2 // indirect
 )

@@ -1,7 +1,10 @@
 package internal
 
 import (
+	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"git.mills.io/prologic/bitcask"
@@ -28,6 +31,18 @@ func newBitcaskStore(path string) (*BitcaskStore, error) {
 		bitcask.WithMaxKeySize(256),
 	)
 	if err != nil {
+		switch {
+		case errors.Is(err, &bitcask.ErrBadConfig{}):
+			log.WithError(err).Error("error opening database due to bad config")
+			if osErr := os.Remove(filepath.Join(path, "config.json")); osErr != nil {
+				log.WithError(osErr).Error("error removing bad config")
+			}
+		case errors.Is(err, &bitcask.ErrBadMetadata{}):
+			log.WithError(err).Error("error opening database due to bad metadata")
+			if osErr := os.Remove(filepath.Join(path, "meta.json")); osErr != nil {
+				log.WithError(osErr).Error("error removing bad metadata")
+			}
+		}
 		return nil, err
 	}
 

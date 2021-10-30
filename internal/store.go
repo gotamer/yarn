@@ -3,8 +3,11 @@ package internal
 import (
 	"errors"
 	"fmt"
+	"time"
 
+	"git.mills.io/prologic/bitcask"
 	"git.mills.io/yarnsocial/yarn/internal/session"
+	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -50,6 +53,31 @@ type Store interface {
 	LenTokens() int64
 }
 
+type StoreFactory func() (Store, error)
+
+func retryableStore(newStore StoreFactory, maxRetries int, retryableErrors []error) (store Store, err error) {
+retry:
+	for i := 0; i < maxRetries; i++ {
+		store, err = newStore()
+		if err != nil {
+			for n, retryableError := range retryableErrors {
+				if errors.Is(err, retryableError) {
+					log.WithError(err).Warnf(
+						"retryable error %s [%d/%d] (retrying in 1s)",
+						err, (n + 1), maxRetries,
+					)
+					time.Sleep(time.Second * 1)
+					continue retry
+				}
+			}
+			return
+		}
+		return
+	}
+	err = fmt.Errorf("error creating store (tried %d times, last error: %w)", maxRetries, err)
+	return
+}
+
 func NewStore(store string) (Store, error) {
 	u, err := ParseURI(store)
 	if err != nil {
@@ -58,7 +86,10 @@ func NewStore(store string) (Store, error) {
 
 	switch u.Type {
 	case "bitcask":
-		return newBitcaskStore(u.Path)
+		return retryableStore(
+			func() (Store, error) { return newBitcaskStore(u.Path) },
+			3, []error{&bitcask.ErrBadConfig{}, &bitcask.ErrBadMetadata{}},
+		)
 	default:
 		return nil, ErrInvalidStore
 	}
