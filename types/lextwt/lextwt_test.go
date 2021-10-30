@@ -793,6 +793,36 @@ func TestParseComment(t *testing.T) {
 			key: "key with space", value: "value with space"},
 		{lit: "# follower = xuu@sour.is https://sour.is/xuu.txt\n",
 			key: "follower", value: "xuu@sour.is https://sour.is/xuu.txt"},
+		{lit: "# key-without-value-but-trailing-space = \n",
+			key: "key-without-value-but-trailing-space", value: ""},
+		{lit: "# key-without-value-and-no-trailing-space =\n",
+			key: "key-without-value-and-no-trailing-space", value: ""},
+		{lit: "#key-without-space-in-front = value\n",
+			key: "key-without-space-in-front", value: "value"},
+		{lit: "# key-without-space-afterwards= value\n",
+			key: "key-without-space-afterwards", value: "value"},
+		{lit: "# key =value without space in front\n",
+			key: "key", value: "value without space in front"},
+		{lit: "# key-without-space-afterwards=value without space in front\n",
+			key: "key-without-space-afterwards", value: "value without space in front"},
+		{lit: "#key=value\n",
+			key: "key", value: "value"},
+		{lit: "# key = val#ue\n",
+			key: "key", value: "val#ue"},
+		{lit: "# key = value with special chars #  = 123 ! 08:00T (<[bla]>)@<> \n",
+			key: "key", value: "value with special chars #  = 123 ! 08:00T (<[bla]>)@<>"},
+		{lit: "#=no key value, key is missing\n"},
+		{lit: "# =no key value, key is missing\n"},
+		{lit: "# # no key = no value\n"},
+		{lit: "##=no key value\n"},
+		{lit: "# key_with_empty_value =\n",
+			key: "key_with_empty_value"},
+		{lit: "#key_with_empty_value=  \n",
+			key: "key_with_empty_value"},
+		{lit: "# description   = best feed ever\u2028so says everybody\n",
+			key: "description", value: "best feed ever\u2028so says everybody"},
+		{lit: "# link = My blog https://example.com/blog/?q=twtxt&sort=year#anchor\n",
+			key: "link", value: "My blog https://example.com/blog/?q=twtxt&sort=year#anchor"},
 	}
 	for i, tt := range tests {
 		t.Logf("TestComment %d - %v", i, tt.lit)
@@ -805,9 +835,9 @@ func TestParseComment(t *testing.T) {
 
 		is.True(elem != nil) // not nil
 		if elem != nil {
-			is.Equal([]byte(tt.lit), []byte(elem.Literal()))
-			is.Equal(tt.key, elem.Key())
-			is.Equal(tt.value, elem.Value())
+			is.Equal([]byte(tt.lit), []byte(elem.Literal())) // literal mismatch
+			is.Equal(tt.key, elem.Key()) // key mismatch
+			is.Equal(tt.value, elem.Value()) // value mismatch
 		}
 	}
 }

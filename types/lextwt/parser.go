@@ -31,8 +31,8 @@ func NewParser(l *lexer) *parser {
 	p := &parser{
 		l: l,
 
-		// as tokens are read they are appended here and stored in the resulting Elem.
-		// the buffer is here so text can be recovered in the event a menton/tag fails to fully parse.
+		// As tokens are read they are appended here and stored in the resulting Elem.
+		// The buffer is here so text can be recovered in the event a mention/tag fails to fully parse
 		// and to limit memory allocs.
 		lit: make([]rune, 0, 1024),
 	}
@@ -83,24 +83,42 @@ func (p *parser) ParseComment() *Comment {
 
 	p.append(p.curTok.Literal...)
 
-	isKeyVal := false
+	isValidKey := true
+	inValue := false
 	var label string
 	var value []rune
 	for !p.nextTokenIs(TokNL, TokEOF) {
 		p.next()
 		p.append(p.curTok.Literal...)
 
-		if isKeyVal && p.curTokenIs(TokSTRING) {
-			value = append(value, p.curTok.Literal...)
+		if !isValidKey {
+			continue
 		}
 
-		if !isKeyVal && p.curTokenIs(TokSTRING) && p.peekTokenIs(TokEQUAL) {
-			isKeyVal = true
-			label = strings.TrimSpace(string(p.curTok.Literal))
-			p.next()
-			p.lit = append(p.lit, p.curTok.Literal...)
-			p.next()
-			p.lit = append(p.lit, p.curTok.Literal...)
+		if inValue {
+			// everything is allowed in values
+			value = append(value, p.curTok.Literal...)
+		} else {
+			// attempt to parse a key
+
+			if p.curTokenIs(TokSPACE) {
+				// ignore surrounding whitespace in key
+				continue
+			}
+
+			if !p.curTokenIs(TokSTRING) {
+				// reject invalid characters such as '#' and '=' in key and
+				// also empty keys
+				isValidKey = false
+				continue
+			}
+
+			if p.peekTokenIs(TokEQUAL) {
+				label = strings.TrimSpace(string(p.curTok.Literal))
+				inValue = true
+				p.next()
+				p.append(p.curTok.Literal...)
+			}
 		}
 	}
 	return NewCommentValue(p.Literal(), label, strings.TrimSpace(string(value)))
@@ -830,7 +848,7 @@ func (p *parser) nextLine() {
 	}
 }
 
-// curTokenIs returns true if any of provited TokTypes match current token.
+// curTokenIs returns true if any of provided TokTypes match current token.
 func (p *parser) curTokenIs(tokens ...TokType) bool {
 	for _, t := range tokens {
 		if p.curTok.Type == t {
@@ -840,7 +858,7 @@ func (p *parser) curTokenIs(tokens ...TokType) bool {
 	return false
 }
 
-// peekTokenIs returns true if any of provited TokTypes match next token.
+// peekTokenIs returns true if any of provided TokTypes match next token.
 func (p *parser) peekTokenIs(tokens ...TokType) bool {
 	for _, t := range tokens {
 		if p.nextTok.Type == t {
@@ -850,7 +868,7 @@ func (p *parser) peekTokenIs(tokens ...TokType) bool {
 	return false
 }
 
-// nextTokenIs returns true if any of provited TokTypes match next token and reads next token. to next token.
+// nextTokenIs returns true if any of provided TokTypes match next token and reads next token. to next token.
 func (p *parser) nextTokenIs(tokens ...TokType) bool {
 	if p.peekTokenIs(tokens...) {
 		p.next()
