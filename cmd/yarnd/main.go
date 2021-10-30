@@ -36,7 +36,8 @@ func (f *flagSliceOfFeatureType) Type() string {
 func (f *flagSliceOfFeatureType) Set(value string) error {
 	feature, err := internal.FeatureFromString(value)
 	if err != nil {
-		return err
+		log.Warnf("invalid feature %s", value)
+		return nil
 	}
 	*f = append(*f, feature)
 	return nil

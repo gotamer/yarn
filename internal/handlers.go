@@ -668,11 +668,7 @@ func (s *Server) TimelineHandler() httprouter.Handle {
 		var twts types.Twts
 
 		if !ctx.Authenticated {
-			if s.config.Features.IsEnabled(FeatureDiscoverAllPosts) {
-				twts = s.cache.FilterBy(FilterOutFeedsAndBotsFactory(s.config))
-			} else {
-				twts = s.cache.GetByPrefix(s.config.BaseURL, false)
-			}
+			twts = s.cache.FilterBy(FilterOutFeedsAndBotsFactory(s.config))
 			ctx.Title = s.tr(ctx, "PageLocalTimelineTitle")
 		} else {
 			ctx.Title = s.tr(ctx, "PageUserTimelineTitle")
@@ -733,13 +729,7 @@ func (s *Server) DiscoverHandler() httprouter.Handle {
 		ctx := NewContext(s.config, s.db, r)
 		ctx.Translate(s.translator)
 
-		var twts types.Twts
-
-		if s.config.Features.IsEnabled(FeatureDiscoverAllPosts) {
-			twts = s.cache.FilterBy(FilterOutFeedsAndBotsFactory(s.config))
-		} else {
-			twts = s.cache.GetByPrefix(s.config.BaseURL, false)
-		}
+		twts := s.cache.FilterBy(FilterOutFeedsAndBotsFactory(s.config))
 
 		var pagedTwts types.Twts
 

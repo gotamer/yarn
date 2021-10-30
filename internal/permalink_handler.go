@@ -118,13 +118,7 @@ func (s *Server) PermalinkHandler() httprouter.Handle {
 			return
 		}
 
-		var title string
-
-		if s.config.Features.IsEnabled(FeatureShorterPermalinkTitle) {
-			title = fmt.Sprintf("%s \"%s\"", who, TextWithEllipsis(what, maxPermalinkTitle))
-		} else {
-			title = fmt.Sprintf("%s \"%s\"", who, what)
-		}
+		title := fmt.Sprintf("%s \"%s\"", who, TextWithEllipsis(what, maxPermalinkTitle))
 
 		ctx.Title = title
 		ctx.Meta = Meta{

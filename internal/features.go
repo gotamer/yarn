@@ -14,29 +14,13 @@ type FeatureType int
 const (
 	// FeatureInvalid is the invalid feature (0)
 	FeatureInvalid FeatureType = iota
-
-	// FeatureDiscoverAllPosts enabled the Discover timeline to show all
-	// posts from the local pod's cache regardless of who posted, otherwise
-	// by default the Discover timeline only shows local user posts.
-	FeatureDiscoverAllPosts
-
-	// FeatureShorterPermalinkTitle shortens the <title> tag of Twt permalinks
-	FeatureShorterPermalinkTitle
-)
-
-var (
-	// DefaultEnabledFeatures is the list of feautres enabled by default
-	DefaultEnabledFeatures = []FeatureType{}
 )
 
 func (f FeatureType) String() string {
 	switch f {
-	case FeatureDiscoverAllPosts:
-		return "discover_all_posts"
-	case FeatureShorterPermalinkTitle:
-		return "shorter_permalink_title"
+	default:
+		return "invalid_feature"
 	}
-	return "invalid_feature"
 }
 
 func AvailableFeatures() []string {
@@ -54,13 +38,10 @@ func AvailableFeatures() []string {
 func FeatureFromString(s string) (FeatureType, error) {
 	s = strings.TrimSpace(strings.ToLower(s))
 	switch s {
-	case "discover_all_posts":
-		return FeatureDiscoverAllPosts, nil
-	case "shorter_permalink_title":
-		return FeatureShorterPermalinkTitle, nil
+	default:
+		fs := fmt.Sprintf("available features: %s", strings.Join(AvailableFeatures(), " "))
+		return FeatureInvalid, fmt.Errorf("Error unrecognised feature: %s (%s)", s, fs)
 	}
-	fs := fmt.Sprintf("available features: %s", strings.Join(AvailableFeatures(), " "))
-	return FeatureInvalid, fmt.Errorf("Error unrecognised feature: %s (%s)", s, fs)
 }
 
 func FeaturesFromStrings(xs []string) ([]FeatureType, error) {
