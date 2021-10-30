@@ -3,7 +3,7 @@ package types_test
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
+	std_ioutil "io/ioutil"
 	"net/url"
 	"os"
 	"strings"
@@ -12,7 +12,7 @@ import (
 
 	"git.mills.io/yarnsocial/yarn/types"
 	"git.mills.io/yarnsocial/yarn/types/lextwt"
-	"github.com/matryer/is"
+	"github.com/badgerodon/ioutil"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -220,6 +220,8 @@ type preambleTestCase struct {
 }
 
 func TestPreambleFeed(t *testing.T) {
+	assert := assert.New(t)
+
 	tests := []preambleTestCase{
 		{
 			in:       "# testing\n\n2020-...",
@@ -270,16 +272,27 @@ func TestPreambleFeed(t *testing.T) {
 		},
 	}
 
-	is := is.New(t)
-
 	for _, tt := range tests {
-		pf, err := types.ReadPreambleFeed(strings.NewReader(tt.in))
+		t.Run("Read", func(t *testing.T) {
+			pf, err := types.ReadPreambleFeed(strings.NewReader(tt.in), int64(len(tt.in)))
+			assert.NoError(err)
+			assert.Equal(tt.preamble, pf.Preamble())
 
-		is.NoErr(err)
-		is.Equal(pf.Preamble(), tt.preamble)
-		drain, err := ioutil.ReadAll(pf)
-		is.NoErr(err)
-		is.Equal(tt.drain, string(drain))
+			drain, err := std_ioutil.ReadAll(pf)
+			assert.NoError(err)
+			assert.Equal(tt.drain, string(drain))
+		})
+
+		t.Run("Stream", func(t *testing.T) {
+			pf, err := types.ReadPreambleFeed(strings.NewReader(tt.in), int64(len(tt.in)))
+			assert.NoError(err)
+			assert.Equal(tt.preamble, pf.Preamble())
+
+			mrs := ioutil.NewMultiReadSeeker(strings.NewReader(pf.Preamble()), pf)
+			data, err := std_ioutil.ReadAll(mrs)
+			assert.NoError(err)
+			assert.Equal(tt.in, string(data))
+		})
 	}
 }
 

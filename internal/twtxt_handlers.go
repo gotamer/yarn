@@ -2,13 +2,14 @@ package internal
 
 import (
 	"fmt"
-	"io"
-	"io/ioutil"
+	std_ioutil "io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"git.mills.io/yarnsocial/yarn/types"
+	"github.com/badgerodon/ioutil"
 	securejoin "github.com/cyphar/filepath-securejoin"
 	"github.com/julienschmidt/httprouter"
 	log "github.com/sirupsen/logrus"
@@ -138,7 +139,14 @@ func (s *Server) TwtxtHandler() httprouter.Handle {
 		}
 		defer f.Close()
 
-		pr, err := types.ReadPreambleFeed(f)
+		stat, err := f.Stat()
+		if err != nil {
+			log.WithError(err).Error("error calling Stat() on feed")
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+
+		pr, err := types.ReadPreambleFeed(f, stat.Size())
 		if err != nil {
 			log.WithError(err).Error("error reading feed")
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -150,7 +158,7 @@ func (s *Server) TwtxtHandler() httprouter.Handle {
 		if preampleTemplate == "" {
 			preampleCustomTemplateFn := filepath.Join(s.config.Data, feedsDir, fmt.Sprintf("%s.tpl", nick))
 			if FileExists(preampleCustomTemplateFn) {
-				if data, err := ioutil.ReadFile(preampleCustomTemplateFn); err == nil {
+				if data, err := std_ioutil.ReadFile(preampleCustomTemplateFn); err == nil {
 					preampleTemplate = string(data)
 				} else {
 					log.WithError(err).Warnf("error loading custom preamble template for %s", nick)
@@ -169,17 +177,9 @@ func (s *Server) TwtxtHandler() httprouter.Handle {
 		}
 
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		w.Header().Set("Content-Length", fmt.Sprintf("%d", int64(len(preamble))+fileInfo.Size()))
 		w.Header().Set("Link", fmt.Sprintf(`<%s/user/%s/webmention>; rel="webmention"`, s.config.BaseURL, nick))
-		w.Header().Set("Last-Modified", fileInfo.ModTime().UTC().Format(http.TimeFormat))
 
-		if r.Method == http.MethodHead {
-			return
-		}
-
-		if _, err = w.Write([]byte(preamble)); err != nil {
-			log.WithError(err).Warn("error writing twtxt preamble")
-		}
-		_, _ = io.Copy(w, pr)
+		mrs := ioutil.NewMultiReadSeeker(strings.NewReader(preamble), pr)
+		http.ServeContent(w, r, "", fileInfo.ModTime(), mrs)
 	}
 }

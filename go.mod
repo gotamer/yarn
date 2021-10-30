@@ -14,6 +14,7 @@ require (
 	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/andyleap/microformats v0.0.0-20150523144534-25ae286f528b
 	github.com/audiolion/ipip v1.0.0
+	github.com/badgerodon/ioutil v0.0.0-20150716134133-06e58e34b867 // indirect
 	github.com/creasty/defaults v1.5.2
 	github.com/cyphar/filepath-securejoin v0.2.3
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
@@ -73,6 +74,7 @@ require (
 	github.com/vcraescu/go-paginator v1.0.0
 	github.com/wblakecaldwell/profiler v0.0.0-20150908040756-6111ef1313a1
 	github.com/writeas/slug v1.2.0
+	go4.org v0.0.0-20201209231011-d4a079459e60 // indirect
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 	golang.org/x/exp v0.0.0-20211012155715-ffe10e552389 // indirect
 	golang.org/x/net v0.0.0-20211015210444-4f30a5c0130f
