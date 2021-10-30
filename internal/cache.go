@@ -625,6 +625,26 @@ func (cache *Cache) GetBySubject(subject string, replyTo types.Twt) types.Twts {
 	return result
 }
 
+// GetByTag ...
+func (cache *Cache) GetByTag(tag string) types.Twts {
+	var result types.Twts
+
+	// TODO: Improve this by making this an O(1) lookup on the tag
+	// XXX: But maybe this won't matter so much since the active cache
+	//      is held in memory and is usually kept fairly small? 🤷‍♂️
+	allTwts := cache.GetAll()
+
+	seen := make(map[string]bool)
+	for _, twt := range allTwts {
+		var tags types.TagList = twt.Tags()
+		if HasString(UniqStrings(tags.Tags()), tag) && !seen[twt.Hash()] {
+			result = append(result, twt)
+			seen[twt.Hash()] = true
+		}
+	}
+	return result
+}
+
 // Delete ...
 func (cache *Cache) Delete(feeds types.Feeds) {
 	cache.mu.Lock()

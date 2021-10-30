@@ -1,0 +1,12 @@
+{{define "content"}}
+  <article class="container-fluid">
+    <hgroup>
+      <h2>Search</h2>
+      <h3>Twts matching {{ .SearchQuery }}</h3>
+    </hgroup>
+  </article>
+  {{ template "feed" (dict "Authenticated" $.Authenticated "User" $.User "Profile" $.Profile "LastTwt" $.LastTwt "Pager" $.Pager "Twts" $.Twts "Ctx" . "view" "search") }}
+  {{ if .Authenticated }}
+    {{ template "post" (dict "Authenticated" $.Authenticated "User" $.User "TwtPrompt" $.TwtPrompt "MaxTwtLength" $.MaxTwtLength "Reply" $.Reply "AutoFocus" false "CSRFToken" $.CSRFToken "Ctx" .)}}
+  {{ end }}
+{{ end }}

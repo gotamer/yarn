@@ -804,59 +804,6 @@ func (s *Server) MentionsHandler() httprouter.Handle {
 	}
 }
 
-// SearchHandler ...
-func (s *Server) SearchHandler() httprouter.Handle {
-	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s.config, s.db, r)
-		ctx.Translate(s.translator)
-
-		var twts types.Twts
-
-		tag := r.URL.Query().Get("tag")
-
-		if tag == "" {
-			ctx.Error = true
-			ctx.Message = s.tr(ctx, "ErrorNoTag")
-			s.render("error", w, ctx)
-		}
-
-		getTweetsByTag := func() types.Twts {
-			var result types.Twts
-			seen := make(map[string]bool)
-			// TODO: Improve this by making this an O(1) lookup on the tag
-			for _, twt := range s.cache.GetAll() {
-				var tags types.TagList = twt.Tags()
-				if HasString(UniqStrings(tags.Tags()), tag) && !seen[twt.Hash()] {
-					result = append(result, twt)
-					seen[twt.Hash()] = true
-				}
-			}
-			return result
-		}
-
-		twts = getTweetsByTag()
-		sort.Sort(twts)
-
-		var pagedTwts types.Twts
-
-		page := SafeParseInt(r.FormValue("p"), 1)
-		pager := paginator.New(adapter.NewSliceAdapter(twts), s.config.TwtsPerPage)
-		pager.SetPage(page)
-
-		if err := pager.Results(&pagedTwts); err != nil {
-			ctx.Error = true
-			ctx.Message = s.tr(ctx, "ErrorLoadingSearch")
-			s.render("error", w, ctx)
-			return
-		}
-
-		ctx.Twts = FilterTwts(ctx.User, pagedTwts)
-		ctx.Pager = &pager
-
-		s.render("timeline", w, ctx)
-	}
-}
-
 // FeedHandler ...
 func (s *Server) FeedHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
