@@ -391,7 +391,7 @@ func (a *API) PostEndpoint() httprouter.Handle {
 
 		switch req.PostAs {
 		case "", me:
-			sources = user.Sources()
+			sources = user.Source()
 			_, err = AppendTwt(a.config, a.db, user, text)
 		default:
 			if user.OwnsFeed(req.PostAs) {

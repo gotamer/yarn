@@ -601,7 +601,7 @@ func (s *Server) PostHandler() httprouter.Handle {
 
 		switch postas {
 		case "", user.Username:
-			sources = user.Sources()
+			sources = user.Source()
 
 			if hash != "" && lastTwt.Hash() == hash {
 				twt, err = AppendTwt(s.config, s.db, user, text, lastTwt.Created())
