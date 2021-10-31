@@ -2,16 +2,16 @@
 {{ if $.Authenticated }}
 <nav class="toolbar-nav">
   <ul>
-    <li><a id="bBtn" href="#" data-tooltip="Bold"><i class="icss-text-bold"></i></a></li>
-    <li><a id="iBtn" href="#" data-tooltip="Italic"><i class="icss-text-italic"></i></a></li>
-    <li><a id="cBtn" href="#" data-tooltip="Code"><i class="icss-text-width"></i></a></li>
-    <li><a id="sBtn" href="#" data-tooltip="Strikethrough"><i class="icss-x"></i></a></li>
-    <li><a id="usrBtn" href="#" data-tooltip="Mention"><i class="icss-user-circle"></i></a></li>
-    <li><a id="lnkBtn" href="#" data-tooltip="Link"><i class="icss-link"></i></a></li>
-    <li><a id="imgBtn" href="#" data-tooltip="Image"><i class="icss-image"></i></a></li>
+    <li><a id="bBtn" href="#" title="Bold"><i class="icss-text-bold"></i></a></li>
+    <li><a id="iBtn" href="#" title="Italic"><i class="icss-text-italic"></i></a></li>
+    <li><a id="cBtn" href="#" title="Code"><i class="icss-text-width"></i></a></li>
+    <li><a id="sBtn" href="#" title="Strikethrough"><i class="icss-x"></i></a></li>
+    <li><a id="usrBtn" href="#" title="Mention"><i class="icss-user-circle"></i></a></li>
+    <li><a id="lnkBtn" href="#" title="Link"><i class="icss-link"></i></a></li>
+    <li><a id="imgBtn" href="#" title="Image"><i class="icss-image"></i></a></li>
     {{ if not $.Ctx.DisableMedia }}
       <li class="toolbar-form-button">
-        <form id="imageUploadForm" action="/upload" enctype="multipart/form-data" method="POST" data-tooltip="Upload image">
+        <form id="imageUploadForm" action="/upload" enctype="multipart/form-data" method="POST" title="Upload image">
           <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
           <label for="uploadImage">
             <i id="uploadImageButton" class="icss-camera"></i>
@@ -21,7 +21,7 @@
       </li>
       {{ if not $.Ctx.DisableFfmpeg }}
         <li class="toolbar-form-button">
-          <form id="audioUploadForm" action="/upload" enctype="multipart/form-data" method="POST" data-tooltip="Upload audio">
+          <form id="audioUploadForm" action="/upload" enctype="multipart/form-data" method="POST" title="Upload audio">
             <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
             <label for="uploadAudio">
               <i id="uploadAudioButton" class="icss-microphone"></i>
@@ -30,7 +30,7 @@
           </form>
         </li>
         <li class="toolbar-form-button">
-          <form id="videoUploadForm" action="/upload" enctype="multipart/form-data" method="POST" data-tooltip="Upload video">
+          <form id="videoUploadForm" action="/upload" enctype="multipart/form-data" method="POST" title="Upload video">
             <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
             <label for="uploadVideo">
               <i id="uploadVideoButton" class="icss-video-camera"></i>
@@ -118,7 +118,7 @@
         <span> &nbsp;({{ $.Twt.Created | time }})</span>
         {{ if $.Authenticated }}
         <span> &nbsp;
-            <a class="bookmark" href="/bookmark/{{ $.Twt.Hash }}" data-tooltip="{{ if $.User.Bookmarked $.Twt.Hash }}{{tr $.Ctx "BookmarkRemoveTwt"}}{{ else }}{{tr $.Ctx "BookmarkAddTwt"}}{{ end }}">
+            <a class="bookmark" href="/bookmark/{{ $.Twt.Hash }}" title="{{ if $.User.Bookmarked $.Twt.Hash }}{{tr $.Ctx "BookmarkRemoveTwt"}}{{ else }}{{tr $.Ctx "BookmarkAddTwt"}}{{ end }}">
             <i class="icss-{{ if $.User.Bookmarked $.Twt.Hash }}bookmark{{ else }}bookmark-o{{ end }}"></i>
           </a>
         </span>

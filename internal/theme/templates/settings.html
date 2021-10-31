@@ -24,7 +24,7 @@
           <hgroup>
             <h2>
               <img id="avatar" class="avatar" src="/user/{{ .User.Username }}/avatar" alt="avatar" />
-              <a href="/user/{{ .User.Username }}" data-tooltip="{{tr . "SettingsFormViewProfile"}}">{{ .User.Username }}</a>
+              <a href="/user/{{ .User.Username }}" title="{{tr . "SettingsFormViewProfile"}}">{{ .User.Username }}</a>
             </h2>
             <h3>
               <p><i>{{ .User.Tagline }}</i></p>
@@ -144,7 +144,7 @@
             <td>
               <form action="/token/delete/{{$val.Signature}}" method="POST" onsubmit="return confirm('Are you sure you want to delete this token? This cannot be undone!');">
                 <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
-                <button type="submit" data-tooltip="Delete" class="outline secondary">
+                <button type="submit" title="Delete" class="outline secondary">
                   <i class="icss-x"></i>
                 </button>
               </form>
