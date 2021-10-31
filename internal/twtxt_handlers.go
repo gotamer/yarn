@@ -43,7 +43,7 @@ const defaultPreambleTemplate = `# Twtxt is an open, distributed microblogging p
 // TwtxtHandler ...
 func (s *Server) TwtxtHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s.config, s.db, r)
+		ctx := NewContext(s, r)
 
 		nick := NormalizeUsername(p.ByName("nick"))
 		if nick == "" {

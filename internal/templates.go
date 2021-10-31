@@ -8,13 +8,13 @@ import (
 	"io/fs"
 	"path/filepath"
 	"strings"
-	"sync"
 	text_template "text/template"
 	"time"
 
 	"git.mills.io/yarnsocial/yarn/types"
 	"github.com/Masterminds/sprig/v3"
 	humanize "github.com/dustin/go-humanize"
+	sync "github.com/sasha-s/go-deadlock"
 	log "github.com/sirupsen/logrus"
 )
 

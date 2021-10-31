@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-	"sync"
 
+	sync "github.com/sasha-s/go-deadlock"
 	"gopkg.in/yaml.v2"
 )
 

@@ -1,8 +1,9 @@
 package internal
 
 import (
-	"sync"
 	"time"
+
+	sync "github.com/sasha-s/go-deadlock"
 )
 
 type cachedItem struct {

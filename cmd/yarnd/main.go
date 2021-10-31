@@ -17,6 +17,7 @@ import (
 	"git.mills.io/yarnsocial/yarn"
 	"git.mills.io/yarnsocial/yarn/internal"
 	_ "git.mills.io/yarnsocial/yarn/types/lextwt"
+	sync "github.com/sasha-s/go-deadlock"
 )
 
 type flagSliceOfFeatureType []internal.FeatureType
@@ -274,6 +275,9 @@ func main() {
 		log.SetLevel(log.DebugLevel)
 	} else {
 		log.SetLevel(log.InfoLevel)
+
+		// Disable deadlock detection in production mode
+		sync.Opts.Disable = true
 	}
 
 	svr, err := internal.NewServer(bind,

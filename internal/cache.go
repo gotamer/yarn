@@ -10,8 +10,9 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-	"sync"
 	"time"
+
+	sync "github.com/sasha-s/go-deadlock"
 
 	"github.com/dustin/go-humanize"
 	log "github.com/sirupsen/logrus"
@@ -502,24 +503,24 @@ func (cache *Cache) Count() int {
 
 // GetAll ...
 func (cache *Cache) GetAll() types.Twts {
-	var alltwts types.Twts
+	var allTwts types.Twts
 	cache.mu.RLock()
 	defer cache.mu.RUnlock()
 
 	for _, cached := range cache.Twts {
-		alltwts = append(alltwts, cached.Twts...)
+		allTwts = append(allTwts, cached.Twts...)
 	}
 
-	sort.Sort(alltwts)
-	return alltwts
+	sort.Sort(allTwts)
+	return allTwts
 }
 
 // FilterBy ...
 func (cache *Cache) FilterBy(f FilterFunc) types.Twts {
 	var filteredtwts types.Twts
 
-	alltwts := cache.GetAll()
-	for _, twt := range alltwts {
+	allTwts := cache.GetAll()
+	for _, twt := range allTwts {
 		if f(twt) {
 			filteredtwts = append(filteredtwts, twt)
 		}
@@ -530,13 +531,12 @@ func (cache *Cache) FilterBy(f FilterFunc) types.Twts {
 
 // GetMentions ...
 func (cache *Cache) GetMentions(u *User) (twts types.Twts) {
-	cache.mu.RLock()
-	defer cache.mu.RUnlock()
-
 	seen := make(map[string]bool)
 
+	allTwts := cache.GetAll()
+
 	// Search for @mentions in the cache against all Twts (local, followed and even external if any)
-	for _, twt := range cache.GetAll() {
+	for _, twt := range allTwts {
 		for _, mention := range twt.Mentions() {
 			if u.Is(mention.Twter().URL) && !seen[twt.Hash()] {
 				twts = append(twts, twt)

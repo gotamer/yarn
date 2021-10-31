@@ -16,7 +16,7 @@ import (
 // FollowHandler ...
 func (s *Server) FollowHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s.config, s.db, r)
+		ctx := NewContext(s, r)
 
 		nick := strings.TrimSpace(r.FormValue("nick"))
 		url := NormalizeURL(r.FormValue("url"))
@@ -142,7 +142,7 @@ func (s *Server) FollowHandler() httprouter.Handle {
 // ImportHandler ...
 func (s *Server) ImportHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s.config, s.db, r)
+		ctx := NewContext(s, r)
 
 		if r.Method == "GET" {
 			ctx.Title = "Import feeds from a list"
@@ -205,7 +205,7 @@ func (s *Server) ImportHandler() httprouter.Handle {
 // UnfollowHandler ...
 func (s *Server) UnfollowHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s.config, s.db, r)
+		ctx := NewContext(s, r)
 
 		nick := strings.TrimSpace(r.FormValue("nick"))
 

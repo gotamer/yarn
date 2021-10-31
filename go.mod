@@ -11,9 +11,7 @@ require (
 	github.com/NYTimes/gziphandler v1.1.1
 	github.com/PuerkitoBio/goquery v1.8.0
 	github.com/andreadipersio/securecookie v0.0.0-20131119095127-e3c3b33544ec
-	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/andyleap/microformats v0.0.0-20150523144534-25ae286f528b
-	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/audiolion/ipip v1.0.0
 	github.com/badgerodon/ioutil v0.0.0-20150716134133-06e58e34b867
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
@@ -62,6 +60,7 @@ require (
 	github.com/renstrom/shortuuid v3.0.0+incompatible
 	github.com/rickb777/accept v0.0.0-20170318132422-d5183c44530d
 	github.com/robfig/cron v1.2.0
+	github.com/sasha-s/go-deadlock v0.3.1
 	github.com/securisec/go-keywords v0.0.0-20200619134240-769e7273f2ed
 	github.com/shopspring/decimal v1.3.1 // indirect
 	github.com/sirupsen/logrus v1.8.1
@@ -76,7 +75,6 @@ require (
 	github.com/vcraescu/go-paginator v1.0.0
 	github.com/wblakecaldwell/profiler v0.0.0-20150908040756-6111ef1313a1
 	github.com/writeas/slug v1.2.0
-	go4.org v0.0.0-20201209231011-d4a079459e60 // indirect
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 	golang.org/x/exp v0.0.0-20211029182501-9b944d235b9d // indirect
 	golang.org/x/image v0.0.0-20211028202545-6944b10bf410 // indirect

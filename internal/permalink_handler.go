@@ -24,7 +24,7 @@ func (s *Server) PermalinkHandler() httprouter.Handle {
 	isLocal := IsLocalURLFactory(s.config)
 
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s.config, s.db, r)
+		ctx := NewContext(s, r)
 		ctx.Translate(s.translator)
 
 		hash := p.ByName("hash")

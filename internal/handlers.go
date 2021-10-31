@@ -57,7 +57,7 @@ func (s *Server) NotFoundHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx := NewContext(s.config, s.db, r)
+	ctx := NewContext(s, r)
 	ctx.Title = s.tr(ctx, "PageNotFoundTitle")
 	w.WriteHeader(http.StatusNotFound)
 	s.render("404", w, ctx)
@@ -79,7 +79,7 @@ func (s *Server) PageHandler(name string) httprouter.Handle {
 	}
 
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		ctx := NewContext(s.config, s.db, r)
+		ctx := NewContext(s, r)
 
 		md, err := RenderHTML(mdTpl, ctx)
 		if err != nil {
@@ -131,7 +131,7 @@ func (s *Server) PageHandler(name string) httprouter.Handle {
 // UserConfigHandler ...
 func (s *Server) UserConfigHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s.config, s.db, r)
+		ctx := NewContext(s, r)
 
 		nick := NormalizeUsername(p.ByName("nick"))
 		if nick == "" {
@@ -205,7 +205,7 @@ func (s *Server) UserConfigHandler() httprouter.Handle {
 // ProfileHandler ...
 func (s *Server) ProfileHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s.config, s.db, r)
+		ctx := NewContext(s, r)
 		ctx.Translate(s.translator)
 
 		nick := NormalizeUsername(p.ByName("nick"))
@@ -292,7 +292,7 @@ func (s *Server) ProfileHandler() httprouter.Handle {
 // ManageFeedHandler...
 func (s *Server) ManageFeedHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s.config, s.db, r)
+		ctx := NewContext(s, r)
 		feedName := NormalizeFeedName(p.ByName("name"))
 
 		if feedName == "" {
@@ -391,7 +391,7 @@ func (s *Server) ManageFeedHandler() httprouter.Handle {
 // ArchiveFeedHandler...
 func (s *Server) ArchiveFeedHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s.config, s.db, r)
+		ctx := NewContext(s, r)
 		feedName := NormalizeFeedName(p.ByName("name"))
 
 		if feedName == "" {
@@ -527,7 +527,7 @@ func (s *Server) PostHandler() httprouter.Handle {
 	isLocalURL := IsLocalURLFactory(s.config)
 	isExternalFeed := IsExternalFeedFactory(s.config)
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		ctx := NewContext(s.config, s.db, r)
+		ctx := NewContext(s, r)
 
 		postas := strings.ToLower(strings.TrimSpace(r.FormValue("postas")))
 
@@ -726,7 +726,7 @@ func (s *Server) TimelineHandler() httprouter.Handle {
 			return
 		}
 
-		ctx := NewContext(s.config, s.db, r)
+		ctx := NewContext(s, r)
 		// ctx translate
 		// TODO it's bad, I have no idea. @venjiang
 		ctx.Translate(s.translator)
@@ -783,7 +783,7 @@ func (s *Server) TimelineHandler() httprouter.Handle {
 // DiscoverHandler ...
 func (s *Server) DiscoverHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		ctx := NewContext(s.config, s.db, r)
+		ctx := NewContext(s, r)
 		ctx.Translate(s.translator)
 
 		twts := s.getDiscoverTwts(ctx.User, FilterOutFeedsAndBotsFactory(s.config))
@@ -831,7 +831,7 @@ func (s *Server) DiscoverHandler() httprouter.Handle {
 // MentionsHandler ...
 func (s *Server) MentionsHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		ctx := NewContext(s.config, s.db, r)
+		ctx := NewContext(s, r)
 		ctx.Translate(s.translator)
 
 		twts := s.getMentionedTwts(ctx.User)
@@ -874,7 +874,7 @@ func (s *Server) WebMentionHandler() httprouter.Handle {
 // FeedHandler ...
 func (s *Server) FeedHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		ctx := NewContext(s.config, s.db, r)
+		ctx := NewContext(s, r)
 
 		name := NormalizeFeedName(r.FormValue("name"))
 		trdata := map[string]interface{}{}
@@ -927,7 +927,7 @@ func (s *Server) FeedHandler() httprouter.Handle {
 // FeedsHandler ...
 func (s *Server) FeedsHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		ctx := NewContext(s.config, s.db, r)
+		ctx := NewContext(s, r)
 		user := ctx.User
 
 		allFeeds, err := s.db.GetAllFeeds()
@@ -974,7 +974,7 @@ func (s *Server) LoginHandler() httprouter.Handle {
 	failures := NewTTLCache(5 * time.Minute)
 
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s.config, s.db, r)
+		ctx := NewContext(s, r)
 
 		if r.Method == "GET" {
 			s.render("login", w, ctx)
@@ -1059,7 +1059,7 @@ func (s *Server) LogoutHandler() httprouter.Handle {
 // RegisterHandler ...
 func (s *Server) RegisterHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		ctx := NewContext(s.config, s.db, r)
+		ctx := NewContext(s, r)
 
 		if r.Method == "GET" {
 			if s.config.OpenRegistrations {
@@ -1152,7 +1152,7 @@ func (s *Server) RegisterHandler() httprouter.Handle {
 // LookupHandler ...
 func (s *Server) LookupHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s.config, s.db, r)
+		ctx := NewContext(s, r)
 
 		prefix := strings.ToLower(strings.TrimSpace(r.URL.Query().Get("prefix")))
 
@@ -1193,7 +1193,7 @@ func (s *Server) LookupHandler() httprouter.Handle {
 // SettingsHandler ...
 func (s *Server) SettingsHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s.config, s.db, r)
+		ctx := NewContext(s, r)
 
 		if r.Method == "GET" {
 			ctx.Title = s.tr(ctx, "PageSettingsTitle")
@@ -1292,7 +1292,7 @@ func (s *Server) SettingsHandler() httprouter.Handle {
 // DeleteTokenHandler ...
 func (s *Server) DeleteTokenHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s.config, s.db, r)
+		ctx := NewContext(s, r)
 
 		signature := p.ByName("signature")
 
@@ -1314,7 +1314,7 @@ func (s *Server) DeleteTokenHandler() httprouter.Handle {
 // FollowersHandler ...
 func (s *Server) FollowersHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s.config, s.db, r)
+		ctx := NewContext(s, r)
 
 		nick := NormalizeUsername(p.ByName("nick"))
 
@@ -1373,7 +1373,7 @@ func (s *Server) FollowersHandler() httprouter.Handle {
 // FollowingHandler ...
 func (s *Server) FollowingHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s.config, s.db, r)
+		ctx := NewContext(s, r)
 
 		nick := NormalizeUsername(p.ByName("nick"))
 
@@ -1422,7 +1422,7 @@ func (s *Server) FollowingHandler() httprouter.Handle {
 // ExternalHandler ...
 func (s *Server) ExternalHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s.config, s.db, r)
+		ctx := NewContext(s, r)
 		ctx.Translate(s.translator)
 
 		uri := r.URL.Query().Get("uri")
@@ -1542,7 +1542,7 @@ func (s *Server) ExternalHandler() httprouter.Handle {
 // ExternalFollowingHandler ...
 func (s *Server) ExternalFollowingHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s.config, s.db, r)
+		ctx := NewContext(s, r)
 		ctx.Translate(s.translator)
 
 		uri := r.URL.Query().Get("uri")
@@ -1721,7 +1721,7 @@ func (s *Server) ExternalAvatarHandler() httprouter.Handle {
 // ResetPasswordHandler ...
 func (s *Server) ResetPasswordHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s.config, s.db, r)
+		ctx := NewContext(s, r)
 
 		if r.Method == "GET" {
 			ctx.Title = s.tr(ctx, "PageResetPasswordTitle")
@@ -1804,7 +1804,7 @@ func (s *Server) ResetPasswordHandler() httprouter.Handle {
 // ResetPasswordMagicLinkHandler ...
 func (s *Server) ResetPasswordMagicLinkHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s.config, s.db, r)
+		ctx := NewContext(s, r)
 
 		// Get token from query string
 		tokens, ok := r.URL.Query()["token"]
@@ -1828,7 +1828,7 @@ func (s *Server) ResetPasswordMagicLinkHandler() httprouter.Handle {
 // NewPasswordHandler ...
 func (s *Server) NewPasswordHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s.config, s.db, r)
+		ctx := NewContext(s, r)
 
 		if r.Method == "GET" {
 			return
@@ -2055,7 +2055,7 @@ func (s *Server) PodVersionHandler() httprouter.Handle {
 			w.Header().Set("Content-Type", "application/json")
 			_, _ = w.Write(data)
 		} else {
-			ctx := NewContext(s.config, s.db, r)
+			ctx := NewContext(s, r)
 			s.render("version", w, ctx)
 		}
 	}
@@ -2079,7 +2079,7 @@ func (s *Server) PodConfigHandler() httprouter.Handle {
 // TransferFeedHandler...
 func (s *Server) TransferFeedHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s.config, s.db, r)
+		ctx := NewContext(s, r)
 		feedName := NormalizeFeedName(p.ByName("name"))
 		transferToName := NormalizeFeedName(p.ByName("transferTo"))
 
@@ -2154,7 +2154,7 @@ func (s *Server) TransferFeedHandler() httprouter.Handle {
 // DeleteAllHandler ...
 func (s *Server) DeleteAllHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s.config, s.db, r)
+		ctx := NewContext(s, r)
 
 		// Get all user feeds
 		feeds, err := s.db.GetAllFeeds()
@@ -2315,7 +2315,7 @@ func (s *Server) DeleteAllHandler() httprouter.Handle {
 // DeleteAccountHandler ...
 func (s *Server) DeleteAccountHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s.config, s.db, r)
+		ctx := NewContext(s, r)
 		user := ctx.User
 
 		allFeeds, err := s.db.GetAllFeeds()

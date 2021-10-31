@@ -14,7 +14,7 @@ import (
 // SearchHandler ...
 func (s *Server) SearchHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s.config, s.db, r)
+		ctx := NewContext(s, r)
 		ctx.Translate(s.translator)
 
 		tag := r.URL.Query().Get("tag")
