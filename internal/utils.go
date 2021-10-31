@@ -1594,7 +1594,13 @@ func FormatTwtFactory(conf *Config) func(twt types.Twt) template.HTML {
 		extensions := parser.CommonExtensions | parser.HardLineBreak | parser.NoEmptyLineBeforeBlock
 		mdParser := parser.NewWithExtensions(extensions)
 
-		opts := html.RendererOptions{RenderNodeHook: renderHookProcessURLs}
+		htmlFlags := html.CommonFlags
+		opts := html.RendererOptions{
+			Flags:          htmlFlags,
+			Generator:      "",
+			RenderNodeHook: renderHookProcessURLs,
+		}
+
 		renderer := html.NewRenderer(opts)
 
 		md := []byte(twt.FormatText(types.HTMLFmt, conf))
