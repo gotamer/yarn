@@ -14,7 +14,7 @@ import (
 // BookmarkHandler ...
 func (s *Server) BookmarkHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s, r)
+		ctx := NewContext(s.config, s.db, r)
 
 		hash := p.ByName("hash")
 		if hash == "" {
@@ -70,7 +70,7 @@ func (s *Server) BookmarkHandler() httprouter.Handle {
 // BookmarksHandler ...
 func (s *Server) BookmarksHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s, r)
+		ctx := NewContext(s.config, s.db, r)
 
 		nick := NormalizeUsername(p.ByName("nick"))
 

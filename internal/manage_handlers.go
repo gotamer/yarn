@@ -19,7 +19,7 @@ func (s *Server) ManagePodHandler() httprouter.Handle {
 	isAdminUser := IsAdminUserFactory(s.config)
 
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s, r)
+		ctx := NewContext(s.config, s.db, r)
 
 		if !isAdminUser(ctx.User) {
 			ctx.Error = true
@@ -130,7 +130,7 @@ func (s *Server) ManageUsersHandler() httprouter.Handle {
 	isAdminUser := IsAdminUserFactory(s.config)
 
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s, r)
+		ctx := NewContext(s.config, s.db, r)
 
 		if !isAdminUser(ctx.User) {
 			ctx.Error = true
@@ -149,7 +149,7 @@ func (s *Server) AddUserHandler() httprouter.Handle {
 	isAdminUser := IsAdminUserFactory(s.config)
 
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		ctx := NewContext(s, r)
+		ctx := NewContext(s.config, s.db, r)
 
 		if !isAdminUser(ctx.User) {
 			ctx.Error = true
@@ -233,7 +233,7 @@ func (s *Server) DelUserHandler() httprouter.Handle {
 	isAdminUser := IsAdminUserFactory(s.config)
 
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		ctx := NewContext(s, r)
+		ctx := NewContext(s.config, s.db, r)
 
 		if !isAdminUser(ctx.User) {
 			ctx.Error = true
@@ -413,7 +413,7 @@ func (s *Server) RstUserHandler() httprouter.Handle {
 	isAdminUser := IsAdminUserFactory(s.config)
 
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		ctx := NewContext(s, r)
+		ctx := NewContext(s.config, s.db, r)
 
 		if !isAdminUser(ctx.User) {
 			ctx.Error = true

@@ -27,7 +27,7 @@ Allow: /media
 // RobotsHandler ...
 func (s *Server) RobotsHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s, r)
+		ctx := NewContext(s.config, s.db, r)
 
 		text, err := RenderPlainText(robotsTpl, ctx)
 		if err != nil {

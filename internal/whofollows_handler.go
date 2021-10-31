@@ -13,7 +13,7 @@ import (
 // WhoFollowsHandler ...
 func (s *Server) WhoFollowsHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		ctx := NewContext(s, r)
+		ctx := NewContext(s.config, s.db, r)
 
 		ctype := "html"
 		if r.Header.Get("Accept") == "application/json" {

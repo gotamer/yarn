@@ -42,7 +42,7 @@ func (s *Server) CaptchaHandler() httprouter.Handle {
 // SupportHandler ...
 func (s *Server) SupportHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s, r)
+		ctx := NewContext(s.config, s.db, r)
 
 		if r.Method == "GET" {
 			ctx.Title = s.tr(ctx, "PageSupportTitle")
@@ -107,7 +107,7 @@ func (s *Server) SupportHandler() httprouter.Handle {
 // ReportHandler ...
 func (s *Server) ReportHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s, r)
+		ctx := NewContext(s.config, s.db, r)
 
 		nick := strings.TrimSpace(r.FormValue("nick"))
 		url := NormalizeURL(r.FormValue("url"))
