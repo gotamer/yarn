@@ -298,7 +298,7 @@ video {
 /* Video Summary Content Styling */
 article .p-summary p video,
 article .p-summary p img{
-  width: auto;
+  width: 100%;
   height: auto;
 }
 
