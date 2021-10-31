@@ -664,6 +664,59 @@ func (s *Server) PostHandler() httprouter.Handle {
 	}
 }
 
+func (s *Server) getTimelineTwts(user *User) types.Twts {
+	var twts types.Twts
+
+	for feed := range user.Sources() {
+		twts = append(twts, s.cache.GetByURL(feed.URL)...)
+	}
+	sort.Sort(twts)
+
+	return FilterTwts(user, twts)
+}
+
+func (s *Server) getDiscoverTwts(user *User, filter FilterFunc) types.Twts {
+	twts := s.cache.FilterBy(filter)
+	return FilterTwts(user, twts)
+}
+
+func (s *Server) getMentionedTwts(user *User) types.Twts {
+	twts := s.cache.GetMentions(user)
+	sort.Sort(twts)
+
+	return FilterTwts(user, twts)
+}
+
+func (s *Server) timelineUpdatedAt(user *User) time.Time {
+	twts := s.getTimelineTwts(user)
+
+	if len(twts) > 0 {
+		return twts[0].Created()
+	}
+
+	return time.Time{}
+}
+
+func (s *Server) discoverUpdatedAt(user *User, filter FilterFunc) time.Time {
+	twts := s.getDiscoverTwts(user, filter)
+
+	if len(twts) > 0 {
+		return twts[0].Created()
+	}
+
+	return time.Time{}
+}
+
+func (s *Server) lastMentionedAt(user *User) time.Time {
+	twts := s.getMentionedTwts(user)
+
+	if len(twts) > 0 {
+		return twts[0].Created()
+	}
+
+	return time.Time{}
+}
+
 // TimelineHandler ...
 func (s *Server) TimelineHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -681,17 +734,11 @@ func (s *Server) TimelineHandler() httprouter.Handle {
 		var twts types.Twts
 
 		if !ctx.Authenticated {
-			twts = s.cache.FilterBy(FilterOutFeedsAndBotsFactory(s.config))
+			twts = s.getDiscoverTwts(ctx.User, FilterOutFeedsAndBotsFactory(s.config))
 			ctx.Title = s.tr(ctx, "PageLocalTimelineTitle")
 		} else {
 			ctx.Title = s.tr(ctx, "PageUserTimelineTitle")
-			user := ctx.User
-			if user != nil {
-				for feed := range user.Sources() {
-					twts = append(twts, s.cache.GetByURL(feed.URL)...)
-				}
-			}
-			sort.Sort(twts)
+			twts = s.getTimelineTwts(ctx.User)
 		}
 
 		var pagedTwts types.Twts
@@ -720,19 +767,16 @@ func (s *Server) TimelineHandler() httprouter.Handle {
 			ctx.LastTwt = lastTwt
 		}
 
-		ctx.Twts = FilterTwts(ctx.User, pagedTwts)
+		ctx.Twts = pagedTwts
 		ctx.Pager = &pager
 
-		s.render("timeline", w, ctx)
-	}
-}
+		if len(ctx.Twts) > 0 {
+			ctx.TimelineUpdatedAt = ctx.Twts[0].Created()
+		}
+		ctx.DiscoverUpdatedAt = s.discoverUpdatedAt(ctx.User, FilterOutFeedsAndBotsFactory(s.config))
+		ctx.LastMentionedAt = s.lastMentionedAt(ctx.User)
 
-// WebMentionHandler ...
-func (s *Server) WebMentionHandler() httprouter.Handle {
-	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		r.Body = http.MaxBytesReader(w, r.Body, 1024)
-		defer r.Body.Close()
-		webmentions.WebMentionEndpoint(w, r)
+		s.render("timeline", w, ctx)
 	}
 }
 
@@ -742,7 +786,7 @@ func (s *Server) DiscoverHandler() httprouter.Handle {
 		ctx := NewContext(s.config, s.db, r)
 		ctx.Translate(s.translator)
 
-		twts := s.cache.FilterBy(FilterOutFeedsAndBotsFactory(s.config))
+		twts := s.getDiscoverTwts(ctx.User, FilterOutFeedsAndBotsFactory(s.config))
 
 		var pagedTwts types.Twts
 
@@ -771,8 +815,14 @@ func (s *Server) DiscoverHandler() httprouter.Handle {
 		}
 
 		ctx.Title = s.tr(ctx, "PageDiscoverTitle")
-		ctx.Twts = FilterTwts(ctx.User, pagedTwts)
+		ctx.Twts = pagedTwts
 		ctx.Pager = &pager
+
+		ctx.TimelineUpdatedAt = s.timelineUpdatedAt(ctx.User)
+		if len(ctx.Twts) > 0 {
+			ctx.DiscoverUpdatedAt = ctx.Twts[0].Created()
+		}
+		ctx.LastMentionedAt = s.lastMentionedAt(ctx.User)
 
 		s.render("timeline", w, ctx)
 	}
@@ -784,9 +834,7 @@ func (s *Server) MentionsHandler() httprouter.Handle {
 		ctx := NewContext(s.config, s.db, r)
 		ctx.Translate(s.translator)
 
-		twts := s.cache.GetMentions(ctx.User)
-		sort.Sort(twts)
-
+		twts := s.getMentionedTwts(ctx.User)
 		var pagedTwts types.Twts
 
 		page := SafeParseInt(r.FormValue("p"), 1)
@@ -801,9 +849,25 @@ func (s *Server) MentionsHandler() httprouter.Handle {
 		}
 
 		ctx.Title = s.tr(ctx, "PageMentionsTitle")
-		ctx.Twts = FilterTwts(ctx.User, pagedTwts)
+		ctx.Twts = pagedTwts
 		ctx.Pager = &pager
+
+		ctx.TimelineUpdatedAt = s.timelineUpdatedAt(ctx.User)
+		ctx.DiscoverUpdatedAt = s.discoverUpdatedAt(ctx.User, FilterOutFeedsAndBotsFactory(s.config))
+		if len(ctx.Twts) > 0 {
+			ctx.LastMentionedAt = ctx.Twts[0].Created()
+		}
+
 		s.render("timeline", w, ctx)
+	}
+}
+
+// WebMentionHandler ...
+func (s *Server) WebMentionHandler() httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		r.Body = http.MaxBytesReader(w, r.Body, 1024)
+		defer r.Body.Close()
+		webmentions.WebMentionEndpoint(w, r)
 	}
 }
 

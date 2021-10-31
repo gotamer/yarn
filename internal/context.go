@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"net/http"
 	"strings"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/vcraescu/go-paginator"
@@ -93,6 +94,11 @@ type Context struct {
 	UserFeeds   []*Feed
 	FeedSources FeedSourceMap
 	Pager       *paginator.Paginator
+
+	// Time
+	TimelineUpdatedAt time.Time
+	DiscoverUpdatedAt time.Time
+	LastMentionedAt   time.Time
 
 	// Search
 	SearchQuery string
