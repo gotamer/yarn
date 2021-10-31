@@ -12,7 +12,7 @@ import (
 // MuteHandler ...
 func (s *Server) MuteHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s.config, s.db, r)
+		ctx := NewContext(s, r)
 
 		nick := strings.TrimSpace(r.FormValue("nick"))
 		url := NormalizeURL(r.FormValue("url"))
@@ -49,7 +49,7 @@ func (s *Server) MuteHandler() httprouter.Handle {
 // UnmuteHandler ...
 func (s *Server) UnmuteHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s.config, s.db, r)
+		ctx := NewContext(s, r)
 
 		nick := strings.TrimSpace(r.FormValue("nick"))
 
