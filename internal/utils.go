@@ -813,9 +813,7 @@ func ProcessImage(conf *Config, ifn string, resource, name string, opts *ImageOp
 		return "", err
 	}
 
-	g := gift.New(
-		gift.UnsharpMask(1, 1, 0),
-	)
+	g := gift.New()
 
 	if opts != nil && opts.Resize {
 		if opts.Width > 0 && opts.Height > 0 {
