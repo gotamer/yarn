@@ -378,7 +378,8 @@ type TwtFile interface {
 }
 
 type Info interface {
-	Followers() []Twter
+	Following() []Twter
+	FollowMap() map[string]Twter
 
 	KV
 }

@@ -1475,6 +1475,121 @@ func (s *Server) ExternalHandler() httprouter.Handle {
 	}
 }
 
+// ExternalFollowingHandler ...
+func (s *Server) ExternalFollowingHandler() httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		ctx := NewContext(s.config, s.db, r)
+		ctx.Translate(s.translator)
+
+		uri := r.URL.Query().Get("uri")
+		nick := r.URL.Query().Get("nick")
+
+		if uri == "" {
+			ctx.Error = true
+			ctx.Message = s.tr(ctx, "ErrorNoExternalFeed")
+			s.render("error", w, ctx)
+			return
+		}
+
+		if nick == "" {
+			log.Warn("no nick given to external profile request")
+		}
+
+		if !s.cache.IsCached(uri) {
+			sources := make(types.Feeds)
+			sources[types.Feed{Nick: nick, URL: uri}] = true
+			s.cache.FetchTwts(s.config, s.archive, sources, nil)
+		}
+
+		twts := s.cache.GetByURL(uri)
+
+		if len(twts) > 0 {
+			ctx.Twter = twts[0].Twter()
+		} else {
+			ctx.Twter = types.Twter{Nick: nick, URL: uri}
+		}
+
+		if ctx.Twter.Avatar == "" {
+			avatar := GetExternalAvatar(s.config, ctx.Twter)
+			if avatar != "" {
+				ctx.Twter.Avatar = URLForExternalAvatar(s.config, uri)
+			}
+		}
+
+		// If no &nick= provided try to guess a suitable nick
+		// from the feed or some heuristics from the feed's URI
+		// (borrowed from Yarns)
+		if nick == "" {
+			if ctx.Twter.Nick != "" {
+				nick = ctx.Twter.Nick
+			} else {
+				// TODO: Move this logic into types/lextwt and types/retwt
+				if u, err := url.Parse(uri); err == nil {
+					if strings.HasSuffix(u.Path, "/twtxt.txt") {
+						if rest := strings.TrimSuffix(u.Path, "/twtxt.txt"); rest != "" {
+							nick = strings.Trim(rest, "/")
+						} else {
+							nick = u.Hostname()
+						}
+					} else if strings.HasSuffix(u.Path, ".txt") {
+						base := filepath.Base(u.Path)
+						if name := strings.TrimSuffix(base, filepath.Ext(base)); name != "" {
+							nick = name
+						} else {
+							nick = u.Hostname()
+						}
+					} else {
+						nick = Slugify(uri)
+					}
+				}
+			}
+		}
+
+		following := make(map[string]string)
+		for followingNick, followingTwter := range ctx.Twter.Follow {
+			following[followingNick] = followingTwter.URL
+		}
+
+		ctx.Profile = types.Profile{
+			Type: "External",
+
+			Username: nick,
+			Tagline:  ctx.Twter.Tagline,
+			Avatar:   URLForExternalAvatar(s.config, uri),
+			URL:      uri,
+
+			Following:  following,
+			NFollowing: ctx.Twter.Following,
+			NFollowers: ctx.Twter.Followers,
+
+			ShowFollowing: true,
+			ShowFollowers: true,
+
+			Follows:    ctx.User.Follows(uri),
+			FollowedBy: ctx.User.FollowedBy(uri),
+			Muted:      ctx.User.HasMuted(uri),
+		}
+
+		if r.Header.Get("Accept") == "application/json" {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+
+			if err := json.NewEncoder(w).Encode(ctx.Profile.Following); err != nil {
+				log.WithError(err).Error("error encoding user for display")
+				http.Error(w, "Bad Request", http.StatusBadRequest)
+			}
+
+			return
+		}
+
+		trdata := map[string]interface{}{}
+		trdata["Nick"] = nick
+		trdata["URL"] = uri
+		ctx.Title = s.tr(ctx, "PageExternalFollowingTitle", trdata)
+		s.render("externalFollowing", w, ctx)
+	}
+}
+
 // ExternalAvatarHandler ...
 func (s *Server) ExternalAvatarHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {

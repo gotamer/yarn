@@ -105,7 +105,22 @@ func (lis Comments) GetAll(prefix string) []types.Value {
 	return nlis
 }
 
-func (lis Comments) Followers() []types.Twter {
+func (lis Comments) FollowMap() map[string]types.Twter {
+	flis := lis.GetAll("follow")
+	nmap := make(map[string]types.Twter)
+
+	for _, o := range flis {
+		sp := strings.Fields(o.Value())
+		if len(sp) < 2 {
+			continue
+		}
+		nmap[sp[0]] = types.Twter{Nick: sp[0], URL: sp[1]}
+	}
+
+	return nmap
+}
+
+func (lis Comments) Following() []types.Twter {
 	flis := lis.GetAll("follow")
 	nlis := make([]types.Twter, 0, len(flis))
 

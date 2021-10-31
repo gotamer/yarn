@@ -92,8 +92,8 @@ func doStats(r io.Reader) {
 		fmt.Printf("  %s = %s\n", c.Key(), c.Value())
 	}
 
-	fmt.Println("followers:")
-	for _, c := range tf.Info().Followers() {
+	fmt.Println("following:")
+	for _, c := range tf.Info().Following() {
 		fmt.Printf("  % -30s = %s\n", c.Nick, c.URL)
 	}
 
@@ -105,7 +105,7 @@ func doStats(r io.Reader) {
 	fmt.Println(getTags(tf.Twts().Tags()))
 
 	fmt.Println("mentions: ", len(tf.Twts().Mentions()))
-	fmt.Println(getMentions(tf.Twts(), tf.Info().Followers()))
+	fmt.Println(getMentions(tf.Twts(), tf.Info().Following()))
 
 	fmt.Println("subjects: ", len(tf.Twts().Subjects()))
 	var subjects stats

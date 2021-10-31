@@ -553,6 +553,7 @@ func (s *Server) initRoutes() {
 
 	// External Feeds
 	s.router.GET("/external", s.ExternalHandler())
+	s.router.GET("/externalFollowing", s.ExternalFollowingHandler())
 	s.router.GET("/externalAvatar", s.ExternalAvatarHandler())
 	s.router.HEAD("/externalAvatar", s.ExternalAvatarHandler())
 
