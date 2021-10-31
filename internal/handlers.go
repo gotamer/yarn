@@ -773,8 +773,6 @@ func (s *Server) TimelineHandler() httprouter.Handle {
 		if len(ctx.Twts) > 0 {
 			ctx.TimelineUpdatedAt = ctx.Twts[0].Created()
 		}
-		ctx.DiscoverUpdatedAt = s.discoverUpdatedAt(ctx.User, FilterOutFeedsAndBotsFactory(s.config))
-		ctx.LastMentionedAt = s.lastMentionedAt(ctx.User)
 
 		s.render("timeline", w, ctx)
 	}
@@ -818,11 +816,9 @@ func (s *Server) DiscoverHandler() httprouter.Handle {
 		ctx.Twts = pagedTwts
 		ctx.Pager = &pager
 
-		ctx.TimelineUpdatedAt = s.timelineUpdatedAt(ctx.User)
 		if len(ctx.Twts) > 0 {
 			ctx.DiscoverUpdatedAt = ctx.Twts[0].Created()
 		}
-		ctx.LastMentionedAt = s.lastMentionedAt(ctx.User)
 
 		s.render("timeline", w, ctx)
 	}
@@ -852,8 +848,6 @@ func (s *Server) MentionsHandler() httprouter.Handle {
 		ctx.Twts = pagedTwts
 		ctx.Pager = &pager
 
-		ctx.TimelineUpdatedAt = s.timelineUpdatedAt(ctx.User)
-		ctx.DiscoverUpdatedAt = s.discoverUpdatedAt(ctx.User, FilterOutFeedsAndBotsFactory(s.config))
 		if len(ctx.Twts) > 0 {
 			ctx.LastMentionedAt = ctx.Twts[0].Created()
 		}
