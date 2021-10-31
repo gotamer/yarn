@@ -1,5 +1,7 @@
 package types
 
+import "time"
+
 // Profile represents a user/feed profile
 type Profile struct {
 	Type string
@@ -24,6 +26,9 @@ type Profile struct {
 
 	// `true` if user/feed follows the User viewing the Profile.
 	FollowedBy bool
+
+	// Timestamp of the profile's last Twt
+	LastPostedAt time.Time
 
 	Bookmarks map[string]string
 	Followers map[string]string

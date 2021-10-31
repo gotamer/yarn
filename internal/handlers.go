@@ -267,6 +267,10 @@ func (s *Server) ProfileHandler() httprouter.Handle {
 
 		twts := s.cache.GetByURL(profile.URL)
 
+		if len(twts) > 0 {
+			profile.LastPostedAt = twts[0].Created()
+		}
+
 		var pagedTwts types.Twts
 
 		page := SafeParseInt(r.FormValue("p"), 1)
@@ -1525,6 +1529,10 @@ func (s *Server) ExternalHandler() httprouter.Handle {
 			Muted:      ctx.User.HasMuted(uri),
 		}
 
+		if len(twts) > 0 {
+			ctx.Profile.LastPostedAt = twts[0].Created()
+		}
+
 		trdata := map[string]interface{}{}
 		trdata["Nick"] = nick
 		trdata["URL"] = uri
@@ -1626,6 +1634,10 @@ func (s *Server) ExternalFollowingHandler() httprouter.Handle {
 			Follows:    ctx.User.Follows(uri),
 			FollowedBy: ctx.User.FollowedBy(uri),
 			Muted:      ctx.User.HasMuted(uri),
+		}
+
+		if len(twts) > 0 {
+			ctx.Profile.LastPostedAt = twts[0].Created()
 		}
 
 		if r.Header.Get("Accept") == "application/json" {
