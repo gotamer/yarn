@@ -387,11 +387,22 @@ func (a *API) PostEndpoint() httprouter.Handle {
 			return
 		}
 
+		var sources types.Feeds
+
 		switch req.PostAs {
 		case "", me:
+			sources = user.Sources()
 			_, err = AppendTwt(a.config, a.db, user, text)
 		default:
 			if user.OwnsFeed(req.PostAs) {
+				if feed, err := a.db.GetFeed(req.PostAs); err == nil {
+					sources = feed.Source()
+				} else {
+					log.WithError(err).Error("error posting twt")
+					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+					return
+				}
+
 				_, err = AppendSpecial(a.config, a.db, req.PostAs, text)
 			} else {
 				err = ErrFeedImposter
@@ -409,7 +420,7 @@ func (a *API) PostEndpoint() httprouter.Handle {
 		}
 
 		// Update user's own timeline with their own new post.
-		a.cache.FetchTwts(a.config, a.archive, user.Source(), nil)
+		a.cache.FetchTwts(a.config, a.archive, sources, nil)
 
 		// Re-populate/Warm cache with local twts for this pod
 		a.cache.GetByPrefix(a.config.BaseURL, true)

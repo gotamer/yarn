@@ -596,10 +596,13 @@ func (s *Server) PostHandler() httprouter.Handle {
 			return
 		}
 
+		var sources types.Feeds
 		var twt types.Twt = types.NilTwt
 
 		switch postas {
 		case "", user.Username:
+			sources = user.Sources()
+
 			if hash != "" && lastTwt.Hash() == hash {
 				twt, err = AppendTwt(s.config, s.db, user, text, lastTwt.Created())
 			} else {
@@ -607,6 +610,16 @@ func (s *Server) PostHandler() httprouter.Handle {
 			}
 		default:
 			if user.OwnsFeed(postas) {
+				if feed, err := s.db.GetFeed(postas); err == nil {
+					sources = feed.Source()
+				} else {
+					log.WithError(err).Error("error loading feed object")
+					ctx.Error = true
+					ctx.Message = s.tr(ctx, "ErrorPostingTwt")
+					s.render("error", w, ctx)
+					return
+				}
+
 				if hash != "" && lastTwt.Hash() == hash {
 					twt, err = AppendSpecial(s.config, s.db, postas, text, lastTwt.Created)
 				} else {
@@ -626,7 +639,7 @@ func (s *Server) PostHandler() httprouter.Handle {
 		}
 
 		// Update user's own timeline with their own new post.
-		s.cache.FetchTwts(s.config, s.archive, user.Source(), nil)
+		s.cache.FetchTwts(s.config, s.archive, sources, nil)
 
 		// Re-populate/Warm cache with local twts for this pod
 		s.cache.GetByPrefix(s.config.BaseURL, true)
