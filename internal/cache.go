@@ -175,8 +175,6 @@ func LoadCache(conf *Config) (*Cache, error) {
 	return cache, nil
 }
 
-const maxfetchers = 50
-
 // FetchTwts ...
 func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds, publicFollowers map[types.Feed][]string) {
 	stime := time.Now()
@@ -197,7 +195,7 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 
 	var wg sync.WaitGroup
 	// max parallel http fetchers
-	var fetchers = make(chan struct{}, maxfetchers)
+	var fetchers = make(chan struct{}, conf.MaxCacheFetchers)
 
 	metrics.Gauge("cache", "sources").Set(float64(len(feeds)))
 

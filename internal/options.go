@@ -3,6 +3,7 @@ package internal
 import (
 	"net/url"
 	"regexp"
+	"runtime"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -156,6 +157,12 @@ var (
 		`reactiongifs\.com`,
 		`githubusercontent\.com`,
 	}
+
+	// DefaultMaxCacheFetchers is the default maximun number of fetchers used
+	// by the global feed cache during update cycles. This controls how quickly
+	// feeds are updated in each feed cache cycle. The default is the number of
+	// available CPUs on the system.
+	DefaultMaxCacheFetchers = runtime.NumCPU()
 )
 
 func NewConfig() *Config {
@@ -361,6 +368,14 @@ func WithFetchInterval(fetchInterval string) Option {
 			return err
 		}
 		cfg.FetchInterval = d
+		return nil
+	}
+}
+
+// WithMaxCacheFetchers sets the maximum number of fetchers for the feed cache
+func WithMaxCacheFetchers(maxCacheFetchers int) Option {
+	return func(cfg *Config) error {
+		cfg.MaxCacheFetchers = maxCacheFetchers
 		return nil
 	}
 }

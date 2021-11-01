@@ -71,13 +71,14 @@ var (
 	disableFfmpeg     bool
 
 	// Pod Limits
-	twtsPerPage   int
-	maxTwtLength  int
-	maxUploadSize int64
-	maxFetchLimit int64
-	maxCacheTTL   time.Duration
-	fetchInterval string
-	maxCacheItems int
+	twtsPerPage      int
+	maxTwtLength     int
+	maxUploadSize    int64
+	maxFetchLimit    int64
+	maxCacheFetchers int
+	maxCacheTTL      time.Duration
+	fetchInterval    string
+	maxCacheItems    int
 
 	// Pod Secrets
 	apiSigningKey   string
@@ -166,6 +167,10 @@ func init() {
 	flag.DurationVarP(
 		&maxCacheTTL, "max-cache-ttl", "C", internal.DefaultMaxCacheTTL,
 		"maximum cache ttl (time-to-live) of cached twts in memory",
+	)
+	flag.IntVarP(
+		&maxCacheFetchers, "max-cache-fetchers", "", internal.DefaultMaxCacheFetchers,
+		"set maximum numnber of fetchers to use for feed cache updates",
 	)
 	flag.StringVarP(
 		&fetchInterval, "fetch-interval", "", internal.DefaultFetchInterval,
@@ -309,6 +314,7 @@ func main() {
 		internal.WithMaxTwtLength(maxTwtLength),
 		internal.WithMaxUploadSize(maxUploadSize),
 		internal.WithMaxFetchLimit(maxFetchLimit),
+		internal.WithMaxCacheFetchers(maxCacheFetchers),
 		internal.WithMaxCacheTTL(maxCacheTTL),
 		internal.WithFetchInterval(fetchInterval),
 		internal.WithMaxCacheItems(maxCacheItems),

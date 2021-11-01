@@ -110,7 +110,8 @@ type Config struct {
 	SMTPPass string
 	SMTPFrom string
 
-	MaxFetchLimit int64
+	MaxCacheFetchers int
+	MaxFetchLimit    int64
 
 	APISessionTime time.Duration
 	APISigningKey  string
