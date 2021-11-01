@@ -85,6 +85,28 @@ type Server struct {
 }
 
 func (s *Server) render(name string, w http.ResponseWriter, ctx *Context) {
+	//
+	// Update timeline view(s) UpdatedAt timestamps
+	//
+	// TODO: Refactor Context/Render to have pre/post hooks?
+
+	if ctx.User.IsZero() {
+		if ctx.DiscoverUpdatedAt.IsZero() {
+			ctx.DiscoverUpdatedAt = s.discoverUpdatedAt(ctx.User, FilterOutFeedsAndBotsFactory(s.config))
+		}
+		ctx.TimelineUpdatedAt = ctx.DiscoverUpdatedAt
+	} else {
+		if ctx.TimelineUpdatedAt.IsZero() {
+			ctx.TimelineUpdatedAt = s.timelineUpdatedAt(ctx.User)
+		}
+		if ctx.DiscoverUpdatedAt.IsZero() {
+			ctx.DiscoverUpdatedAt = s.discoverUpdatedAt(ctx.User, FilterOutFeedsAndBotsFactory(s.config))
+		}
+		if ctx.LastMentionedAt.IsZero() {
+			ctx.LastMentionedAt = s.lastMentionedAt(ctx.User)
+		}
+	}
+
 	buf, err := s.tmplman.Exec(name, ctx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

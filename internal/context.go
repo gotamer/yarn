@@ -224,27 +224,6 @@ func NewContext(s *Server, req *http.Request) *Context {
 		ctx.Lang = lang
 	}
 
-	//
-	// Update timeline view(s) UpdatedAt timestamps
-	//
-
-	if ctx.User.IsZero() {
-		if ctx.DiscoverUpdatedAt.IsZero() {
-			ctx.DiscoverUpdatedAt = s.discoverUpdatedAt(ctx.User, FilterOutFeedsAndBotsFactory(s.config))
-		}
-		ctx.TimelineUpdatedAt = ctx.DiscoverUpdatedAt
-	} else {
-		if ctx.TimelineUpdatedAt.IsZero() {
-			ctx.TimelineUpdatedAt = s.timelineUpdatedAt(ctx.User)
-		}
-		if ctx.DiscoverUpdatedAt.IsZero() {
-			ctx.DiscoverUpdatedAt = s.discoverUpdatedAt(ctx.User, FilterOutFeedsAndBotsFactory(s.config))
-		}
-		if ctx.LastMentionedAt.IsZero() {
-			ctx.LastMentionedAt = s.lastMentionedAt(ctx.User)
-		}
-	}
-
 	return ctx
 }
 
