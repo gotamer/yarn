@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"io"
 	"io/fs"
+	"math"
 	"path/filepath"
 	"strings"
 	text_template "text/template"
@@ -24,6 +25,34 @@ const (
 	baseName         = "base"
 )
 
+var customTimeMagnitudes = []humanize.RelTimeMagnitude{
+	{time.Second, "now", time.Second},
+	{2 * time.Second, "1s %s", 1},
+	{time.Minute, "%ds %s", time.Second},
+	{2 * time.Minute, "1m %s", 1},
+	{time.Hour, "%d mins %s", time.Minute},
+	{2 * time.Hour, "1hr %s", 1},
+	{humanize.Day, "%d hrs %s", time.Hour},
+	{2 * humanize.Day, "1d %s", 1},
+	{humanize.Week, "%d days %s", humanize.Day},
+	{2 * humanize.Week, "1w %s", 1},
+	{humanize.Month, "%d wks %s", humanize.Week},
+	{2 * humanize.Month, "1 month %s", 1},
+	{humanize.Year, "%d months %s", humanize.Month},
+	{18 * humanize.Month, "1yr %s", 1},
+	{2 * humanize.Year, "2 yrs %s", 1},
+	{humanize.LongTime, "%d yrs %s", humanize.Year},
+	{math.MaxInt64, "a long while %s", 1},
+}
+
+func CustomRelTime(a, b time.Time, albl, blbl string) string {
+	return humanize.CustomRelTime(a, b, albl, blbl, customTimeMagnitudes)
+}
+
+func CustomTime(then time.Time) string {
+	return CustomRelTime(then, time.Now(), "ago", "from now")
+}
+
 type TemplateManager struct {
 	sync.RWMutex
 
@@ -38,7 +67,7 @@ func NewTemplateManager(conf *Config, translator *Translator, cache *Cache, arch
 
 	funcMap := sprig.FuncMap()
 
-	funcMap["time"] = humanize.Time
+	funcMap["time"] = CustomTime
 	funcMap["hostnameFromURL"] = HostnameFromURL
 	funcMap["prettyURL"] = PrettyURL
 	funcMap["isLocalURL"] = IsLocalURLFactory(conf)
