@@ -37,8 +37,6 @@ var customTimeMagnitudes = []humanize.RelTimeMagnitude{
 	{humanize.Week, "%d days %s", humanize.Day},
 	{2 * humanize.Week, "1w %s", 1},
 	{humanize.Month, "%d wks %s", humanize.Week},
-	{2 * humanize.Month, "1 month %s", 1},
-	{humanize.Year, "%d months %s", humanize.Month},
 	{18 * humanize.Month, "1yr %s", 1},
 	{2 * humanize.Year, "2 yrs %s", 1},
 	{humanize.LongTime, "%d yrs %s", humanize.Year},
