@@ -4,6 +4,8 @@ import (
 	"net/url"
 	"regexp"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -80,8 +82,9 @@ const (
 	DefaultMaxCacheTTL = time.Hour * 24 * 10 // 10 days 28 days 28 days 28 days
 
 	// DefaultFetchInterval is the default interval used by the global feed cache
-	// to control when to actually fetch and update feeds.
-	DefaultFetchInterval = "@every 5m"
+	// to control when to actually fetch and update feeds. This accepts `time.Duration`
+	// as parsed by `time.ParseDuration()`.
+	DefaultFetchInterval = "5m"
 
 	// DefaultMaxCacheItems is the default maximum cache items (per feed source)
 	// of twts in memory
@@ -178,6 +181,7 @@ func NewConfig() *Config {
 		OpenRegistrations: DefaultOpenRegistrations,
 		DisableGzip:       DefaultDisableGzip,
 		DisableFfmpeg:     DefaultDisableFfmpeg,
+		Features:          NewFeatureFlags(),
 		SessionExpiry:     DefaultSessionExpiry,
 		MagicLinkSecret:   DefaultMagicLinkSecret,
 		SMTPHost:          DefaultSMTPHost,
@@ -348,10 +352,15 @@ func WithMaxCacheTTL(maxCacheTTL time.Duration) Option {
 }
 
 // WithFetchInterval sets the cache fetch interval
-// Uses a cron syntax. See: github.com/robfig/cron
+// Accepts a string as parsed by `time.ParseDuration`
 func WithFetchInterval(fetchInterval string) Option {
 	return func(cfg *Config) error {
-		cfg.FetchInterval = fetchInterval
+		d, err := time.ParseDuration(fetchInterval)
+		if err != nil {
+			log.WithError(err).Errorf("error parsing fetch interval %s", fetchInterval)
+			return err
+		}
+		cfg.FetchInterval = d
 		return nil
 	}
 }

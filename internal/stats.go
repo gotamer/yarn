@@ -6,13 +6,14 @@ import (
 	"time"
 )
 
-// var (
-//   stats *expvar.Map
-// )
+var (
+	stats *expvar.Map
+)
 
-// func init() {
-// 	stats = NewStats("stats")
-// }
+func init() {
+	stats = NewStats("stats")
+	stats.Set("startedAt", expvar.NewString(time.Now().Format(time.RFC3339)))
+}
 
 // TimeVar ...
 type TimeVar struct{ v time.Time }

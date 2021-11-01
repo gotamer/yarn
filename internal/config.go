@@ -90,7 +90,7 @@ type Config struct {
 	MaxUploadSize     int64
 	MaxTwtLength      int
 	MaxCacheTTL       time.Duration
-	FetchInterval     string
+	FetchInterval     time.Duration
 	MaxCacheItems     int
 	MsgsPerPage       int
 	OpenProfiles      bool
@@ -120,7 +120,7 @@ type Config struct {
 	whitelistedDomains []*regexp.Regexp
 	WhitelistedDomains []string
 
-	Features FeatureFlags
+	Features *FeatureFlags
 }
 
 var _ types.FmtOpts = (*Config)(nil)
@@ -181,15 +181,15 @@ func (c *Config) Validate() error {
 	}
 
 	if c.CookieSecret == InvalidConfigValue {
-		return fmt.Errorf("error: COOKIE_SECRET is not configured!")
+		return fmt.Errorf("error: cookie secret is not configured")
 	}
 
 	if c.MagicLinkSecret == InvalidConfigValue {
-		return fmt.Errorf("error: MAGICLINK_SECRET is not configured!")
+		return fmt.Errorf("error: magiclink secret is not configured")
 	}
 
 	if c.APISigningKey == InvalidConfigValue {
-		return fmt.Errorf("error: API_SIGNING_KEY is not configured!")
+		return fmt.Errorf("error: api signing key is not configured")
 	}
 
 	if err := WithWhitelistedDomains(c.WhitelistedDomains)(c); err != nil {

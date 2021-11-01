@@ -3,7 +3,7 @@ module git.mills.io/yarnsocial/yarn
 go 1.16
 
 require (
-	git.mills.io/prologic/bitcask v1.0.1
+	git.mills.io/prologic/bitcask v1.0.2
 	git.mills.io/prologic/go-gopher v0.0.0-20210723054659-c5e856b800b8
 	git.mills.io/prologic/observe v0.0.0-20210712230028-fc31c7aa2bd1
 	git.mills.io/prologic/read-file-last-line v0.0.0-20210710073401-af293d63a6d0
@@ -79,7 +79,7 @@ require (
 	golang.org/x/exp v0.0.0-20211029182501-9b944d235b9d // indirect
 	golang.org/x/image v0.0.0-20211028202545-6944b10bf410 // indirect
 	golang.org/x/net v0.0.0-20211029224645-99673261e6eb
-	golang.org/x/sys v0.0.0-20211030160813-b3129d9d1021 // indirect
+	golang.org/x/sys v0.0.0-20211031064116-611d5d643895 // indirect
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
 	golang.org/x/text v0.3.7
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect

@@ -665,7 +665,7 @@ func NewServer(bind string, options ...Option) (*Server, error) {
 		return nil, fmt.Errorf("error validating config: %w", err)
 	}
 
-	cache, err := LoadCache(config.Data)
+	cache, err := LoadCache(config)
 	if err != nil {
 		log.WithError(err).Error("error loading feed cache")
 		return nil, err
@@ -833,7 +833,7 @@ func NewServer(bind string, options ...Option) (*Server, error) {
 	log.Infof("Max Fetch Limit: %s", humanize.Bytes(uint64(server.config.MaxFetchLimit)))
 	log.Infof("Max Upload Size: %s", humanize.Bytes(uint64(server.config.MaxUploadSize)))
 	log.Infof("API Session Time: %s", server.config.APISessionTime)
-	log.Infof("Enabled Featgures: %s", server.config.Features)
+	log.Infof("Enabled Features: %s", server.config.Features)
 
 	// Warn about user registration being disabled.
 	if !server.config.OpenRegistrations {

@@ -50,7 +50,7 @@ type User struct {
 
 	Theme                      string `default:"auto"`
 	Lang                       string `default:""`
-	Recovery                   string `default:""""`
+	Recovery                   string `default:""`
 	AvatarHash                 string `defaulf:""`
 	DisplayDatesInTimezone     string `default:"UTC"`
 	IsFollowersPubliclyVisible bool   `default:"true"`
@@ -354,6 +354,10 @@ func (u *User) AddToken(token *Token) {
 	if !u.HasToken(token.Signature) {
 		u.Tokens = append(u.Tokens, token.Signature)
 	}
+}
+
+func (u *User) IsZero() bool {
+	return u.Username == ""
 }
 
 // HasToken will compare a token value with stored tokens

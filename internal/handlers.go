@@ -14,7 +14,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"sort"
 	"strings"
 	"time"
 
@@ -546,6 +545,9 @@ func (s *Server) PostHandler() httprouter.Handle {
 			// Update user's own timeline with their own new post.
 			s.cache.FetchTwts(s.config, s.archive, ctx.User.Source(), nil)
 
+			// Re-populate/Warm cache for User
+			s.cache.GetByUser(ctx.User, true)
+
 			// Re-populate/Warm cache with local twts for this pod
 			s.cache.GetByPrefix(s.config.BaseURL, true)
 
@@ -645,6 +647,9 @@ func (s *Server) PostHandler() httprouter.Handle {
 		// Update user's own timeline with their own new post.
 		s.cache.FetchTwts(s.config, s.archive, sources, nil)
 
+		// Re-populate/Warm cache for User
+		s.cache.GetByUser(ctx.User, true)
+
 		// Re-populate/Warm cache with local twts for this pod
 		s.cache.GetByPrefix(s.config.BaseURL, true)
 
@@ -669,13 +674,7 @@ func (s *Server) PostHandler() httprouter.Handle {
 }
 
 func (s *Server) getTimelineTwts(user *User) types.Twts {
-	var twts types.Twts
-
-	for feed := range user.Sources() {
-		twts = append(twts, s.cache.GetByURL(feed.URL)...)
-	}
-	sort.Sort(twts)
-
+	twts := s.cache.GetByUser(user, false)
 	return FilterTwts(user, twts)
 }
 
@@ -685,9 +684,7 @@ func (s *Server) getDiscoverTwts(user *User, filter FilterFunc) types.Twts {
 }
 
 func (s *Server) getMentionedTwts(user *User) types.Twts {
-	twts := s.cache.GetMentions(user)
-	sort.Sort(twts)
-
+	twts := s.cache.GetMentions(user, false)
 	return FilterTwts(user, twts)
 }
 
@@ -1847,7 +1844,7 @@ func (s *Server) NewPasswordHandler() httprouter.Handle {
 		token, err := jwt.Parse(tokenEmail, func(token *jwt.Token) (interface{}, error) {
 
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 			}
 
 			return []byte(s.config.MagicLinkSecret), nil
@@ -2236,7 +2233,7 @@ func (s *Server) DeleteAllHandler() httprouter.Handle {
 				}
 
 				// Delete feed from cache
-				s.cache.Delete(feed.Source())
+				s.cache.DeleteFeeds(feed.Source())
 			}
 		}
 
@@ -2304,7 +2301,7 @@ func (s *Server) DeleteAllHandler() httprouter.Handle {
 		}
 
 		// Delete user's feed from cache
-		s.cache.Delete(ctx.User.Source())
+		s.cache.DeleteFeeds(ctx.User.Source())
 
 		// Re-populate/Warm cache with local twts for this pod
 		s.cache.GetByPrefix(s.config.BaseURL, true)

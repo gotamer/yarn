@@ -26,21 +26,21 @@ const (
 )
 
 var customTimeMagnitudes = []humanize.RelTimeMagnitude{
-	{time.Second, "now", time.Second},
-	{2 * time.Second, "1s %s", 1},
-	{time.Minute, "%ds %s", time.Second},
-	{2 * time.Minute, "1m %s", 1},
-	{time.Hour, "%d mins %s", time.Minute},
-	{2 * time.Hour, "1hr %s", 1},
-	{humanize.Day, "%d hrs %s", time.Hour},
-	{2 * humanize.Day, "1d %s", 1},
-	{humanize.Week, "%d days %s", humanize.Day},
-	{2 * humanize.Week, "1w %s", 1},
-	{humanize.Month, "%d wks %s", humanize.Week},
-	{18 * humanize.Month, "1yr %s", 1},
-	{2 * humanize.Year, "2 yrs %s", 1},
-	{humanize.LongTime, "%d yrs %s", humanize.Year},
-	{math.MaxInt64, "a long while %s", 1},
+	{D: time.Second, Format: "now", DivBy: time.Second},
+	{D: 2 * time.Second, Format: "1s %s", DivBy: 1},
+	{D: time.Minute, Format: "%ds %s", DivBy: time.Second},
+	{D: 2 * time.Minute, Format: "1m %s", DivBy: 1},
+	{D: time.Hour, Format: "%d mins %s", DivBy: time.Minute},
+	{D: 2 * time.Hour, Format: "1hr %s", DivBy: 1},
+	{D: humanize.Day, Format: "%d hrs %s", DivBy: time.Hour},
+	{D: 2 * humanize.Day, Format: "1d %s", DivBy: 1},
+	{D: humanize.Week, Format: "%d days %s", DivBy: humanize.Day},
+	{D: 2 * humanize.Week, Format: "1w %s", DivBy: 1},
+	{D: humanize.Month, Format: "%d wks %s", DivBy: humanize.Week},
+	{D: 18 * humanize.Month, Format: "1yr %s", DivBy: 1},
+	{D: 2 * humanize.Year, Format: "2 yrs %s", DivBy: 1},
+	{D: humanize.LongTime, Format: "%d yrs %s", DivBy: humanize.Year},
+	{D: math.MaxInt64, Format: "a long while %s", DivBy: 1},
 }
 
 func CustomRelTime(a, b time.Time, albl, blbl string) string {

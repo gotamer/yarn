@@ -127,7 +127,7 @@ func (a *API) CreateToken(user *User, r *http.Request) (*Token, error) {
 
 func (a *API) jwtKeyFunc(token *jwt.Token) (interface{}, error) {
 	if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-		return nil, fmt.Errorf("There was an error")
+		return nil, fmt.Errorf("there was an error")
 	}
 	return []byte(a.config.APISigningKey), nil
 }
@@ -422,6 +422,9 @@ func (a *API) PostEndpoint() httprouter.Handle {
 		// Update user's own timeline with their own new post.
 		a.cache.FetchTwts(a.config, a.archive, sources, nil)
 
+		// Re-populate/Warm cache for User
+		a.cache.GetByUser(user, true)
+
 		// Re-populate/Warm cache with local twts for this pod
 		a.cache.GetByPrefix(a.config.BaseURL, true)
 
@@ -443,13 +446,7 @@ func (a *API) TimelineEndpoint() httprouter.Handle {
 			return
 		}
 
-		var twts types.Twts
-
-		for feed := range user.Sources() {
-			twts = append(twts, a.cache.GetByURL(feed.URL)...)
-		}
-
-		sort.Sort(twts)
+		twts := FilterTwts(user, a.cache.GetByUser(user, false))
 
 		var pagedTwts types.Twts
 
@@ -463,7 +460,7 @@ func (a *API) TimelineEndpoint() httprouter.Handle {
 		}
 
 		res := types.PagedResponse{
-			Twts: FilterTwts(user, pagedTwts),
+			Twts: pagedTwts,
 			Pager: types.PagerResponse{
 				Current:   pager.Page(),
 				MaxPages:  pager.PageNums(),
@@ -541,7 +538,7 @@ func (a *API) MentionsEndpoint() httprouter.Handle {
 
 		user := r.Context().Value(UserContextKey).(*User)
 
-		twts := a.cache.GetMentions(user)
+		twts := a.cache.GetMentions(user, false)
 		sort.Sort(twts)
 
 		var pagedTwts types.Twts
@@ -1109,24 +1106,7 @@ func (a *API) ConversationEndpoint() httprouter.Handle {
 			return
 		}
 
-		getTweetsByHash := func(hash string, replyTo types.Twt) types.Twts {
-			var result types.Twts
-			seen := make(map[string]bool)
-			// TODO: Improve this by making this an O(1) lookup on the tag
-			for _, twt := range a.cache.GetAll() {
-				var lis types.TagList = twt.Tags()
-				if HasString(UniqStrings(lis.Tags()), hash) && !seen[twt.Hash()] {
-					result = append(result, twt)
-					seen[twt.Hash()] = true
-				}
-			}
-			if !seen[replyTo.Hash()] {
-				result = append(result, replyTo)
-			}
-			return result
-		}
-
-		twts := getTweetsByHash(hash, twt)
+		twts := a.cache.GetTwtsInConversation(hash, twt)
 		sort.Sort(sort.Reverse(twts))
 
 		var pagedTwts types.Twts

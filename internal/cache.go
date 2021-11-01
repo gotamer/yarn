@@ -12,18 +12,16 @@ import (
 	"strings"
 	"time"
 
-	sync "github.com/sasha-s/go-deadlock"
-
-	"github.com/dustin/go-humanize"
-	log "github.com/sirupsen/logrus"
-
 	"git.mills.io/yarnsocial/yarn"
 	"git.mills.io/yarnsocial/yarn/types"
+	"github.com/dustin/go-humanize"
+	sync "github.com/sasha-s/go-deadlock"
+	log "github.com/sirupsen/logrus"
 )
 
 const (
 	feedCacheFile    = "cache"
-	feedCacheVersion = 1 // increase this if breaking changes occur to cache file.
+	feedCacheVersion = 2 // increase this if breaking changes occur to cache file.
 )
 
 // FilterFunc...
@@ -57,7 +55,8 @@ type Cached struct {
 	mu           sync.RWMutex
 	cache        types.TwtMap
 	Twts         types.Twts
-	Lastmodified string
+	UpdatedAt    time.Time
+	LastModified string
 }
 
 // Lookup ...
@@ -84,18 +83,25 @@ func (cached *Cached) Lookup(hash string) (types.Twt, bool) {
 	return types.NilTwt, false
 }
 
-// OldCache ...
-type OldCache map[string]*Cached
+func (cached *Cached) IsStale(cacheUpdatedAt time.Time, cacheUpdateInterval time.Duration) bool {
+	return cacheUpdatedAt.Sub(cached.UpdatedAt) > cacheUpdateInterval
+}
 
 // Cache ...
 type Cache struct {
-	mu      sync.RWMutex
+	mu sync.RWMutex
+
 	Version int
-	Twts    map[string]*Cached
+
+	All  *Cached
+	Twts map[string]*Cached
+
+	UpdatedAt      time.Time
+	UpdateInterval time.Duration
 }
 
 // Store ...
-func (cache *Cache) Store(path string) error {
+func (cache *Cache) Store(conf *Config) error {
 	cache.mu.RLock()
 	defer cache.mu.RUnlock()
 
@@ -108,7 +114,8 @@ func (cache *Cache) Store(path string) error {
 		return err
 	}
 
-	f, err := os.OpenFile(filepath.Join(path, feedCacheFile), os.O_CREATE|os.O_WRONLY, 0666)
+	fn := filepath.Join(conf.Data, feedCacheFile)
+	f, err := os.OpenFile(fn, os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
 		log.WithError(err).Error("error opening cache file for writing")
 		return err
@@ -124,14 +131,16 @@ func (cache *Cache) Store(path string) error {
 }
 
 // LoadCache ...
-func LoadCache(path string) (*Cache, error) {
+func LoadCache(conf *Config) (*Cache, error) {
 	cache := &Cache{
-		Twts: make(map[string]*Cached),
+		Twts:           make(map[string]*Cached),
+		UpdateInterval: conf.FetchInterval,
 	}
 	cache.mu.Lock()
 	defer cache.mu.Unlock()
 
-	f, err := os.Open(filepath.Join(path, feedCacheFile))
+	fn := filepath.Join(conf.Data, feedCacheFile)
+	f, err := os.Open(fn)
 	if err != nil {
 		if !os.IsNotExist(err) {
 			log.WithError(err).Error("error loading cache, cache file found but unreadable")
@@ -148,38 +157,17 @@ func LoadCache(path string) (*Cache, error) {
 		if strings.Contains(err.Error(), "wrong type") {
 			log.WithError(err).Error("error decoding cache. removing corrupt file.")
 			// Remove invalid cache file.
-			os.Remove(filepath.Join(path, feedCacheFile))
+			os.Remove(fn)
 			cache.Version = feedCacheVersion
 			cache.Twts = make(map[string]*Cached)
-
 			return cache, nil
-		}
-
-		log.WithError(err).Error("error decoding cache (trying OldCache)")
-
-		_, _ = f.Seek(0, io.SeekStart)
-		oldcache := make(OldCache)
-		dec := gob.NewDecoder(f)
-		err = dec.Decode(&oldcache)
-		if err != nil {
-			log.WithError(err).Error("error decoding cache. removing corrupt file.")
-			// Remove invalid cache file.
-			os.Remove(filepath.Join(path, feedCacheFile))
-			cache.Version = feedCacheVersion
-			cache.Twts = make(map[string]*Cached)
-
-			return cache, nil
-		}
-		cache.Version = feedCacheVersion
-		for url, cached := range oldcache {
-			cache.Twts[url] = cached
 		}
 	}
 
 	log.Infof("Cache version %d", cache.Version)
 	if cache.Version != feedCacheVersion {
 		log.Errorf("Cache version mismatch. Expect = %d, Got = %d. Removing old cache.", feedCacheVersion, cache.Version)
-		os.Remove(filepath.Join(path, feedCacheFile))
+		os.Remove(fn)
 		cache.Version = feedCacheVersion
 		cache.Twts = make(map[string]*Cached)
 	}
@@ -303,9 +291,9 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 
 				cache.mu.Lock()
 				cache.Twts[feed.URL] = &Cached{
-					cache:        make(map[string]types.Twt),
-					Twts:         twts,
-					Lastmodified: "",
+					cache:     make(map[string]types.Twt),
+					Twts:      twts,
+					UpdatedAt: time.Now().UTC(),
 				}
 				cache.mu.Unlock()
 
@@ -342,8 +330,8 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 
 			cache.mu.RLock()
 			if cached, ok := cache.Twts[feed.URL]; ok {
-				if cached.Lastmodified != "" {
-					headers.Set("If-Modified-Since", cached.Lastmodified)
+				if cached.LastModified != "" {
+					headers.Set("If-Modified-Since", cached.LastModified)
 				}
 			}
 			cache.mu.RUnlock()
@@ -441,7 +429,8 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 				cache.Twts[feed.URL] = &Cached{
 					cache:        make(map[string]types.Twt),
 					Twts:         twts,
-					Lastmodified: lastmodified,
+					UpdatedAt:    time.Now(),
+					LastModified: lastmodified,
 				}
 				cache.mu.Unlock()
 			case http.StatusNotModified: // 304
@@ -465,14 +454,10 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 	for range twtsch {
 	}
 
-	cache.mu.RLock()
-	metrics.Gauge("cache", "feeds").Set(float64(len(cache.Twts)))
-	count := 0
-	for _, cached := range cache.Twts {
-		count += len(cached.Twts)
-	}
-	cache.mu.RUnlock()
-	metrics.Gauge("cache", "twts").Set(float64(count))
+	// Bust and repopulate twts for GetAll()
+	twts := cache.GetAll(true)
+	metrics.Gauge("cache", "feeds").Set(float64(cache.Feeds()))
+	metrics.Gauge("cache", "twts").Set(float64(len(twts)))
 }
 
 // Lookup ...
@@ -489,29 +474,50 @@ func (cache *Cache) Lookup(hash string) (types.Twt, bool) {
 	return types.NilTwt, false
 }
 
-func (cache *Cache) Count() int {
-	var count int
+func (cache *Cache) Feeds() int {
 	cache.mu.RLock()
 	defer cache.mu.RUnlock()
 
-	for _, cached := range cache.Twts {
-		count += len(cached.Twts)
-	}
+	return len(cache.Twts)
+}
 
-	return count
+func (cache *Cache) Count() int {
+	cache.mu.RLock()
+	defer cache.mu.RUnlock()
+	return len(cache.All.Twts)
 }
 
 // GetAll ...
-func (cache *Cache) GetAll() types.Twts {
-	var allTwts types.Twts
+func (cache *Cache) GetAll(refresh bool) types.Twts {
 	cache.mu.RLock()
-	defer cache.mu.RUnlock()
+	cached := cache.All
+	cacheUpdatedAt := cache.UpdatedAt
+	cacheUpdateInterval := cache.UpdateInterval
+	cache.mu.RUnlock()
 
+	if cached != nil && !(refresh || cached.IsStale(cacheUpdatedAt, cacheUpdateInterval)) {
+		return cached.Twts
+	}
+
+	var allTwts types.Twts
+
+	cache.mu.RLock()
 	for _, cached := range cache.Twts {
 		allTwts = append(allTwts, cached.Twts...)
 	}
+	cache.mu.RUnlock()
 
 	sort.Sort(allTwts)
+
+	cache.mu.Lock()
+	cache.UpdatedAt = time.Now()
+	cache.All = &Cached{
+		cache:     make(map[string]types.Twt),
+		Twts:      allTwts,
+		UpdatedAt: time.Now(),
+	}
+	cache.mu.Unlock()
+
 	return allTwts
 }
 
@@ -519,7 +525,7 @@ func (cache *Cache) GetAll() types.Twts {
 func (cache *Cache) FilterBy(f FilterFunc) types.Twts {
 	var filteredtwts types.Twts
 
-	allTwts := cache.GetAll()
+	allTwts := cache.GetAll(false)
 	for _, twt := range allTwts {
 		if f(twt) {
 			filteredtwts = append(filteredtwts, twt)
@@ -530,10 +536,24 @@ func (cache *Cache) FilterBy(f FilterFunc) types.Twts {
 }
 
 // GetMentions ...
-func (cache *Cache) GetMentions(u *User) (twts types.Twts) {
+func (cache *Cache) GetMentions(u *User, refresh bool) types.Twts {
+	key := fmt.Sprintf("mentions:%s", u.Username)
+
+	cache.mu.RLock()
+	cached, ok := cache.Twts[key]
+	cacheUpdatedAt := cache.UpdatedAt
+	cacheUpdateInterval := cache.UpdateInterval
+	cache.mu.RUnlock()
+
+	if ok && !(refresh || cached.IsStale(cacheUpdatedAt, cacheUpdateInterval)) {
+		return cached.Twts
+	}
+
+	var twts types.Twts
+
 	seen := make(map[string]bool)
 
-	allTwts := cache.GetAll()
+	allTwts := cache.GetAll(false)
 
 	// Search for @mentions in the cache against all Twts (local, followed and even external if any)
 	for _, twt := range allTwts {
@@ -545,34 +565,54 @@ func (cache *Cache) GetMentions(u *User) (twts types.Twts) {
 		}
 	}
 
-	return
+	sort.Sort(twts)
+
+	cache.mu.Lock()
+	cache.UpdatedAt = time.Now()
+	cache.Twts[key] = &Cached{
+		cache:     make(map[string]types.Twt),
+		Twts:      twts,
+		UpdatedAt: time.Now(),
+	}
+	cache.mu.Unlock()
+
+	return twts
 }
 
 // GetByPrefix ...
 func (cache *Cache) GetByPrefix(prefix string, refresh bool) types.Twts {
 	key := fmt.Sprintf("prefix:%s", prefix)
-	cache.mu.Lock()
-	defer cache.mu.Unlock()
 
+	cache.mu.RLock()
 	cached, ok := cache.Twts[key]
-	if ok && !refresh {
+	cacheUpdatedAt := cache.UpdatedAt
+	cacheUpdateInterval := cache.UpdateInterval
+	cache.mu.RUnlock()
+
+	if ok && !(refresh || cached.IsStale(cacheUpdatedAt, cacheUpdateInterval)) {
 		return cached.Twts
 	}
 
 	var twts types.Twts
 
+	cache.mu.RLock()
 	for url, cached := range cache.Twts {
 		if strings.HasPrefix(url, prefix) {
 			twts = append(twts, cached.Twts...)
 		}
 	}
+	cache.mu.RUnlock()
 
 	sort.Sort(twts)
+
+	cache.mu.Lock()
+	cache.UpdatedAt = time.Now()
 	cache.Twts[key] = &Cached{
-		cache:        make(map[string]types.Twt),
-		Twts:         twts,
-		Lastmodified: time.Now().Format(time.RFC3339),
+		cache:     make(map[string]types.Twt),
+		Twts:      twts,
+		UpdatedAt: time.Now(),
 	}
+	cache.mu.Unlock()
 
 	return twts
 }
@@ -584,6 +624,40 @@ func (cache *Cache) IsCached(url string) bool {
 
 	_, ok := cache.Twts[url]
 	return ok
+}
+
+// GetByUser ...
+func (cache *Cache) GetByUser(u *User, refresh bool) types.Twts {
+	key := fmt.Sprintf("user:%s", u.Username)
+
+	cache.mu.RLock()
+	cached, ok := cache.Twts[key]
+	cacheUpdatedAt := cache.UpdatedAt
+	cacheUpdateInterval := cache.UpdateInterval
+	cache.mu.RUnlock()
+
+	if ok && !(refresh || cached.IsStale(cacheUpdatedAt, cacheUpdateInterval)) {
+		return cached.Twts
+	}
+
+	var twts types.Twts
+
+	for feed := range u.Sources() {
+		twts = append(twts, cache.GetByURL(feed.URL)...)
+	}
+
+	sort.Sort(twts)
+
+	cache.mu.Lock()
+	cache.UpdatedAt = time.Now()
+	cache.Twts[key] = &Cached{
+		cache:     make(map[string]types.Twt),
+		Twts:      twts,
+		UpdatedAt: time.Now(),
+	}
+	cache.mu.Unlock()
+
+	return twts
 }
 
 // GetByURL ...
@@ -607,10 +681,7 @@ func (cache *Cache) GetTwtsInConversation(hash string, replyTo types.Twt) types.
 func (cache *Cache) GetBySubject(subject string, replyTo types.Twt) types.Twts {
 	var result types.Twts
 
-	// TODO: Improve this by making this an O(1) lookup on the tag
-	// XXX: But maybe this won't matter so much since the active cache
-	//      is held in memory and is usually kept fairly small? 🤷‍♂️
-	allTwts := cache.GetAll()
+	allTwts := cache.GetAll(false)
 
 	seen := make(map[string]bool)
 	for _, twt := range allTwts {
@@ -629,10 +700,7 @@ func (cache *Cache) GetBySubject(subject string, replyTo types.Twt) types.Twts {
 func (cache *Cache) GetByTag(tag string) types.Twts {
 	var result types.Twts
 
-	// TODO: Improve this by making this an O(1) lookup on the tag
-	// XXX: But maybe this won't matter so much since the active cache
-	//      is held in memory and is usually kept fairly small? 🤷‍♂️
-	allTwts := cache.GetAll()
+	allTwts := cache.GetAll(false)
 
 	seen := make(map[string]bool)
 	for _, twt := range allTwts {
@@ -645,12 +713,12 @@ func (cache *Cache) GetByTag(tag string) types.Twts {
 	return result
 }
 
-// Delete ...
-func (cache *Cache) Delete(feeds types.Feeds) {
+// DeleteFeeds ...
+func (cache *Cache) DeleteFeeds(feeds types.Feeds) {
 	cache.mu.Lock()
-	defer cache.mu.Unlock()
-
 	for feed := range feeds {
 		delete(cache.Twts, feed.URL)
 	}
+	cache.mu.Unlock()
+	cache.GetAll(true)
 }

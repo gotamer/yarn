@@ -1704,7 +1704,7 @@ func GetMediaNamesFromText(text string) []string {
 func NewFeedLookup(conf *Config, db Store, user *User) types.FeedLookup {
 	return types.FeedLookupFn(func(alias string) *types.Twter {
 		for followedAs, followedURL := range user.Following {
-			if strings.ToLower(alias) == strings.ToLower(followedAs) {
+			if strings.EqualFold(alias, followedAs) {
 				u, err := url.Parse(followedURL)
 				if err != nil {
 					log.WithError(err).Warnf("error looking up follow alias %s for user %s", alias, user)

@@ -327,7 +327,7 @@ func (s *Server) DelUserHandler() httprouter.Handle {
 				}
 
 				// Delete feed from cache
-				s.cache.Delete(feed.Source())
+				s.cache.DeleteFeeds(feed.Source())
 			}
 		}
 
@@ -395,7 +395,7 @@ func (s *Server) DelUserHandler() httprouter.Handle {
 		}
 
 		// Delete user's feed from cache
-		s.cache.Delete(user.Source())
+		s.cache.DeleteFeeds(user.Source())
 
 		// Re-populate/Warm cache with local twts for this pod
 		s.cache.GetByPrefix(s.config.BaseURL, true)

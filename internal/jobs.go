@@ -26,7 +26,7 @@ var (
 func InitJobs(conf *Config) {
 	Jobs = map[string]JobSpec{
 		"SyncStore":         NewJobSpec("@every 1m", NewSyncStoreJob),
-		"UpdateFeeds":       NewJobSpec(conf.FetchInterval, NewUpdateFeedsJob),
+		"UpdateFeeds":       NewJobSpec(fmt.Sprintf("@every %s", conf.FetchInterval), NewUpdateFeedsJob),
 		"UpdateFeedSources": NewJobSpec("@every 15m", NewUpdateFeedSourcesJob),
 
 		"DeleteOldSessions": NewJobSpec("@hourly", NewDeleteOldSessionsJob),
@@ -202,7 +202,7 @@ func (job *UpdateFeedsJob) Run() {
 	job.cache.GetByPrefix(job.conf.BaseURL, true)
 
 	log.Info("syncing feed cache ", len(job.cache.Twts))
-	if err := job.cache.Store(job.conf.Data); err != nil {
+	if err := job.cache.Store(job.conf); err != nil {
 		log.WithError(err).Warn("error saving feed cache")
 		return
 	}

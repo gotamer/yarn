@@ -70,6 +70,10 @@ type FeatureFlags struct {
 	flags map[FeatureType]bool
 }
 
+func NewFeatureFlags() *FeatureFlags {
+	return &FeatureFlags{flags: make(map[FeatureType]bool)}
+}
+
 func (f *FeatureFlags) reset() {
 	f.flags = make(map[FeatureType]bool)
 }
@@ -81,7 +85,7 @@ func (f *FeatureFlags) Reset() {
 	f.reset()
 }
 
-func (f FeatureFlags) AsStrings() []string {
+func (f *FeatureFlags) AsStrings() []string {
 	var vs []string
 	for flag := range f.flags {
 		vs = append(vs, flag.String())
@@ -89,7 +93,7 @@ func (f FeatureFlags) AsStrings() []string {
 	return vs
 }
 
-func (f FeatureFlags) String() string {
+func (f *FeatureFlags) String() string {
 	return strings.Join(f.AsStrings(), " ")
 }
 
@@ -148,7 +152,7 @@ func (f *FeatureFlags) IsEnabled(feature FeatureType) bool {
 	return f.flags[feature]
 }
 
-func (f FeatureFlags) MarshalJSON() ([]byte, error) {
+func (f *FeatureFlags) MarshalJSON() ([]byte, error) {
 	var vs []FeatureType
 	for flag := range f.flags {
 		vs = append(vs, flag)
@@ -168,7 +172,7 @@ func (f *FeatureFlags) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (f FeatureFlags) MarshalYAML() ([]byte, error) {
+func (f *FeatureFlags) MarshalYAML() ([]byte, error) {
 	var vs []FeatureType
 	for flag := range f.flags {
 		vs = append(vs, flag)
