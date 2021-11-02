@@ -67,6 +67,7 @@ var (
 	openProfiles      bool
 	openRegistrations bool
 	disableGzip       bool
+	disableLogger     bool
 	disableMedia      bool
 	disableFfmpeg     bool
 
@@ -137,6 +138,10 @@ func init() {
 	flag.BoolVar(
 		&disableGzip, "disable-gzip", internal.DefaultDisableGzip,
 		"whether or not to disable Gzip compression",
+	)
+	flag.BoolVar(
+		&disableLogger, "disable-logger", internal.DefaultDisableLogger,
+		"whether or not to disable the Logger (access logs)",
 	)
 	flag.BoolVar(
 		&disableMedia, "disable-media", internal.DefaultDisableMedia,
@@ -306,6 +311,7 @@ func main() {
 		internal.WithOpenProfiles(openProfiles),
 		internal.WithOpenRegistrations(openRegistrations),
 		internal.WithDisableGzip(disableGzip),
+		internal.WithDisableLogger(disableLogger),
 		internal.WithDisableMedia(disableMedia),
 		internal.WithDisableFfmpeg(disableFfmpeg),
 

@@ -768,19 +768,20 @@ func NewServer(bind string, options ...Option) (*Server, error) {
 		handler = gziphandler.GzipHandler(sm.Handler(csrfHandler))
 	}
 
+	if !config.DisableLogger {
+		handler = logger.New(logger.Options{
+			Prefix:               "yarnd",
+			RemoteAddressHeaders: []string{"X-Forwarded-For"},
+		}).Handler(handler)
+	}
+
 	server := &Server{
 		bind:    bind,
 		config:  config,
 		router:  router,
 		tmplman: tmplman,
 
-		server: &http.Server{
-			Addr: bind,
-			Handler: logger.New(logger.Options{
-				Prefix:               "twtxt",
-				RemoteAddressHeaders: []string{"X-Forwarded-For"},
-			}).Handler(handler),
-		},
+		server: &http.Server{Addr: bind, Handler: handler},
 
 		// API
 		api: api,
@@ -846,6 +847,7 @@ func NewServer(bind string, options ...Option) (*Server, error) {
 	log.Infof("Open User Profiles: %t", server.config.OpenProfiles)
 	log.Infof("Open Registrations: %t", server.config.OpenRegistrations)
 	log.Infof("Disable Gzip: %t", server.config.DisableGzip)
+	log.Infof("Disable Logger: %t", server.config.DisableLogger)
 	log.Infof("Disable Media: %t", server.config.DisableMedia)
 	log.Infof("Disable FFMpeg: %t", server.config.DisableFfmpeg)
 	log.Infof("SMTP Host: %s", server.config.SMTPHost)

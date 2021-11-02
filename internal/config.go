@@ -96,6 +96,7 @@ type Config struct {
 	OpenProfiles      bool
 	OpenRegistrations bool
 	DisableGzip       bool
+	DisableLogger     bool
 	DisableMedia      bool
 	DisableFfmpeg     bool
 	SessionExpiry     time.Duration

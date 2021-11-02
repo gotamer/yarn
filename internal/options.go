@@ -61,6 +61,9 @@ const (
 	// DefaultDisableGzip is the default for disabling Gzip compression
 	DefaultDisableGzip = false
 
+	// DefaultDisableLogger is the default for disabling the Logger (access logs)
+	DefaultDisableLogger = false
+
 	// DefaultDisableMedia is the default for disabling Media support
 	DefaultDisableMedia = false
 
@@ -187,6 +190,7 @@ func NewConfig() *Config {
 		OpenProfiles:      DefaultOpenProfiles,
 		OpenRegistrations: DefaultOpenRegistrations,
 		DisableGzip:       DefaultDisableGzip,
+		DisableLogger:     DefaultDisableLogger,
 		DisableFfmpeg:     DefaultDisableFfmpeg,
 		Features:          NewFeatureFlags(),
 		SessionExpiry:     DefaultSessionExpiry,
@@ -306,6 +310,14 @@ func WithOpenRegistrations(openRegistrations bool) Option {
 func WithDisableGzip(disableGzip bool) Option {
 	return func(cfg *Config) error {
 		cfg.DisableGzip = disableGzip
+		return nil
+	}
+}
+
+// WithDisableLogger sets the disable Logger flag
+func WithDisableLogger(disableLogger bool) Option {
+	return func(cfg *Config) error {
+		cfg.DisableLogger = disableLogger
 		return nil
 	}
 }
