@@ -21,8 +21,10 @@ import (
 
 const (
 	feedCacheFile    = "cache"
-	feedCacheVersion = 5 // increase this if breaking changes occur to cache file.
-	discoverViewKey  = "discover"
+	feedCacheVersion = 6 // increase this if breaking changes occur to cache file.
+
+	localViewKey    = "local"
+	discoverViewKey = "discover"
 )
 
 // FilterFunc...
@@ -500,10 +502,17 @@ func (cache *Cache) Refresh() {
 	// Generate some default views...
 	//
 
-	var discoverTwts types.Twts
+	var (
+		localTwts    types.Twts
+		discoverTwts types.Twts
+	)
 
+	isLocalURL := IsLocalURLFactory(cache.conf)
 	filterOutFeedsAndBots := FilterOutFeedsAndBotsFactory(cache.conf)
 	for _, twt := range allTwts {
+		if isLocalURL(twt.Twter().URL) {
+			localTwts = append(localTwts, twt)
+		}
 		if filterOutFeedsAndBots(twt) {
 			discoverTwts = append(discoverTwts, twt)
 		}
@@ -511,6 +520,7 @@ func (cache *Cache) Refresh() {
 
 	cache.mu.Lock()
 	cache.Views = map[string]*Cached{
+		localViewKey:    NewCached(localTwts, ""),
 		discoverViewKey: NewCached(discoverTwts, ""),
 	}
 	cache.All = NewCached(allTwts, "")
@@ -572,37 +582,6 @@ func (cache *Cache) GetMentions(u *User, refresh bool) types.Twts {
 			}
 		}
 	}
-
-	sort.Sort(twts)
-
-	cache.mu.Lock()
-	cache.Views[key] = NewCached(twts, "")
-	cache.mu.Unlock()
-
-	return twts
-}
-
-// GetByPrefix ...
-func (cache *Cache) GetByPrefix(prefix string, refresh bool) types.Twts {
-	key := fmt.Sprintf("prefix:%s", prefix)
-
-	cache.mu.RLock()
-	cached, ok := cache.Views[key]
-	cache.mu.RUnlock()
-
-	if ok && !refresh {
-		return cached.Twts
-	}
-
-	var twts types.Twts
-
-	cache.mu.RLock()
-	for url, cached := range cache.Twts {
-		if strings.HasPrefix(url, prefix) {
-			twts = append(twts, cached.Twts...)
-		}
-	}
-	cache.mu.RUnlock()
 
 	sort.Sort(twts)
 

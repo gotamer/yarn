@@ -198,9 +198,6 @@ func (job *UpdateFeedsJob) Run() {
 	log.Infof("updating %d sources", len(sources))
 	job.cache.FetchTwts(job.conf, job.archive, sources, publicFollowers)
 
-	log.Infof("warming cache with local twts for %s", job.conf.BaseURL)
-	job.cache.GetByPrefix(job.conf.BaseURL, true)
-
 	log.Info("syncing feed cache ", len(job.cache.Twts))
 	if err := job.cache.Store(job.conf); err != nil {
 		log.WithError(err).Warn("error saving feed cache")

@@ -548,9 +548,6 @@ func (s *Server) PostHandler() httprouter.Handle {
 			// Re-populate/Warm cache for User
 			s.cache.GetByUser(ctx.User, true)
 
-			// Re-populate/Warm cache with local twts for this pod
-			s.cache.GetByPrefix(s.config.BaseURL, true)
-
 			if r.Method != http.MethodDelete {
 				return
 			}
@@ -649,9 +646,6 @@ func (s *Server) PostHandler() httprouter.Handle {
 
 		// Re-populate/Warm cache for User
 		s.cache.GetByUser(ctx.User, true)
-
-		// Re-populate/Warm cache with local twts for this pod
-		s.cache.GetByPrefix(s.config.BaseURL, true)
 
 		// WebMentions ...
 		// TODO: Use a queue here instead?
@@ -1976,7 +1970,7 @@ func (s *Server) SyndicationHandler() httprouter.Handle {
 				return
 			}
 		} else {
-			twts = s.cache.GetByPrefix(s.config.BaseURL, false)
+			twts = s.cache.GetByView(localViewKey)
 
 			profile = types.Profile{
 				Type:     "Local",
@@ -2302,9 +2296,6 @@ func (s *Server) DeleteAllHandler() httprouter.Handle {
 
 		// Delete user's feed from cache
 		s.cache.DeleteFeeds(ctx.User.Source())
-
-		// Re-populate/Warm cache with local twts for this pod
-		s.cache.GetByPrefix(s.config.BaseURL, true)
 
 		s.sm.Delete(w, r)
 		ctx.Authenticated = false

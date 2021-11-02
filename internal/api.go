@@ -425,9 +425,6 @@ func (a *API) PostEndpoint() httprouter.Handle {
 		// Re-populate/Warm cache for User
 		a.cache.GetByUser(user, true)
 
-		// Re-populate/Warm cache with local twts for this pod
-		a.cache.GetByPrefix(a.config.BaseURL, true)
-
 		// No real response
 		w.Header().Set("Content-Type", "application/json")
 		_, _ = w.Write([]byte(`{}`))
