@@ -66,7 +66,7 @@ func FeaturesFromStrings(xs []string) ([]FeatureType, error) {
 // FeatureFlags describes a set of Pods optional Features
 // and whether they are enabled or disabled
 type FeatureFlags struct {
-	sync.RWMutex
+	mu    sync.RWMutex
 	flags map[FeatureType]bool
 }
 
@@ -79,8 +79,8 @@ func (f *FeatureFlags) reset() {
 }
 
 func (f *FeatureFlags) Reset() {
-	f.Lock()
-	defer f.Unlock()
+	f.mu.Lock()
+	defer f.mu.Unlock()
 
 	f.reset()
 }
@@ -98,8 +98,8 @@ func (f *FeatureFlags) String() string {
 }
 
 func (f *FeatureFlags) Disable(feature FeatureType) {
-	f.Lock()
-	defer f.Unlock()
+	f.mu.Lock()
+	defer f.mu.Unlock()
 
 	if f.flags == nil {
 		f.reset()
@@ -109,8 +109,8 @@ func (f *FeatureFlags) Disable(feature FeatureType) {
 }
 
 func (f *FeatureFlags) DisableAll(features []FeatureType) {
-	f.Lock()
-	defer f.Unlock()
+	f.mu.Lock()
+	defer f.mu.Unlock()
 
 	if f.flags == nil {
 		f.reset()
@@ -122,8 +122,8 @@ func (f *FeatureFlags) DisableAll(features []FeatureType) {
 }
 
 func (f *FeatureFlags) Enable(feature FeatureType) {
-	f.Lock()
-	defer f.Unlock()
+	f.mu.Lock()
+	defer f.mu.Unlock()
 
 	if f.flags == nil {
 		f.reset()
@@ -133,8 +133,8 @@ func (f *FeatureFlags) Enable(feature FeatureType) {
 }
 
 func (f *FeatureFlags) EnableAll(features []FeatureType) {
-	f.Lock()
-	defer f.Unlock()
+	f.mu.Lock()
+	defer f.mu.Unlock()
 
 	if f.flags == nil {
 		f.reset()
@@ -146,8 +146,8 @@ func (f *FeatureFlags) EnableAll(features []FeatureType) {
 }
 
 func (f *FeatureFlags) IsEnabled(feature FeatureType) bool {
-	f.RLock()
-	defer f.RUnlock()
+	f.mu.RLock()
+	defer f.mu.RUnlock()
 
 	return f.flags[feature]
 }
