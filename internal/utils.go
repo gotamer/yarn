@@ -1593,10 +1593,11 @@ func FormatTwtFactory(conf *Config) func(twt types.Twt) template.HTML {
 			return ast.GoToNext, false
 		}
 
-		extensions := parser.CommonExtensions | parser.HardLineBreak | parser.NoEmptyLineBeforeBlock
+		extensions := parser.NoIntraEmphasis | parser.FencedCode |
+			parser.Autolink | parser.Strikethrough | parser.SpaceHeadings
 		mdParser := parser.NewWithExtensions(extensions)
 
-		htmlFlags := html.CommonFlags
+		htmlFlags := html.Smartypants | html.SmartypantsDashes | html.SmartypantsLatexDashes
 		opts := html.RendererOptions{
 			Flags:          htmlFlags,
 			Generator:      "",
