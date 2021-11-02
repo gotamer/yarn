@@ -53,6 +53,7 @@ type User struct {
 	Recovery                   string `default:""`
 	AvatarHash                 string `defaulf:""`
 	DisplayDatesInTimezone     string `default:"UTC"`
+	DisplayTimePreference      string `default:""`
 	IsFollowersPubliclyVisible bool   `default:"true"`
 	IsFollowingPubliclyVisible bool   `default:"true"`
 	IsBookmarksPubliclyVisible bool   `default:"true"`
@@ -622,6 +623,18 @@ func (u *User) Fork(twt types.Twt) string {
 	tokens = UniqStrings(tokens)
 
 	return fmt.Sprintf("%s ", strings.Join(tokens, " "))
+}
+
+func (u *User) DisplayTimeFormat() string {
+	switch strings.ToLower(u.DisplayTimePreference) {
+	case "12h":
+		return "3:04PM"
+	case "24h":
+		return "15:04"
+	default:
+		return ""
+
+	}
 }
 
 func (u *User) Bytes() ([]byte, error) {

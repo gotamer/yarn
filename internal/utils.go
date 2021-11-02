@@ -1510,24 +1510,28 @@ func PreprocessMedia(conf *Config, u *url.URL, alt string) string {
 	return html
 }
 
-func FormatForDateTime(t time.Time) string {
-	var format string
+func FormatForDateTime(t time.Time, timeFormat string) string {
+	dateTimeFormat := ""
+
+	if timeFormat == "" {
+		timeFormat = "3:04PM"
+	}
 
 	dt := time.Since(t)
 
 	if dt > YearAgo {
-		format = "Mon, Jan 2 3:04PM 2006"
+		dateTimeFormat = "Mon, Jan 2 %s 2006"
 	} else if dt > MonthAgo {
-		format = "Mon, Jan 2 3:04PM"
+		dateTimeFormat = "Mon, Jan 2 %s"
 	} else if dt > WeekAgo {
-		format = "Mon, Jan 2 3:04PM"
+		dateTimeFormat = "Mon, Jan 2 %s"
 	} else if dt > DayAgo {
-		format = "Mon 2, 3:04PM"
+		dateTimeFormat = "Mon 2, %s"
 	} else {
-		format = "3:04PM"
+		dateTimeFormat = "%s"
 	}
 
-	return format
+	return fmt.Sprintf(dateTimeFormat, timeFormat)
 }
 
 // FormatTwtFactory formats a twt into a valid HTML snippet

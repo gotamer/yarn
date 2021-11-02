@@ -77,6 +77,21 @@
         </div>
         <div>
           <fieldset>
+            <legend>{{tr . "SettingsFormTimePreferenceTitle"}}</legend>
+            <label for="12h">
+              <input type="radio" name="displayTimePreference" value="12h" {{ if .User.DisplayTimePreference }}checked{{ end }}>
+              12hr
+            </label>
+            <label for="24h">
+              <input type="radio" name="displayTimePreference" value="24h" {{ if .User.DisplayTimePreference }}checked{{ end }}>
+              24hr
+            </label>
+          </fieldset>
+        </div>
+      </div>
+      <div class="grid">
+        <div>
+          <fieldset>
             <legend>{{tr . "SettingsFormPrivacySettingsTitle"}}</legend>
             <label for="isBookmarksPubliclyVisible">
               <input id="isBookmarksPubliclyVisible" type="checkbox" name="isBookmarksPubliclyVisible" aria-label="Show bookmarks publicly" role="switch" {{ if .User.IsBookmarksPubliclyVisible }}checked{{ end }}>

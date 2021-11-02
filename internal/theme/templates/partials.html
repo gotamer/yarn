@@ -112,7 +112,7 @@
       <div class="publish-time">
         <a class="u-url" href="/twt/{{ $.Twt.Hash }}">
           <time class="dt-published" datetime="{{ $.Twt.Created | date "2006-01-02T15:04:05Z07:00" }}">
-            {{ dateInZone ($.Twt.Created | formatForDateTime) $.Twt.Created $.User.DisplayDatesInTimezone }}
+            {{ dateInZone (formatForDateTime $.Twt.Created $.User.DisplayTimeFormat) $.Twt.Created $.User.DisplayDatesInTimezone }}
           </time>
         </a>
         <span> &nbsp;({{ $.Twt.Created | time }})</span>
