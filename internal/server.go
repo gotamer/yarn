@@ -92,7 +92,7 @@ func (s *Server) render(name string, w http.ResponseWriter, ctx *Context) {
 
 	if ctx.User.IsZero() {
 		if ctx.DiscoverUpdatedAt.IsZero() {
-			ctx.DiscoverUpdatedAt = s.discoverUpdatedAt(ctx.User, FilterOutFeedsAndBotsFactory(s.config))
+			ctx.DiscoverUpdatedAt = s.discoverUpdatedAt(ctx.User)
 		}
 		ctx.TimelineUpdatedAt = ctx.DiscoverUpdatedAt
 	} else {
@@ -100,7 +100,7 @@ func (s *Server) render(name string, w http.ResponseWriter, ctx *Context) {
 			ctx.TimelineUpdatedAt = s.timelineUpdatedAt(ctx.User)
 		}
 		if ctx.DiscoverUpdatedAt.IsZero() {
-			ctx.DiscoverUpdatedAt = s.discoverUpdatedAt(ctx.User, FilterOutFeedsAndBotsFactory(s.config))
+			ctx.DiscoverUpdatedAt = s.discoverUpdatedAt(ctx.User)
 		}
 		if ctx.LastMentionedAt.IsZero() {
 			ctx.LastMentionedAt = s.lastMentionedAt(ctx.User)

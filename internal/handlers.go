@@ -678,8 +678,8 @@ func (s *Server) getTimelineTwts(user *User) types.Twts {
 	return FilterTwts(user, twts)
 }
 
-func (s *Server) getDiscoverTwts(user *User, filter FilterFunc) types.Twts {
-	twts := s.cache.FilterBy(filter)
+func (s *Server) getDiscoverTwts(user *User) types.Twts {
+	twts := s.cache.GetByView(discoverViewKey)
 	return FilterTwts(user, twts)
 }
 
@@ -698,8 +698,8 @@ func (s *Server) timelineUpdatedAt(user *User) time.Time {
 	return time.Time{}
 }
 
-func (s *Server) discoverUpdatedAt(user *User, filter FilterFunc) time.Time {
-	twts := s.getDiscoverTwts(user, filter)
+func (s *Server) discoverUpdatedAt(user *User) time.Time {
+	twts := s.getDiscoverTwts(user)
 
 	if len(twts) > 0 {
 		return twts[0].Created()
@@ -735,7 +735,7 @@ func (s *Server) TimelineHandler() httprouter.Handle {
 		var twts types.Twts
 
 		if !ctx.Authenticated {
-			twts = s.getDiscoverTwts(ctx.User, FilterOutFeedsAndBotsFactory(s.config))
+			twts = s.getDiscoverTwts(ctx.User)
 			ctx.Title = s.tr(ctx, "PageLocalTimelineTitle")
 		} else {
 			ctx.Title = s.tr(ctx, "PageUserTimelineTitle")
@@ -785,7 +785,7 @@ func (s *Server) DiscoverHandler() httprouter.Handle {
 		ctx := NewContext(s, r)
 		ctx.Translate(s.translator)
 
-		twts := s.getDiscoverTwts(ctx.User, FilterOutFeedsAndBotsFactory(s.config))
+		twts := s.getDiscoverTwts(ctx.User)
 
 		var pagedTwts types.Twts
 

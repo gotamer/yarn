@@ -492,7 +492,7 @@ func (a *API) DiscoverEndpoint() httprouter.Handle {
 			return
 		}
 
-		twts := a.cache.FilterBy(FilterOutFeedsAndBotsFactory(a.config))
+		twts := a.cache.GetByView(discoverViewKey)
 
 		var pagedTwts types.Twts
 

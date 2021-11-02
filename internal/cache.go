@@ -21,7 +21,8 @@ import (
 
 const (
 	feedCacheFile    = "cache"
-	feedCacheVersion = 4 // increase this if breaking changes occur to cache file.
+	feedCacheVersion = 5 // increase this if breaking changes occur to cache file.
+	discoverViewKey  = "discover"
 )
 
 // FilterFunc...
@@ -58,6 +59,14 @@ type Cached struct {
 	LastModified string
 }
 
+func NewCached(twts types.Twts, lastModified string) *Cached {
+	return &Cached{
+		cache:        make(types.TwtMap),
+		Twts:         twts,
+		LastModified: lastModified,
+	}
+}
+
 // Lookup ...
 func (cached *Cached) Lookup(hash string) (types.Twt, bool) {
 	cached.mu.RLock()
@@ -84,7 +93,8 @@ func (cached *Cached) Lookup(hash string) (types.Twt, bool) {
 
 // Cache ...
 type Cache struct {
-	mu sync.RWMutex
+	mu   sync.RWMutex
+	conf *Config
 
 	Version int
 
@@ -93,8 +103,9 @@ type Cache struct {
 	Views map[string]*Cached
 }
 
-func NewCache() *Cache {
+func NewCache(conf *Config) *Cache {
 	return &Cache{
+		conf:  conf,
 		Twts:  make(map[string]*Cached),
 		Views: make(map[string]*Cached),
 	}
@@ -132,7 +143,7 @@ func (cache *Cache) Store(conf *Config) error {
 
 // LoadCache ...
 func LoadCache(conf *Config) (*Cache, error) {
-	cache := NewCache()
+	cache := NewCache(conf)
 	cache.mu.Lock()
 	defer cache.mu.Unlock()
 
@@ -285,10 +296,7 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 				archiveTwts(twts)
 
 				cache.mu.Lock()
-				cache.Twts[feed.URL] = &Cached{
-					cache: make(map[string]types.Twt),
-					Twts:  twts,
-				}
+				cache.Twts[feed.URL] = NewCached(twts, "")
 				cache.mu.Unlock()
 
 				twtsch <- twts
@@ -420,11 +428,7 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 
 				lastmodified := res.Header.Get("Last-Modified")
 				cache.mu.Lock()
-				cache.Twts[feed.URL] = &Cached{
-					cache:        make(map[string]types.Twt),
-					Twts:         twts,
-					LastModified: lastmodified,
-				}
+				cache.Twts[feed.URL] = NewCached(twts, lastmodified)
 				cache.mu.Unlock()
 			case http.StatusNotModified: // 304
 				cache.mu.RLock()
@@ -492,12 +496,24 @@ func (cache *Cache) Refresh() {
 
 	sort.Sort(allTwts)
 
-	cache.mu.Lock()
-	cache.Views = make(map[string]*Cached)
-	cache.All = &Cached{
-		cache: make(map[string]types.Twt),
-		Twts:  allTwts,
+	//
+	// Generate some default views...
+	//
+
+	var discoverTwts types.Twts
+
+	filterOutFeedsAndBots := FilterOutFeedsAndBotsFactory(cache.conf)
+	for _, twt := range allTwts {
+		if filterOutFeedsAndBots(twt) {
+			discoverTwts = append(discoverTwts, twt)
+		}
 	}
+
+	cache.mu.Lock()
+	cache.Views = map[string]*Cached{
+		discoverViewKey: NewCached(discoverTwts, ""),
+	}
+	cache.All = NewCached(allTwts, "")
 	cache.mu.Unlock()
 }
 
@@ -560,10 +576,7 @@ func (cache *Cache) GetMentions(u *User, refresh bool) types.Twts {
 	sort.Sort(twts)
 
 	cache.mu.Lock()
-	cache.Views[key] = &Cached{
-		cache: make(map[string]types.Twt),
-		Twts:  twts,
-	}
+	cache.Views[key] = NewCached(twts, "")
 	cache.mu.Unlock()
 
 	return twts
@@ -594,10 +607,7 @@ func (cache *Cache) GetByPrefix(prefix string, refresh bool) types.Twts {
 	sort.Sort(twts)
 
 	cache.mu.Lock()
-	cache.Views[key] = &Cached{
-		cache: make(map[string]types.Twt),
-		Twts:  twts,
-	}
+	cache.Views[key] = NewCached(twts, "")
 	cache.mu.Unlock()
 
 	return twts
@@ -610,6 +620,15 @@ func (cache *Cache) IsCached(url string) bool {
 
 	_, ok := cache.Twts[url]
 	return ok
+}
+
+// GetByView ...
+func (cache *Cache) GetByView(key string) types.Twts {
+	cache.mu.RLock()
+	cached := cache.Views[key]
+	cache.mu.RUnlock()
+
+	return cached.Twts
 }
 
 // GetByUser ...
@@ -633,10 +652,7 @@ func (cache *Cache) GetByUser(u *User, refresh bool) types.Twts {
 	sort.Sort(twts)
 
 	cache.mu.Lock()
-	cache.Views[key] = &Cached{
-		cache: make(map[string]types.Twt),
-		Twts:  twts,
-	}
+	cache.Views[key] = NewCached(twts, "")
 	cache.mu.Unlock()
 
 	return twts
