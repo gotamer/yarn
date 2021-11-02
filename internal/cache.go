@@ -21,7 +21,7 @@ import (
 
 const (
 	feedCacheFile    = "cache"
-	feedCacheVersion = 3 // increase this if breaking changes occur to cache file.
+	feedCacheVersion = 4 // increase this if breaking changes occur to cache file.
 )
 
 // FilterFunc...
@@ -93,6 +93,13 @@ type Cache struct {
 	Views map[string]*Cached
 }
 
+func NewCache() *Cache {
+	return &Cache{
+		Twts:  make(map[string]*Cached),
+		Views: make(map[string]*Cached),
+	}
+}
+
 // Store ...
 func (cache *Cache) Store(conf *Config) error {
 	cache.mu.RLock()
@@ -125,7 +132,7 @@ func (cache *Cache) Store(conf *Config) error {
 
 // LoadCache ...
 func LoadCache(conf *Config) (*Cache, error) {
-	cache := &Cache{Twts: make(map[string]*Cached)}
+	cache := NewCache()
 	cache.mu.Lock()
 	defer cache.mu.Unlock()
 
