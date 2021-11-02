@@ -21,7 +21,7 @@ import (
 
 const (
 	feedCacheFile    = "cache"
-	feedCacheVersion = 7 // increase this if breaking changes occur to cache file.
+	feedCacheVersion = 8 // increase this if breaking changes occur to cache file.
 
 	localViewKey    = "local"
 	discoverViewKey = "discover"
@@ -604,10 +604,13 @@ func (cache *Cache) IsCached(url string) bool {
 // GetByView ...
 func (cache *Cache) GetByView(key string) types.Twts {
 	cache.mu.RLock()
-	cached := cache.Views[key]
+	cached, ok := cache.Views[key]
 	cache.mu.RUnlock()
 
-	return cached.Twts
+	if ok {
+		return cached.Twts
+	}
+	return nil
 }
 
 // GetByUser ...
