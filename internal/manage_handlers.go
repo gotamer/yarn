@@ -111,13 +111,12 @@ func (s *Server) ManagePodHandler() httprouter.Handle {
 			ctx.Message = fmt.Sprintf("Error extracting features: %s", err)
 			s.render("error", w, ctx)
 			return
-		} else {
-			if err := WithEnabledFeatures(features)(s.config); err != nil {
-				ctx.Error = true
-				ctx.Message = fmt.Sprintf("Error applying features: %s", err)
-				s.render("error", w, ctx)
-				return
-			}
+		}
+		if err := WithEnabledFeatures(features)(s.config); err != nil {
+			ctx.Error = true
+			ctx.Message = fmt.Sprintf("Error applying features: %s", err)
+			s.render("error", w, ctx)
+			return
 		}
 
 		// Save config file

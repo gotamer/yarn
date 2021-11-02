@@ -530,7 +530,7 @@ func WithWhitelistedImages(whitelistedImages []string) Option {
 	}
 }
 
-// BlacklistedFeeds sets the list of feed uris blacklisted
+// WithBlacklistedFeeds sets the list of feed uris blacklisted
 // and prohibited from being fetched by the global feed cache
 func WithBlacklistedFeeds(blacklistedFeeds []string) Option {
 	return func(cfg *Config) error {
