@@ -128,7 +128,7 @@ func (s *Server) BookmarksHandler() httprouter.Handle {
 			return
 		}
 
-		ctx.Twts = FilterTwts(ctx.User, pagedTwts)
+		ctx.Twts = pagedTwts
 		ctx.Pager = &pager
 
 		s.render("timeline", w, ctx)

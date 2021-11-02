@@ -443,7 +443,7 @@ func (a *API) TimelineEndpoint() httprouter.Handle {
 			return
 		}
 
-		twts := FilterTwts(user, a.cache.GetByUser(user, false))
+		twts := a.cache.GetByUser(user, false)
 
 		var pagedTwts types.Twts
 
@@ -489,7 +489,7 @@ func (a *API) DiscoverEndpoint() httprouter.Handle {
 			return
 		}
 
-		twts := a.cache.GetByView(discoverViewKey)
+		twts := a.cache.GetByUserView(loggedInUser, discoverViewKey, false)
 
 		var pagedTwts types.Twts
 
@@ -503,7 +503,7 @@ func (a *API) DiscoverEndpoint() httprouter.Handle {
 		}
 
 		res := types.PagedResponse{
-			Twts: FilterTwts(loggedInUser, pagedTwts),
+			Twts: pagedTwts,
 			Pager: types.PagerResponse{
 				Current:   pager.Page(),
 				MaxPages:  pager.PageNums(),
@@ -550,7 +550,7 @@ func (a *API) MentionsEndpoint() httprouter.Handle {
 		}
 
 		res := types.PagedResponse{
-			Twts: FilterTwts(user, pagedTwts),
+			Twts: pagedTwts,
 			Pager: types.PagerResponse{
 				Current:   pager.Page(),
 				MaxPages:  pager.PageNums(),
@@ -1040,7 +1040,7 @@ func (a *API) ProfileEndpoint() httprouter.Handle {
 			a.cache.FetchTwts(a.config, a.archive, sources, nil)
 		}
 
-		twts := a.cache.GetByURL(profile.URL)
+		twts := FilterTwts(loggedInUser, a.cache.GetByURL(profile.URL))
 
 		var twter types.Twter
 
@@ -1103,7 +1103,7 @@ func (a *API) ConversationEndpoint() httprouter.Handle {
 			return
 		}
 
-		twts := a.cache.GetTwtsInConversation(hash, twt)
+		twts := FilterTwts(loggedInUser, a.cache.GetTwtsInConversation(hash, twt))
 		sort.Sort(sort.Reverse(twts))
 
 		var pagedTwts types.Twts
@@ -1118,7 +1118,7 @@ func (a *API) ConversationEndpoint() httprouter.Handle {
 		}
 
 		res := types.PagedResponse{
-			Twts: FilterTwts(loggedInUser, pagedTwts),
+			Twts: pagedTwts,
 			Pager: types.PagerResponse{
 				Current:   pager.Page(),
 				MaxPages:  pager.PageNums(),
@@ -1204,7 +1204,7 @@ func (a *API) FetchTwtsEndpoint() httprouter.Handle {
 		}
 
 		res := types.PagedResponse{
-			Twts: FilterTwts(loggedInUser, pagedTwts),
+			Twts: pagedTwts,
 			Pager: types.PagerResponse{
 				Current:   pager.Page(),
 				MaxPages:  pager.PageNums(),
@@ -1248,7 +1248,7 @@ func (a *API) ExternalProfileEndpoint() httprouter.Handle {
 			a.cache.FetchTwts(a.config, a.archive, sources, nil)
 		}
 
-		twts := a.cache.GetByURL(uri)
+		twts := FilterTwts(loggedInUser, a.cache.GetByURL(uri))
 
 		var twter types.Twter
 
@@ -1359,6 +1359,7 @@ func (a *API) MuteEndpoint() httprouter.Handle {
 		}
 
 		user.Mute(nick, url)
+		a.cache.DeleteUserViews(user)
 
 		if err := a.db.SetUser(user.Username, user); err != nil {
 			log.WithError(err).Error("error updating user object")
@@ -1393,6 +1394,7 @@ func (a *API) UnmuteEndpoint() httprouter.Handle {
 		}
 
 		user.Unmute(nick)
+		a.cache.DeleteUserViews(user)
 
 		if err := a.db.SetUser(user.Username, user); err != nil {
 			log.WithError(err).Error("error updating user object")

@@ -21,7 +21,7 @@ import (
 
 const (
 	feedCacheFile    = "cache"
-	feedCacheVersion = 6 // increase this if breaking changes occur to cache file.
+	feedCacheVersion = 7 // increase this if breaking changes occur to cache file.
 
 	localViewKey    = "local"
 	discoverViewKey = "discover"
@@ -627,7 +627,33 @@ func (cache *Cache) GetByUser(u *User, refresh bool) types.Twts {
 	for feed := range u.Sources() {
 		twts = append(twts, cache.GetByURL(feed.URL)...)
 	}
+	twts = FilterTwts(u, twts)
+	sort.Sort(twts)
 
+	cache.mu.Lock()
+	cache.Views[key] = NewCached(twts, "")
+	cache.mu.Unlock()
+
+	return twts
+}
+
+// GetByUserView ...
+func (cache *Cache) GetByUserView(u *User, view string, refresh bool) types.Twts {
+	if u == nil {
+		return cache.GetByView(view)
+	}
+
+	key := fmt.Sprintf("%s:%s", view, u.Username)
+
+	cache.mu.RLock()
+	cached, ok := cache.Views[key]
+	cache.mu.RUnlock()
+
+	if ok && !refresh {
+		return cached.Twts
+	}
+
+	twts := FilterTwts(u, cache.GetByView(view))
 	sort.Sort(twts)
 
 	cache.mu.Lock()
@@ -694,6 +720,7 @@ func (cache *Cache) GetByTag(tag string) types.Twts {
 func (cache *Cache) DeleteUserViews(u *User) {
 	cache.mu.Lock()
 	delete(cache.Views, fmt.Sprintf("user:%s", u.Username))
+	delete(cache.Views, fmt.Sprintf("discover:%s", u.Username))
 	delete(cache.Views, fmt.Sprintf("mentions:%s", u.Username))
 	cache.mu.Unlock()
 }

@@ -12,18 +12,15 @@ import (
 )
 
 func (s *Server) getTimelineTwts(user *User) types.Twts {
-	twts := s.cache.GetByUser(user, false)
-	return FilterTwts(user, twts)
+	return s.cache.GetByUser(user, false)
 }
 
 func (s *Server) getDiscoverTwts(user *User) types.Twts {
-	twts := s.cache.GetByView(discoverViewKey)
-	return FilterTwts(user, twts)
+	return s.cache.GetByUserView(user, discoverViewKey, false)
 }
 
 func (s *Server) getMentionedTwts(user *User) types.Twts {
-	twts := s.cache.GetMentions(user, false)
-	return FilterTwts(user, twts)
+	return s.cache.GetMentions(user, false)
 }
 
 func (s *Server) timelineUpdatedAt(user *User) time.Time {

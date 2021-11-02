@@ -264,7 +264,7 @@ func (s *Server) ProfileHandler() httprouter.Handle {
 			},
 		}...)
 
-		twts := s.cache.GetByURL(profile.URL)
+		twts := FilterTwts(ctx.User, s.cache.GetByURL(profile.URL))
 
 		if len(twts) > 0 {
 			profile.LastPostedAt = twts[0].Created()
@@ -285,7 +285,7 @@ func (s *Server) ProfileHandler() httprouter.Handle {
 		}
 
 		ctx.Title = fmt.Sprintf("%s's Profile: %s", profile.Username, profile.Tagline)
-		ctx.Twts = FilterTwts(ctx.User, pagedTwts)
+		ctx.Twts = pagedTwts
 		ctx.Pager = &pager
 
 		s.render("profile", w, ctx)
@@ -1250,7 +1250,7 @@ func (s *Server) ExternalHandler() httprouter.Handle {
 			s.cache.FetchTwts(s.config, s.archive, sources, nil)
 		}
 
-		twts := s.cache.GetByURL(uri)
+		twts := FilterTwts(ctx.User, s.cache.GetByURL(uri))
 
 		var pagedTwts types.Twts
 
@@ -1266,7 +1266,7 @@ func (s *Server) ExternalHandler() httprouter.Handle {
 			return
 		}
 
-		ctx.Twts = FilterTwts(ctx.User, pagedTwts)
+		ctx.Twts = pagedTwts
 		ctx.Pager = &pager
 
 		if len(ctx.Twts) > 0 {
