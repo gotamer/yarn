@@ -542,11 +542,16 @@ func (s *Server) PostHandler() httprouter.Handle {
 				s.render("error", w, ctx)
 			}
 
-			// Update user's own timeline with their own new post.
-			s.cache.FetchTwts(s.config, s.archive, ctx.User.Source(), nil)
+			// TODO: Make this a Task?
+			s.tasks.DispatchFunc(func() error {
+				// Update user's own timeline with their own new post.
+				s.cache.FetchTwts(s.config, s.archive, ctx.User.Source(), nil)
 
-			// Re-populate/Warm cache for User
-			s.cache.GetByUser(ctx.User, true)
+				// Re-populate/Warm cache for User
+				s.cache.GetByUser(ctx.User, true)
+
+				return nil
+			})
 
 			if r.Method != http.MethodDelete {
 				return
@@ -641,11 +646,16 @@ func (s *Server) PostHandler() httprouter.Handle {
 			return
 		}
 
-		// Update user's own timeline with their own new post.
-		s.cache.FetchTwts(s.config, s.archive, sources, nil)
+		// TODO: Make this a Task?
+		s.tasks.DispatchFunc(func() error {
+			// Update user's own timeline with their own new post.
+			s.cache.FetchTwts(s.config, s.archive, sources, nil)
 
-		// Re-populate/Warm cache for User
-		s.cache.GetByUser(ctx.User, true)
+			// Re-populate/Warm cache for User
+			s.cache.GetByUser(ctx.User, true)
+
+			return nil
+		})
 
 		// WebMentions ...
 		// TODO: Use a queue here instead?
@@ -1245,9 +1255,13 @@ func (s *Server) ExternalHandler() httprouter.Handle {
 		}
 
 		if !s.cache.IsCached(uri) {
-			sources := make(types.Feeds)
-			sources[types.Feed{Nick: nick, URL: uri}] = true
-			s.cache.FetchTwts(s.config, s.archive, sources, nil)
+			// TODO: Make this a Task?
+			s.tasks.DispatchFunc(func() error {
+				sources := make(types.Feeds)
+				sources[types.Feed{Nick: nick, URL: uri}] = true
+				s.cache.FetchTwts(s.config, s.archive, sources, nil)
+				return nil
+			})
 		}
 
 		twts := FilterTwts(ctx.User, s.cache.GetByURL(uri))
@@ -1369,9 +1383,13 @@ func (s *Server) ExternalFollowingHandler() httprouter.Handle {
 		}
 
 		if !s.cache.IsCached(uri) {
-			sources := make(types.Feeds)
-			sources[types.Feed{Nick: nick, URL: uri}] = true
-			s.cache.FetchTwts(s.config, s.archive, sources, nil)
+			// TODO: Make this a Task?
+			s.tasks.DispatchFunc(func() error {
+				sources := make(types.Feeds)
+				sources[types.Feed{Nick: nick, URL: uri}] = true
+				s.cache.FetchTwts(s.config, s.archive, sources, nil)
+				return nil
+			})
 		}
 
 		twts := s.cache.GetByURL(uri)
