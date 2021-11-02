@@ -94,9 +94,6 @@ const (
 	// of twts in memory
 	DefaultMaxCacheItems = DefaultTwtsPerPage * 3 // We get bored after paging thorughh > 3 pages :D
 
-	// DefaultMsgPerPage is the server's default msgs per page to display
-	DefaultMsgsPerPage = 20
-
 	// DefaultOpenProfiles is the default for whether or not to have open user profiles
 	DefaultOpenProfiles = false
 
@@ -144,15 +141,17 @@ var (
 
 	// DefaultTwtPrompts are the set of default prompts  for twt text(s)
 	DefaultTwtPrompts = []string{
-		`What's on your mind?`,
-		`Share something insightful!`,
-		`Good day to you! What's new?`,
-		`Did something cool lately? Share it!`,
-		`Hi! 👋 Don't forget to post a Twt today!`,
+		`What's on your mind? 🤔`,
+		`Share something insightful! 💡`,
+		`Good day to you! 👌 What's new? 🥳`,
+		`Did something cool lately? 🤔 Share it! 🤗`,
+		`Hi! 👋 Don't forget to post a Twt today! 😉`,
+		`Let's have a Yarn! ✋`,
 	}
 
-	// DefaultWhitelistedDomains is the default list of domains to whitelist for external images
-	DefaultWhitelistedDomains = []string{
+	// DefaultWhitelistedImages is the default list of image domains
+	// to whitelist for external images to display them inline
+	DefaultWhitelistedImages = []string{
 		`imgur\.com`,
 		`giphy\.com`,
 		`imgs\.xkcd\.com`,
@@ -160,6 +159,10 @@ var (
 		`reactiongifs\.com`,
 		`githubusercontent\.com`,
 	}
+
+	// DefaultBlacklistedFeeds is the default list of feed uris thar are
+	// blacklisted and prohibuted from being fetched by the global feed cache
+	DefaultBlacklistedFeeds = []string{}
 
 	// DefaultMaxCacheFetchers is the default maximun number of fetchers used
 	// by the global feed cache during update cycles. This controls how quickly
@@ -186,7 +189,6 @@ func NewConfig() *Config {
 		TwtPrompts:        DefaultTwtPrompts,
 		TwtsPerPage:       DefaultTwtsPerPage,
 		MaxTwtLength:      DefaultMaxTwtLength,
-		MsgsPerPage:       DefaultMsgsPerPage,
 		OpenProfiles:      DefaultOpenProfiles,
 		OpenRegistrations: DefaultOpenRegistrations,
 		DisableGzip:       DefaultDisableGzip,
@@ -512,16 +514,33 @@ func WithAPISigningKey(key string) Option {
 	}
 }
 
-// WithWhitelistedDomains sets the list of domains whitelisted and permitted for external iamges
-func WithWhitelistedDomains(whitelistedDomains []string) Option {
+// WithWhitelistedImages sets the list of image domains whitelisted
+// and permitted for external iamges to display inline
+func WithWhitelistedImages(whitelistedImages []string) Option {
 	return func(cfg *Config) error {
-		cfg.WhitelistedDomains = whitelistedDomains
-		for _, whitelistedDomain := range whitelistedDomains {
-			re, err := regexp.Compile(whitelistedDomain)
+		cfg.WhitelistedImages = whitelistedImages
+		for _, whitelistedImage := range whitelistedImages {
+			re, err := regexp.Compile(whitelistedImage)
 			if err != nil {
 				return err
 			}
-			cfg.whitelistedDomains = append(cfg.whitelistedDomains, re)
+			cfg.whitelistedImages = append(cfg.whitelistedImages, re)
+		}
+		return nil
+	}
+}
+
+// BlacklistedFeeds sets the list of feed uris blacklisted
+// and prohibited from being fetched by the global feed cache
+func WithBlacklistedFeeds(blacklistedFeeds []string) Option {
+	return func(cfg *Config) error {
+		cfg.BlacklistedFeeds = blacklistedFeeds
+		for _, blacklistedFeed := range blacklistedFeeds {
+			re, err := regexp.Compile(blacklistedFeed)
+			if err != nil {
+				return err
+			}
+			cfg.blacklistedFeeds = append(cfg.blacklistedFeeds, re)
 		}
 		return nil
 	}

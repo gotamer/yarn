@@ -59,7 +59,8 @@ type Context struct {
 	DisableMedia            bool
 	DisableFfmpeg           bool
 	RegisterDisabledMessage string
-	WhitelistedDomains      []string
+	WhitelistedImages       []string
+	BlacklistedFeeds        []string
 	EnabledFeatures         []string
 
 	Timezones []*timezones.Zoneinfo
@@ -132,20 +133,21 @@ func NewContext(s *Server, req *http.Request) *Context {
 	ctx := &Context{
 		Debug: conf.Debug,
 
-		Logo:               logo,
-		BaseURL:            conf.BaseURL,
-		InstanceName:       conf.Name,
-		SoftwareVersion:    conf.Version,
-		TwtsPerPage:        conf.TwtsPerPage,
-		TwtPrompt:          conf.RandomTwtPrompt(),
-		MaxTwtLength:       conf.MaxTwtLength,
-		RegisterDisabled:   !conf.OpenRegistrations,
-		OpenProfiles:       conf.OpenProfiles,
-		DisableMedia:       conf.DisableMedia,
-		DisableFfmpeg:      conf.DisableFfmpeg,
-		LastTwt:            types.NilTwt,
-		WhitelistedDomains: conf.WhitelistedDomains,
-		EnabledFeatures:    conf.Features.AsStrings(),
+		Logo:              logo,
+		BaseURL:           conf.BaseURL,
+		InstanceName:      conf.Name,
+		SoftwareVersion:   conf.Version,
+		TwtsPerPage:       conf.TwtsPerPage,
+		TwtPrompt:         conf.RandomTwtPrompt(),
+		MaxTwtLength:      conf.MaxTwtLength,
+		RegisterDisabled:  !conf.OpenRegistrations,
+		OpenProfiles:      conf.OpenProfiles,
+		DisableMedia:      conf.DisableMedia,
+		DisableFfmpeg:     conf.DisableFfmpeg,
+		LastTwt:           types.NilTwt,
+		WhitelistedImages: conf.WhitelistedImages,
+		BlacklistedFeeds:  conf.BlacklistedFeeds,
+		EnabledFeatures:   conf.Features.AsStrings(),
 
 		Commit:      yarn.Commit,
 		Theme:       conf.Theme,

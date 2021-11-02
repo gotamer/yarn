@@ -1479,7 +1479,7 @@ func PreprocessMedia(conf *Config, u *url.URL, alt string) string {
 	// Normalize the domain name
 	domain := strings.TrimPrefix(strings.ToLower(u.Hostname()), "www.")
 
-	whitelisted, local := conf.WhitelistedDomain(domain)
+	whitelisted, local := conf.WhitelistedImage(domain)
 
 	if whitelisted {
 		if local {

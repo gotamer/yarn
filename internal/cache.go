@@ -212,8 +212,13 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 	seen := make(map[string]bool)
 	for feed := range feeds {
 		// Skip feeds we've already fetched by URI
-		// (but possibly referenced by different nicknames/aliases)
+		// (but possibly referenced by different alias)
+		// Also skil feeds that are blacklisted.
 		if _, ok := seen[feed.URL]; ok {
+			continue
+		}
+		if cache.conf.BlacklistedFeed(feed.URL) {
+			log.Warnf("attempt to fetch blacklisted feed %s", feed)
 			continue
 		}
 

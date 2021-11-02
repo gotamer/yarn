@@ -48,8 +48,9 @@ type Settings struct {
 	OpenProfiles      bool `yaml:"open_profiles"`
 	OpenRegistrations bool `yaml:"open_registrations"`
 
-	WhitelistedDomains []string     `yaml:"whitelisted_domains"`
-	Features           FeatureFlags `yaml:"features"`
+	WhitelistedImages []string     `yaml:"whitelisted_images"`
+	BlacklistedFeeds  []string     `yaml:"blacklisted_feeds"`
+	Features          FeatureFlags `yaml:"features"`
 }
 
 // SoftwareConfig contains the server version information
@@ -92,7 +93,6 @@ type Config struct {
 	MaxCacheTTL       time.Duration
 	FetchInterval     time.Duration
 	MaxCacheItems     int
-	MsgsPerPage       int
 	OpenProfiles      bool
 	OpenRegistrations bool
 	DisableGzip       bool
@@ -119,8 +119,11 @@ type Config struct {
 
 	baseURL *url.URL
 
-	whitelistedDomains []*regexp.Regexp
-	WhitelistedDomains []string
+	whitelistedImages []*regexp.Regexp
+	WhitelistedImages []string
+
+	blacklistedFeeds []*regexp.Regexp
+	BlacklistedFeeds []string
 
 	Features *FeatureFlags
 }
@@ -151,22 +154,39 @@ func (c *Config) Settings() *Settings {
 	return settings
 }
 
-// WhitelistedDomain returns true if the domain provided is a whiltelisted
-// domain as per the configuration
-func (c *Config) WhitelistedDomain(domain string) (bool, bool) {
-	// Always per mit our own domain
+// WhitelistedImage returns true if the domain name of an image's url provided
+// is a whiltelisted domain as per the configuration
+func (c *Config) WhitelistedImage(domain string) (bool, bool) {
+	// Always permit our own domain
 	ourDomain := strings.TrimPrefix(strings.ToLower(c.baseURL.Hostname()), "www.")
 	if domain == ourDomain {
 		return true, true
 	}
 
-	// Check against list of whitelistedDomains (regexes)
-	for _, re := range c.whitelistedDomains {
+	// Check against list of whitelistedImages (regexes)
+	for _, re := range c.whitelistedImages {
 		if re.MatchString(domain) {
 			return true, false
 		}
 	}
 	return false, false
+}
+
+// BlacklistedFeed returns true if the feed uri matches any blacklisted feeds
+// per the pod's configuration, the pod itself cannot bee blacklisted.
+func (c *Config) BlacklistedFeed(uri string) bool {
+	// Never prohibit the pod itself!
+	if strings.HasPrefix(uri, c.BaseURL) {
+		return false
+	}
+
+	// Check against list of blacklistedFeeds (regexes)
+	for _, re := range c.blacklistedFeeds {
+		if re.MatchString(uri) {
+			return true
+		}
+	}
+	return false
 }
 
 // RandomTwtPrompt returns a random  Twt Prompt for display by the UI
@@ -194,8 +214,12 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("error: api signing key is not configured")
 	}
 
-	if err := WithWhitelistedDomains(c.WhitelistedDomains)(c); err != nil {
-		return fmt.Errorf("error applying whitelisted domains: %w", err)
+	if err := WithWhitelistedImages(c.WhitelistedImages)(c); err != nil {
+		return fmt.Errorf("error applying whitelisted image domains: %w", err)
+	}
+
+	if err := WithBlacklistedFeeds(c.BlacklistedFeeds)(c); err != nil {
+		return fmt.Errorf("error applying blacklisted feeds: %w", err)
 	}
 
 	return nil

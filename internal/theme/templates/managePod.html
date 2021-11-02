@@ -39,9 +39,14 @@
                 </label>
             </div>
         </div>
-        <label for="whitelistedDomains">
-          Whitelisted Domains:
-          <textarea id="whitelistedDomains" name="whitelistedDomains" rows=5>{{ $.WhitelistedDomains | join "\r\n" }}</textarea>
+        <label for="whitelistedImages">
+          Whitelisted Image Domains:
+          <textarea id="whitelistedImages" name="whitelistedImages" rows=5>{{ $.WhitelistedImages | join "\r\n" }}</textarea>
+        </label>
+
+        <label for="blacklistedFeeds">
+          Blacklisted Feeds:
+          <textarea id="blacklistedFeeds" name="blacklistedFeeds" rows=5>{{ $.blacklistedFeeds | join "\r\n" }}</textarea>
         </label>
 
         <label for="enabledFeatures">

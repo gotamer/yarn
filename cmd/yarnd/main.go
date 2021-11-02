@@ -99,9 +99,10 @@ var (
 	apiSessionTime    time.Duration
 	transcoderTimeout time.Duration
 
-	// Whitelists, Sources
-	feedSources        []string
-	whitelistedDomains []string
+	// Whitelists, Blacklists, Feedsources
+	feedSources       []string
+	whitelistedImages []string
+	blacklistedFeeds  []string
 
 	// Optional Features
 	enabledFeatures flagSliceOfFeatureType
@@ -225,14 +226,18 @@ func init() {
 		"timeout for the video transcoder",
 	)
 
-	// Whitelists, Sources
+	// Whitelists, Blacklists, Feedsources
 	flag.StringSliceVar(
 		&feedSources, "feed-sources", internal.DefaultFeedSources,
 		"external feed sources for discovery of other feeds",
 	)
 	flag.StringSliceVar(
-		&whitelistedDomains, "whitelist-domain", internal.DefaultWhitelistedDomains,
-		"whitelist of external domains to permit for display of inline images",
+		&whitelistedImages, "whitelist-images", internal.DefaultWhitelistedImages,
+		"whitelist of external urls to permit for display of inline images",
+	)
+	flag.StringSliceVar(
+		&blacklistedFeeds, "blacklisted-feeds", internal.DefaultBlacklistedFeeds,
+		"blacklist of external feed uris to prohibit fetching",
 	)
 
 	// Optional Features
@@ -343,9 +348,10 @@ func main() {
 		internal.WithAPISessionTime(apiSessionTime),
 		internal.WithTranscoderTimeout(transcoderTimeout),
 
-		// Whitelists, Sources
+		// Whitelists, Blacklists, Feedsources
 		internal.WithFeedSources(feedSources),
-		internal.WithWhitelistedDomains(whitelistedDomains),
+		internal.WithWhitelistedImages(whitelistedImages),
+		internal.WithBlacklistedFeeds(blacklistedFeeds),
 
 		// Optional Features
 		internal.WithEnabledFeatures(enabledFeatures),

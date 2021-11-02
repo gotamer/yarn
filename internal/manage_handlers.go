@@ -39,13 +39,15 @@ func (s *Server) ManagePodHandler() httprouter.Handle {
 		maxTwtLength := SafeParseInt(r.FormValue("maxTwtLength"), s.config.MaxTwtLength)
 		openProfiles := r.FormValue("enableOpenProfiles") == "on"
 		openRegistrations := r.FormValue("enableOpenRegistrations") == "on"
-		whitelistedDomains := r.FormValue("whitelistedDomains")
+		whitelistedImages := r.FormValue("whitelistedImages")
+		blacklistedFeeds := r.FormValue("blacklistedFeeds")
 		enabledFeatures := r.FormValue("enabledFeatures")
 
 		// Clean lines from DOS (\r\n) to UNIX (\n)
 		logo = strings.ReplaceAll(logo, "\r\n", "\n")
 
-		whitelistedDomains = strings.ReplaceAll(whitelistedDomains, "\r\n", "\n")
+		whitelistedImages = strings.ReplaceAll(whitelistedImages, "\r\n", "\n")
+		blacklistedFeeds = strings.ReplaceAll(blacklistedFeeds, "\r\n", "\n")
 		enabledFeatures = strings.ReplaceAll(enabledFeatures, "\r\n", "\n")
 
 		// Update pod name
@@ -85,10 +87,18 @@ func (s *Server) ManagePodHandler() httprouter.Handle {
 		// Update open registrations
 		s.config.OpenRegistrations = openRegistrations
 
-		// Update WhitelistedDomains
-		if err := WithWhitelistedDomains(strings.Split(whitelistedDomains, "\n"))(s.config); err != nil {
+		// Update WhitelistedImages
+		if err := WithWhitelistedImages(strings.Split(whitelistedImages, "\n"))(s.config); err != nil {
 			ctx.Error = true
-			ctx.Message = fmt.Sprintf("Error applying white list domains: %s", err)
+			ctx.Message = fmt.Sprintf("Error applying whitelist for images: %s", err)
+			s.render("error", w, ctx)
+			return
+		}
+
+		// Update BlacklistedFeeds
+		if err := WithBlacklistedFeeds(strings.Split(blacklistedFeeds, "\n"))(s.config); err != nil {
+			ctx.Error = true
+			ctx.Message = fmt.Sprintf("Error applying blacklist for feeds: %s", err)
 			s.render("error", w, ctx)
 			return
 		}
