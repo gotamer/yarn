@@ -84,7 +84,7 @@ func FeaturesFromStrings(xs []string) ([]FeatureType, error) {
 // FeatureFlags describes a set of Pods optional Features
 // and whether they are enabled or disabled
 type FeatureFlags struct {
-	mu    sync.RWMutex
+	sync.RWMutex
 	flags map[FeatureType]bool
 }
 
@@ -92,22 +92,13 @@ func NewFeatureFlags() *FeatureFlags {
 	return &FeatureFlags{flags: make(map[FeatureType]bool)}
 }
 
-func (f *FeatureFlags) reset() {
-	f.flags = make(map[FeatureType]bool)
-}
-
-func (f *FeatureFlags) Reset() {
-	f.mu.Lock()
-	defer f.mu.Unlock()
-
-	f.reset()
-}
-
 func (f *FeatureFlags) AsStrings() []string {
 	var vs []string
+	f.RLock()
 	for flag := range f.flags {
 		vs = append(vs, flag.String())
 	}
+	f.RUnlock()
 	return vs
 }
 
@@ -116,23 +107,15 @@ func (f *FeatureFlags) String() string {
 }
 
 func (f *FeatureFlags) Disable(feature FeatureType) {
-	f.mu.Lock()
-	defer f.mu.Unlock()
-
-	if f.flags == nil {
-		f.reset()
-	}
+	f.Lock()
+	defer f.Unlock()
 
 	f.flags[feature] = false
 }
 
 func (f *FeatureFlags) DisableAll(features []FeatureType) {
-	f.mu.Lock()
-	defer f.mu.Unlock()
-
-	if f.flags == nil {
-		f.reset()
-	}
+	f.Lock()
+	defer f.Unlock()
 
 	for _, feature := range features {
 		f.flags[feature] = false
@@ -140,23 +123,15 @@ func (f *FeatureFlags) DisableAll(features []FeatureType) {
 }
 
 func (f *FeatureFlags) Enable(feature FeatureType) {
-	f.mu.Lock()
-	defer f.mu.Unlock()
-
-	if f.flags == nil {
-		f.reset()
-	}
+	f.Lock()
+	defer f.Unlock()
 
 	f.flags[feature] = true
 }
 
 func (f *FeatureFlags) EnableAll(features []FeatureType) {
-	f.mu.Lock()
-	defer f.mu.Unlock()
-
-	if f.flags == nil {
-		f.reset()
-	}
+	f.Lock()
+	defer f.Unlock()
 
 	for _, feature := range features {
 		f.flags[feature] = true
@@ -164,17 +139,19 @@ func (f *FeatureFlags) EnableAll(features []FeatureType) {
 }
 
 func (f *FeatureFlags) IsEnabled(feature FeatureType) bool {
-	f.mu.RLock()
-	defer f.mu.RUnlock()
+	f.RLock()
+	defer f.RUnlock()
 
 	return f.flags[feature]
 }
 
 func (f *FeatureFlags) MarshalJSON() ([]byte, error) {
 	var vs []FeatureType
+	f.RLock()
 	for flag := range f.flags {
 		vs = append(vs, flag)
 	}
+	f.RUnlock()
 	return json.Marshal(vs)
 }
 
@@ -183,18 +160,22 @@ func (f *FeatureFlags) UnmarshalJSON(b []byte) error {
 	if err := json.Unmarshal(b, &vs); err != nil {
 		return err
 	}
+	f.Lock()
 	f.flags = make(map[FeatureType]bool)
 	for _, v := range vs {
 		f.flags[v] = true
 	}
+	f.Unlock()
 	return nil
 }
 
 func (f *FeatureFlags) MarshalYAML() (interface{}, error) {
 	var vs []string
+	f.RLock()
 	for flag := range f.flags {
 		vs = append(vs, flag.String())
 	}
+	f.RUnlock()
 	return vs, nil
 }
 
@@ -211,10 +192,12 @@ func (f *FeatureFlags) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		return err
 	}
 
+	f.Lock()
 	f.flags = make(map[FeatureType]bool)
 	for _, feature := range features {
 		f.flags[feature] = true
 	}
+	f.Unlock()
 
 	return nil
 }
@@ -222,7 +205,6 @@ func (f *FeatureFlags) UnmarshalYAML(unmarshal func(interface{}) error) error {
 // WithEnabledFeatures enables the selected features
 func WithEnabledFeatures(features []FeatureType) Option {
 	return func(cfg *Config) error {
-		cfg.Features.Reset()
 		cfg.Features.EnableAll(features)
 		return nil
 	}
