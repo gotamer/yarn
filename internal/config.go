@@ -198,9 +198,25 @@ func (c *Config) RandomTwtPrompt() string {
 // Validate validates the configuration is valid which for the most part
 // just ensures that default secrets are actually configured correctly
 func (c *Config) Validate() error {
+	//
+	// Initlaization
+	//
+
+	if err := WithWhitelistedImages(c.WhitelistedImages)(c); err != nil {
+		return fmt.Errorf("error applying whitelisted image domains: %w", err)
+	}
+
+	if err := WithBlacklistedFeeds(c.BlacklistedFeeds)(c); err != nil {
+		return fmt.Errorf("error applying blacklisted feeds: %w", err)
+	}
+
 	if c.Debug {
 		return nil
 	}
+
+	//
+	// Validation
+	//
 
 	if c.CookieSecret == InvalidConfigValue {
 		return fmt.Errorf("error: cookie secret is not configured")
@@ -212,14 +228,6 @@ func (c *Config) Validate() error {
 
 	if c.APISigningKey == InvalidConfigValue {
 		return fmt.Errorf("error: api signing key is not configured")
-	}
-
-	if err := WithWhitelistedImages(c.WhitelistedImages)(c); err != nil {
-		return fmt.Errorf("error applying whitelisted image domains: %w", err)
-	}
-
-	if err := WithBlacklistedFeeds(c.BlacklistedFeeds)(c); err != nil {
-		return fmt.Errorf("error applying blacklisted feeds: %w", err)
 	}
 
 	return nil

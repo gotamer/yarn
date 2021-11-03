@@ -520,6 +520,9 @@ func WithWhitelistedImages(whitelistedImages []string) Option {
 	return func(cfg *Config) error {
 		cfg.WhitelistedImages = whitelistedImages
 		for _, whitelistedImage := range whitelistedImages {
+			if whitelistedImage == "" {
+				continue
+			}
 			re, err := regexp.Compile(whitelistedImage)
 			if err != nil {
 				return err
@@ -534,8 +537,10 @@ func WithWhitelistedImages(whitelistedImages []string) Option {
 // and prohibited from being fetched by the global feed cache
 func WithBlacklistedFeeds(blacklistedFeeds []string) Option {
 	return func(cfg *Config) error {
-		cfg.BlacklistedFeeds = blacklistedFeeds
 		for _, blacklistedFeed := range blacklistedFeeds {
+			if blacklistedFeed == "" {
+				continue
+			}
 			re, err := regexp.Compile(blacklistedFeed)
 			if err != nil {
 				return err

@@ -46,9 +46,9 @@ func (s *Server) ManagePodHandler() httprouter.Handle {
 		// Clean lines from DOS (\r\n) to UNIX (\n)
 		logo = strings.ReplaceAll(logo, "\r\n", "\n")
 
-		whitelistedImages = strings.ReplaceAll(whitelistedImages, "\r\n", "\n")
-		blacklistedFeeds = strings.ReplaceAll(blacklistedFeeds, "\r\n", "\n")
-		enabledFeatures = strings.ReplaceAll(enabledFeatures, "\r\n", "\n")
+		whitelistedImages = strings.Trim(strings.ReplaceAll(whitelistedImages, "\r\n", "\n"), "\n")
+		blacklistedFeeds = strings.Trim(strings.ReplaceAll(blacklistedFeeds, "\r\n", "\n"), "\n")
+		enabledFeatures = strings.Trim(strings.ReplaceAll(enabledFeatures, "\r\n", "\n"), "\n")
 
 		// Update pod name
 		if name != "" {
