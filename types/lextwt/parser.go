@@ -92,6 +92,8 @@ func (p *parser) ParseComment() *Comment {
 		p.append(p.curTok.Literal...)
 
 		if !isValidKey {
+			// Since the key is not valid for sure we know we cannot construct
+			// any metadata field and save any further parsing efforts.
 			continue
 		}
 
@@ -121,7 +123,14 @@ func (p *parser) ParseComment() *Comment {
 			}
 		}
 	}
-	return NewCommentValue(p.Literal(), label, strings.TrimSpace(string(value)))
+
+	val := strings.TrimSpace(string(value))
+	if val == "" {
+		// Empty values are not allowed, so don't make a metadata field out of
+		// this commit. Comments with both empty key and value are no metadata.
+		label = ""
+	}
+	return NewCommentValue(p.Literal(), label, val)
 }
 
 // ParseTwt from tokens

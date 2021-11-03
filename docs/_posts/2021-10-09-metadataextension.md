@@ -45,9 +45,10 @@ character restriction other than line breaks. Values end at the end of the
 line. Multiline values must use the Unicode line separator `U+2028` just like
 multiline twts do.
 
-All whitespace around field names and values must be stripped. There must be no
-more than one hash sign (`#`) preceding fields. If fields cannot be parsed,
-they must be ignored and treated as regular comments.
+All whitespace around field names and values must be stripped. Both field names
+and values must not be empty. There must be no more than one hash sign (`#`)
+preceding fields. If fields cannot be parsed, they must be ignored and treated
+as regular comments.
 
 ```
 # field-name = field value
@@ -141,3 +142,8 @@ whitespace.
 # link = Blog https://example.com/blog/
 # link = All my source code https://git.example.com/
 ```
+
+## Changelog
+
+* 2021-10-09: Initial version.
+* 2021-10-31: Clarify that metadata field values must not be empty.
