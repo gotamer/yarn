@@ -419,16 +419,11 @@ func (a *API) PostEndpoint() httprouter.Handle {
 			return
 		}
 
-		// TODO: Make this a Task?
-		a.tasks.DispatchFunc(func() error {
-			// Update user's own timeline with their own new post.
-			a.cache.FetchTwts(a.config, a.archive, sources, nil)
+		// Update user's own timeline with their own new post.
+		a.cache.FetchTwts(a.config, a.archive, sources, nil)
 
-			// Re-populate/Warm cache for User
-			a.cache.GetByUser(user, true)
-
-			return nil
-		})
+		// Re-populate/Warm cache for User
+		a.cache.GetByUser(user, true)
 
 		// No real response
 		w.Header().Set("Content-Type", "application/json")
@@ -1040,13 +1035,9 @@ func (a *API) ProfileEndpoint() httprouter.Handle {
 		}
 
 		if !a.cache.IsCached(profile.URL) {
-			// TODO: Make this a Task?
-			a.tasks.DispatchFunc(func() error {
-				sources := make(types.Feeds)
-				sources[types.Feed{Nick: profile.Username, URL: profile.URL}] = true
-				a.cache.FetchTwts(a.config, a.archive, sources, nil)
-				return nil
-			})
+			sources := make(types.Feeds)
+			sources[types.Feed{Nick: profile.Username, URL: profile.URL}] = true
+			a.cache.FetchTwts(a.config, a.archive, sources, nil)
 		}
 
 		twts := FilterTwts(loggedInUser, a.cache.GetByURL(profile.URL))
@@ -1171,13 +1162,9 @@ func (a *API) FetchTwtsEndpoint() httprouter.Handle {
 
 		if req.URL != "" && !isLocal(req.URL) {
 			if !a.cache.IsCached(req.URL) {
-				// TODO: Make this a Task?
-				a.tasks.DispatchFunc(func() error {
-					sources := make(types.Feeds)
-					sources[types.Feed{Nick: nick, URL: req.URL}] = true
-					a.cache.FetchTwts(a.config, a.archive, sources, nil)
-					return nil
-				})
+				sources := make(types.Feeds)
+				sources[types.Feed{Nick: nick, URL: req.URL}] = true
+				a.cache.FetchTwts(a.config, a.archive, sources, nil)
 			}
 
 			twts = a.cache.GetByURL(req.URL)
@@ -1256,13 +1243,9 @@ func (a *API) ExternalProfileEndpoint() httprouter.Handle {
 		}
 
 		if !a.cache.IsCached(uri) {
-			// TODO: Make this a Task?
-			a.tasks.DispatchFunc(func() error {
-				sources := make(types.Feeds)
-				sources[types.Feed{Nick: nick, URL: uri}] = true
-				a.cache.FetchTwts(a.config, a.archive, sources, nil)
-				return nil
-			})
+			sources := make(types.Feeds)
+			sources[types.Feed{Nick: nick, URL: uri}] = true
+			a.cache.FetchTwts(a.config, a.archive, sources, nil)
 		}
 
 		twts := FilterTwts(loggedInUser, a.cache.GetByURL(uri))
