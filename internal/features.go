@@ -14,10 +14,24 @@ type FeatureType int
 const (
 	// FeatureInvalid is the invalid feature (0)
 	FeatureInvalid FeatureType = iota
+	FeatureFoo
+	FeatureBar
+)
+
+// Interface guards
+var (
+	_ yaml.Marshaler   = (*FeatureFlags)(nil)
+	_ yaml.Unmarshaler = (*FeatureFlags)(nil)
+	_ json.Marshaler   = (*FeatureFlags)(nil)
+	_ json.Unmarshaler = (*FeatureFlags)(nil)
 )
 
 func (f FeatureType) String() string {
 	switch f {
+	case FeatureFoo:
+		return "foo"
+	case FeatureBar:
+		return "bar"
 	default:
 		return "invalid_feature"
 	}
@@ -38,6 +52,10 @@ func AvailableFeatures() []string {
 func FeatureFromString(s string) (FeatureType, error) {
 	s = strings.TrimSpace(strings.ToLower(s))
 	switch s {
+	case "foo":
+		return FeatureFoo, nil
+	case "bar":
+		return FeatureBar, nil
 	default:
 		fs := fmt.Sprintf("available features: %s", strings.Join(AvailableFeatures(), " "))
 		return FeatureInvalid, fmt.Errorf("Error unrecognised feature: %s (%s)", s, fs)
@@ -172,23 +190,32 @@ func (f *FeatureFlags) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (f *FeatureFlags) MarshalYAML() ([]byte, error) {
-	var vs []FeatureType
+func (f *FeatureFlags) MarshalYAML() (interface{}, error) {
+	var vs []string
 	for flag := range f.flags {
-		vs = append(vs, flag)
+		vs = append(vs, flag.String())
 	}
-	return yaml.Marshal(vs)
+	return vs, nil
 }
 
-func (f *FeatureFlags) UnmarshalYAML(b []byte) error {
-	var vs []FeatureType
-	if err := yaml.Unmarshal(b, &vs); err != nil {
+func (f *FeatureFlags) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var vs []string
+
+	err := unmarshal(&vs)
+	if err != nil {
 		return err
 	}
-	f.flags = make(map[FeatureType]bool)
-	for _, v := range vs {
-		f.flags[v] = true
+
+	features, err := FeaturesFromStrings(vs)
+	if err != nil {
+		return err
 	}
+
+	f.flags = make(map[FeatureType]bool)
+	for _, feature := range features {
+		f.flags[feature] = true
+	}
+
 	return nil
 }
 

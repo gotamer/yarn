@@ -48,9 +48,9 @@ type Settings struct {
 	OpenProfiles      bool `yaml:"open_profiles"`
 	OpenRegistrations bool `yaml:"open_registrations"`
 
-	WhitelistedImages []string     `yaml:"whitelisted_images"`
-	BlacklistedFeeds  []string     `yaml:"blacklisted_feeds"`
-	Features          FeatureFlags `yaml:"features"`
+	WhitelistedImages []string      `yaml:"whitelisted_images"`
+	BlacklistedFeeds  []string      `yaml:"blacklisted_feeds"`
+	Features          *FeatureFlags `yaml:"features"`
 }
 
 // SoftwareConfig contains the server version information
@@ -251,6 +251,10 @@ func LoadSettings(path string) (*Settings, error) {
 
 	if err := yaml.Unmarshal(data, &settings); err != nil {
 		return nil, err
+	}
+
+	if settings.Features == nil {
+		settings.Features = NewFeatureFlags()
 	}
 
 	return &settings, nil
