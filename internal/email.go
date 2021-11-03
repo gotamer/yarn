@@ -18,7 +18,7 @@ var (
 
 You have requested to have your password on {{ .Pod }} reset for your account.
 
-**IMPORTANT:** If this was __NOT__ initiated by you, please ignore this email and contract support!
+**IMPORTANT:** If this was __NOT__ initiated by you, please ignore this email and contact support!
 
 To reset your password, please visit the following link:
 
