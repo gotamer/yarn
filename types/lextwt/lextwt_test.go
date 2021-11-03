@@ -498,7 +498,7 @@ func TestParseTwt(t *testing.T) {
 		},
 
 		{
-			lit: "2020-12-25T16:55:57Z	I'm busy, but here's an 1+ [Christmas Tree](https://codegolf.stackexchange.com/questions/4244/code-golf-christmas-edition-how-to-print-out-a-christmas-tree-of-height-n)```.11+1<(Any unused function name|\"\\\"/1+^<#    \"    (row|\"(Fluff|\"\\\"/^<#              11+\"\"*\"**;              1+          \"\\\"/^<#\"<*)          1          (Mess|/\"\\^/\"\\\"+1+1+^<#              11+\"\"*+\"\"*+;              1+          /\"\\^/\"\\\"+1+1+^<#\"<*)          11+\"\"\"**+;    )    1+\"\\\"/1+^<#)11+1<(row)```",
+			lit: "2020-12-25T16:55:57Z	I'm busy, but here's an 1+ [Christmas Tree](https://codegolf.stackexchange.com/questions/4244/code-golf-christmas-edition-how-to-print-out-a-christmas-tree-of-height-n)  ``` . 11+1< (Any unused function name|\"\\\"/1+^<#     \"     (row|\"(Fluff|\"\\\"/^<#               11+\"\"*\"**;               1+           \"\\\"/^<#\"<*)           1           (Mess|/\"\\^/\"\\\"+1+1+^<#               11+\"\"*+\"\"*+;               1+           /\"\\^/\"\\\"+1+1+^<#\"<*)           11+\"\"\"**+;     )     1+ \"\\\"/1+^<#) 11+1<(row) ```",
 			twt: lextwt.NewTwt(
 				twter,
 				lextwt.NewDateTime(parseTime("2020-12-25T16:55:57Z"), "2020-12-25T16:55:57Z"),
@@ -506,11 +506,11 @@ func TestParseTwt(t *testing.T) {
 				lextwt.NewLink("Christmas Tree", "https://codegolf.stackexchange.com/questions/4244/code-golf-christmas-edition-how-to-print-out-a-christmas-tree-of-height-n", lextwt.LinkStandard),
 				lextwt.LineSeparator,
 				lextwt.LineSeparator,
-				lextwt.NewCode(".11+1<(Any unused function name|\"\\\"/1+^<#    \"    (row|\"(Fluff|\"\\\"/^<#              11+\"\"*\"**;              1+          \"\\\"/^<#\"<*)          1          (Mess|/\"\\^/\"\\\"+1+1+^<#              11+\"\"*+\"\"*+;              1+          /\"\\^/\"\\\"+1+1+^<#\"<*)          11+\"\"\"**+;    )    1+\"\\\"/1+^<#)11+1<(row)", lextwt.CodeBlock),
+				lextwt.NewCode(" . 11+1< (Any unused function name|\"\\\"/1+^<#     \"     (row|\"(Fluff|\"\\\"/^<#               11+\"\"*\"**;               1+           \"\\\"/^<#\"<*)           1           (Mess|/\"\\^/\"\\\"+1+1+^<#               11+\"\"*+\"\"*+;               1+           /\"\\^/\"\\\"+1+1+^<#\"<*)           11+\"\"\"**+;     )     1+ \"\\\"/1+^<#) 11+1<(row) ", lextwt.CodeBlock),
 			),
 		},
 		{
-			lit: "2020-12-25T16:57:57Z	@<hirad https://twtxt.net/user/hirad/twtxt.txt> (#<hrqg53a https://twtxt.net/search?tag=hrqg53a>) @<prologic https://twtxt.net/user/prologic/twtxt.txt> make this a blog post plzAnd I forgot, [Try It Online Again!](https://tio.run/#jVVbb5tIFH7nV5zgB8DGYJxU7br2Q1IpVausFWXbhxUhCMO4RgszdGbIRZv97d4zYAy2Y7fIRnP5znfuh@JFrhgdr9c9WElZiInrFhGPsxcZPZPMkWW@yLgTs9wtmJDuh/ejD@/eexfn3h9uSiXhBSf4Hi4ZH3rDlA6Lik/TemduKbi7SKlL6CNsjnvgDaAjh2u4ba5uK73wTSkGF74STnK1pTaMR94FIm7SmNCYQCrg0ye4@nv41yVcOCMEX1/egOec4@rz/Dt8vr15PNfSvGBcgngR2pKzHGKWZSSWKaMCNncJ@VkSTRM2iARm9da0bPj3P01LyBIYJUVWClMgdgZz3FoTDfBJl0AZcnNZ7zdnGaEm6nMi/uPRgrMZjNtr9RQcnQf9u4h@kAnoMIAG7Y8C3OngL9OMgGSwIECeSVxKkgT6DokSIc@pND2r1U0LNJAVHf2@F9hgcKMF8)",
+			lit: "2020-12-25T16:57:57Z	@<hirad https://twtxt.net/user/hirad/twtxt.txt> (#<hrqg53a https://twtxt.net/search?tag=hrqg53a>) @<prologic https://twtxt.net/user/prologic/twtxt.txt> make this a blog post plz  And I forgot, [Try It Online Again!](https://tio.run/#jVVbb5tIFH7nV5zgB8DGYJxU7br2Q1IpVausFWXbhxUhCMO4RgszdGbIRZv97d4zYAy2Y7fIRnP5znfuh@JFrhgdr9c9WElZiInrFhGPsxcZPZPMkWW@yLgTs9wtmJDuh/ejD@/eexfn3h9uSiXhBSf4Hi4ZH3rDlA6Lik/TemduKbi7SKlL6CNsjnvgDaAjh2u4ba5uK73wTSkGF74STnK1pTaMR94FIm7SmNCYQCrg0ye4@nv41yVcOCMEX1/egOec4@rz/Dt8vr15PNfSvGBcgngR2pKzHGKWZSSWKaMCNncJ@VkSTRM2iARm9da0bPj3P01LyBIYJUVWClMgdgZz3FoTDfBJl0AZcnNZ7zdnGaEm6nMi/uPRgrMZjNtr9RQcnQf9u4h@kAnoMIAG7Y8C3OngL9OMgGSwIECeSVxKkgT6DokSIc@pND2r1U0LNJAVHf2@F9hgcKMF8)",
 			subject: "(#hrqg53a)",
 			twt: lextwt.NewTwt(
 				twter,
@@ -529,7 +529,7 @@ func TestParseTwt(t *testing.T) {
 		},
 
 		{
-			lit: "2020-12-04T21:43:43Z	@<prologic https://twtxt.net/user/prologic/twtxt.txt> (#<63dtg5a https://txt.sour.is/search?tag=63dtg5a>) Web Key Directory: a way to self host your public key. instead of using a central system like pgp.mit.net or OpenPGP.org you have your key on a server you own. it takes an email@address.com hashes the part before the @ and turns it into `[openpgpkey.]address.com/.well-known/openpgpkey[/address.com]/<hash>`",
+			lit: "2020-12-04T21:43:43Z	@<prologic https://twtxt.net/user/prologic/twtxt.txt> (#<63dtg5a https://txt.sour.is/search?tag=63dtg5a>) Web Key Directory: a way to self host your public key. instead of using a central system like pgp.mit.net or OpenPGP.org you have your key on a server you own.   it takes an email@address.com hashes the part before the @ and turns it into `[openpgpkey.]address.com/.well-known/openpgpkey[/address.com]/<hash>`",
 			subject: "(#63dtg5a)",
 			twt: lextwt.NewTwt(
 				twter,
@@ -562,7 +562,7 @@ func TestParseTwt(t *testing.T) {
 		},
 
 		{
-			lit: `2021-01-21T23:25:59Z	Alligator![](https://twtxt.net/media/L6g5PMqA2JXX7ra5PWiMsM)> Guy says to his colleague “just don’t fall in!” She replies “yeah good advice!”🤣#AustraliaZoo`,
+			lit: `2021-01-21T23:25:59Z	Alligator  ![](https://twtxt.net/media/L6g5PMqA2JXX7ra5PWiMsM)  > Guy says to his colleague “just don’t fall in!” She replies “yeah good advice!”  🤣  #AustraliaZoo`,
 			twt: lextwt.NewTwt(
 				twter,
 				lextwt.NewDateTime(parseTime("2021-01-21T23:25:59Z"), "2021-01-21T23:25:59Z"),
@@ -902,7 +902,7 @@ func TestParseFile(t *testing.T) {
 # follows = xuu@txt.sour.is https://txt.sour.is/users/xuu.txt
 
 2016-02-03T23:05:00Z	@<example http://example.org/twtxt.txt>` + "\u2028" + `welcome to twtxt!
-2020-12-02T01:04:00Z	This is an OpenPGP proof that connects my OpenPGP key to this Twtxt account. See https://key.sour.is/id/me@sour.is for more.[Verifying my OpenPGP key: openpgp4fpr:20AE2F310A74EA7CEC3AE69F8B3B0604F164E04F]
+2020-12-02T01:04:00Z	This is an OpenPGP proof that connects my OpenPGP key to this Twtxt account. See https://key.sour.is/id/me@sour.is for more.  [Verifying my OpenPGP key: openpgp4fpr:20AE2F310A74EA7CEC3AE69F8B3B0604F164E04F]
 2020-11-13T16:13:22+01:00	@<prologic https://twtxt.net/user/prologic/twtxt.txt> (#<pdrsg2q https://twtxt.net/search?tag=pdrsg2q>) Thanks!
 `),
 			out: lextwt.NewTwtFile(
