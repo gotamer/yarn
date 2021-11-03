@@ -1594,7 +1594,9 @@ func FormatTwtFactory(conf *Config) func(twt types.Twt) template.HTML {
 		}
 
 		extensions := parser.NoIntraEmphasis | parser.FencedCode |
-			parser.Autolink | parser.Strikethrough | parser.SpaceHeadings
+			parser.Autolink | parser.Strikethrough | parser.SpaceHeadings |
+			parser.NoEmptyLineBeforeBlock
+
 		mdParser := parser.NewWithExtensions(extensions)
 
 		htmlFlags := html.Smartypants | html.SmartypantsDashes | html.SmartypantsLatexDashes
