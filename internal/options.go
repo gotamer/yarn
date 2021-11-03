@@ -537,6 +537,7 @@ func WithWhitelistedImages(whitelistedImages []string) Option {
 // and prohibited from being fetched by the global feed cache
 func WithBlacklistedFeeds(blacklistedFeeds []string) Option {
 	return func(cfg *Config) error {
+		cfg.BlacklistedFeeds = blacklistedFeeds
 		for _, blacklistedFeed := range blacklistedFeeds {
 			if blacklistedFeed == "" {
 				continue
