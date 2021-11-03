@@ -71,6 +71,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/tebeka/selenium v0.9.9
 	github.com/theplant-retired/timezones v0.0.0-20150304063004-f9bd3c0ef9db
+	github.com/tj/go-editor v1.0.0
 	github.com/unrolled/logger v0.0.0-20201216141554-31a3694fe979
 	github.com/vcraescu/go-paginator v1.0.0
 	github.com/wblakecaldwell/profiler v0.0.0-20150908040756-6111ef1313a1
@@ -80,7 +81,7 @@ require (
 	golang.org/x/image v0.0.0-20211028202545-6944b10bf410 // indirect
 	golang.org/x/net v0.0.0-20211029224645-99673261e6eb
 	golang.org/x/sys v0.0.0-20211031064116-611d5d643895 // indirect
-	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
+	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
 	golang.org/x/text v0.3.7
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/mail.v2 v2.3.1 // indirect

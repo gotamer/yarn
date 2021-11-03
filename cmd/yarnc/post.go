@@ -8,18 +8,21 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/tj/go-editor"
 
 	"git.mills.io/yarnsocial/yarn/client"
 )
 
 // postCmd represents the pub command
 var postCmd = &cobra.Command{
-	Use:     "post [flags]",
+	Use:     "post [flags]  [- | [text]]",
 	Aliases: []string{"tweet", "twt", "new", "yarn"},
 	Short:   "Post a new twt to a Yarn.social pod",
 	Long: `The post command makes a new post to a Yarn.social pod.
 if the optional flag -a/--post-as is used the post is made from that specified
-feed (persona) if the logged in user owned that feed.`,
+feed (persona) if the logged in user owned that feed. The post is read from
+command-line arguments if provided, standard input if "-" is the only argument
+provided or opens your $EDITOR for writing if no arguments are supplied.`,
 	//Args:    cobra.NArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
 		uri := viper.GetString("uri")
@@ -54,15 +57,27 @@ func init() {
 }
 
 func post(cli *client.Client, postAs string, args []string) {
-	text := strings.Join(args, " ")
+	var text string
 
-	if text == "" {
+	readFromStdin := len(args) == 1 && args[0] == "-"
+	readFromEditor := len(args) == 0
+
+	if readFromStdin {
 		data, err := ioutil.ReadAll(os.Stdin)
 		if err != nil {
 			log.WithError(err).Error("error reading text from stdin")
 			os.Exit(1)
 		}
 		text = string(data)
+	} else if readFromEditor {
+		data, err := editor.Read()
+		if err != nil {
+			log.WithError(err).Error("error reading text from editor")
+			os.Exit(1)
+		}
+		text = string(data)
+	} else {
+		text = strings.Join(args, " ")
 	}
 
 	if text == "" {

@@ -9,7 +9,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 
 	"git.mills.io/yarnsocial/yarn/client"
 )
@@ -52,7 +52,7 @@ func readCredentials() (string, string, error) {
 	}
 
 	fmt.Print("Password: ")
-	data, err := terminal.ReadPassword(int(syscall.Stdin))
+	data, err := term.ReadPassword(int(syscall.Stdin))
 	if err != nil {
 		log.WithError(err).Error("error reading password")
 		return "", "", err
