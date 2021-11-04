@@ -95,6 +95,15 @@ type TwtMention interface {
 
 type MentionList []TwtMention
 
+func (ml MentionList) IsMentioned(twter Twter) bool {
+	for _, m := range ml {
+		if m.Twter().URL == twter.URL {
+			return true
+		}
+	}
+	return false
+}
+
 func (ml MentionList) Mentions() []string {
 	lis := make([]string, len(ml))
 	for i := range ml {

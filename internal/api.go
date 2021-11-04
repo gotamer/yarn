@@ -84,6 +84,7 @@ func (a *API) initRoutes() {
 	router.POST("/timeline", a.isAuthorized(a.TimelineEndpoint()))
 	router.POST("/discover", a.DiscoverEndpoint())
 
+	router.GET("/profile", a.ProfileEndpoint())
 	router.GET("/profile/:username", a.ProfileEndpoint())
 	router.POST("/fetch-twts", a.FetchTwtsEndpoint())
 	router.POST("/conv", a.ConversationEndpoint())
@@ -996,11 +997,8 @@ func (a *API) ProfileEndpoint() httprouter.Handle {
 
 		username := NormalizeUsername(p.ByName("username"))
 		if username == "" {
-			http.Error(w, "Bad Request", http.StatusBadRequest)
-			return
+			username = loggedInUser.Username
 		}
-
-		username = NormalizeUsername(username)
 
 		var profile types.Profile
 

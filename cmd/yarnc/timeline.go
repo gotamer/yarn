@@ -72,8 +72,9 @@ func timeline(cli *client.Client, outputJSON bool, args []string) {
 		}
 		fmt.Println(string(data))
 	} else {
+		sort.Sort(sort.Reverse(res.Twts))
 		for _, twt := range res.Twts {
-			PrintTwt(twt, time.Now())
+			PrintTwt(twt, time.Now(), cli.Twter)
 			fmt.Println()
 		}
 	}

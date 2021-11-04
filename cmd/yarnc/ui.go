@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/dustin/go-humanize"
 	"git.mills.io/yarnsocial/yarn/types"
+	"github.com/dustin/go-humanize"
 )
 
 func red(s string) string {
@@ -35,16 +35,15 @@ func PrintFolloweeRaw(nick, url string) {
 	fmt.Printf("%s: %s\n", nick, url)
 }
 
-func PrintTwt(twt types.Twt, now time.Time) {
+func PrintTwt(twt types.Twt, now time.Time, me types.Twter) {
 	text := FormatTwt(fmt.Sprintf("%t", twt))
 	time := humanize.Time(twt.Created())
-	nick := green(twt.Twter().Nick)
+	nick := green(twt.Twter().DomainNick())
 	hash := blue(twt.Hash())
 
-	// TODO: Show mentions
-	//if NormalizeURL(twt.Twter.URL) == NormalizeURL(conf.Twturl) {
-	//	nick = boldgreen(twt.Twter.Nick)
-	//}
+	if twt.Mentions().IsMentioned(me) {
+		nick = boldgreen(twt.Twter().DomainNick())
+	}
 
 	fmt.Printf(
 		"> %s (%s) [%s]\n%s\n",

@@ -10,6 +10,8 @@ import (
 	"net/url"
 	"strings"
 
+	log "github.com/sirupsen/logrus"
+
 	"git.mills.io/yarnsocial/yarn"
 	"git.mills.io/yarnsocial/yarn/types"
 )
@@ -33,6 +35,7 @@ type Client struct {
 	BaseURL   *url.URL
 	Config    *Config
 	UserAgent string
+	Twter     types.Twter
 
 	httpClient *http.Client
 }
@@ -56,6 +59,7 @@ func NewClient(options ...Option) (*Client, error) {
 		BaseURL:    u,
 		Config:     config,
 		UserAgent:  DefaultUserAgent,
+		Twter:      types.Twter{},
 		httpClient: http.DefaultClient,
 	}
 
@@ -130,8 +134,43 @@ func (c *Client) Post(text, as string) (res types.AuthResponse, err error) {
 	return
 }
 
+func (c *Client) GetAndSetTwter() error {
+	if !c.Twter.IsZero() {
+		return nil
+	}
+
+	res, err := c.Profile("")
+	if err != nil {
+		log.WithError(err).Error("error retrieving user profile")
+		return err
+	}
+	c.Twter = types.Twter{Nick: "me", URL: res.Profile.URL}
+	return nil
+}
+
+// Profile ...
+func (c *Client) Profile(username string) (res types.ProfileResponse, err error) {
+	var endpoint = "/profile"
+
+	if username != "" {
+		endpoint += "/" + username
+	}
+
+	req, err := c.newRequest("GET", endpoint, nil)
+	if err != nil {
+		return types.ProfileResponse{}, err
+	}
+	err = c.do(req, &res)
+	return
+}
+
 // Timeline ...
 func (c *Client) Timeline(page int) (res types.PagedResponse, err error) {
+	if err := c.GetAndSetTwter(); err != nil {
+		log.WithError(err).Error("unable to get or set our own Twter identity")
+		return types.PagedResponse{}, nil
+	}
+
 	req, err := c.newRequest("POST", "/timeline", types.PagedRequest{Page: page})
 	if err != nil {
 		return types.PagedResponse{}, err
