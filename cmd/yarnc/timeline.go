@@ -40,21 +40,32 @@ Yarn.social account.`,
 			os.Exit(1)
 		}
 
-		timeline(cli, outputJSON, args)
+		outputRAW, err := cmd.Flags().GetBool("raw")
+		if err != nil {
+			log.WithError(err).Error("error getting raw flag")
+			os.Exit(1)
+		}
+
+		timeline(cli, outputJSON, outputRAW, args)
 	},
 }
 
 func init() {
 	RootCmd.AddCommand(timelineCmd)
 
-	timelineCmd.Flags().Bool(
-		"json", false,
-		"Output raw JSON for processing with eg jq",
+	timelineCmd.Flags().BoolP(
+		"json", "j", false,
+		"Output in JSON for processing with eg jq",
+	)
+
+	timelineCmd.Flags().BoolP(
+		"raw", "r", false,
+		"Output in raw text for processing with eg grep",
 	)
 
 }
 
-func timeline(cli *client.Client, outputJSON bool, args []string) {
+func timeline(cli *client.Client, outputJSON, outputRAW bool, args []string) {
 	// TODO: How do we get more pages?
 	res, err := cli.Timeline(0)
 	if err != nil {
@@ -74,8 +85,12 @@ func timeline(cli *client.Client, outputJSON bool, args []string) {
 	} else {
 		sort.Sort(sort.Reverse(res.Twts))
 		for _, twt := range res.Twts {
-			PrintTwt(twt, time.Now(), cli.Twter)
-			fmt.Println()
+			if outputRAW {
+				PrintTwtRaw(twt)
+			} else {
+				PrintTwt(twt, time.Now(), cli.Twter)
+				fmt.Println()
+			}
 		}
 	}
 }

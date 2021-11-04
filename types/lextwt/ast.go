@@ -790,7 +790,7 @@ func (twt Twt) MarshalJSON() ([]byte, error) {
 		Links    []string `json:"links"`
 	}{
 		Twter:        twt.Twter(),
-		Text:         twt.Text(),
+		Text:         twt.LiteralText(),
 		Created:      twt.Created(),
 		MarkdownText: twt.FormatText(types.MarkdownFmt, nil),
 

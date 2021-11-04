@@ -45,7 +45,7 @@ require (
 	github.com/marksalpeter/token/v2 v2.0.0
 	github.com/matryer/is v1.4.0
 	github.com/mattn/go-colorable v0.1.11 // indirect
-	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
+	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d
 	github.com/microcosm-cc/bluemonday v1.0.16
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
@@ -60,6 +60,7 @@ require (
 	github.com/renstrom/shortuuid v3.0.0+incompatible
 	github.com/rickb777/accept v0.0.0-20170318132422-d5183c44530d
 	github.com/robfig/cron v1.2.0
+	github.com/russross/blackfriday v1.6.0
 	github.com/sasha-s/go-deadlock v0.3.1
 	github.com/securisec/go-keywords v0.0.0-20200619134240-769e7273f2ed
 	github.com/shopspring/decimal v1.3.1 // indirect
