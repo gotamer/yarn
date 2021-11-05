@@ -1,4 +1,59 @@
 
+<a name="0.6.0"></a>
+## [0.6.0](https://git.mills.io/yarnsocial/yarn/compare/0.5.0...0.6.0) (2021-11-06)
+
+### Bug Fixes
+
+* Fix and improve the yarnc timeline to support Markdown rendering and fix multi-line twts
+* Fix missing parser.HardLineBreak extension
+* Fix consistency of Pod URL for the yarnc command-line client to match the mobile app just taking a Pod URL
+* Fix broken tests (#500)
+* Fix typo in recovery email template
+* Fix bug persisting BlacklistedFeeds in Pod override Settings (ooops)
+* Fix validation/initialization bugs with pod override settings and handling of whitelisted_images and blacklisted_feeds
+* Fix data races with feature flags
+* Fix marshaling/unmarshaling of feature flags
+* Fix some weird Markdown parsing and HTML formatting behaviour by turning off some extensions/options
+* Fix bug with serializing FeatureFlags causing pod settings overrides not to load
+* Fix typo (case) in managePod template
+* Fix a panic bug in Cache v7 :/
+* Fix preflight check for Go1.17
+* Fix performance of computing timeline view updated_at timestamps
+* Fix updating UpdateAt timestamps across all views
+* Fix the builtin theme to use title instead of data-tooltip
+* Fix Markdown html rendering and re-enable CommonFlags
+* Fix performance regression posting as user that e9222f5 broke
+* Fix metadata parsing in comments (#484)
+* Fix TwtxtHanadler() to support If-Modified-Since and Range requests (#490)
+
+### Features
+
+* Add a Open links in to user settings page
+* Add a user setting OpenLinksInPreference to control behaviour of opening external links
+* Add highlights to mentions for the yarnc command-line client's timeline sub-command
+* Add vim support to yarnc post to use an editor to write the twt
+* Add parser.NoEmptyLineBeforeBlock to Markdown parsing extensions
+* Add support for user preferred time format (12h/24h)
+* Add support for blacklisting feeds or entire pods, domains, etc
+* Add background tasks for Post handlers and External feeds to decrease latency
+* Add custom user views that take into account user muted feeds
+* Add a --disable-logger flag for those that already do access logs at the ingress level
+* Add a local cache view
+* Add a new view for Discover
+* Add a hacky pre-rendering hook and move timeline tiemstamp updates there for hopefully better perf
+* Add a --max-cache-fetchers configuration option to control the number of fetchers the feed cache uses (defaults to number of cpus)
+* Add a custom version of humanize.Time with shorter output
+* Add .Profile.LastPostedAt to be used by template authors
+* Add support for displaying last updated times for the main three timeline views and proivde as template context (updated_at)
+* Add support for displaying last updated times for the main three timeline views and proivde as template context
+* Add support for displaying external feed's following feeds
+* Add immediate on-pod feed/persona updates
+* Add retryableStore to automatically recover from database failure in some cases (#474)
+* Add discover_all_posts and shorter_permalink_title as permanent feature changes
+* Add fork button to search results
+* Add a much impmroved SearchHandler() and new search template with similar UX to Conversation/Yarn view (#493)
+
+
 <a name="0.5.0"></a>
 ## [0.5.0](https://git.mills.io/yarnsocial/yarn/compare/0.4.1...0.5.0) (2021-10-29)
 
@@ -22,6 +77,10 @@
 * Add two additional lines of preamble text promoting Yarn.social (shameful plug)
 * Add support for also disabling media in general (--disable-media)
 * Add -m 5 (5s timeout) to tools/check-pod-versions.sh
+
+### Updates
+
+* Update CHANGELOG for 0.5.0
 
 
 <a name="0.4.1"></a>
