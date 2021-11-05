@@ -1601,7 +1601,7 @@ func FormatTwtFactory(conf *Config) func(twt types.Twt, u *User) template.HTML {
 
 		htmlFlags := html.Smartypants | html.SmartypantsDashes | html.SmartypantsLatexDashes
 
-		if u.OpenLinksInPreference == "newwindow" {
+		if u != nil && u.OpenLinksInPreference == "newwindow" {
 			htmlFlags = htmlFlags | html.HrefTargetBlank
 		}
 
