@@ -70,13 +70,6 @@ func NewTemplateManager(conf *Config, translator *Translator, cache *Cache, arch
 	funcMap["prettyURL"] = PrettyURL
 	funcMap["isLocalURL"] = IsLocalURLFactory(conf)
 	funcMap["formatTwt"] = FormatTwtFactory(conf)
-	funcMap["formatTwtText"] = func() func(text string) template.HTML {
-		fn := FormatTwtFactory(conf)
-		return func(text string) template.HTML {
-			twt := types.MakeTwt(types.Twter{}, time.Time{}, text)
-			return fn(twt)
-		}
-	}()
 	funcMap["unparseTwt"] = UnparseTwtFactory(conf)
 	funcMap["formatForDateTime"] = FormatForDateTime
 	funcMap["urlForConv"] = URLForConvFactory(conf, cache, archive)

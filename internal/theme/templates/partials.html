@@ -127,7 +127,7 @@
     </div>
   </div>
   <div class="p-summary">
-    {{ $.Twt | formatTwt }}
+    {{ formatTwt $.Twt $.User }}
   </div>
   <hr />
   <em class="twt-hash"> #{{ $.Twt.Hash }} </em>

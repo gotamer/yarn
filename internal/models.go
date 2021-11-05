@@ -54,6 +54,7 @@ type User struct {
 	AvatarHash                 string `defaulf:""`
 	DisplayDatesInTimezone     string `default:"UTC"`
 	DisplayTimePreference      string `default:""`
+	OpenLinksInPreference      string `default:"newwindow"`
 	IsFollowersPubliclyVisible bool   `default:"true"`
 	IsFollowingPubliclyVisible bool   `default:"true"`
 	IsBookmarksPubliclyVisible bool   `default:"true"`

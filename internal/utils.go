@@ -1535,8 +1535,8 @@ func FormatForDateTime(t time.Time, timeFormat string) string {
 }
 
 // FormatTwtFactory formats a twt into a valid HTML snippet
-func FormatTwtFactory(conf *Config) func(twt types.Twt) template.HTML {
-	return func(twt types.Twt) template.HTML {
+func FormatTwtFactory(conf *Config) func(twt types.Twt, u *User) template.HTML {
+	return func(twt types.Twt, u *User) template.HTML {
 		renderHookProcessURLs := func(w io.Writer, node ast.Node, entering bool) (ast.WalkStatus, bool) {
 			// Ensure only whitelisted ![](url) images
 			image, ok := node.(*ast.Image)
@@ -1600,6 +1600,11 @@ func FormatTwtFactory(conf *Config) func(twt types.Twt) template.HTML {
 		mdParser := parser.NewWithExtensions(extensions)
 
 		htmlFlags := html.Smartypants | html.SmartypantsDashes | html.SmartypantsLatexDashes
+
+		if u.OpenLinksInPreference == "newwindow" {
+			htmlFlags = htmlFlags | html.HrefTargetBlank
+		}
+
 		opts := html.RendererOptions{
 			Flags:          htmlFlags,
 			Generator:      "",

@@ -1834,10 +1834,10 @@ func (s *Server) SyndicationHandler() httprouter.Handle {
 			url := URLForTwt(s.config.BaseURL, twt.Hash())
 			items = append(items, &feeds.Item{
 				Id:          url,
-				Title:       string(formatTwt(twt)),
+				Title:       string(formatTwt(twt, nil)),
 				Link:        &feeds.Link{Href: url},
 				Author:      &feeds.Author{Name: twt.Twter().Nick},
-				Description: string(formatTwt(twt)),
+				Description: string(formatTwt(twt, nil)),
 				Created:     twt.Created(),
 			},
 			)
