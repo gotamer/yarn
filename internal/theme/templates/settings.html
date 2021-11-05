@@ -88,6 +88,19 @@
             </label>
           </fieldset>
         </div>
+         <div>
+          <fieldset>
+            <legend>{{tr . "SettingsFormOpenLinksInPreferenceTitle"}}</legend>
+            <label for="samewindow">
+              <input type="radio" name="openLinksInPreference" value="samewindow" {{ if .User.OpenLinksInPreference }}checked{{ end }}>
+              Same Window
+            </label>
+            <label for="newwindow">
+              <input type="radio" name="openLinksInPreference" value="newwindow" {{ if .User.OpenLinksInPreference }}checked{{ end }}>
+              New Window (default)
+            </label>
+          </fieldset>
+        </div>
       </div>
       <div class="grid">
         <div>
