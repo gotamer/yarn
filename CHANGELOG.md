@@ -1,4 +1,12 @@
 
+<a name="0.6.1"></a>
+## [0.6.1](https://git.mills.io/yarnsocial/yarn/compare/0.6.0...0.6.1) (2021-11-06)
+
+### Bug Fixes
+
+* Fix a nil pointer exception handling User OpenLinksInPreference :/
+
+
 <a name="0.6.0"></a>
 ## [0.6.0](https://git.mills.io/yarnsocial/yarn/compare/0.5.0...0.6.0) (2021-11-06)
 
@@ -52,6 +60,10 @@
 * Add discover_all_posts and shorter_permalink_title as permanent feature changes
 * Add fork button to search results
 * Add a much impmroved SearchHandler() and new search template with similar UX to Conversation/Yarn view (#493)
+
+### Updates
+
+* Update CHANGELOG for 0.6.0
 
 
 <a name="0.5.0"></a>
