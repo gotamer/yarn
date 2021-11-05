@@ -7,14 +7,14 @@ import (
 
 const (
 	// DefaultURI is the default base URI to use for the Twtxt API endpoint
-	DefaultURI = "http://localhost:8000/api/v1/"
+	DefaultURI = "http://localhost:8000/"
 )
 
 // NewConfig ...
 func NewConfig() *Config {
 	return &Config{
 		URI:   DefaultURI,
-		Token: os.Getenv("TWT_TOKEN"),
+		Token: os.Getenv("YARND_TOKEN"),
 	}
 }
 

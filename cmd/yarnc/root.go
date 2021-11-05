@@ -78,7 +78,7 @@ func init() {
 
 	RootCmd.PersistentFlags().StringP(
 		"uri", "u", client.DefaultURI,
-		"yarnd API endpoint URI to connect to",
+		"Pod URL to connect to",
 	)
 
 	RootCmd.PersistentFlags().StringP(

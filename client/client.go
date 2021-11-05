@@ -16,6 +16,10 @@ import (
 	"git.mills.io/yarnsocial/yarn/types"
 )
 
+const (
+	APIVersion = 1
+)
+
 var (
 	// DefaultUserAgent ...
 	DefaultUserAgent = fmt.Sprintf("twt/%s", yarn.FullVersion())
@@ -54,9 +58,10 @@ func NewClient(options ...Option) (*Client, error) {
 	if err != nil {
 		return nil, err
 	}
+	baseURL := u.ResolveReference(&url.URL{Path: fmt.Sprintf("/api/v%d/", APIVersion)})
 
 	cli := &Client{
-		BaseURL:    u,
+		BaseURL:    baseURL,
 		Config:     config,
 		UserAgent:  DefaultUserAgent,
 		Twter:      types.Twter{},
