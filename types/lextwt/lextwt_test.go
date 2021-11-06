@@ -509,6 +509,7 @@ func TestParseTwt(t *testing.T) {
 				lextwt.NewCode(" . 11+1< (Any unused function name|\"\\\"/1+^<#     \"     (row|\"(Fluff|\"\\\"/^<#               11+\"\"*\"**;               1+           \"\\\"/^<#\"<*)           1           (Mess|/\"\\^/\"\\\"+1+1+^<#               11+\"\"*+\"\"*+;               1+           /\"\\^/\"\\\"+1+1+^<#\"<*)           11+\"\"\"**+;     )     1+ \"\\\"/1+^<#) 11+1<(row) ", lextwt.CodeBlock),
 			),
 		},
+
 		{
 			lit: "2020-12-25T16:57:57Z	@<hirad https://twtxt.net/user/hirad/twtxt.txt> (#<hrqg53a https://twtxt.net/search?tag=hrqg53a>) @<prologic https://twtxt.net/user/prologic/twtxt.txt> make this a blog post plz  And I forgot, [Try It Online Again!](https://tio.run/#jVVbb5tIFH7nV5zgB8DGYJxU7br2Q1IpVausFWXbhxUhCMO4RgszdGbIRZv97d4zYAy2Y7fIRnP5znfuh@JFrhgdr9c9WElZiInrFhGPsxcZPZPMkWW@yLgTs9wtmJDuh/ejD@/eexfn3h9uSiXhBSf4Hi4ZH3rDlA6Lik/TemduKbi7SKlL6CNsjnvgDaAjh2u4ba5uK73wTSkGF74STnK1pTaMR94FIm7SmNCYQCrg0ye4@nv41yVcOCMEX1/egOec4@rz/Dt8vr15PNfSvGBcgngR2pKzHGKWZSSWKaMCNncJ@VkSTRM2iARm9da0bPj3P01LyBIYJUVWClMgdgZz3FoTDfBJl0AZcnNZ7zdnGaEm6nMi/uPRgrMZjNtr9RQcnQf9u4h@kAnoMIAG7Y8C3OngL9OMgGSwIECeSVxKkgT6DokSIc@pND2r1U0LNJAVHf2@F9hgcKMF8)",
 			subject: "(#hrqg53a)",
@@ -594,8 +595,9 @@ func TestParseTwt(t *testing.T) {
 				lextwt.NewText(" "),
 				lextwt.NewMention("lyse", "https://lyse.isobeef.org/twtxt.txt"),
 				lextwt.NewText(" "),
-				lextwt.NewSubjectTag("ezmdswq", ""),
-				lextwt.NewText(" Looks good for me"),
+				lextwt.NewText("("),
+				lextwt.NewTag("ezmdswq", ""),
+				lextwt.NewText(") Looks good for me"),
 				lextwt.NewText("!  "),
 				lextwt.NewLink("", "https://txt.sour.is/media/353DzAXLDCv43GofSMw6SL", lextwt.LinkMedia),
 			),
@@ -667,6 +669,61 @@ func TestParseTwt(t *testing.T) {
 				lextwt.NewSubject("_just kidding!_"),
 			),
 		},
+
+		{
+			lit: `2021-11-04T23:20:59Z	multi.    line.    twt..`,
+			text: "multi.  \n\nline.  \n\ntwt..",
+			twt: lextwt.NewTwt(
+				twter,
+				lextwt.NewDateTime(parseTime("2021-11-04T23:20:59Z"), "2021-11-04T23:20:59Z"),
+				lextwt.NewText("multi.  "),
+				lextwt.LineSeparator,
+				lextwt.LineSeparator,
+				lextwt.NewText("line.  "),
+				lextwt.LineSeparator,
+				lextwt.LineSeparator,
+				lextwt.NewText("twt.."),
+			),
+		},
+
+		{
+			lit: `2021-11-05T19:40:28Z	> multi > line line`,
+			text: "> multi\n> line\nline",
+			md:   "> multi\n> line\nline",
+			twt: lextwt.NewTwt(
+				twter,
+				lextwt.NewDateTime(parseTime("2021-11-05T19:40:28Z"), "2021-11-05T19:40:28Z"),
+				lextwt.NewText("> multi"),
+				lextwt.LineSeparator,
+				lextwt.NewText("> line"),
+				lextwt.LineSeparator,
+				lextwt.NewText("line"),
+			),
+		},
+
+		{
+			lit: `2021-11-05T22:00:00+01:00	(#6zqn5bq) @<prologic https://twtxt.net/user/prologic/twtxt.txt> @<fastidious https://arrakis.netbros.com/user/fastidious/twtxt.txt> Thanks guys! :-(). (as to be expected). (@<movq https://www.uninformativ.de/twtxt.txt> told me so ;-))`,
+			twt: lextwt.NewTwt(
+				twter,
+				lextwt.NewDateTime(parseTime("2021-11-05T22:00:00+01:00"), "2021-11-05T22:00:00+01:00"),
+				lextwt.NewSubjectTag("6zqn5bq", ""),
+				lextwt.NewText(" "),
+				lextwt.NewMention("prologic", "https://twtxt.net/user/prologic/twtxt.txt"),
+				lextwt.NewText(" "),
+				lextwt.NewMention("fastidious", "https://arrakis.netbros.com/user/fastidious/twtxt.txt"),
+				lextwt.NewText(" Thanks guys"),
+				lextwt.NewText("! :-("),
+				lextwt.NewText("). "),
+				lextwt.NewText("("),
+				lextwt.NewText("as to be expected"),
+				lextwt.NewText("). "),
+				lextwt.NewText("("),
+				lextwt.NewMention("movq", "https://www.uninformativ.de/twtxt.txt"),
+				lextwt.NewText(" told me so ;-"),
+				lextwt.NewText(")"),
+				lextwt.NewText(")"),
+			),
+		},
 	}
 	fmtOpts := mockFmtOpts{"http://example.org"}
 	for i, tt := range tests {
@@ -705,7 +762,6 @@ func testParseTwt(t *testing.T, expect, elem types.Twt) {
 	is := is.New(t)
 
 	is.Equal(expect.Twter(), elem.Twter())
-	is.Equal(fmt.Sprintf("%+l", expect), fmt.Sprintf("%+l", elem))
 
 	{
 		m := elem.Subject()
@@ -716,9 +772,6 @@ func testParseTwt(t *testing.T, expect, elem types.Twt) {
 	{
 		m := elem.Mentions()
 		n := expect.Mentions()
-		for i := range m {
-			t.Log(m[i])
-		}
 		is.Equal(len(n), len(m))
 		for i := range m {
 			testParseMention(t, m[i].(*lextwt.Mention), n[i].(*lextwt.Mention))
@@ -749,8 +802,11 @@ func testParseTwt(t *testing.T, expect, elem types.Twt) {
 	{
 		m := elem.(*lextwt.Twt).Elems()
 		n := expect.(*lextwt.Twt).Elems()
-		is.Equal(len(m), len(n)) // len(elem) == len(expect)
 		for i, e := range m {
+			if i > len(n) {
+				break
+			}
+
 			switch elem := e.(type) {
 			case *lextwt.Mention:
 				expect, ok := n[i].(*lextwt.Mention)
@@ -773,7 +829,10 @@ func testParseTwt(t *testing.T, expect, elem types.Twt) {
 				is.Equal(e, n[i])
 			}
 		}
+		is.Equal(len(m), len(n)) // len(elem) == len(expect)
 	}
+
+	is.Equal(fmt.Sprintf("%+l", expect), fmt.Sprintf("%+l", elem))
 }
 
 type commentTestCase struct {

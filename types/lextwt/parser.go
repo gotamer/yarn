@@ -25,6 +25,8 @@ type parser struct {
 	frame []int
 
 	errs []error
+
+	skipSubject bool
 }
 
 func NewParser(l *lexer) *parser {
@@ -157,6 +159,7 @@ func (p *parser) ParseTwt() *Twt {
 
 	p.next()
 
+	p.skipSubject = false
 	for elem := p.ParseElem(); elem != nil; elem = p.ParseElem() {
 		p.push()
 		twt.append(elem)
@@ -322,13 +325,18 @@ func (p *parser) ParseElem() Elem {
 	switch p.curTok.Type {
 	case TokLBRACK, TokBANG, TokLT:
 		e = p.ParseLink()
+		p.skipSubject = true // if parsing a non text or mention -> enable subject skip
 	case TokCODE:
 		e = p.ParseCode()
+		p.skipSubject = true
 	case TokLS:
 		e = p.ParseLineSeparator()
+		p.skipSubject = true
 	case TokLPAREN:
-		e = p.ParseSubject()
+		e = p.parseSubjectOrText()
+		p.skipSubject = true
 	case TokHASH:
+		p.skipSubject = true
 		e = p.ParseTag()
 	case TokAT:
 		e = p.ParseMention()
@@ -337,6 +345,7 @@ func (p *parser) ParseElem() Elem {
 	default:
 		if p.curTokenIs(TokSTRING) && p.peekTokenIs(TokSCHEME) {
 			e = p.ParseLink()
+			p.skipSubject = true
 		} else {
 			e = p.ParseText()
 		}
@@ -532,6 +541,16 @@ func (p *parser) ParseTag() *Tag {
 	return nil
 }
 
+// parseSubjectOrText for handling subject skipping.
+func (p *parser) parseSubjectOrText() Elem {
+	if p.skipSubject {
+		p.append(p.curTok.Literal...)
+		p.next()
+		return &Text{p.Literal()}
+	}
+	return p.ParseSubject()
+}
+
 // ParseSubject from tokens
 // Forms parsed:
 //   (#tag)
@@ -539,6 +558,7 @@ func (p *parser) ParseTag() *Tag {
 //   (#<tag target>)
 //   (re: something)
 func (p *parser) ParseSubject() *Subject {
+
 	subject := &Subject{}
 
 	p.append(p.curTok.Literal...) // (
@@ -563,10 +583,10 @@ func (p *parser) ParseSubject() *Subject {
 	if !p.curTokenIs(TokRPAREN) {
 		p.push()
 		p.append(p.curTok.Literal...) // subject text
-			for !p.nextTokenIs(TokGT, TokRPAREN, TokEOF) {
-				p.next()
-				p.append(p.curTok.Literal...) // subject text
-			}
+		for !p.nextTokenIs(TokGT, TokRPAREN, TokEOF) {
+			p.next()
+			p.append(p.curTok.Literal...) // subject text
+		}
 		subject.subject = p.Literal()
 		p.pop()
 
