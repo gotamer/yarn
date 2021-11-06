@@ -92,11 +92,11 @@
           <fieldset>
             <legend>{{tr . "SettingsFormOpenLinksInPreferenceTitle"}}</legend>
             <label for="samewindow">
-              <input type="radio" name="openLinksInPreference" value="samewindow" {{ if .User.OpenLinksInPreference }}checked{{ end }}>
+              <input type="radio" name="openLinksInPreference" value="samewindow" {{ if eq .User.OpenLinksInPreference "samewindow" }}checked{{ end }}>
               Same Window
             </label>
             <label for="newwindow">
-              <input type="radio" name="openLinksInPreference" value="newwindow" {{ if .User.OpenLinksInPreference }}checked{{ end }}>
+              <input type="radio" name="openLinksInPreference" value="newwindow" {{ if eq .User.OpenLinksInPreference "newwindow" }}checked{{ end }}>
               New Window (default)
             </label>
           </fieldset>
