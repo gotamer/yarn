@@ -23,6 +23,9 @@ import (
 	"github.com/justinas/nosurf"
 	"github.com/robfig/cron"
 	log "github.com/sirupsen/logrus"
+	metricsMiddlewarePrometheus "github.com/slok/go-http-metrics/metrics/prometheus"
+	metricsMiddleware "github.com/slok/go-http-metrics/middleware"
+	httproutermiddleware "github.com/slok/go-http-metrics/middleware/httprouter"
 	"github.com/unrolled/logger"
 
 	"git.mills.io/yarnsocial/yarn"
@@ -494,170 +497,180 @@ func (s *Server) initRoutes() {
 		s.router.ServeFilesWithCacheControl("/js/:commit/*filepath", jsFS)
 	}
 
+	mdlw := metricsMiddleware.New(metricsMiddleware.Config{
+		Recorder: metricsMiddlewarePrometheus.NewRecorder(
+			metricsMiddlewarePrometheus.Config{
+				Prefix: "yarnd",
+			},
+		),
+		Service:       "yarnd",
+		GroupedStatus: true,
+	})
+
 	s.router.NotFound = http.HandlerFunc(s.NotFoundHandler)
 
-	s.router.GET("/about", s.PageHandler("about"))
-	s.router.GET("/help", s.PageHandler("help"))
-	s.router.GET("/privacy", s.PageHandler("privacy"))
-	s.router.GET("/abuse", s.PageHandler("abuse"))
+	s.router.GET("/about", httproutermiddleware.Handler("page", s.PageHandler("about"), mdlw))
+	s.router.GET("/help", httproutermiddleware.Handler("page", s.PageHandler("help"), mdlw))
+	s.router.GET("/privacy", httproutermiddleware.Handler("page", s.PageHandler("privacy"), mdlw))
+	s.router.GET("/abuse", httproutermiddleware.Handler("page", s.PageHandler("abuse"), mdlw))
 
-	s.router.GET("/", s.TimelineHandler())
-	s.router.HEAD("/", s.TimelineHandler())
+	s.router.GET("/", httproutermiddleware.Handler("timeline", s.TimelineHandler(), mdlw))
+	s.router.HEAD("/", httproutermiddleware.Handler("timeline", s.TimelineHandler(), mdlw))
 
-	s.router.GET("/robots.txt", s.RobotsHandler())
-	s.router.HEAD("/robots.txt", s.RobotsHandler())
+	s.router.GET("/robots.txt", httproutermiddleware.Handler("robots", s.RobotsHandler(), mdlw))
+	s.router.HEAD("/robots.txt", httproutermiddleware.Handler("robots", s.RobotsHandler(), mdlw))
 
-	s.router.GET("/discover", s.am.MustAuth(s.DiscoverHandler()))
-	s.router.GET("/mentions", s.am.MustAuth(s.MentionsHandler()))
-	s.router.GET("/search", s.SearchHandler())
+	s.router.GET("/discover", httproutermiddleware.Handler("discover", s.am.MustAuth(s.DiscoverHandler()), mdlw))
+	s.router.GET("/mentions", httproutermiddleware.Handler("mentions", s.am.MustAuth(s.MentionsHandler()), mdlw))
+	s.router.GET("/search", httproutermiddleware.Handler("search", s.SearchHandler(), mdlw))
 
-	s.router.HEAD("/twt/:hash", s.PermalinkHandler())
-	s.router.GET("/twt/:hash", s.PermalinkHandler())
+	s.router.HEAD("/twt/:hash", httproutermiddleware.Handler("twt", s.PermalinkHandler(), mdlw))
+	s.router.GET("/twt/:hash", httproutermiddleware.Handler("twt", s.PermalinkHandler(), mdlw))
 
-	s.router.GET("/bookmark/:hash", s.BookmarkHandler())
-	s.router.POST("/bookmark/:hash", s.BookmarkHandler())
+	s.router.GET("/bookmark/:hash", httproutermiddleware.Handler("bookmark", s.BookmarkHandler(), mdlw))
+	s.router.POST("/bookmark/:hash", httproutermiddleware.Handler("bookmark", s.BookmarkHandler(), mdlw))
 
-	s.router.HEAD("/conv/:hash", s.ConversationHandler())
-	s.router.GET("/conv/:hash", s.ConversationHandler())
+	s.router.HEAD("/conv/:hash", httproutermiddleware.Handler("conv", s.ConversationHandler(), mdlw))
+	s.router.GET("/conv/:hash", httproutermiddleware.Handler("conv", s.ConversationHandler(), mdlw))
 
-	s.router.GET("/feeds", s.am.MustAuth(s.FeedsHandler()))
-	s.router.POST("/feed", s.am.MustAuth(s.FeedHandler()))
+	s.router.GET("/feeds", httproutermiddleware.Handler("feeds", s.am.MustAuth(s.FeedsHandler()), mdlw))
+	s.router.POST("/feed", httproutermiddleware.Handler("feeds", s.am.MustAuth(s.FeedHandler()), mdlw))
 
-	s.router.POST("/post", s.am.MustAuth(s.PostHandler()))
-	s.router.PATCH("/post", s.am.MustAuth(s.PostHandler()))
-	s.router.DELETE("/post", s.am.MustAuth(s.PostHandler()))
+	s.router.POST("/post", httproutermiddleware.Handler("post", s.am.MustAuth(s.PostHandler()), mdlw))
+	s.router.PATCH("/post", httproutermiddleware.Handler("post", s.am.MustAuth(s.PostHandler()), mdlw))
+	s.router.DELETE("/post", httproutermiddleware.Handler("post", s.am.MustAuth(s.PostHandler()), mdlw))
 
 	// TODO: Figure out how to internally rewrite/proxy /~:nick -> /user/:nick
 
 	if s.config.OpenProfiles {
-		s.router.GET("/user/:nick/", s.ProfileHandler())
-		s.router.GET("/user/:nick/config.yaml", s.UserConfigHandler())
+		s.router.GET("/user/:nick/", httproutermiddleware.Handler("user", s.ProfileHandler(), mdlw))
+		s.router.GET("/user/:nick/config.yaml", httproutermiddleware.Handler("user_config", s.UserConfigHandler(), mdlw))
 	} else {
-		s.router.GET("/user/:nick/", s.am.MustAuth(s.ProfileHandler()))
-		s.router.GET("/user/:nick/config.yaml", s.am.MustAuth(s.UserConfigHandler()))
+		s.router.GET("/user/:nick/", httproutermiddleware.Handler("user", s.am.MustAuth(s.ProfileHandler()), mdlw))
+		s.router.GET("/user/:nick/config.yaml", httproutermiddleware.Handler("user_config", s.am.MustAuth(s.UserConfigHandler()), mdlw))
 	}
-	s.router.GET("/user/:nick/avatar", s.AvatarHandler())
-	s.router.HEAD("/user/:nick/avatar", s.AvatarHandler())
-	s.router.HEAD("/user/:nick/twtxt.txt", s.TwtxtHandler())
-	s.router.GET("/user/:nick/twtxt.txt", s.TwtxtHandler())
-	s.router.GET("/user/:nick/followers", s.FollowersHandler())
-	s.router.GET("/user/:nick/following", s.FollowingHandler())
-	s.router.GET("/user/:nick/bookmarks", s.BookmarksHandler())
+	s.router.GET("/user/:nick/avatar", httproutermiddleware.Handler("avatar", s.AvatarHandler(), mdlw))
+	s.router.HEAD("/user/:nick/avatar", httproutermiddleware.Handler("avatar", s.AvatarHandler(), mdlw))
+	s.router.HEAD("/user/:nick/twtxt.txt", httproutermiddleware.Handler("twtxt", s.TwtxtHandler(), mdlw))
+	s.router.GET("/user/:nick/twtxt.txt", httproutermiddleware.Handler("twtxt", s.TwtxtHandler(), mdlw))
+	s.router.GET("/user/:nick/followers", httproutermiddleware.Handler("followers", s.FollowersHandler(), mdlw))
+	s.router.GET("/user/:nick/following", httproutermiddleware.Handler("following", s.FollowingHandler(), mdlw))
+	s.router.GET("/user/:nick/bookmarks", httproutermiddleware.Handler("bookmarks", s.BookmarksHandler(), mdlw))
 
 	// WebMentions
-	s.router.POST("/user/:nick/webmention", s.WebMentionHandler())
+	s.router.POST("/user/:nick/webmention", httproutermiddleware.Handler("webmentions", s.WebMentionHandler(), mdlw))
 
 	// Syndication Formats (RSS, Atom, JSON Feed)
-	s.router.HEAD("/user/:nick/atom.xml", s.SyndicationHandler())
-	s.router.GET("/user/:nick/atom.xml", s.SyndicationHandler())
+	s.router.HEAD("/user/:nick/atom.xml", httproutermiddleware.Handler("user_atom", s.SyndicationHandler(), mdlw))
+	s.router.GET("/user/:nick/atom.xml", httproutermiddleware.Handler("user_atom", s.SyndicationHandler(), mdlw))
 
 	if s.config.OpenProfiles {
-		s.router.GET("/~:nick/", s.ProfileHandler())
-		s.router.GET("/~:nick/config.yaml", s.UserConfigHandler())
+		s.router.GET("/~:nick/", httproutermiddleware.Handler("user", s.ProfileHandler(), mdlw))
+		s.router.GET("/~:nick/config.yaml", httproutermiddleware.Handler("user_config", s.UserConfigHandler(), mdlw))
 	} else {
-		s.router.GET("/~:nick/", s.am.MustAuth(s.ProfileHandler()))
-		s.router.GET("/~:nick/config.yaml", s.am.MustAuth(s.UserConfigHandler()))
+		s.router.GET("/~:nick/", httproutermiddleware.Handler("user", s.am.MustAuth(s.ProfileHandler()), mdlw))
+		s.router.GET("/~:nick/config.yaml", httproutermiddleware.Handler("user_config", s.am.MustAuth(s.UserConfigHandler()), mdlw))
 	}
-	s.router.GET("/~:nick/avatar", s.AvatarHandler())
-	s.router.HEAD("/~:nick/avatar", s.AvatarHandler())
-	s.router.HEAD("/~:nick/twtxt.txt", s.TwtxtHandler())
-	s.router.GET("/~:nick/twtxt.txt", s.TwtxtHandler())
-	s.router.GET("/~:nick/followers", s.FollowersHandler())
-	s.router.GET("/~:nick/following", s.FollowingHandler())
-	s.router.GET("/~:nick/bookmarks", s.BookmarksHandler())
+	s.router.GET("/~:nick/avatar", httproutermiddleware.Handler("avatar", s.AvatarHandler(), mdlw))
+	s.router.HEAD("/~:nick/avatar", httproutermiddleware.Handler("avatar", s.AvatarHandler(), mdlw))
+	s.router.HEAD("/~:nick/twtxt.txt", httproutermiddleware.Handler("twtxt", s.TwtxtHandler(), mdlw))
+	s.router.GET("/~:nick/twtxt.txt", httproutermiddleware.Handler("twtxt", s.TwtxtHandler(), mdlw))
+	s.router.GET("/~:nick/followers", httproutermiddleware.Handler("followers", s.FollowersHandler(), mdlw))
+	s.router.GET("/~:nick/following", httproutermiddleware.Handler("following", s.FollowingHandler(), mdlw))
+	s.router.GET("/~:nick/bookmarks", httproutermiddleware.Handler("bookmarks", s.BookmarksHandler(), mdlw))
 
 	// WebMentions
-	s.router.POST("/~:nick/webmention", s.WebMentionHandler())
+	s.router.POST("/~:nick/webmention", httproutermiddleware.Handler("webmentions", s.WebMentionHandler(), mdlw))
 
 	// Syndication Formats (RSS, Atom, JSON Feed)
-	s.router.HEAD("/~:nick/atom.xml", s.SyndicationHandler())
-	s.router.GET("/~:nick/atom.xml", s.SyndicationHandler())
+	s.router.HEAD("/~:nick/atom.xml", httproutermiddleware.Handler("user_atom", s.SyndicationHandler(), mdlw))
+	s.router.GET("/~:nick/atom.xml", httproutermiddleware.Handler("user_atom", s.SyndicationHandler(), mdlw))
 
 	// External Feeds
-	s.router.GET("/external", s.ExternalHandler())
-	s.router.GET("/externalFollowing", s.ExternalFollowingHandler())
-	s.router.GET("/externalAvatar", s.ExternalAvatarHandler())
-	s.router.HEAD("/externalAvatar", s.ExternalAvatarHandler())
+	s.router.GET("/external", httproutermiddleware.Handler("external", s.ExternalHandler(), mdlw))
+	s.router.GET("/externalFollowing", httproutermiddleware.Handler("external_following", s.ExternalFollowingHandler(), mdlw))
+	s.router.GET("/externalAvatar", httproutermiddleware.Handler("external_avatar", s.ExternalAvatarHandler(), mdlw))
+	s.router.HEAD("/externalAvatar", httproutermiddleware.Handler("external_avatar", s.ExternalAvatarHandler(), mdlw))
 
 	// External Queries (protected by a short-lived token)
-	s.router.GET("/whoFollows", s.WhoFollowsHandler())
+	s.router.GET("/whoFollows", httproutermiddleware.Handler("whoFollows", s.WhoFollowsHandler(), mdlw))
 
 	// Syndication Formats (RSS, Atom, JSON Feed)
-	s.router.HEAD("/atom.xml", s.SyndicationHandler())
-	s.router.GET("/atom.xml", s.SyndicationHandler())
+	s.router.HEAD("/atom.xml", httproutermiddleware.Handler("atom", s.SyndicationHandler(), mdlw))
+	s.router.GET("/atom.xml", httproutermiddleware.Handler("atom", s.SyndicationHandler(), mdlw))
 
-	s.router.GET("/feed/:name/manage", s.am.MustAuth(s.ManageFeedHandler()))
-	s.router.POST("/feed/:name/manage", s.am.MustAuth(s.ManageFeedHandler()))
-	s.router.POST("/feed/:name/archive", s.am.MustAuth(s.ArchiveFeedHandler()))
+	s.router.GET("/feed/:name/manage", httproutermiddleware.Handler("feed_manage", s.am.MustAuth(s.ManageFeedHandler()), mdlw))
+	s.router.POST("/feed/:name/manage", httproutermiddleware.Handler("feed_manage", s.am.MustAuth(s.ManageFeedHandler()), mdlw))
+	s.router.POST("/feed/:name/archive", httproutermiddleware.Handler("feed_archive", s.am.MustAuth(s.ArchiveFeedHandler()), mdlw))
 
-	s.router.GET("/login", s.am.HasAuth(s.LoginHandler()))
-	s.router.POST("/login", s.LoginHandler())
+	s.router.GET("/login", httproutermiddleware.Handler("login", s.am.HasAuth(s.LoginHandler()), mdlw))
+	s.router.POST("/login", httproutermiddleware.Handler("login", s.LoginHandler(), mdlw))
 
-	s.router.GET("/logout", s.LogoutHandler())
-	s.router.POST("/logout", s.LogoutHandler())
+	s.router.GET("/logout", httproutermiddleware.Handler("logout", s.LogoutHandler(), mdlw))
+	s.router.POST("/logout", httproutermiddleware.Handler("logout", s.LogoutHandler(), mdlw))
 
-	s.router.GET("/register", s.am.HasAuth(s.RegisterHandler()))
-	s.router.POST("/register", s.RegisterHandler())
+	s.router.GET("/register", httproutermiddleware.Handler("register", s.am.HasAuth(s.RegisterHandler()), mdlw))
+	s.router.POST("/register", httproutermiddleware.Handler("register", s.RegisterHandler(), mdlw))
 
 	// Reset Password
-	s.router.GET("/resetPassword", s.ResetPasswordHandler())
-	s.router.POST("/resetPassword", s.ResetPasswordHandler())
-	s.router.GET("/newPassword", s.ResetPasswordMagicLinkHandler())
-	s.router.POST("/newPassword", s.NewPasswordHandler())
+	s.router.GET("/resetPassword", httproutermiddleware.Handler("resetPassword", s.ResetPasswordHandler(), mdlw))
+	s.router.POST("/resetPassword", httproutermiddleware.Handler("resetPassword", s.ResetPasswordHandler(), mdlw))
+	s.router.GET("/newPassword", httproutermiddleware.Handler("resetPassword", s.ResetPasswordMagicLinkHandler(), mdlw))
+	s.router.POST("/newPassword", httproutermiddleware.Handler("newPassword", s.NewPasswordHandler(), mdlw))
 
 	// Media Handling
-	s.router.GET("/media/:name", s.MediaHandler())
-	s.router.HEAD("/media/:name", s.MediaHandler())
-	s.router.POST("/upload", s.am.MustAuth(s.UploadMediaHandler()))
+	s.router.GET("/media/:name", httproutermiddleware.Handler("media", s.MediaHandler(), mdlw))
+	s.router.HEAD("/media/:name", httproutermiddleware.Handler("media", s.MediaHandler(), mdlw))
+	s.router.POST("/upload", httproutermiddleware.Handler("upload", s.am.MustAuth(s.UploadMediaHandler()), mdlw))
 
 	// Task State
-	s.router.GET("/task/:uuid", s.TaskHandler())
+	s.router.GET("/task/:uuid", httproutermiddleware.Handler("task", s.TaskHandler(), mdlw))
 
 	// User/Feed Lookups
-	s.router.GET("/lookup", s.am.MustAuth(s.LookupHandler()))
+	s.router.GET("/lookup", httproutermiddleware.Handler("lookup", s.am.MustAuth(s.LookupHandler()), mdlw))
 
-	s.router.GET("/follow", s.am.MustAuth(s.FollowHandler()))
-	s.router.POST("/follow", s.am.MustAuth(s.FollowHandler()))
+	s.router.GET("/follow", httproutermiddleware.Handler("follow", s.am.MustAuth(s.FollowHandler()), mdlw))
+	s.router.POST("/follow", httproutermiddleware.Handler("follow", s.am.MustAuth(s.FollowHandler()), mdlw))
 
-	s.router.GET("/import", s.am.MustAuth(s.ImportHandler()))
-	s.router.POST("/import", s.am.MustAuth(s.ImportHandler()))
+	s.router.GET("/import", httproutermiddleware.Handler("import", s.am.MustAuth(s.ImportHandler()), mdlw))
+	s.router.POST("/import", httproutermiddleware.Handler("import", s.am.MustAuth(s.ImportHandler()), mdlw))
 
-	s.router.GET("/unfollow", s.am.MustAuth(s.UnfollowHandler()))
-	s.router.POST("/unfollow", s.am.MustAuth(s.UnfollowHandler()))
+	s.router.GET("/unfollow", httproutermiddleware.Handler("unfollow", s.am.MustAuth(s.UnfollowHandler()), mdlw))
+	s.router.POST("/unfollow", httproutermiddleware.Handler("unfollow", s.am.MustAuth(s.UnfollowHandler()), mdlw))
 
-	s.router.GET("/mute", s.am.MustAuth(s.MuteHandler()))
-	s.router.POST("/mute", s.am.MustAuth(s.MuteHandler()))
-	s.router.GET("/unmute", s.am.MustAuth(s.UnmuteHandler()))
-	s.router.POST("/unmute", s.am.MustAuth(s.UnmuteHandler()))
+	s.router.GET("/mute", httproutermiddleware.Handler("mute", s.am.MustAuth(s.MuteHandler()), mdlw))
+	s.router.POST("/mute", httproutermiddleware.Handler("mute", s.am.MustAuth(s.MuteHandler()), mdlw))
+	s.router.GET("/unmute", httproutermiddleware.Handler("unmute", s.am.MustAuth(s.UnmuteHandler()), mdlw))
+	s.router.POST("/unmute", httproutermiddleware.Handler("unmute", s.am.MustAuth(s.UnmuteHandler()), mdlw))
 
-	s.router.GET("/transferFeed/:name", s.TransferFeedHandler())
-	s.router.GET("/transferFeed/:name/:transferTo", s.TransferFeedHandler())
+	s.router.GET("/transferFeed/:name", httproutermiddleware.Handler("transferFeed", s.TransferFeedHandler(), mdlw))
+	s.router.GET("/transferFeed/:name/:transferTo", httproutermiddleware.Handler("transferFeed", s.TransferFeedHandler(), mdlw))
 
-	s.router.GET("/settings", s.am.MustAuth(s.SettingsHandler()))
-	s.router.POST("/settings", s.am.MustAuth(s.SettingsHandler()))
-	s.router.POST("/token/delete/:signature", s.am.MustAuth(s.DeleteTokenHandler()))
+	s.router.GET("/settings", httproutermiddleware.Handler("settings", s.am.MustAuth(s.SettingsHandler()), mdlw))
+	s.router.POST("/settings", httproutermiddleware.Handler("settings", s.am.MustAuth(s.SettingsHandler()), mdlw))
+	s.router.POST("/token/delete/:signature", httproutermiddleware.Handler("token_delete", s.am.MustAuth(s.DeleteTokenHandler()), mdlw))
 
-	s.router.GET("/version", s.PodVersionHandler())
-	s.router.GET("/config", s.am.MustAuth(s.PodConfigHandler()))
-	s.router.GET("/manage/pod", s.ManagePodHandler())
-	s.router.POST("/manage/pod", s.ManagePodHandler())
+	s.router.GET("/version", httproutermiddleware.Handler("version", s.PodVersionHandler(), mdlw))
+	s.router.GET("/config", httproutermiddleware.Handler("config", s.am.MustAuth(s.PodConfigHandler()), mdlw))
+	s.router.GET("/manage/pod", httproutermiddleware.Handler("manage_pod", s.ManagePodHandler(), mdlw))
+	s.router.POST("/manage/pod", httproutermiddleware.Handler("manage_pod", s.ManagePodHandler(), mdlw))
 
-	s.router.GET("/manage/users", s.ManageUsersHandler())
-	s.router.POST("/manage/adduser", s.AddUserHandler())
-	s.router.POST("/manage/deluser", s.DelUserHandler())
-	s.router.POST("/manage/rstuser", s.RstUserHandler())
+	s.router.GET("/manage/users", httproutermiddleware.Handler("manager_users", s.ManageUsersHandler(), mdlw))
+	s.router.POST("/manage/adduser", httproutermiddleware.Handler("adduser", s.AddUserHandler(), mdlw))
+	s.router.POST("/manage/deluser", httproutermiddleware.Handler("deluser", s.DelUserHandler(), mdlw))
+	s.router.POST("/manage/rstuser", httproutermiddleware.Handler("rstuser", s.RstUserHandler(), mdlw))
 
-	s.router.GET("/deleteFeeds", s.DeleteAccountHandler())
-	s.router.POST("/delete", s.am.MustAuth(s.DeleteAllHandler()))
+	s.router.GET("/deleteFeeds", httproutermiddleware.Handler("deleteFeeds", s.DeleteAccountHandler(), mdlw))
+	s.router.POST("/delete", httproutermiddleware.Handler("delete", s.am.MustAuth(s.DeleteAllHandler()), mdlw))
 
 	// Support / Report Abuse handlers
 
-	s.router.GET("/support", s.SupportHandler())
-	s.router.POST("/support", s.SupportHandler())
-	s.router.GET("/_captcha", s.CaptchaHandler())
+	s.router.GET("/support", httproutermiddleware.Handler("support", s.SupportHandler(), mdlw))
+	s.router.POST("/support", httproutermiddleware.Handler("support", s.SupportHandler(), mdlw))
+	s.router.GET("/_captcha", httproutermiddleware.Handler("captcha", s.CaptchaHandler(), mdlw))
 
-	s.router.GET("/report", s.ReportHandler())
-	s.router.POST("/report", s.ReportHandler())
+	s.router.GET("/report", httproutermiddleware.Handler("report", s.ReportHandler(), mdlw))
+	s.router.POST("/report", httproutermiddleware.Handler("report", s.ReportHandler(), mdlw))
 }
 
 // NewServer ...
