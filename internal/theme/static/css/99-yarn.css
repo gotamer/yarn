@@ -19,6 +19,10 @@ article nav li {
   padding: 0rem 0.5rem;
 }
 
+article:target {
+    border: 1px solid var(--primary);
+}
+
 .logo {
   height: 56px;
 }
