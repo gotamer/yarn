@@ -21,7 +21,7 @@ import (
 
 const (
 	feedCacheFile    = "cache"
-	feedCacheVersion = 11 // increase this if breaking changes occur to cache file.
+	feedCacheVersion = 12 // increase this if breaking changes occur to cache file.
 
 	localViewKey    = "local"
 	discoverViewKey = "discover"
@@ -280,12 +280,16 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 
 	seenFeeds := make(map[string]bool)
 	for feed := range feeds {
+		// Normalize URLs
+		feed.URL = NormalizeURL(feed.URL)
+
 		// Skip feeds we've already fetched by URI
 		// (but possibly referenced by different alias)
-		// Also skil feeds that are blacklisted.
 		if _, seenFeed := seenFeeds[feed.URL]; seenFeed {
 			continue
 		}
+
+		// Skip feeds that are blacklisted.
 		if cache.conf.BlacklistedFeed(feed.URL) {
 			log.Warnf("attempt to fetch blacklisted feed %s", feed)
 			continue
