@@ -1526,7 +1526,7 @@ func (s *Server) SyndicationHandler() httprouter.Handle {
 		for _, twt := range twts {
 			url := URLForTwt(s.config.BaseURL, twt.Hash())
 			what := twt.FormatText(types.TextFmt, s.config)
-			title := fmt.Sprintf("%s", TextWithEllipsis(what, maxPermalinkTitle))
+			title := TextWithEllipsis(what, maxPermalinkTitle)
 			items = append(items, &feeds.Item{
 				Id:          url,
 				Title:       title,

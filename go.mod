@@ -65,7 +65,7 @@ require (
 	github.com/securisec/go-keywords v0.0.0-20200619134240-769e7273f2ed
 	github.com/shopspring/decimal v1.3.1 // indirect
 	github.com/sirupsen/logrus v1.8.1
-	github.com/slok/go-http-metrics v0.9.0 // indirect
+	github.com/slok/go-http-metrics v0.9.0
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.9.0
