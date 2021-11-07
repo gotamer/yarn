@@ -1,10 +1,30 @@
 
+<a name="0.6.2"></a>
+## [0.6.2](https://git.mills.io/yarnsocial/yarn/compare/0.6.1...0.6.2) (2021-11-08)
+
+### Bug Fixes
+
+* Fix consistency of pointers on toolbar buttons (Fixes #505)
+* Fix expression in User Settings template for which openLinksInPreference is checked 🤦‍♂️
+* Fix typo in User Settings handler for persisting OpenLinksInPreference 🤦‍♂️
+
+### Features
+
+* Add RotateFeeds job (#504)
+* Add article target (#506)
+* Add per-handler latency metrics
+
+
 <a name="0.6.1"></a>
 ## [0.6.1](https://git.mills.io/yarnsocial/yarn/compare/0.6.0...0.6.1) (2021-11-06)
 
 ### Bug Fixes
 
 * Fix a nil pointer exception handling User OpenLinksInPreference :/
+
+### Updates
+
+* Update CHANGELOG for 0.6.1
 
 
 <a name="0.6.0"></a>
