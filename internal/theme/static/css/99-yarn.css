@@ -67,6 +67,9 @@ nav.toolbar-nav ul{
 .toolbar-form-button {
   width: 40px;
 }
+.toolbar-form-button label {
+	cursor: pointer
+}
 
 audio {
   display: block;
