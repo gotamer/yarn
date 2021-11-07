@@ -2,8 +2,11 @@ package internal
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 
 	"git.mills.io/yarnsocial/yarn/types"
+	"github.com/dustin/go-humanize"
 	"github.com/robfig/cron"
 	log "github.com/sirupsen/logrus"
 )
@@ -26,18 +29,20 @@ var (
 func InitJobs(conf *Config) {
 	Jobs = map[string]JobSpec{
 		"SyncStore":         NewJobSpec("@every 1m", NewSyncStoreJob),
-		"UpdateFeeds":       NewJobSpec(fmt.Sprintf("@every %s", conf.FetchInterval), NewUpdateFeedsJob),
+		"UpdateFeeds":       NewJobSpec(conf.FetchInterval, NewUpdateFeedsJob),
 		"UpdateFeedSources": NewJobSpec("@every 15m", NewUpdateFeedSourcesJob),
 
 		"DeleteOldSessions": NewJobSpec("@hourly", NewDeleteOldSessionsJob),
 
-		"Stats": NewJobSpec("@daily", NewStatsJob),
+		"Stats":       NewJobSpec("@daily", NewStatsJob),
+		"RotateFeeds": NewJobSpec("0 0 2 * * 0", NewRotateFeedsJob),
 
 		"CreateBots":       NewJobSpec("", NewCreateBotsJob),
 		"CreateAdminFeeds": NewJobSpec("", NewCreateAdminFeedsJob),
 	}
 
 	StartupJobs = map[string]JobSpec{
+		"RotateFeeds":       Jobs["RotateFeeds"],
 		"UpdateFeeds":       Jobs["UpdateFeeds"],
 		"UpdateFeedSources": Jobs["UpdateFeedSources"],
 		"CreateBots":        Jobs["CreateBots"],
@@ -134,7 +139,7 @@ func (job *StatsJob) Run() {
 
 	text := fmt.Sprintf(
 		"🧮 USERS:%d FEEDS:%d TWTS:%d ARCHIVED:%d CACHE:%d FOLLOWERS:%d FOLLOWING:%d",
-		len(users), len(feeds), twts, archiveSize, job.cache.Count(), len(followers), len(following),
+		len(users), len(feeds), twts, archiveSize, job.cache.TwtCount(), len(followers), len(following),
 	)
 
 	if _, err := AppendSpecial(job.conf, job.db, "stats", text); err != nil {
@@ -198,7 +203,7 @@ func (job *UpdateFeedsJob) Run() {
 	log.Infof("updating %d sources", len(sources))
 	job.cache.FetchTwts(job.conf, job.archive, sources, publicFollowers)
 
-	log.Info("syncing feed cache ", len(job.cache.Twts))
+	log.Info("syncing feed cache")
 	if err := job.cache.Store(job.conf); err != nil {
 		log.WithError(err).Warn("error saving feed cache")
 		return
@@ -321,6 +326,48 @@ func (job *DeleteOldSessionsJob) Run() {
 			log.Infof("deleting expired session %s", session.ID)
 			if err := job.db.DelSession(session.ID); err != nil {
 				log.WithError(err).Error("error deleting session object")
+			}
+		}
+	}
+}
+
+type RotateFeedsJob struct {
+	conf    *Config
+	cache   *Cache
+	archive Archiver
+	db      Store
+}
+
+func NewRotateFeedsJob(conf *Config, cache *Cache, archive Archiver, db Store) cron.Job {
+	return &RotateFeedsJob{conf: conf, cache: cache, archive: archive, db: db}
+}
+
+func (job *RotateFeedsJob) Run() {
+	feeds, err := GetAllFeeds(job.conf)
+	if err != nil {
+		log.WithError(err).Warn("unable to get all local feeds")
+		return
+	}
+
+	for _, feed := range feeds {
+		fn := filepath.Join(job.conf.Data, feedsDir, feed)
+		stat, err := os.Stat(fn)
+		if err != nil {
+			log.WithError(err).Error("error getting feed size")
+			continue
+		}
+
+		if stat.Size() > job.conf.MaxFetchLimit {
+			log.Infof(
+				"rotating %s with size %s > %s",
+				feed, humanize.Bytes(uint64(stat.Size())),
+				humanize.Bytes(uint64(job.conf.MaxFetchLimit)),
+			)
+
+			if err := RotateFeed(job.conf, feed); err != nil {
+				log.WithError(err).Error("error rotating feed")
+			} else {
+				log.Infof("rotated feed %s", feed)
 			}
 		}
 	}

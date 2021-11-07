@@ -471,3 +471,25 @@ func (s *Server) RstUserHandler() httprouter.Handle {
 		s.render("error", w, ctx)
 	}
 }
+
+// RefreshCacheHandler ...
+func (s *Server) RefreshCacheHandler() httprouter.Handle {
+	isAdminUser := IsAdminUserFactory(s.config)
+
+	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		ctx := NewContext(s, r)
+
+		if !isAdminUser(ctx.User) {
+			ctx.Error = true
+			ctx.Message = "You are not a Pod Owner!"
+			s.render("403", w, ctx)
+			return
+		}
+
+		s.cache.Refresh()
+
+		ctx.Error = false
+		ctx.Message = "Successfully refreshed cache"
+		s.render("error", w, ctx)
+	}
+}

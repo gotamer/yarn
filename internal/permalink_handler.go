@@ -35,8 +35,8 @@ func (s *Server) PermalinkHandler() httprouter.Handle {
 
 		var err error
 
-		twt, ok := s.cache.Lookup(hash)
-		if !ok {
+		twt, inCache := s.cache.Lookup(hash)
+		if !inCache {
 			// If the twt is not in the cache look for it in the archive
 			if s.archive.Has(hash) {
 				twt, err = s.archive.Get(hash)

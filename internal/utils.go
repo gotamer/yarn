@@ -19,6 +19,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"syscall"
@@ -1748,4 +1749,82 @@ func TextWithEllipsis(text string, maxLength int) string {
 		return fmt.Sprintf("%s ...", text[:maxLength])
 	}
 	return text
+}
+
+// GetArchivedFeeds ...
+func GetArchivedFeeds(conf *Config, feed string) ([]string, error) {
+	fns, err := filepath.Glob(filepath.Join(conf.Data, feedsDir, fmt.Sprintf("%s.*", feed)))
+	if err != nil {
+		return nil, err
+	}
+	sort.Strings(fns)
+	return fns, nil
+}
+
+// ParseArchivedFeedIds ...
+func ParseArchivedFeedIds(fns []string) ([]int, error) {
+	var ids []int
+	for _, fn := range fns {
+		base := filepath.Base(fn)
+		// Split the archived feed's base filename into 3 parts
+		// <feed>.<id>[.<rest>]
+		// This is so we can in future support compressed archives
+		// like prologic.1.gz
+		parts := strings.SplitN(base, ".", 3)
+		if len(parts) < 2 {
+			return nil, fmt.Errorf("unexpected number of parts in archived feed %s expected at least 2", fn)
+		}
+		// the <id> is always the 2nd part of the archived feed's filename
+		idPart := parts[1]
+		id, err := strconv.ParseInt(idPart, 10, 32)
+		if err != nil {
+			return nil, err
+		}
+		ids = append(ids, int(id))
+	}
+	sort.Sort(sort.Reverse(sort.IntSlice(ids)))
+	return ids, nil
+}
+
+func RotateFeed(conf *Config, feed string) error {
+	// Get old archived feeds
+	archivedFeeds, err := GetArchivedFeeds(conf, feed)
+	if err != nil {
+		log.WithError(err).Error("error getting list of archived feeds")
+		return fmt.Errorf("error getting list of archived feeds for %s: %w", feed, err)
+	}
+
+	// Parse archived feed ids
+	archivedFeedIds, err := ParseArchivedFeedIds(archivedFeeds)
+	if err != nil {
+		log.WithError(err).Error("error parsing archived feed ids")
+		return fmt.Errorf("error parsing archived feed ids for %s: %w", feed, err)
+	}
+
+	// Shuffle old archived feeds
+	for _, archiveFeedID := range archivedFeedIds {
+		oldFn := filepath.Join(conf.Data, feedsDir, fmt.Sprintf("%s.%d", feed, archiveFeedID))
+		newFn := filepath.Join(conf.Data, feedsDir, fmt.Sprintf("%s.%d", feed, (archiveFeedID+1)))
+
+		if FileExists(newFn) {
+			return fmt.Errorf("error shuffling archived feed %s would override archived feed %s", oldFn, newFn)
+		}
+
+		if err := os.Rename(oldFn, newFn); err != nil {
+			log.WithError(err).Errorf("error renaming archived feed %s -> %s", oldFn, newFn)
+		}
+	}
+
+	oldFn := filepath.Join(conf.Data, feedsDir, feed)
+	newFn := filepath.Join(conf.Data, feedsDir, feed+".0")
+
+	if FileExists(newFn) {
+		return fmt.Errorf("error rotating feed %s would override archived feed %s", feed, newFn)
+	}
+
+	if err := os.Rename(oldFn, newFn); err != nil {
+		log.WithError(err).Errorf("error renaming active feed %s -> %s", oldFn, newFn)
+	}
+
+	return nil
 }

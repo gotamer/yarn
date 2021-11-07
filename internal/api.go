@@ -1083,8 +1083,8 @@ func (a *API) ConversationEndpoint() httprouter.Handle {
 			return
 		}
 
-		twt, ok := a.cache.Lookup(hash)
-		if !ok {
+		twt, inCache := a.cache.Lookup(hash)
+		if !inCache {
 			// If the twt is not in the cache look for it in the archive
 			if a.archive.Has(hash) {
 				twt, err = a.archive.Get(hash)
@@ -1101,7 +1101,10 @@ func (a *API) ConversationEndpoint() httprouter.Handle {
 			return
 		}
 
-		twts := FilterTwts(loggedInUser, a.cache.GetTwtsInConversation(hash, twt))
+		twts := a.cache.GetByUserView(loggedInUser, fmt.Sprintf("subject:(#%s)", hash), false)
+		if !inCache {
+			twts = append(twts, twt)
+		}
 		sort.Sort(sort.Reverse(twts))
 
 		var pagedTwts types.Twts
@@ -1241,9 +1244,12 @@ func (a *API) ExternalProfileEndpoint() httprouter.Handle {
 		}
 
 		if !a.cache.IsCached(uri) {
-			sources := make(types.Feeds)
-			sources[types.Feed{Nick: nick, URL: uri}] = true
-			a.cache.FetchTwts(a.config, a.archive, sources, nil)
+			a.tasks.DispatchFunc(func() error {
+				sources := make(types.Feeds)
+				sources[types.Feed{Nick: nick, URL: uri}] = true
+				a.cache.FetchTwts(a.config, a.archive, sources, nil)
+				return nil
+			})
 		}
 
 		twts := FilterTwts(loggedInUser, a.cache.GetByURL(uri))

@@ -108,6 +108,9 @@ func GetLastTwt(conf *Config, user *User) (twt types.Twt, offset int, err error)
 	}
 
 	fn := filepath.Join(p, user.Username)
+	if !FileExists(fn) {
+		return
+	}
 
 	var data []byte
 	data, offset, err = read_file_last_line.ReadLastLine(fn)
@@ -135,7 +138,13 @@ func GetAllFeeds(conf *Config) ([]string, error) {
 
 	fns := []string{}
 	for _, fileInfo := range files {
-		fns = append(fns, filepath.Base(fileInfo.Name()))
+		fn := filepath.Base(fileInfo.Name())
+		// feeds with an extension are rotated/archived feeds
+		// e.g: prologic.1 prologic.2
+		if filepath.Ext(fn) != "" {
+			continue
+		}
+		fns = append(fns, fn)
 	}
 	return fns, nil
 }

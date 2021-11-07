@@ -32,8 +32,8 @@ func (s *Server) ConversationHandler() httprouter.Handle {
 
 		var err error
 
-		twt, ok := s.cache.Lookup(hash)
-		if !ok {
+		twt, inCache := s.cache.Lookup(hash)
+		if !inCache {
 			// If the twt is not in the cache look for it in the archive
 			if s.archive.Has(hash) {
 				twt, err = s.archive.Get(hash)
@@ -93,7 +93,10 @@ func (s *Server) ConversationHandler() httprouter.Handle {
 			)
 		}
 
-		twts := s.cache.GetTwtsInConversation(hash, twt)
+		twts := s.cache.GetByUserView(ctx.User, fmt.Sprintf("subject:(#%s)", hash), false)
+		if !inCache {
+			twts = append(twts, twt)
+		}
 		sort.Sort(sort.Reverse(twts))
 
 		var pagedTwts types.Twts

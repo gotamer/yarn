@@ -654,6 +654,7 @@ func (s *Server) initRoutes() {
 	s.router.GET("/config", httproutermiddleware.Handler("config", s.am.MustAuth(s.PodConfigHandler()), mdlw))
 	s.router.GET("/manage/pod", httproutermiddleware.Handler("manage_pod", s.ManagePodHandler(), mdlw))
 	s.router.POST("/manage/pod", httproutermiddleware.Handler("manage_pod", s.ManagePodHandler(), mdlw))
+	s.router.GET("/manage/refreshcache", httproutermiddleware.Handler("manage_refreshcache", s.RefreshCacheHandler(), mdlw))
 
 	s.router.GET("/manage/users", httproutermiddleware.Handler("manager_users", s.ManageUsersHandler(), mdlw))
 	s.router.POST("/manage/adduser", httproutermiddleware.Handler("adduser", s.AddUserHandler(), mdlw))

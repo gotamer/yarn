@@ -5,8 +5,6 @@ import (
 	"regexp"
 	"runtime"
 	"time"
-
-	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -86,9 +84,8 @@ const (
 	DefaultMaxCacheTTL = time.Hour * 24 * 10 // 10 days 28 days 28 days 28 days
 
 	// DefaultFetchInterval is the default interval used by the global feed cache
-	// to control when to actually fetch and update feeds. This accepts `time.Duration`
-	// as parsed by `time.ParseDuration()`.
-	DefaultFetchInterval = "5m"
+	// to control when to actually fetch and update feeds.
+	DefaultFetchInterval = "@every 5m"
 
 	// DefaultMaxCacheItems is the default maximum cache items (per feed source)
 	// of twts in memory
@@ -124,7 +121,7 @@ const (
 	DefaultSMTPFrom = InvalidConfigValue
 
 	// DefaultMaxFetchLimit is the maximum fetch fetch limit in bytes
-	DefaultMaxFetchLimit = 1 << 21 // ~2MB (or more than enough for a year)
+	DefaultMaxFetchLimit = 1 << 20 // ~1MB (or more than enough for months)
 
 	// DefaultAPISessionTime is the server's default session time for API tokens
 	DefaultAPISessionTime = 240 * time.Hour // 10 days
@@ -376,12 +373,7 @@ func WithMaxCacheTTL(maxCacheTTL time.Duration) Option {
 // Accepts a string as parsed by `time.ParseDuration`
 func WithFetchInterval(fetchInterval string) Option {
 	return func(cfg *Config) error {
-		d, err := time.ParseDuration(fetchInterval)
-		if err != nil {
-			log.WithError(err).Errorf("error parsing fetch interval %s", fetchInterval)
-			return err
-		}
-		cfg.FetchInterval = d
+		cfg.FetchInterval = fetchInterval
 		return nil
 	}
 }

@@ -38,7 +38,7 @@ func (s *Server) SearchHandler() httprouter.Handle {
 			}
 		}
 
-		twts = append(twts, s.cache.GetByTag(tag)...)
+		twts = append(twts, s.cache.GetByUserView(ctx.User, fmt.Sprintf("tag:%s", tag), false)...)
 		sort.Sort(sort.Reverse(twts))
 
 		var pagedTwts types.Twts
