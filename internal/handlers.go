@@ -1449,8 +1449,6 @@ func (s *Server) TaskHandler() httprouter.Handle {
 
 // SyndicationHandler ...
 func (s *Server) SyndicationHandler() httprouter.Handle {
-	formatTwt := FormatTwtFactory(s.config)
-
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		var (
 			twts    types.Twts
@@ -1488,7 +1486,7 @@ func (s *Server) SyndicationHandler() httprouter.Handle {
 			profile = types.Profile{
 				Type:     "Local",
 				Username: s.config.Name,
-				Tagline:  "", // TODO: Maybe Twtxt Pods should have a configurable description?
+				Tagline:  s.config.Description,
 				URL:      s.config.BaseURL,
 			}
 		}
@@ -1527,12 +1525,14 @@ func (s *Server) SyndicationHandler() httprouter.Handle {
 
 		for _, twt := range twts {
 			url := URLForTwt(s.config.BaseURL, twt.Hash())
+			what := twt.FormatText(types.TextFmt, s.config)
+			title := fmt.Sprintf("%s", TextWithEllipsis(what, maxPermalinkTitle))
 			items = append(items, &feeds.Item{
 				Id:          url,
-				Title:       string(formatTwt(twt, nil)),
+				Title:       title,
 				Link:        &feeds.Link{Href: url},
-				Author:      &feeds.Author{Name: twt.Twter().Nick},
-				Description: string(formatTwt(twt, nil)),
+				Author:      &feeds.Author{Name: twt.Twter().DomainNick()},
+				Description: twt.FormatText(types.HTMLFmt, s.config),
 				Created:     twt.Created(),
 			},
 			)
