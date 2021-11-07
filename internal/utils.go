@@ -1130,6 +1130,7 @@ func NormalizeURL(url string) string {
 		u.Host = strings.TrimSuffix(u.Host, ":443")
 	}
 	u.User = nil
+	u.Fragment = ""
 	u.Path = strings.TrimSuffix(u.Path, "/")
 	norm, err := urlx.Normalize(u)
 	if err != nil {
