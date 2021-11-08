@@ -230,8 +230,11 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("error: api signing key is not configured")
 	}
 
-	if !c.Debug && c.baseURL.Scheme != "https" {
-		return fmt.Errorf("error: -u/--base-url %s should be TLS enabled and started with https:// in non-debug (-D) mode", c.baseURL.String())
+	// Automatically correct missing Scheme in Pod Base URL
+	if c.baseURL.Scheme == "" {
+		log.Warnf("pod base url (-u/--base-url) %s is missing the scheme")
+		c.baseURL.Scheme = "https"
+		c.BaseURL = c.baseURL.String()
 	}
 
 	return nil
