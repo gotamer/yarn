@@ -34,8 +34,8 @@ import (
 )
 
 const (
-	MediaResolution  = 720 // 720x576
-	AvatarResolution = 360 // 360x360
+	MediaResolution  = 850 // 850px width (maintaining aspect ratio)
+	AvatarResolution = 360 // 360px width (maintaining aspect ratio)
 	AsyncTaskLimit   = 5
 	MaxFailedLogins  = 3 // By default 3 failed login attempts per 5 minutes
 
