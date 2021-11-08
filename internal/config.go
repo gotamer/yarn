@@ -210,6 +210,13 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("error applying blacklisted feeds: %w", err)
 	}
 
+	// Automatically correct missing Scheme in Pod Base URL
+	if c.baseURL.Scheme == "" {
+		log.Warnf("pod base url (-u/--base-url) %s is missing the scheme")
+		c.baseURL.Scheme = "http"
+		c.BaseURL = c.baseURL.String()
+	}
+
 	if c.Debug {
 		return nil
 	}
