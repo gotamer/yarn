@@ -143,6 +143,11 @@ whitespace.
 # link = All my source code https://git.example.com/
 ```
 
+### `prev`
+
+This field is used by the [Archive Feeds
+Extension](archivefeedsextension.html).
+
 ## Changelog
 
 * 2021-10-09: Initial version.
