@@ -759,7 +759,7 @@ func NewServer(bind string, options ...Option) (*Server, error) {
 
 	sm := session.NewManager(
 		session.NewOptions(
-			config.LocalURL().Hostname(),
+			"yarnd_token",
 			config.CookieSecret,
 			config.LocalURL().Scheme == "https",
 			config.SessionExpiry,
