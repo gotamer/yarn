@@ -212,6 +212,8 @@ func TestParseDateTime(t *testing.T) {
 		{lit: "2016-02-03T23:05", dt: time.Date(2016, 2, 3, 23, 5, 0, 0, time.UTC)},
 		{lit: "2016-02-03", errs: []error{lextwt.ErrParseToken}},
 		{lit: "2016", errs: []error{lextwt.ErrParseToken}},
+		{lit: "22021-02-03", errs: []error{lextwt.ErrParseToken}},
+		{lit: "2021-102-03", errs: []error{lextwt.ErrParseToken}},
 	}
 	for i, tt := range tests {
 		r := strings.NewReader(tt.lit)
@@ -957,6 +959,7 @@ func TestParseFile(t *testing.T) {
 # follows = xuu@txt.sour.is https://txt.sour.is/users/xuu.txt
 
 2016-02-03T23:05:00Z	@<example http://example.org/twtxt.txt>` + "\u2028" + `welcome to twtxt!
+22016-0203	ignored
 2020-12-02T01:04:00Z	This is an OpenPGP proof that connects my OpenPGP key to this Twtxt account. See https://key.sour.is/id/me@sour.is for more.  [Verifying my OpenPGP key: openpgp4fpr:20AE2F310A74EA7CEC3AE69F8B3B0604F164E04F]
 2020-11-13T16:13:22+01:00	@<prologic https://twtxt.net/user/prologic/twtxt.txt> (#<pdrsg2q https://twtxt.net/search?tag=pdrsg2q>) Thanks!
 `),

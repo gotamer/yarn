@@ -62,6 +62,9 @@ func (p *parser) ParseLine() Line {
 		e = p.ParseComment()
 	case TokNUMBER:
 		e = p.ParseTwt()
+		if e.IsNil() {
+			p.nextLine()
+		}
 	default:
 		p.nextLine()
 	}
@@ -178,6 +181,9 @@ func (p *parser) ParseDateTime() *DateTime {
 	loc := time.UTC
 
 	// Year
+	if !p.expectLen(p.curTok, 4, 4) {
+		return nil
+	}
 	p.append(p.curTok.Literal...)
 	if year, ok = p.parseDigit(); !ok {
 		return nil
@@ -190,6 +196,9 @@ func (p *parser) ParseDateTime() *DateTime {
 	}
 
 	// Month
+	if !p.expectLen(p.curTok, 2, 2) {
+		return nil
+	}
 	p.append(p.curTok.Literal...)
 	if month, ok = p.parseDigit(); !ok {
 		return nil
@@ -202,6 +211,9 @@ func (p *parser) ParseDateTime() *DateTime {
 	}
 
 	// Day
+	if !p.expectLen(p.curTok, 2, 2) {
+		return nil
+	}
 	p.append(p.curTok.Literal...)
 	if day, ok = p.parseDigit(); !ok {
 		return nil
@@ -214,6 +226,9 @@ func (p *parser) ParseDateTime() *DateTime {
 	}
 
 	// Hour
+	if !p.expectLen(p.curTok, 1, 2) {
+		return nil
+	}
 	p.append(p.curTok.Literal...)
 	if hour, ok = p.parseDigit(); !ok {
 		return nil
@@ -226,6 +241,9 @@ func (p *parser) ParseDateTime() *DateTime {
 	}
 
 	// Minute
+	if !p.expectLen(p.curTok, 2, 2) {
+		return nil
+	}
 	p.append(p.curTok.Literal...)
 	if min, ok = p.parseDigit(); !ok {
 		return nil
@@ -239,6 +257,9 @@ func (p *parser) ParseDateTime() *DateTime {
 		}
 
 		// Second
+		if !p.expectLen(p.curTok, 2, 2) {
+			return nil
+		}
 		p.append(p.curTok.Literal...)
 		if sec, ok = p.parseDigit(); !ok {
 			return nil
@@ -253,6 +274,9 @@ func (p *parser) ParseDateTime() *DateTime {
 		}
 
 		// NSecond
+		if !p.expectLen(p.curTok, 1, 9) {
+			return nil
+		}
 		p.append(p.curTok.Literal...)
 		if nsec, ok = p.parseDigit(); !ok {
 			return nil
@@ -277,6 +301,9 @@ func (p *parser) ParseDateTime() *DateTime {
 		if !p.expectNext(TokNUMBER) {
 			return nil
 		}
+		if !p.expectLen(p.curTok, 2, 4) {
+			return nil
+		}
 		p.append(p.curTok.Literal...)
 		if tzhour, ok = p.parseDigit(); !ok {
 			return nil
@@ -295,6 +322,9 @@ func (p *parser) ParseDateTime() *DateTime {
 			}
 
 			// TZMin
+			if !p.expectLen(p.curTok, 2, 2) {
+				return nil
+			}
 			p.append(p.curTok.Literal...)
 			if tzmin, ok = p.parseDigit(); !ok {
 				return nil
@@ -932,6 +962,20 @@ func (p *parser) expectNext(t TokType) bool {
 
 	p.addError(fmt.Errorf("%w: expected next %v, found %v", ErrParseToken, t, p.nextTok.Type))
 	return false
+}
+
+func (p *parser) expectLen(t Token, min, max int) bool {
+	if len(t.Literal) < min {
+		p.addError(fmt.Errorf("%w: expected min len %v got %v", ErrParseToken, min, len(t.Literal)))
+		return false
+	}
+
+	if len(t.Literal) > max {
+		p.addError(fmt.Errorf("%w: expected max len %v got %v", ErrParseToken, max, len(t.Literal)))
+		return false
+	}
+
+	return true
 }
 
 // parseDigit converts current token to int. adds error if fails.

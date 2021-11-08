@@ -40,7 +40,7 @@ func ParseFile(r io.Reader, twter types.Twter) (types.TwtFile, error) {
 			f.comments = append(f.comments, e)
 		case *Twt:
 			if e.IsNil() {
-				log.Errorf("invalid feed or bad line parsing %#v", twter)
+				log.Errorf("invalid feed or bad line parsing %#v", twter.URL)
 				nErrors++
 				continue
 			}
@@ -129,7 +129,7 @@ func ParseLine(line string, twter types.Twter) (twt types.Twt, err error) {
 	twt = parser.ParseTwt()
 
 	if twt.IsZero() {
-		return types.NilTwt, fmt.Errorf("Empty Twt: %s", line)
+		return types.NilTwt, fmt.Errorf("empty Twt: %s", line)
 	}
 
 	return twt, err
