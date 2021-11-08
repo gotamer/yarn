@@ -528,7 +528,6 @@ func (s *Server) AvatarHandler() httprouter.Handle {
 // PostHandler ...
 func (s *Server) PostHandler() httprouter.Handle {
 	isLocalURL := IsLocalURLFactory(s.config)
-	isExternalFeed := IsExternalFeedFactory(s.config)
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		ctx := NewContext(s, r)
 
@@ -657,7 +656,7 @@ func (s *Server) PostHandler() httprouter.Handle {
 		if _, err := s.tasks.Dispatch(NewFuncTask(func() error {
 			for _, m := range twt.Mentions() {
 				twter := m.Twter()
-				if !isLocalURL(twter.URL) || isExternalFeed(twter.URL) {
+				if !isLocalURL(twter.URL) {
 					if err := WebMention(twter.URL, URLForTwt(s.config.BaseURL, twt.Hash())); err != nil {
 						log.WithError(err).Warnf("error sending webmention to %s", twter.URL)
 					}

@@ -419,18 +419,6 @@ func RenderLogo(logo string, podName string) (template.HTML, error) {
 	return template.HTML(buf.String()), nil
 }
 
-func IsExternalFeedFactory(conf *Config) func(url string) bool {
-	baseURL := NormalizeURL(conf.BaseURL)
-	externalBaseURL := fmt.Sprintf("%s/external", strings.TrimSuffix(baseURL, "/"))
-
-	return func(url string) bool {
-		if NormalizeURL(url) == "" {
-			return false
-		}
-		return strings.HasPrefix(NormalizeURL(url), externalBaseURL)
-	}
-}
-
 func IsLocalURLFactory(conf *Config) func(url string) bool {
 	return func(url string) bool {
 		if NormalizeURL(url) == "" {
