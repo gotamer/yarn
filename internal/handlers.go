@@ -542,6 +542,9 @@ func (s *Server) PostHandler() httprouter.Handle {
 				s.render("error", w, ctx)
 			}
 
+			// Delete user's own feed as it was edited
+			s.cache.DeleteFeeds(ctx.User.Source())
+
 			// Update user's own timeline with their own new post.
 			s.cache.FetchTwts(s.config, s.archive, ctx.User.Source(), nil)
 
@@ -568,6 +571,8 @@ func (s *Server) PostHandler() httprouter.Handle {
 				ctx.Message = s.tr(ctx, "ErrorDeleteLastTwt")
 				s.render("error", w, ctx)
 			}
+			// Delete user's own feed as it was edited
+			s.cache.DeleteFeeds(ctx.User.Source())
 		} else {
 			log.Warnf("hash mismatch %s != %s", lastTwt.Hash(), hash)
 		}
