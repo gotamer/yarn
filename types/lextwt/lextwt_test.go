@@ -766,12 +766,6 @@ func testParseTwt(t *testing.T, expect, elem types.Twt) {
 	is.Equal(expect.Twter(), elem.Twter())
 
 	{
-		m := elem.Subject()
-		n := expect.Subject()
-		testParseSubject(t, n.(*lextwt.Subject), m.(*lextwt.Subject))
-	}
-
-	{
 		m := elem.Mentions()
 		n := expect.Mentions()
 		is.Equal(len(n), len(m))
@@ -805,7 +799,7 @@ func testParseTwt(t *testing.T, expect, elem types.Twt) {
 		m := elem.(*lextwt.Twt).Elems()
 		n := expect.(*lextwt.Twt).Elems()
 		for i, e := range m {
-			if i > len(n) {
+			if i >= len(n) {
 				break
 			}
 
@@ -832,6 +826,12 @@ func testParseTwt(t *testing.T, expect, elem types.Twt) {
 			}
 		}
 		is.Equal(len(m), len(n)) // len(elem) == len(expect)
+	}
+
+	{
+		m := elem.Subject()
+		n := expect.Subject()
+		testParseSubject(t, n.(*lextwt.Subject), m.(*lextwt.Subject))
 	}
 
 	is.Equal(fmt.Sprintf("%+l", expect), fmt.Sprintf("%+l", elem))
@@ -961,8 +961,7 @@ func TestParseFile(t *testing.T) {
 2016-02-03T23:05:00Z	@<example http://example.org/twtxt.txt>` + "\u2028" + `welcome to twtxt!
 22016-0203	ignored
 2020-12-02T01:04:00Z	This is an OpenPGP proof that connects my OpenPGP key to this Twtxt account. See https://key.sour.is/id/me@sour.is for more.  [Verifying my OpenPGP key: openpgp4fpr:20AE2F310A74EA7CEC3AE69F8B3B0604F164E04F]
-2020-11-13T16:13:22+01:00	@<prologic https://twtxt.net/user/prologic/twtxt.txt> (#<pdrsg2q https://twtxt.net/search?tag=pdrsg2q>) Thanks!
-`),
+2020-11-13T16:13:22+01:00	@<prologic https://twtxt.net/user/prologic/twtxt.txt> (#<pdrsg2q https://twtxt.net/search?tag=pdrsg2q>) Thanks!`),
 			out: lextwt.NewTwtFile(
 				override,
 
@@ -1016,7 +1015,41 @@ func TestParseFile(t *testing.T) {
 			),
 			err: types.ErrInvalidFeed,
 		},
+		{
+			twter:    twter,
+			override: &override,
+			in: io.LimitReader(strings.NewReader(`# My Twtxt!
+# nick = override
+# url = https://example.com/twtxt.txt
+# follows = xuu@txt.sour.is https://txt.sour.is/users/xuu.txt
+
+2016-02-03T23:05:00Z	@<example http://example.org/twtxt.txt>`+"\u2028"+`welcome to twtxt!
+22016-0203	ignored
+2020-12-02T01:04:00Z	This is an OpenPGP proof that connects my OpenPGP key to this Twtxt account. See https://key.sour.is/id/me@sour.is for more.  [Verifying my OpenPGP key: openpgp4fpr:20AE2F310A74EA7CEC3AE69F8B3B0604F164E04F]
+2020-11-13T16:13:22+01:00	@<prologic https://twtxt.net/user/prologic/twtxt.txt> (#<pdrsg2q https://twtxt.net/search?tag=pdrsg2q>) Thanks!`), 199),
+			out: lextwt.NewTwtFile(
+				override,
+
+				lextwt.Comments{
+					lextwt.NewComment("# My Twtxt!"),
+					lextwt.NewCommentValue("# nick = override", "nick", "override"),
+					lextwt.NewCommentValue("# url = https://example.com/twtxt.txt", "url", "https://example.com/twtxt.txt"),
+					lextwt.NewCommentValue("# follows = xuu@txt.sour.is https://txt.sour.is/users/xuu.txt", "follows", "xuu@txt.sour.is https://txt.sour.is/users/xuu.txt"),
+				},
+
+				[]types.Twt{
+					lextwt.NewTwt(
+						override,
+						lextwt.NewDateTime(parseTime("2016-02-03T23:05:00Z"), "2016-02-03T23:05:00Z"),
+						lextwt.NewMention("example", "http://example.org/twtxt.txt"),
+						lextwt.LineSeparator,
+						lextwt.NewText("welco"),
+					),
+				},
+			),
+		},
 	}
+
 	for i, tt := range tests {
 		t.Logf("ParseFile %d", i)
 
@@ -1047,8 +1080,8 @@ func TestParseFile(t *testing.T) {
 			is.Equal(f.Info().String(), tt.out.Info().String())
 		}
 
-		t.Log(f.Info().Following())
-		t.Log(tt.out.Info().Following())
+		// t.Log(f.Info().Following())
+		// t.Log(tt.out.Info().Following())
 
 		{
 			lis := f.Twts()
