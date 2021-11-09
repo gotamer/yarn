@@ -64,9 +64,19 @@ func (s *Server) FeedHandler() httprouter.Handle {
 
 // FeedsHandler ...
 func (s *Server) FeedsHandler() httprouter.Handle {
+	isAdminUser := IsAdminUserFactory(s.config)
+	canManageFeed := func(feed string, u *User) bool {
+		if u.OwnsFeed(feed) {
+			return true
+		}
+		if IsSpecialFeed(feed) && isAdminUser(u) {
+			return true
+		}
+		return false
+	}
+
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		ctx := NewContext(s, r)
-		user := ctx.User
 
 		allFeeds, err := s.db.GetAllFeeds()
 		if err != nil {
@@ -90,7 +100,7 @@ func (s *Server) FeedsHandler() httprouter.Handle {
 		)
 
 		for _, feed := range allFeeds {
-			if user.OwnsFeed(feed.Name) {
+			if canManageFeed(feed.Name, ctx.User) {
 				userFeeds = append(userFeeds, feed)
 			} else {
 				localFeeds = append(localFeeds, feed)
@@ -108,6 +118,17 @@ func (s *Server) FeedsHandler() httprouter.Handle {
 
 // ManageFeedHandler...
 func (s *Server) ManageFeedHandler() httprouter.Handle {
+	isAdminUser := IsAdminUserFactory(s.config)
+	canManageFeed := func(feed string, u *User) bool {
+		if u.OwnsFeed(feed) {
+			return true
+		}
+		if IsSpecialFeed(feed) && isAdminUser(u) {
+			return true
+		}
+		return false
+	}
+
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		ctx := NewContext(s, r)
 		feedName := NormalizeFeedName(p.ByName("name"))
@@ -133,7 +154,7 @@ func (s *Server) ManageFeedHandler() httprouter.Handle {
 			return
 		}
 
-		if !ctx.User.OwnsFeed(feed.Name) {
+		if !canManageFeed(feed.Name, ctx.User) {
 			ctx.Error = true
 			s.render("401", w, ctx)
 			return
@@ -207,6 +228,13 @@ func (s *Server) ManageFeedHandler() httprouter.Handle {
 
 // ArchiveFeedHandler...
 func (s *Server) ArchiveFeedHandler() httprouter.Handle {
+	canArchiveFeed := func(feed string, u *User) bool {
+		if IsSpecialFeed(feed) {
+			return false
+		}
+		return u.OwnsFeed(feed)
+	}
+
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		ctx := NewContext(s, r)
 		feedName := NormalizeFeedName(p.ByName("name"))
@@ -225,14 +253,14 @@ func (s *Server) ArchiveFeedHandler() httprouter.Handle {
 			if err == ErrFeedNotFound {
 				ctx.Message = s.tr(ctx, "ErrorFeedNotFound")
 				s.render("404", w, ctx)
+			} else {
+				ctx.Message = s.tr(ctx, "ErrorLoadingFeed")
+				s.render("error", w, ctx)
 			}
-
-			ctx.Message = s.tr(ctx, "ErrorLoadingFeed")
-			s.render("error", w, ctx)
 			return
 		}
 
-		if !ctx.User.OwnsFeed(feed.Name) {
+		if !canArchiveFeed(feed.Name, ctx.User) {
 			ctx.Error = true
 			s.render("401", w, ctx)
 			return
@@ -254,6 +282,13 @@ func (s *Server) ArchiveFeedHandler() httprouter.Handle {
 
 // TransferFeedHandler...
 func (s *Server) TransferFeedHandler() httprouter.Handle {
+	canTransferFeed := func(feed string, u *User) bool {
+		if IsSpecialFeed(feed) {
+			return false
+		}
+		return u.OwnsFeed(feed)
+	}
+
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		ctx := NewContext(s, r)
 		feedName := NormalizeFeedName(p.ByName("name"))
@@ -286,13 +321,18 @@ func (s *Server) TransferFeedHandler() httprouter.Handle {
 
 		// Get feed
 		if s.db.HasFeed(feedName) {
-
 			feed, err := s.db.GetFeed(feedName)
 			if err != nil {
 				log.WithError(err).Errorf("Error loading feed object for %s", feedName)
 				ctx.Error = true
 				ctx.Message = s.tr(ctx, "ErrorGetFeed")
 				s.render("error", w, ctx)
+				return
+			}
+
+			if !canTransferFeed(feed.Name, ctx.User) {
+				ctx.Error = true
+				s.render("401", w, ctx)
 				return
 			}
 
@@ -323,6 +363,10 @@ func (s *Server) TransferFeedHandler() httprouter.Handle {
 			ctx.Error = false
 			ctx.Message = s.tr(ctx, "MsgTransferFeedSuccess")
 			s.render("error", w, ctx)
+		} else {
+			ctx.Error = true
+			ctx.Message = s.tr(ctx, "ErrorFeedNotFound")
+			s.render("404", w, ctx)
 		}
 	}
 }

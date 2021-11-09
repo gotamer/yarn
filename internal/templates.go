@@ -75,6 +75,7 @@ func NewTemplateManager(conf *Config, translator *Translator, cache *Cache, arch
 	funcMap["urlForConv"] = URLForConvFactory(conf, cache, archive)
 	funcMap["urlForRootConv"] = URLForRootConvFactory(conf, cache, archive)
 	funcMap["isAdminUser"] = IsAdminUserFactory(conf)
+	funcMap["isSpecialFeed"] = IsSpecialFeed
 	funcMap["twtType"] = func(twt types.Twt) string { return fmt.Sprintf("%T", twt) }
 
 	funcMap["html"] = func(text string) template.HTML { return template.HTML(text) }

@@ -18,29 +18,31 @@
       <button type="submit">{{tr . "ManageFeedFormUpdate"}}</button>
     </form>
 
-    <hgroup>
-        <h2>{{tr . "ArchiveFeedTitle"}}</h3>
-        <h3>{{tr . "ArchiveFeedSummary"}}</h3>
-    </hgroup>
-    <p>
-    {{(tr . "ArchiveFeedWarning")|html}}
-    </p>
-    <form action="/feed/{{  .Profile.Username }}/archive" method="POST" onsubmit="return confirm('{{tr . "ArchiveFeedFormConfirm"}}');">
-      <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
-      <button type="submit" class="contrast">{{tr . "ArchiveFeedFormArchive"}}</button>
-    </form>
+    {{ if not (isSpecialFeed $.Profile.Username) }}
+      <hgroup>
+          <h2>{{tr . "ArchiveFeedTitle"}}</h3>
+          <h3>{{tr . "ArchiveFeedSummary"}}</h3>
+      </hgroup>
+      <p>
+      {{(tr . "ArchiveFeedWarning")|html}}
+      </p>
+      <form action="/feed/{{  .Profile.Username }}/archive" method="POST" onsubmit="return confirm('{{tr . "ArchiveFeedFormConfirm"}}');">
+        <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
+        <button type="submit" class="contrast">{{tr . "ArchiveFeedFormArchive"}}</button>
+      </form>
 
-    <hgroup>
-        <h2>{{tr . "TransferFeedTitle"}}</h2>
-        <h3>{{tr . "TransferFeedSummary"}}</h3>
-    </hgroup>
-    <p>
-    {{(tr . "TransferFeedWarning")|html}}
-    </p>
-    <form action="/transferFeed/{{  .Profile.Username }}" method="GET">
-      <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
-      <button type="submit" class="contrast">{{tr . "TransferFeedFormTransfer"}}</button>
-    </form>
+      <hgroup>
+          <h2>{{tr . "TransferFeedTitle"}}</h2>
+          <h3>{{tr . "TransferFeedSummary"}}</h3>
+      </hgroup>
+      <p>
+      {{(tr . "TransferFeedWarning")|html}}
+      </p>
+      <form action="/transferFeed/{{  .Profile.Username }}" method="GET">
+        <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
+        <button type="submit" class="contrast">{{tr . "TransferFeedFormTransfer"}}</button>
+      </form>
+    {{ end }}
   </div>
 </article>
 {{ end }}

@@ -100,10 +100,13 @@ var (
 		statsBot,
 		twtxtBot,
 	}
-	twtxtBots = []string{
+	automatedFeeds = []string{
 		statsBot,
 		twtxtBot,
 	}
+	specialFeeds = append(
+		append([]string{}, specialUsernames...),
+		automatedFeeds...)
 
 	validFeedName  = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9_-]*$`)
 	validUsername  = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9_-]+$`)
@@ -1159,6 +1162,12 @@ func PrettyURL(uri string) string {
 	}
 
 	return fmt.Sprintf("%s/%s", u.Hostname(), strings.TrimPrefix(u.EscapedPath(), "/"))
+}
+
+// IsSpecialFeed returns true if the feed is one of the special feeds
+// an admin feed or automated feed.
+func IsSpecialFeed(feed string) bool {
+	return HasString(specialFeeds, strings.ToLower(feed))
 }
 
 // IsAdminUserFactory returns a function that returns true if the user provided

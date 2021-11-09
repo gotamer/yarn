@@ -37,17 +37,17 @@ func InitJobs(conf *Config) {
 		"Stats":       NewJobSpec("@daily", NewStatsJob),
 		"RotateFeeds": NewJobSpec("0 0 2 * * 0", NewRotateFeedsJob),
 
-		"CreateBots":       NewJobSpec("", NewCreateBotsJob),
-		"CreateAdminFeeds": NewJobSpec("", NewCreateAdminFeedsJob),
+		"CreateAdminFeeds":     NewJobSpec("", NewCreateAdminFeedsJob),
+		"CreateAutomatedFeeds": NewJobSpec("", NewCreateAutomatedFeedsJob),
 	}
 
 	StartupJobs = map[string]JobSpec{
-		"RotateFeeds":       Jobs["RotateFeeds"],
-		"UpdateFeeds":       Jobs["UpdateFeeds"],
-		"UpdateFeedSources": Jobs["UpdateFeedSources"],
-		"CreateBots":        Jobs["CreateBots"],
-		"CreateAdminFeeds":  Jobs["CreateAdminFeeds"],
-		"DeleteOldSessions": Jobs["DeleteOldSessions"],
+		"RotateFeeds":          Jobs["RotateFeeds"],
+		"UpdateFeeds":          Jobs["UpdateFeeds"],
+		"UpdateFeedSources":    Jobs["UpdateFeedSources"],
+		"CreateAdminFeeds":     Jobs["CreateAdminFeeds"],
+		"CreateAutomatedFeeds": Jobs["CreateAutomatedFeeds"],
+		"DeleteOldSessions":    Jobs["DeleteOldSessions"],
 	}
 
 }
@@ -182,7 +182,7 @@ func (job *UpdateFeedsJob) Run() {
 	}
 
 	// Ensure all twtxtBots feeds are in the cache
-	for _, bot := range twtxtBots {
+	for _, bot := range automatedFeeds {
 		sources[types.Feed{Nick: bot, URL: URLForUser(job.conf.BaseURL, bot)}] = true
 	}
 
@@ -277,22 +277,22 @@ func (job *CreateAdminFeedsJob) Run() {
 
 }
 
-type CreateBotsJob struct {
+type CreateAutomatedFeedsJob struct {
 	conf    *Config
 	cache   *Cache
 	archive Archiver
 	db      Store
 }
 
-func NewCreateBotsJob(conf *Config, cache *Cache, archive Archiver, db Store) cron.Job {
-	return &CreateBotsJob{conf: conf, cache: cache, archive: archive, db: db}
+func NewCreateAutomatedFeedsJob(conf *Config, cache *Cache, archive Archiver, db Store) cron.Job {
+	return &CreateAutomatedFeedsJob{conf: conf, cache: cache, archive: archive, db: db}
 }
 
-func (job *CreateBotsJob) Run() {
-	log.Infof("creating bots ...")
+func (job *CreateAutomatedFeedsJob) Run() {
+	log.Infof("creating automated feeds ...")
 
-	// Create twtxtBots feeds
-	for _, feed := range twtxtBots {
+	// Create automated feeds
+	for _, feed := range automatedFeeds {
 		if !job.db.HasFeed(feed) {
 			if err := CreateFeed(job.conf, job.db, nil, feed, true); err != nil {
 				log.WithError(err).Warnf("error creating new feed %s", feed)

@@ -43,7 +43,7 @@ func FilterOutFeedsAndBotsFactory(conf *Config) FilterFunc {
 		if strings.HasPrefix(twter.URL, "https://search.twtxt.net") {
 			return false
 		}
-		if isLocal(twter.URL) && HasString(twtxtBots, twter.Nick) {
+		if isLocal(twter.URL) && HasString(automatedFeeds, twter.Nick) {
 			return false
 		}
 		return true
