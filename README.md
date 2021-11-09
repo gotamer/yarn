@@ -13,10 +13,6 @@ See [Yarn.social] for more deatils
 
 ### Pre-built Binaries
 
-__NOTE:__ Please don't use the pre-built binaries until [Issue #250](https://git.mills.io/yarnsocial/yarn/issues/250) is resolved.
-          Please build from source or use the [Docker Images](https://hub.docker.com/jointwt).
-          Thank you. 🙇‍♂️
-
 As a first point, please try to use one of the pre-built binaries that are
 available on the [Releases](https://git.mills.io/yarnsocial/yarn/releases) page.
 
