@@ -83,7 +83,7 @@
           </a>
         </li>
         <li>
-          <a class="secondary" href="/logout">
+          <a class="secondary" href="/logout" onclick="return confirm('Are you sure you want logout?')">
             <i class="icss-exit"></i>
             {{tr . "NavLogout"}}
           </a>
