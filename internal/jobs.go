@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
+	"time"
 
 	"git.mills.io/yarnsocial/yarn/types"
 	"github.com/dustin/go-humanize"
@@ -36,6 +38,7 @@ func InitJobs(conf *Config) {
 
 		"Stats":       NewJobSpec("@daily", NewStatsJob),
 		"RotateFeeds": NewJobSpec("0 0 2 * * 0", NewRotateFeedsJob),
+		"PruneUsers":  NewJobSpec("0 0 3 * * 0", NewPruneUsersJob),
 
 		"CreateAdminFeeds":     NewJobSpec("", NewCreateAdminFeedsJob),
 		"CreateAutomatedFeeds": NewJobSpec("", NewCreateAutomatedFeedsJob),
@@ -369,6 +372,76 @@ func (job *RotateFeedsJob) Run() {
 			} else {
 				log.Infof("rotated feed %s", feed)
 			}
+		}
+	}
+}
+
+type PruneUsersJob struct {
+	conf    *Config
+	cache   *Cache
+	archive Archiver
+	db      Store
+}
+
+func NewPruneUsersJob(conf *Config, cache *Cache, archive Archiver, db Store) cron.Job {
+	return &PruneUsersJob{conf: conf, cache: cache, archive: archive, db: db}
+}
+
+func (job *PruneUsersJob) Run() {
+	candidateForDeletion := func(u *User) int {
+		score := 1000
+
+		if count, err := GetFeedCount(job.conf, u.Username); err == nil {
+			if count == 0 {
+				score *= 2
+			}
+		}
+
+		if lastTwt, _, err := GetLastTwt(job.conf, u); err == nil {
+			daysSinceLastTwt := int(time.Since(lastTwt.Created()).Hours() / 24)
+			score += (daysSinceLastTwt % 100) * 10
+		} else {
+			score += 990
+		}
+
+		if len(u.Following) == 1 {
+			score += 1
+		}
+
+		if u.Tagline == "" {
+			score += 1
+		}
+
+		if u.AvatarHash == "" {
+			score += 1
+		}
+
+		return score
+	}
+
+	users, err := job.db.GetAllUsers()
+	if err != nil {
+		log.WithError(err).Warn("unable to get all users from database")
+		return
+	}
+
+	var candidates CandidatesByScore
+	for _, user := range users {
+		score := candidateForDeletion(user)
+		if score > 1200 {
+			log.Infof("user %s is a candidate for deletoin with score of %d", user.Username, score)
+			candidates = append(candidates, DeletionCandidate{Username: user.Username, Score: score})
+		}
+	}
+	sort.Sort(sort.Reverse(candidates))
+
+	if len(candidates) > 10 {
+		if err := SendCandidatesForDeletionEmail(job.conf, candidates[:10]); err != nil {
+			log.WithError(err).Error("error sending candidates for deletion email")
+		}
+	} else {
+		if err := SendCandidatesForDeletionEmail(job.conf, candidates); err != nil {
+			log.WithError(err).Error("error sending candidates for deletion email")
 		}
 	}
 }

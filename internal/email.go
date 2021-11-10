@@ -42,6 +42,27 @@ Kind regards,
 {{ .Pod}} Support
 `))
 
+	candidatesForDeletionEmailTemplate = template.Must(template.New("email").Parse(`Hello {{ .AdminUser }},
+
+	The following top 10 users are candidates for deletion as they have either never posted, updated their profile
+	or follow any feeds. Their usernames on {{ .Pod }} are shown below with their scores. The higher the score
+	the more likely the user has never used their account.
+
+	{{ range $candidate := .Candidates }}
+	{{ $candidate.Username }}
+	Score: {{ $candidate.Score }}
+	{{ $.BaseURL }}/user/{{ $candidate.Username }}
+	{{ end }}
+
+	To delete any of these users visit:
+
+	{{ .BaseURL}}/manage/users
+
+	Kind regards,
+
+	{{ .Pod }} Support
+`))
+
 	reportAbuseEmailTemplate = template.Must(template.New("email").Parse(`Hello {{ .AdminUser }},
 
 {{ .Name }} <{{ .Email }} from {{ .Pod }} has sent the following abuse report:
@@ -77,6 +98,25 @@ type SupportRequestEmailContext struct {
 	Email   string
 	Subject string
 	Message string
+}
+
+type DeletionCandidate struct {
+	Username string
+	Score    int
+}
+
+type CandidatesByScore []DeletionCandidate
+
+func (c CandidatesByScore) Len() int           { return len(c) }
+func (c CandidatesByScore) Swap(i, j int)      { c[i], c[j] = c[j], c[i] }
+func (c CandidatesByScore) Less(i, j int) bool { return c[i].Score < c[j].Score }
+
+type CandidatesForDeletionEmailContext struct {
+	Pod       string
+	BaseURL   string
+	AdminUser string
+
+	Candidates []DeletionCandidate
 }
 
 type ReportAbuseEmailContext struct {
@@ -179,6 +219,34 @@ func SendSupportRequestEmail(conf *Config, name, email, subject, message string)
 
 	if err := SendEmail(conf, recipients, email, emailSubject, buf.String()); err != nil {
 		log.WithError(err).Errorf("error sending support request to %s", recipients[0])
+		return err
+	}
+
+	return nil
+}
+
+func SendCandidatesForDeletionEmail(conf *Config, candidates []DeletionCandidate) error {
+	recipients := []string{conf.AdminEmail}
+	emailSubject := fmt.Sprintf(
+		"[%s Candidates for Deletion]: %d users",
+		conf.Name, len(candidates),
+	)
+	ctx := CandidatesForDeletionEmailContext{
+		Pod:       conf.Name,
+		BaseURL:   conf.BaseURL,
+		AdminUser: conf.AdminUser,
+
+		Candidates: candidates,
+	}
+
+	buf := &bytes.Buffer{}
+	if err := candidatesForDeletionEmailTemplate.Execute(buf, ctx); err != nil {
+		log.WithError(err).Error("error rendering email template")
+		return err
+	}
+
+	if err := SendEmail(conf, recipients, conf.SMTPFrom, emailSubject, buf.String()); err != nil {
+		log.WithError(err).Errorf("error sending candidates for deletoin email to %s", recipients[0])
 		return err
 	}
 
