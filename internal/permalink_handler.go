@@ -53,7 +53,7 @@ func (s *Server) PermalinkHandler() httprouter.Handle {
 			}
 		}
 
-		if twt.IsZero() {
+		if twt == nil || twt.IsZero() {
 			if accept.PreferredContentTypeLike(r.Header, "text/html") == "text/html" {
 				ctx.Error = true
 				ctx.Message = s.tr(ctx, "ErrorNoMatchingTwt")
