@@ -21,7 +21,7 @@ import (
 
 const (
 	feedCacheFile    = "cache"
-	feedCacheVersion = 12 // increase this if breaking changes occur to cache file.
+	feedCacheVersion = 13 // increase this if breaking changes occur to cache file.
 
 	localViewKey    = "local"
 	discoverViewKey = "discover"
@@ -101,19 +101,6 @@ func GroupTwtsBy(twts types.Twts, g GroupFunc) (res map[string]types.Twts) {
 	return
 }
 
-func MergeTwts(old, new types.Twts, max int) types.Twts {
-	twts := UniqTwts(append(old, new...))
-	sort.Sort(twts)
-
-	var offset int
-
-	if len(twts) > max {
-		offset = len(twts) - max
-	}
-
-	return twts[offset:]
-}
-
 func UniqTwts(twts types.Twts) (res types.Twts) {
 	seenTwts := make(map[string]bool)
 	for _, twt := range twts {
@@ -141,21 +128,11 @@ func NewCached(twts types.Twts, lastModified string) *Cached {
 }
 
 // Update ...
-func (cached *Cached) Update(url, lastmodiied string, twts types.Twts, maxSize int) {
+func (cached *Cached) Update(url, lastmodiied string, twts types.Twts) {
 	cached.mu.Lock()
 	defer cached.mu.Unlock()
 
-	if len(twts) == 0 {
-		return
-	}
-
-	if len(twts) >= maxSize {
-		cached.Twts = twts[:]
-		cached.LastModified = lastmodiied
-		return
-	}
-
-	cached.Twts = MergeTwts(cached.Twts, twts, maxSize)
+	cached.Twts = twts
 	cached.LastModified = lastmodiied
 }
 
@@ -626,7 +603,7 @@ func (cache *Cache) UpdateFeed(url, lastmodified string, twts types.Twts) {
 		cache.Feeds[url] = NewCached(twts, lastmodified)
 		cache.mu.Unlock()
 	} else {
-		cached.Update(url, lastmodified, twts, cache.conf.MaxCacheItems)
+		cached.Update(url, lastmodified, twts)
 	}
 }
 
