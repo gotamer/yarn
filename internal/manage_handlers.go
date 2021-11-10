@@ -406,8 +406,6 @@ func (s *Server) DelUserHandler() httprouter.Handle {
 		// Delete user's feed from cache
 		s.cache.DeleteFeeds(user.Source())
 
-		s.sm.Delete(w, r)
-
 		ctx.Error = false
 		ctx.Message = "Successfully deleted account"
 		s.render("error", w, ctx)
