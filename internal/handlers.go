@@ -1,11 +1,9 @@
 package internal
 
 import (
-	"embed"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"html/template"
 	"image/png"
 	"io"
 	"io/ioutil"
@@ -18,11 +16,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/gomarkdown/markdown"
-	"github.com/gomarkdown/markdown/html"
-	"github.com/gomarkdown/markdown/parser"
 	"github.com/gorilla/feeds"
-	"github.com/james4k/fmatter"
 	"github.com/julienschmidt/httprouter"
 	log "github.com/sirupsen/logrus"
 	"github.com/vcraescu/go-paginator"
@@ -46,9 +40,6 @@ var (
 	ErrFeedImposter = errors.New("error: imposter detected, you do not own this feed")
 )
 
-//go:embed pages/*.md
-var pages embed.FS
-
 func (s *Server) NotFoundHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Header.Get("Accept") == "application/json" {
 		w.Header().Set("Content-Type", "application/json")
@@ -60,71 +51,6 @@ func (s *Server) NotFoundHandler(w http.ResponseWriter, r *http.Request) {
 	ctx.Title = s.tr(ctx, "PageNotFoundTitle")
 	w.WriteHeader(http.StatusNotFound)
 	s.render("404", w, ctx)
-}
-
-type FrontMatter struct {
-	Title string
-}
-
-// PageHandler ...
-func (s *Server) PageHandler(name string) httprouter.Handle {
-
-	var mdTpl string
-	if b, err := pages.ReadFile(fmt.Sprintf("pages/%s.md", name)); err == nil {
-		mdTpl = string(b)
-	} else {
-		log.WithError(err).Errorf("error finding page %s", name)
-		panic(err)
-	}
-
-	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		ctx := NewContext(s, r)
-
-		md, err := RenderHTML(mdTpl, ctx)
-		if err != nil {
-			log.WithError(err).Errorf("error rendering page %s", name)
-			ctx.Error = true
-			ctx.Message = s.tr(ctx, "ErrorRenderingPage")
-			s.render("error", w, ctx)
-			return
-		}
-
-		var frontmatter FrontMatter
-		content, err := fmatter.Read([]byte(md), &frontmatter)
-		if err != nil {
-			log.WithError(err).Error("error parsing front matter")
-			ctx.Error = true
-			ctx.Message = s.tr(ctx, "ErrorLoadingPage")
-			s.render("error", w, ctx)
-			return
-		}
-
-		extensions := parser.CommonExtensions | parser.AutoHeadingIDs
-		p := parser.NewWithExtensions(extensions)
-
-		htmlFlags := html.CommonFlags
-		opts := html.RendererOptions{
-			Flags:     htmlFlags,
-			Generator: "",
-		}
-		renderer := html.NewRenderer(opts)
-
-		html := markdown.ToHTML(content, p, renderer)
-
-		var title string
-
-		if frontmatter.Title != "" {
-			title = frontmatter.Title
-		} else {
-			title = strings.Title(name)
-		}
-		ctx.Title = title
-
-		ctx.Page = name
-		ctx.Content = template.HTML(html)
-
-		s.render("page", w, ctx)
-	}
 }
 
 // UserConfigHandler ...
