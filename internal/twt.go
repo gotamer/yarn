@@ -20,20 +20,45 @@ const (
 	feedsDir = "feeds"
 )
 
-func DeleteLastTwt(conf *Config, user *User) error {
-	p := filepath.Join(conf.Data, feedsDir)
-	if err := os.MkdirAll(p, 0755); err != nil {
-		log.WithError(err).Error("error creating feeds directory")
+func DeleteTwt(conf *Config, feed string, twt types.Twt) error {
+	fn := filepath.Join(conf.Data, feedsDir, feed)
+	f, err := os.Open(fn)
+	if err != nil {
+		log.WithError(err).Error("error opening feed")
+		return err
+	}
+	defer f.Close()
+
+	stat, err := f.Stat()
+	if err != nil {
+		log.WithError(err).Error("error getting feed stat")
 		return err
 	}
 
-	fn := filepath.Join(p, user.Username)
+	pr, err := types.ReadPreambleFeed(f, stat.Size())
+	if err != nil {
+		log.WithError(err).Error("error reading feed")
+		return err
+	}
 
-	_, n, err := GetLastTwt(conf, user)
+	preample := pr.Preamble()
+
+	tf, err := types.ParseFile(f, types.Twter{})
+	if err != nil {
+		log.WithError(err).Errorf("error processing feed %s", fn)
+		return err
+	}
+
+	return nil
+}
+
+func DeleteLastTwt(conf *Config, feed string) error {
+	_, n, err := GetLastTwt(conf, feed)
 	if err != nil {
 		return err
 	}
 
+	fn := filepath.Join(conf.Data, feedsDir, feed)
 	f, err := os.OpenFile(fn, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
 		return err
@@ -41,6 +66,25 @@ func DeleteLastTwt(conf *Config, user *User) error {
 	defer f.Close()
 
 	return f.Truncate(int64(n))
+}
+
+func GetLastTwt(conf *Config, feed string) (twt types.Twt, offset int, err error) {
+	twt = types.NilTwt
+
+	fn := filepath.Join(filepath.Join(conf.Data, feedsDir, feed))
+	if !FileExists(fn) {
+		return
+	}
+
+	var data []byte
+	data, offset, err = read_file_last_line.ReadLastLine(fn)
+	if err != nil {
+		return
+	}
+
+	twt, err = types.ParseLine(string(data), user.Twter())
+
+	return
 }
 
 func AppendSpecial(conf *Config, db Store, specialUsername, text string, args ...interface{}) (types.Twt, error) {
@@ -96,31 +140,6 @@ func FeedExists(conf *Config, username string) bool {
 	}
 
 	return true
-}
-
-func GetLastTwt(conf *Config, user *User) (twt types.Twt, offset int, err error) {
-	twt = types.NilTwt
-
-	p := filepath.Join(conf.Data, feedsDir)
-	if err = os.MkdirAll(p, 0755); err != nil {
-		log.WithError(err).Error("error creating feeds directory")
-		return
-	}
-
-	fn := filepath.Join(p, user.Username)
-	if !FileExists(fn) {
-		return
-	}
-
-	var data []byte
-	data, offset, err = read_file_last_line.ReadLastLine(fn)
-	if err != nil {
-		return
-	}
-
-	twt, err = types.ParseLine(string(data), user.Twter())
-
-	return
 }
 
 func GetAllFeeds(conf *Config) ([]string, error) {
