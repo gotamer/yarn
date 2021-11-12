@@ -468,6 +468,7 @@ func (s *Server) initRoutes() {
 		s.router.ServeFiles("/css/*filepath", http.Dir(filepath.Join(staticDir, "css")))
 		s.router.ServeFiles("/img/*filepath", http.Dir(filepath.Join(staticDir, "img")))
 		s.router.ServeFiles("/js/*filepath", http.Dir(filepath.Join(staticDir, "js")))
+		s.router.Static("/custom/*filepath", filepath.Join(staticDir, "custom"))
 	} else {
 		cssFS, err := fs.Sub(staticFS, "css")
 		if err != nil {
@@ -487,6 +488,7 @@ func (s *Server) initRoutes() {
 		s.router.ServeFilesWithCacheControl("/css/:commit/*filepath", cssFS)
 		s.router.ServeFilesWithCacheControl("/img/:commit/*filepath", imgFS)
 		s.router.ServeFilesWithCacheControl("/js/:commit/*filepath", jsFS)
+		s.router.Static("/custom/:commit/*filepath", filepath.Join(staticDir, "custom"))
 	}
 
 	mdlw := metricsMiddleware.New(metricsMiddleware.Config{
