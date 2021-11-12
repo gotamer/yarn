@@ -129,6 +129,11 @@ func NewCached(twts types.Twts, lastModified string) *Cached {
 
 // Update ...
 func (cached *Cached) Update(url, lastmodiied string, twts types.Twts) {
+	// Avoid overwriting a cached Feed with no Twts
+	if len(twts) == 0 {
+		return
+	}
+
 	cached.mu.Lock()
 	defer cached.mu.Unlock()
 
