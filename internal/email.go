@@ -14,6 +14,21 @@ import (
 var (
 	ErrSendingEmail = errors.New("error: unable to send email")
 
+	magicLinkAuthEmailTemplate = template.Must(template.New("email").Parse(`Hello {{ .Username }},
+
+You have requested to login to your Yarn.social account on on {{ .Pod }} via email.
+
+**IMPORTANT:** If this was __NOT__ initiated by you, please ignore this email and contact support!
+
+To login to your account, please visit the following link:
+
+{{ .BaseURL}}/magiclinkauth?token={{ .Token }}
+
+Kind regards,
+
+{{ .Pod}} Support
+`))
+
 	passwordResetEmailTemplate = template.Must(template.New("email").Parse(`Hello {{ .Username }},
 
 You have requested to have your password on {{ .Pod }} reset for your account.
@@ -81,6 +96,14 @@ Kind regards,
 {{ .Pod }} Support
 `))
 )
+
+type MagicLinkAuthContext struct {
+	Pod     string
+	BaseURL string
+
+	Token    string
+	Username string
+}
 
 type PasswordResetEmailContext struct {
 	Pod     string
@@ -162,6 +185,34 @@ func SendEmail(conf *Config, recipients []string, replyTo, subject string, body 
 	if err != nil {
 		log.WithError(err).Error("SendEmail() failed")
 		return ErrSendingEmail
+	}
+
+	return nil
+}
+
+func SendMagicLinkAuthEmail(conf *Config, user *User, email, token string) error {
+	recipients := []string{email}
+	subject := fmt.Sprintf(
+		"[%s]: Login via Email for %s",
+		conf.Name, user.Username,
+	)
+	ctx := MagicLinkAuthContext{
+		Pod:     conf.Name,
+		BaseURL: conf.BaseURL,
+
+		Token:    token,
+		Username: user.Username,
+	}
+
+	buf := &bytes.Buffer{}
+	if err := magicLinkAuthEmailTemplate.Execute(buf, ctx); err != nil {
+		log.WithError(err).Error("error rendering email template")
+		return err
+	}
+
+	if err := SendEmail(conf, recipients, conf.SMTPFrom, subject, buf.String()); err != nil {
+		log.WithError(err).Errorf("error sending new token to %s", recipients[0])
+		return err
 	}
 
 	return nil

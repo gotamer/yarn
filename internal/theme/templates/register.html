@@ -9,7 +9,7 @@
         <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
         <input type="text" name="username" placeholder="{{tr . "RegisterFormUsername"}}" aria-label="Username" autocomplete="nickname" autofocus required>
         <input type="password" name="password" placeholder="{{tr . "RegisterFormPassword"}}" aria-label="Password" autocomplete="current-password" required>
-        <input type="email" name="email" placeholder="{{tr . "RegisterFormEmail"}}" aria-label="Email">
+        <input type="email" name="email" placeholder="{{tr . "EmailAddress"}}" aria-label="Email">
         <small>
             <b>{{tr . "RegisterFormEmailSummary"}}</b>
         </small>

@@ -15,7 +15,7 @@ const (
 	// FeatureInvalid is the invalid feature (0)
 	FeatureInvalid FeatureType = iota
 	FeatureFoo
-	FeatureBar
+	FeatureMagicLinkAuth
 )
 
 // Interface guards
@@ -30,8 +30,8 @@ func (f FeatureType) String() string {
 	switch f {
 	case FeatureFoo:
 		return "foo"
-	case FeatureBar:
-		return "bar"
+	case FeatureMagicLinkAuth:
+		return "magic_link_auth"
 	default:
 		return "invalid_feature"
 	}
@@ -62,8 +62,8 @@ func FeatureFromString(s string) (FeatureType, error) {
 	switch s {
 	case "foo":
 		return FeatureFoo, nil
-	case "bar":
-		return FeatureBar, nil
+	case "magic_link_auth":
+		return FeatureMagicLinkAuth, nil
 	default:
 		fs := fmt.Sprintf("available features: %s", strings.Join(AvailableFeatures(), " "))
 		return FeatureInvalid, fmt.Errorf("Error unrecognised feature: %s (%s)", s, fs)

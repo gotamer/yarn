@@ -902,7 +902,7 @@ other = "最近推文"
 hash = "sha1-14d26e1e7754b30ed7402bbaf188baa629d8a79b"
 other = "当前实例禁止注册, 请联系管理员"
 
-[RegisterFormEmail]
+[EmailAddress]
 hash = "sha1-c94d3175a6560565410511df2cebab9cda96027e"
 other = "电子邮件"
 

@@ -598,6 +598,12 @@ func (s *Server) initRoutes() {
 	s.router.GET("/login", httproutermiddleware.Handler("login", s.am.HasAuth(s.LoginHandler()), mdlw))
 	s.router.POST("/login", httproutermiddleware.Handler("login", s.LoginHandler(), mdlw))
 
+	if s.config.Features.IsEnabled(FeatureMagicLinkAuth) {
+		s.router.GET("/login/email", httproutermiddleware.Handler("login_email", s.am.HasAuth(s.LoginEmailHandler()), mdlw))
+		s.router.POST("/login/email", httproutermiddleware.Handler("login_email", s.LoginEmailHandler(), mdlw))
+		s.router.GET("/magiclinkauth", httproutermiddleware.Handler("magiclinkauth", s.MagicLinkAuthHandler(), mdlw))
+	}
+
 	s.router.GET("/logout", httproutermiddleware.Handler("logout", s.LogoutHandler(), mdlw))
 	s.router.POST("/logout", httproutermiddleware.Handler("logout", s.LogoutHandler(), mdlw))
 

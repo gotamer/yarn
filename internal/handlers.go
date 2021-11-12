@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"image/png"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -15,7 +14,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/feeds"
 	"github.com/julienschmidt/httprouter"
 	log "github.com/sirupsen/logrus"
@@ -23,7 +21,6 @@ import (
 	"github.com/vcraescu/go-paginator/adapter"
 	"gopkg.in/yaml.v2"
 
-	"git.mills.io/yarnsocial/yarn/internal/session"
 	"git.mills.io/yarnsocial/yarn/types"
 )
 
@@ -31,7 +28,6 @@ const (
 	MediaResolution  = 850 // 850px width (maintaining aspect ratio)
 	AvatarResolution = 360 // 360px width (maintaining aspect ratio)
 	AsyncTaskLimit   = 5
-	MaxFailedLogins  = 3 // By default 3 failed login attempts per 5 minutes
 
 	bookmarkletTemplate = `(function(){window.location.href="%s/?title="+document.title+"&url="+document.URL;})();`
 )
@@ -458,181 +454,6 @@ func (s *Server) WebMentionHandler() httprouter.Handle {
 	}
 }
 
-// LoginHandler ...
-func (s *Server) LoginHandler() httprouter.Handle {
-	// #239: Throttle failed login attempts and lock user  account.
-	failures := NewTTLCache(5 * time.Minute)
-
-	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s, r)
-
-		if r.Method == "GET" {
-			s.render("login", w, ctx)
-			return
-		}
-
-		username := NormalizeUsername(r.FormValue("username"))
-		password := r.FormValue("password")
-		rememberme := r.FormValue("rememberme") == "on"
-
-		// Error: no username or password provided
-		if username == "" || password == "" {
-			http.Redirect(w, r, "/login", http.StatusFound)
-			return
-		}
-
-		// Lookup user
-		user, err := s.db.GetUser(username)
-		if err != nil {
-			ctx.Error = true
-			ctx.Message = s.tr(ctx, "ErrorInvalidUsername")
-			s.render("error", w, ctx)
-			return
-		}
-
-		// #239: Throttle failed login attempts and lock user  account.
-		if failures.Get(user.Username) > MaxFailedLogins {
-			ctx.Error = true
-			ctx.Message = s.tr(ctx, "ErrorMaxFailedLogins")
-			s.render("error", w, ctx)
-			return
-		}
-
-		// Validate cleartext password against KDF hash
-		err = s.pm.CheckPassword(user.Password, password)
-		if err != nil {
-			// #239: Throttle failed login attempts and lock user  account.
-			failed := failures.Inc(user.Username)
-			time.Sleep(time.Duration(IntPow(2, failed)) * time.Second)
-
-			ctx.Error = true
-			ctx.Message = s.tr(ctx, "ErrorInvalidPassword")
-			s.render("error", w, ctx)
-			return
-		}
-
-		// #239: Throttle failed login attempts and lock user  account.
-		failures.Reset(user.Username)
-
-		// Lookup session
-		sess := r.Context().Value(session.SessionKey)
-		if sess == nil {
-			http.Redirect(w, r, "/login", http.StatusFound)
-			return
-		}
-
-		// Authorize session
-		_ = sess.(*session.Session).Set("username", username)
-
-		// Persist session?
-		if rememberme {
-			_ = sess.(*session.Session).Set("persist", "1")
-		}
-
-		http.Redirect(w, r, RedirectRefererURL(r, s.config, "/"), http.StatusFound)
-	}
-}
-
-// LogoutHandler ...
-func (s *Server) LogoutHandler() httprouter.Handle {
-	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		s.sm.Delete(w, r)
-		http.Redirect(w, r, "/", http.StatusFound)
-	}
-}
-
-// RegisterHandler ...
-func (s *Server) RegisterHandler() httprouter.Handle {
-	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		ctx := NewContext(s, r)
-
-		if r.Method == "GET" {
-			if s.config.OpenRegistrations {
-				s.render("register", w, ctx)
-			} else {
-				message := s.config.RegisterMessage
-
-				if message == "" {
-					message = s.tr(ctx, "ErrorRegisterDisabled")
-				}
-
-				ctx.Error = true
-				ctx.Message = message
-				s.render("error", w, ctx)
-			}
-
-			return
-		}
-
-		username := NormalizeUsername(r.FormValue("username"))
-		password := r.FormValue("password")
-		// XXX: We DO NOT store this! (EVER)
-		email := strings.TrimSpace(r.FormValue("email"))
-
-		if err := ValidateUsername(username); err != nil {
-			ctx.Error = true
-			trdata := map[string]interface{}{
-				"Error": err.Error(),
-			}
-			ctx.Message = s.tr(ctx, "ErrorValidateUsername", trdata)
-			s.render("error", w, ctx)
-			return
-		}
-
-		if s.db.HasUser(username) || s.db.HasFeed(username) {
-			ctx.Error = true
-			ctx.Message = s.tr(ctx, "ErrorHasUserOrFeed")
-			s.render("error", w, ctx)
-			return
-		}
-
-		p := filepath.Join(s.config.Data, feedsDir)
-		if err := os.MkdirAll(p, 0755); err != nil {
-			log.WithError(err).Error("error creating feeds directory")
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		fn := filepath.Join(p, username)
-		if _, err := os.Stat(fn); err == nil {
-			ctx.Error = true
-			ctx.Message = s.tr(ctx, "ErrorUsernameExists")
-			s.render("error", w, ctx)
-			return
-		}
-
-		if err := ioutil.WriteFile(fn, []byte{}, 0644); err != nil {
-			log.WithError(err).Error("error creating new user feed")
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		hash, err := s.pm.CreatePassword(password)
-		if err != nil {
-			log.WithError(err).Error("error creating password hash")
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		recoveryHash := fmt.Sprintf("email:%s", FastHashString(email))
-
-		user := NewUser()
-		user.Username = username
-		user.Password = hash
-		user.Recovery = recoveryHash
-		user.URL = URLForUser(s.config.BaseURL, username)
-		user.CreatedAt = time.Now()
-
-		if err := s.db.SetUser(username, user); err != nil {
-			log.WithError(err).Error("error saving user object for new user")
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		http.Redirect(w, r, "/login", http.StatusFound)
-	}
-}
-
 // LookupHandler ...
 func (s *Server) LookupHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
@@ -882,191 +703,6 @@ func (s *Server) FollowingHandler() httprouter.Handle {
 		}
 		ctx.Title = s.tr(ctx, "PageUserFollowingTitle", trdata)
 		s.render("following", w, ctx)
-	}
-}
-
-// ResetPasswordHandler ...
-func (s *Server) ResetPasswordHandler() httprouter.Handle {
-	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s, r)
-
-		if r.Method == "GET" {
-			ctx.Title = s.tr(ctx, "PageResetPasswordTitle")
-			s.render("resetPassword", w, ctx)
-			return
-		}
-
-		username := NormalizeUsername(r.FormValue("username"))
-		email := strings.TrimSpace(r.FormValue("email"))
-		recovery := fmt.Sprintf("email:%s", FastHashString(email))
-
-		if err := ValidateUsername(username); err != nil {
-			ctx.Error = true
-			ctx.Message = fmt.Sprintf("Username validation failed: %s", err.Error())
-			s.render("error", w, ctx)
-			return
-		}
-
-		// Check if user exist
-		if !s.db.HasUser(username) {
-			ctx.Error = true
-			ctx.Message = s.tr(ctx, "ErrorUserNotFound")
-			s.render("error", w, ctx)
-			return
-		}
-
-		// Get user object from DB
-		user, err := s.db.GetUser(username)
-		if err != nil {
-			ctx.Error = true
-			ctx.Message = s.tr(ctx, "ErrorGetUser")
-			s.render("error", w, ctx)
-			return
-		}
-
-		if recovery != user.Recovery {
-			ctx.Error = true
-			ctx.Message = s.tr(ctx, "ErrorUserRecovery")
-			s.render("error", w, ctx)
-			return
-		}
-
-		// Create magic link expiry time
-		now := time.Now()
-		secs := now.Unix()
-		expiresAfterSeconds := int64(600) // Link expires after 10 minutes
-
-		expiryTime := secs + expiresAfterSeconds
-
-		// Create magic link
-		token := jwt.NewWithClaims(
-			jwt.SigningMethodHS256,
-			jwt.MapClaims{"username": username, "expiresAt": expiryTime},
-		)
-		tokenString, err := token.SignedString([]byte(s.config.MagicLinkSecret))
-		if err != nil {
-			ctx.Error = true
-			ctx.Message = err.Error()
-			s.render("error", w, ctx)
-			return
-		}
-
-		if err := SendPasswordResetEmail(s.config, user, email, tokenString); err != nil {
-			log.WithError(err).Errorf("unable to send reset password email to %s", user.Username)
-			ctx.Error = true
-			ctx.Message = err.Error()
-			s.render("error", w, ctx)
-			return
-		}
-
-		// Show success msg
-		ctx.Error = false
-		ctx.Message = s.tr(ctx, "MsgUserRecoveryRequestSent")
-		s.render("error", w, ctx)
-	}
-}
-
-// ResetPasswordMagicLinkHandler ...
-func (s *Server) ResetPasswordMagicLinkHandler() httprouter.Handle {
-	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s, r)
-
-		// Get token from query string
-		tokens, ok := r.URL.Query()["token"]
-
-		// Check if valid token
-		if !ok || len(tokens[0]) < 1 {
-			ctx.Error = true
-			ctx.Message = s.tr(ctx, "ErrorInvalidToken")
-			s.render("error", w, ctx)
-			return
-		}
-
-		tokenEmail := tokens[0]
-		ctx.PasswordResetToken = tokenEmail
-
-		// Show newPassword page
-		s.render("newPassword", w, ctx)
-	}
-}
-
-// NewPasswordHandler ...
-func (s *Server) NewPasswordHandler() httprouter.Handle {
-	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s, r)
-
-		if r.Method == "GET" {
-			return
-		}
-
-		password := r.FormValue("password")
-		tokenEmail := r.FormValue("token")
-
-		// Check if token is valid
-		token, err := jwt.Parse(tokenEmail, func(token *jwt.Token) (interface{}, error) {
-
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-			}
-
-			return []byte(s.config.MagicLinkSecret), nil
-		})
-
-		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-
-			var username = fmt.Sprintf("%v", claims["username"])
-			var expiresAt int = int(claims["expiresAt"].(float64))
-
-			now := time.Now()
-			secs := now.Unix()
-
-			// Check token expiry
-			if secs > int64(expiresAt) {
-				ctx.Error = true
-				ctx.Message = s.tr(ctx, "ErrorTokenExpires")
-				s.render("error", w, ctx)
-				return
-			}
-
-			user, err := s.db.GetUser(username)
-			if err != nil {
-				ctx.Error = true
-				ctx.Message = s.tr(ctx, "ErrorGetUser")
-				s.render("error", w, ctx)
-				return
-			}
-
-			// Reset password
-			if password != "" {
-				hash, err := s.pm.CreatePassword(password)
-				if err != nil {
-					ctx.Error = true
-					ctx.Message = s.tr(ctx, "ErrorGetUser")
-					s.render("error", w, ctx)
-					return
-				}
-
-				user.Password = hash
-
-				// Save user
-				if err := s.db.SetUser(username, user); err != nil {
-					ctx.Error = true
-					ctx.Message = s.tr(ctx, "ErrorGetUser")
-					s.render("error", w, ctx)
-					return
-				}
-			}
-
-			// Show success msg
-			ctx.Error = false
-			ctx.Message = s.tr(ctx, "MsgPasswordResetSuccess")
-			s.render("error", w, ctx)
-		} else {
-			ctx.Error = true
-			ctx.Message = err.Error()
-			s.render("error", w, ctx)
-			return
-		}
 	}
 }
 
