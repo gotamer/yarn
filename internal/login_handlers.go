@@ -219,7 +219,7 @@ func (s *Server) MagicLinkAuthHandler() httprouter.Handle {
 			// Check token expiry
 			if secs > int64(expiresAt) {
 				ctx.Error = true
-				ctx.Message = s.tr(ctx, "errortokenexpires")
+				ctx.Message = s.tr(ctx, "ErrorTokenExpired")
 				s.render("error", w, ctx)
 				return
 			}

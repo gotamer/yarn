@@ -346,7 +346,7 @@ other = "加載數據時發生了錯誤"
 hash = "sha1-7f2f6a15cf8da2b27e5a4af47b58e7ad71c0b3d9"
 other = "錯誤"
 
-[ErrorTokenExpires]
+[ErrorTokenExpired]
 hash = "sha1-a0682dcb983fc2fb1fc7d119a8fb933c18e0cca0"
 other = "Token 已過期"
 
