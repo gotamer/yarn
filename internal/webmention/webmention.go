@@ -92,10 +92,8 @@ func (wm *WebMention) WebMentionEndpoint(w http.ResponseWriter, r *http.Request)
 			sourceurl,
 			targeturl,
 		}
-		log.Infof("webmention source=%s target=%s enqueued for processing", source, target)
 		w.WriteHeader(http.StatusAccepted)
 	} else {
-		log.Warn("invalid webmention recieved")
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 	}
 }
@@ -105,14 +103,14 @@ func (wm *WebMention) processInbox() {
 
 	res, err := http.Get(mention.source.String())
 	if err != nil || res.StatusCode/100 != 2 {
-		log.Errorf("Error getting source %s (%s): %s", mention.source, res.Status, err)
+		log.Errorf("error getting source %s (%s): %s", mention.source, res.Status, err)
 		return
 	}
 	defer res.Body.Close()
 
 	body, err := html.Parse(res.Body)
 	if err != nil {
-		log.Errorf("Error parsing source %s: %s", mention.source, err)
+		log.Errorf("error parsing source %s: %s", mention.source, err)
 		return
 	}
 
@@ -122,8 +120,6 @@ func (wm *WebMention) processInbox() {
 		data := p.ParseNode(body, mention.source)
 		if err := wm.Mention(mention.source, mention.target, data); err != nil {
 			log.WithError(err).Error("error processing webmention")
-		} else {
-			log.Infof("processed webmention with mf2 source=%s target=%s", mention.source, mention.target)
 		}
 		return
 	}
@@ -132,13 +128,9 @@ func (wm *WebMention) processInbox() {
 	if len(links) > 0 {
 		if err := wm.Mention(mention.source, mention.target, nil); err != nil {
 			log.WithError(err).Error("error processing webmention")
-		} else {
-			log.Infof("processed webmention without mf2 source=%s target=%s", mention.source, mention.target)
 		}
 		return
 	}
-
-	log.Warnf("no links found on %s", mention.source.String())
 }
 
 func (wm *WebMention) processOutbox() {
@@ -150,7 +142,6 @@ func (wm *WebMention) processOutbox() {
 		return
 	}
 	if endpoint == nil {
-		log.Warn("no webmention endpoint found")
 		return
 	}
 	values := make(url.Values)

@@ -34,10 +34,6 @@ func (s *Server) ExternalHandler() httprouter.Handle {
 			return
 		}
 
-		if nick == "" {
-			log.Warn("no nick given to external profile request")
-		}
-
 		if !s.cache.IsCached(uri) {
 			s.tasks.DispatchFunc(func() error {
 				sources := make(types.Feeds)
@@ -161,10 +157,6 @@ func (s *Server) ExternalFollowingHandler() httprouter.Handle {
 			return
 		}
 
-		if nick == "" {
-			log.Warn("no nick given to external profile request")
-		}
-
 		if !s.cache.IsCached(uri) {
 			sources := make(types.Feeds)
 			sources[types.Feed{Nick: nick, URL: uri}] = true
@@ -272,7 +264,6 @@ func (s *Server) ExternalAvatarHandler() httprouter.Handle {
 		uri := r.URL.Query().Get("uri")
 
 		if uri == "" {
-			log.Warn("no uri provided for external avatar")
 			http.Error(w, "Bad Request", http.StatusBadRequest)
 			return
 		}
@@ -282,7 +273,6 @@ func (s *Server) ExternalAvatarHandler() httprouter.Handle {
 		w.Header().Set("Content-Type", "image/png")
 
 		if !FileExists(fn) {
-			log.Warnf("no external avatar found for %s", slug)
 			http.Error(w, "External avatar not found", http.StatusNotFound)
 			return
 		}

@@ -24,7 +24,6 @@ func (s *Server) CaptchaHandler() httprouter.Handle {
 		// Save captcha text in session
 		sess := r.Context().Value(session.SessionKey)
 		if sess == nil {
-			log.Warn("no session found")
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
@@ -60,7 +59,6 @@ func (s *Server) SupportHandler() httprouter.Handle {
 		// Get session
 		sess := r.Context().Value(session.SessionKey)
 		if sess == nil {
-			log.Warn("no session found")
 			ctx.Error = true
 			ctx.Message = "no session found, do you have cookies disabled?"
 			s.render("error", w, ctx)
@@ -70,7 +68,6 @@ func (s *Server) SupportHandler() httprouter.Handle {
 		// Get captcha text from session
 		captchaText, isCaptchaTextAvailable := sess.(*session.Session).Get("captchaText")
 		if !isCaptchaTextAvailable {
-			log.Warn("no captcha provided")
 			ctx.Error = true
 			ctx.Message = "no captcha text found"
 			s.render("error", w, ctx)
@@ -78,7 +75,6 @@ func (s *Server) SupportHandler() httprouter.Handle {
 		}
 
 		if captchaInput != captchaText {
-			log.Warn("incorrect captcha")
 			ctx.Error = true
 			ctx.Message = "Unable to match captcha text. Please try again."
 			s.render("error", w, ctx)
@@ -137,7 +133,6 @@ func (s *Server) ReportHandler() httprouter.Handle {
 		// Get session
 		sess := r.Context().Value(session.SessionKey)
 		if sess == nil {
-			log.Warn("no session found")
 			ctx.Error = true
 			ctx.Message = "no session found, do you have cookies disabled?"
 			s.render("error", w, ctx)
@@ -147,7 +142,6 @@ func (s *Server) ReportHandler() httprouter.Handle {
 		// Get captcha text from session
 		captchaText, isCaptchaTextAvailable := sess.(*session.Session).Get("captchaText")
 		if !isCaptchaTextAvailable {
-			log.Warn("no captcha provided")
 			ctx.Error = true
 			ctx.Message = "no captcha text found"
 			s.render("error", w, ctx)
@@ -155,7 +149,6 @@ func (s *Server) ReportHandler() httprouter.Handle {
 		}
 
 		if captchaInput != captchaText {
-			log.Warn("incorrect captcha")
 			ctx.Error = true
 			ctx.Message = "Unable to match captcha text. Please try again."
 			s.render("error", w, ctx)

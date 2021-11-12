@@ -68,10 +68,8 @@ func (s *Server) TwtxtHandler() httprouter.Handle {
 			return
 		}
 
-		followerClient, err := DetectFollowerFromUserAgent(r.UserAgent())
-		if err != nil {
-			log.WithError(err).Warnf("unable to detect twtxt client from %s", FormatRequest(r))
-		} else {
+		ua, _ := ParseTwtxtUserAgent(r.UserAgent())
+		if ua != nil {
 			var (
 				user       *User
 				feed       *Feed
@@ -80,35 +78,34 @@ func (s *Server) TwtxtHandler() httprouter.Handle {
 			)
 
 			if user, err = s.db.GetUser(nick); err == nil {
-				followedBy = user.FollowedBy(followerClient.URL)
+				followedBy = user.FollowedBy(ua.URL)
 			} else if feed, err = s.db.GetFeed(nick); err == nil {
-				followedBy = feed.FollowedBy(followerClient.URL)
+				followedBy = feed.FollowedBy(ua.URL)
 			} else {
 				log.WithError(err).Warnf("unable to load user or feed object for %s", nick)
 			}
 
 			if (user != nil) || (feed != nil) {
-				if (s.config.Debug || followerClient.IsPublicURL()) && !followedBy {
+				if (s.config.Debug || ua.IsPublicURL()) && !followedBy {
 					if _, err := AppendSpecial(
 						s.config, s.db,
 						twtxtBot,
 						fmt.Sprintf(
 							"FOLLOW: @<%s %s> from @<%s %s> using %s",
 							nick, URLForUser(s.config.BaseURL, nick),
-							followerClient.Nick, followerClient.URL,
-							followerClient.Client,
+							ua.Nick, ua.URL, ua.Client,
 						),
 					); err != nil {
 						log.WithError(err).Warnf("error appending special FOLLOW post")
 					}
 
 					if user != nil {
-						user.AddFollower(followerClient.Nick, followerClient.URL)
+						user.AddFollower(ua.Nick, ua.URL)
 						if err := s.db.SetUser(nick, user); err != nil {
 							log.WithError(err).Warnf("error updating user object for %s", nick)
 						}
 					} else if feed != nil {
-						feed.AddFollower(followerClient.Nick, followerClient.URL)
+						feed.AddFollower(ua.Nick, ua.URL)
 						if err := s.db.SetFeed(nick, feed); err != nil {
 							log.WithError(err).Warnf("error updating feed object for %s", nick)
 						}

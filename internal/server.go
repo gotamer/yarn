@@ -341,7 +341,6 @@ func (s *Server) processWebMention(source, target *url.URL, sourceData *microfor
 
 	parseSourceData := func(data *microformats.Data) (string, string, error) {
 		if data == nil {
-			log.Warn("no source data to parse")
 			return "", "", nil
 		}
 
@@ -713,16 +712,6 @@ func NewServer(bind string, options ...Option) (*Server, error) {
 		return nil, err
 	}
 
-	// XXX: 034009e changed default store path from twtxt.db to yarn.db
-	// TODO: Remove after v0.6.x
-	if config.Store == DefaultStore && FileExists("twtxt.db") {
-		log.Warn("commit 034009e changed the default store path from twtxt.db to yarn.db renaming...")
-		if err := os.Rename("twtxt.db", "yarn.db"); err != nil {
-			log.WithError(err).Error("error renaming store")
-			return nil, err
-		}
-	}
-
 	db, err := NewStore(config.Store)
 	if err != nil {
 		log.WithError(err).Error("error creating store")
@@ -875,7 +864,7 @@ func NewServer(bind string, options ...Option) (*Server, error) {
 
 	// Warn about user registration being disabled.
 	if !server.config.OpenRegistrations {
-		log.Warn("Open Registrations are disabled as per configuration (no -R/--open-registrations)")
+		log.Warn("registrations are disabled as per configuration (no -R/--open-registrations)")
 	}
 
 	// Warn about `ffmpeg` not installed or available

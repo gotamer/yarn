@@ -276,8 +276,6 @@ func (a *API) RegisterEndpoint() httprouter.Handle {
 			http.Error(w, "User Creation Failed", http.StatusInternalServerError)
 			return
 		}
-
-		log.Infof("user registered: %v", user)
 	}
 }
 
@@ -299,7 +297,6 @@ func (a *API) AuthEndpoint() httprouter.Handle {
 
 		// Error: no username or password provided
 		if username == "" || password == "" {
-			log.Warn("no username or password provided")
 			http.Error(w, "Bad Request", http.StatusBadRequest)
 			return
 		}
@@ -383,7 +380,6 @@ func (a *API) PostEndpoint() httprouter.Handle {
 
 		text := CleanTwt(req.Text)
 		if text == "" {
-			log.Warn("no text provided for post")
 			http.Error(w, "Bad Request", http.StatusBadRequest)
 			return
 		}
@@ -587,7 +583,6 @@ func (a *API) FollowEndpoint() httprouter.Handle {
 		url := NormalizeURL(req.URL)
 
 		if nick == "" || url == "" {
-			log.Warn("no nick or url provided")
 			http.Error(w, "Bad Request", http.StatusBadRequest)
 			return
 		}
@@ -691,7 +686,6 @@ func (a *API) UnfollowEndpoint() httprouter.Handle {
 		nick := req.Nick
 
 		if nick == "" {
-			log.Error("no nick provided")
 			http.Error(w, "Bad Request", http.StatusBadRequest)
 			return
 		}
@@ -704,7 +698,6 @@ func (a *API) UnfollowEndpoint() httprouter.Handle {
 
 		url, ok := user.Following[nick]
 		if !ok {
-			log.Errorf("user %s is not following %s", nick, url)
 			http.Error(w, "Bad Request", http.StatusBadRequest)
 			return
 		}
@@ -897,7 +890,6 @@ func (a *API) UploadMediaEndpoint() httprouter.Handle {
 		mfile, headers, err := r.FormFile("media_file")
 		if err != nil && err != http.ErrMissingFile {
 			if err.Error() == "http: request body too large" {
-				log.Warnf("request too large for media upload from %s", FormatRequest(r))
 				http.Error(w, "Media Upload Too Large", http.StatusRequestEntityTooLarge)
 				return
 			}
@@ -907,7 +899,6 @@ func (a *API) UploadMediaEndpoint() httprouter.Handle {
 		}
 
 		if mfile == nil || headers == nil {
-			log.Warn("no valid media file uploaded")
 			http.Error(w, "Bad Request", http.StatusBadRequest)
 			return
 		}
@@ -971,7 +962,6 @@ func (a *API) UploadMediaEndpoint() httprouter.Handle {
 		}
 
 		if uri.IsZero() {
-			log.Warn("no media file provided or unsupported media type")
 			http.Error(w, "Bad Request", http.StatusBadRequest)
 			return
 		}

@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDetectFollowerFromUserAgent(t *testing.T) {
+func TestParseTwtxtUserAgent(t *testing.T) {
 	testCases := []struct {
 		ua       string
 		err      error
@@ -31,7 +31,7 @@ func TestDetectFollowerFromUserAgent(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		actual, err := DetectFollowerFromUserAgent(testCase.ua)
+		actual, err := ParseTwtxtUserAgent(testCase.ua)
 		if err != nil {
 			assert.Equal(t, testCase.err, err)
 		} else {

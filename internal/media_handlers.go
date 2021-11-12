@@ -42,7 +42,6 @@ func (s *Server) MediaHandler() httprouter.Handle {
 		}
 
 		if !FileExists(fn) {
-			log.Warnf("media not found: %s", name)
 			http.Error(w, "Media Not Found", http.StatusNotFound)
 			return
 		}
@@ -96,7 +95,6 @@ func (s *Server) UploadMediaHandler() httprouter.Handle {
 		mfile, headers, err := r.FormFile("media_file")
 		if err != nil && err != http.ErrMissingFile {
 			if err.Error() == "http: request body too large" {
-				log.Warnf("request too large for media upload from %s", FormatRequest(r))
 				http.Error(w, "Media Upload Too Large", http.StatusRequestEntityTooLarge)
 				return
 			}
@@ -106,7 +104,6 @@ func (s *Server) UploadMediaHandler() httprouter.Handle {
 		}
 
 		if mfile == nil || headers == nil {
-			log.Warn("no valid media file uploaded")
 			http.Error(w, "Bad Request", http.StatusBadRequest)
 			return
 		}
@@ -175,7 +172,6 @@ func (s *Server) UploadMediaHandler() httprouter.Handle {
 		}
 
 		if uri.IsZero() {
-			log.Warn("no media file provided or unsupported media type")
 			http.Error(w, "Bad Request", http.StatusBadRequest)
 			return
 		}

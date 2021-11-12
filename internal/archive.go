@@ -123,7 +123,6 @@ func (a *DiskArchiver) Get(hash string) (types.Twt, error) {
 	}
 
 	if !a.fileExists(fn) {
-		log.Warnf("twt %s not found in archive", hash)
 		return types.NilTwt, ErrTwtNotArchived
 	}
 
@@ -150,7 +149,6 @@ func (a *DiskArchiver) Archive(twt types.Twt) error {
 	}
 
 	if a.fileExists(fn) {
-		log.Warnf("archived twt %s already exists", twt.Hash())
 		return ErrTwtAlreadyArchived
 	}
 

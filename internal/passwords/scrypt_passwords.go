@@ -45,7 +45,7 @@ func NewScryptPasswords(options *Options) Passwords {
 		options.maxMemory = DefaultMaxMemory
 	}
 
-	log.Info("Calibrating scrypt parameters ...")
+	log.Info("calibrating scrypt parameters ...")
 	params, err := scrypt.Calibrate(
 		options.maxTimeout,
 		options.maxMemory,

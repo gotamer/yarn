@@ -253,10 +253,10 @@ func NewCreateAdminFeedsJob(conf *Config, cache *Cache, archive Archiver, db Sto
 }
 
 func (job *CreateAdminFeedsJob) Run() {
-	log.Infof("creating feeds for adminUser: %s", job.conf.AdminUser)
+	log.Infof("creating feeds for admin user: %s", job.conf.AdminUser)
 
 	if !job.db.HasUser(job.conf.AdminUser) {
-		log.Warnf("no adminUser account matching %s", job.conf.AdminUser)
+		log.Warnf("no admin user account matching %s", job.conf.AdminUser)
 		return
 	}
 
@@ -361,11 +361,7 @@ func (job *RotateFeedsJob) Run() {
 		}
 
 		if stat.Size() > job.conf.MaxFetchLimit {
-			log.Infof(
-				"rotating %s with size %s > %s",
-				feed, humanize.Bytes(uint64(stat.Size())),
-				humanize.Bytes(uint64(job.conf.MaxFetchLimit)),
-			)
+			log.Infof("rotating %s with size %s > %s", feed, humanize.Bytes(uint64(stat.Size())), humanize.Bytes(uint64(job.conf.MaxFetchLimit)))
 
 			if err := RotateFeed(job.conf, feed); err != nil {
 				log.WithError(err).Error("error rotating feed")

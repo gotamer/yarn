@@ -352,8 +352,6 @@ func (s *Server) PostHandler() httprouter.Handle {
 			}
 			// Delete user's own feed as it was edited
 			s.cache.DeleteFeeds(ctx.User.Source())
-		} else {
-			log.Warnf("hash mismatch %s != %s", lastTwt.Hash(), hash)
 		}
 
 		text := CleanTwt(r.FormValue("text"))
@@ -479,7 +477,6 @@ func (s *Server) LoginHandler() httprouter.Handle {
 
 		// Error: no username or password provided
 		if username == "" || password == "" {
-			log.Warn("no username or password provided")
 			http.Redirect(w, r, "/login", http.StatusFound)
 			return
 		}
@@ -517,13 +514,9 @@ func (s *Server) LoginHandler() httprouter.Handle {
 		// #239: Throttle failed login attempts and lock user  account.
 		failures.Reset(user.Username)
 
-		// Login successful
-		log.Infof("login successful: %s", username)
-
 		// Lookup session
 		sess := r.Context().Value(session.SessionKey)
 		if sess == nil {
-			log.Warn("no session found")
 			http.Redirect(w, r, "/login", http.StatusFound)
 			return
 		}
@@ -636,7 +629,6 @@ func (s *Server) RegisterHandler() httprouter.Handle {
 			return
 		}
 
-		log.Infof("user registered: %v", user)
 		http.Redirect(w, r, "/login", http.StatusFound)
 	}
 }
@@ -989,8 +981,6 @@ func (s *Server) ResetPasswordHandler() httprouter.Handle {
 			return
 		}
 
-		log.Infof("reset password email sent for %s", user.Username)
-
 		// Show success msg
 		ctx.Error = false
 		ctx.Message = s.tr(ctx, "MsgUserRecoveryRequestSent")
@@ -1089,8 +1079,6 @@ func (s *Server) NewPasswordHandler() httprouter.Handle {
 				}
 			}
 
-			log.Infof("password changed: %v", user)
-
 			// Show success msg
 			ctx.Error = false
 			ctx.Message = s.tr(ctx, "MsgPasswordResetSuccess")
@@ -1110,14 +1098,12 @@ func (s *Server) TaskHandler() httprouter.Handle {
 		uuid := p.ByName("uuid")
 
 		if uuid == "" {
-			log.Warn("no task uuid provided")
 			http.Error(w, "Bad Request", http.StatusBadRequest)
 			return
 		}
 
 		t, ok := s.tasks.Lookup(uuid)
 		if !ok {
-			log.Warnf("no task found by uuid: %s", uuid)
 			http.Error(w, "Task Not Found", http.StatusNotFound)
 			return
 		}

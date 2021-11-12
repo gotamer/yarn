@@ -257,8 +257,6 @@ func GetExternalAvatar(conf *Config, twter types.Twter) string {
 	// Auto-generate one
 	//
 
-	log.Warnf("unable to find a suitable avatar for %s generating one", uri)
-
 	img, err := GenerateAvatar(conf, twter.DomainNick())
 	if err != nil {
 		log.WithError(err).Errorf("error generating avatar for %s", twter)
@@ -812,11 +810,6 @@ func ProcessImage(conf *Config, ifn string, resource, name string, opts *ImageOp
 			g.Add(gift.ResizeToFit(opts.Width, opts.Height, gift.LanczosResampling))
 		} else if (opts.Width+opts.Height > 0) && (opts.Height > 0 || img.Bounds().Size().X > opts.Width) {
 			g.Add(gift.Resize(opts.Width, opts.Height, gift.LanczosResampling))
-		} else {
-			log.Warnf(
-				"not resizing image with bounds %s to %dx%d",
-				img.Bounds(), opts.Width, opts.Height,
-			)
 		}
 	}
 
@@ -1044,6 +1037,11 @@ type TwtxtUserAgent struct {
 	URL    string
 }
 
+func (ua TwtxtUserAgent) String() string {
+	// twtxt/<version> (+<source.url>; @<source.nick>)
+	return fmt.Sprintf("%s (+%s; @%s)", ua.Client, ua.URL, ua.Nick)
+}
+
 func (ua TwtxtUserAgent) IsPublicURL() bool {
 	u, err := url.Parse(ua.URL)
 	if err != nil {
@@ -1060,7 +1058,7 @@ func (ua TwtxtUserAgent) IsPublicURL() bool {
 	}
 
 	if len(ips) == 0 {
-		log.Warn("error User-Agent lookup failed or has no resolvable IP")
+		log.Warn("error User-Agent lookup failed for %q or has no resolvable IP", ua.String())
 		return false
 	}
 
@@ -1079,11 +1077,13 @@ func (ua TwtxtUserAgent) IsPublicURL() bool {
 	return !ipip.IsPrivate(ip)
 }
 
-func DetectFollowerFromUserAgent(ua string) (*TwtxtUserAgent, error) {
+func ParseTwtxtUserAgent(ua string) (*TwtxtUserAgent, error) {
 	match := userAgentRegex.FindStringSubmatch(ua)
 	if match == nil {
 		return nil, ErrInvalidUserAgent
 	}
+
+	// TODO: Add support for Multi-user UserAgent(s)
 
 	return &TwtxtUserAgent{
 		Client: match[1],
