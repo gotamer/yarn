@@ -27,7 +27,7 @@ require (
 	github.com/go-mail/mail v2.3.1+incompatible
 	github.com/goccy/go-yaml v1.9.4
 	github.com/gofrs/flock v0.8.1 // indirect
-	github.com/gomarkdown/markdown v0.0.0-20210918233619-6c1113f12c4a
+	github.com/gomarkdown/markdown v0.0.0-20211105120026-16f708f914c3
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/feeds v1.1.1
 	github.com/goware/urlx v0.3.1
@@ -78,14 +78,15 @@ require (
 	github.com/vcraescu/go-paginator v1.0.0
 	github.com/wblakecaldwell/profiler v0.0.0-20150908040756-6111ef1313a1
 	github.com/writeas/slug v1.2.0
-	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
-	golang.org/x/exp v0.0.0-20211029182501-9b944d235b9d // indirect
+	golang.org/x/crypto v0.0.0-20211108221036-ceb1ce70b4fa
+	golang.org/x/exp v0.0.0-20211111183329-cb5df436b1a8 // indirect
 	golang.org/x/image v0.0.0-20211028202545-6944b10bf410 // indirect
-	golang.org/x/net v0.0.0-20211029224645-99673261e6eb
-	golang.org/x/sys v0.0.0-20211031064116-611d5d643895 // indirect
+	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2
+	golang.org/x/sys v0.0.0-20211112193437-faf0a1b62c6b // indirect
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
 	golang.org/x/text v0.3.7
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
+	gopkg.in/ini.v1 v1.64.0 // indirect
 	gopkg.in/mail.v2 v2.3.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0
 	gorm.io/gorm v1.22.2 // indirect
