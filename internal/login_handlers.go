@@ -105,7 +105,6 @@ func (s *Server) LoginEmailHandler() httprouter.Handle {
 			return
 		}
 
-		s.render("error", w, ctx)
 		username := NormalizeUsername(r.FormValue("username"))
 		email := strings.TrimSpace(r.FormValue("email"))
 		recovery := fmt.Sprintf("email:%s", FastHashString(email))
