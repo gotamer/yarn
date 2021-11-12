@@ -49,6 +49,14 @@ func AvailableFeatures() []string {
 	return features
 }
 
+func IsFeatureEnabled(fs *FeatureFlags, name string) bool {
+	feature, err := FeatureFromString(name)
+	if err != nil {
+		return false
+	}
+	return fs.IsEnabled(feature)
+}
+
 func FeatureFromString(s string) (FeatureType, error) {
 	s = strings.TrimSpace(strings.ToLower(s))
 	switch s {

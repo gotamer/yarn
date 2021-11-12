@@ -77,6 +77,9 @@ func NewTemplateManager(conf *Config, translator *Translator, cache *Cache, arch
 	funcMap["isAdminUser"] = IsAdminUserFactory(conf)
 	funcMap["isSpecialFeed"] = IsSpecialFeed
 	funcMap["twtType"] = func(twt types.Twt) string { return fmt.Sprintf("%T", twt) }
+	funcMap["isFeatureEnabled"] = func(name string) bool {
+		return IsFeatureEnabled(conf.Features, name)
+	}
 
 	funcMap["html"] = func(text string) template.HTML { return template.HTML(text) }
 	funcMap["tr"] = func(ctx *Context, msgid string, data ...interface{}) string {
