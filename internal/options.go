@@ -166,6 +166,16 @@ var (
 	// feeds are updated in each feed cache cycle. The default is the number of
 	// available CPUs on the system.
 	DefaultMaxCacheFetchers = runtime.NumCPU()
+
+	// DefaultDisplayDatesInTimezone is the default timezone date and times are display in at the Pod level for
+	// anonymous or unauthenticated users or users who have not changed their timezone rpefernece.
+	DefaultDisplayDatesInTimezone = "UTC"
+
+	// DefaultDisplayTimePreference is the default Pod level time representation (12hr or 24h) overridable by Users.
+	DefaultDisplayTimePreference = "12h"
+
+	// DefaultOpenLinksInPreference is the default Pod level behaviour for opening external links (overridable by Users).
+	DefaultOpenLinksInPreference = "newwindow"
 )
 
 func NewConfig() *Config {
@@ -173,31 +183,34 @@ func NewConfig() *Config {
 		Version: version,
 		Debug:   DefaultDebug,
 
-		Name:              DefaultName,
-		Logo:              DefaultLogo,
-		Description:       DefaultMetaDescription,
-		Store:             DefaultStore,
-		Theme:             DefaultTheme,
-		BaseURL:           DefaultBaseURL,
-		AdminUser:         DefaultAdminUser,
-		FeedSources:       DefaultFeedSources,
-		RegisterMessage:   DefaultRegisterMessage,
-		CookieSecret:      DefaultCookieSecret,
-		TwtPrompts:        DefaultTwtPrompts,
-		TwtsPerPage:       DefaultTwtsPerPage,
-		MaxTwtLength:      DefaultMaxTwtLength,
-		OpenProfiles:      DefaultOpenProfiles,
-		OpenRegistrations: DefaultOpenRegistrations,
-		DisableGzip:       DefaultDisableGzip,
-		DisableLogger:     DefaultDisableLogger,
-		DisableFfmpeg:     DefaultDisableFfmpeg,
-		Features:          NewFeatureFlags(),
-		SessionExpiry:     DefaultSessionExpiry,
-		MagicLinkSecret:   DefaultMagicLinkSecret,
-		SMTPHost:          DefaultSMTPHost,
-		SMTPPort:          DefaultSMTPPort,
-		SMTPUser:          DefaultSMTPUser,
-		SMTPPass:          DefaultSMTPPass,
+		Name:                   DefaultName,
+		Logo:                   DefaultLogo,
+		Description:            DefaultMetaDescription,
+		Store:                  DefaultStore,
+		Theme:                  DefaultTheme,
+		BaseURL:                DefaultBaseURL,
+		AdminUser:              DefaultAdminUser,
+		FeedSources:            DefaultFeedSources,
+		RegisterMessage:        DefaultRegisterMessage,
+		CookieSecret:           DefaultCookieSecret,
+		TwtPrompts:             DefaultTwtPrompts,
+		TwtsPerPage:            DefaultTwtsPerPage,
+		MaxTwtLength:           DefaultMaxTwtLength,
+		OpenProfiles:           DefaultOpenProfiles,
+		OpenRegistrations:      DefaultOpenRegistrations,
+		DisableGzip:            DefaultDisableGzip,
+		DisableLogger:          DefaultDisableLogger,
+		DisableFfmpeg:          DefaultDisableFfmpeg,
+		Features:               NewFeatureFlags(),
+		DisplayDatesInTimezone: DefaultDisplayDatesInTimezone,
+		DisplayTimePreference:  DefaultDisplayTimePreference,
+		OpenLinksInPreference:  DefaultOpenLinksInPreference,
+		SessionExpiry:          DefaultSessionExpiry,
+		MagicLinkSecret:        DefaultMagicLinkSecret,
+		SMTPHost:               DefaultSMTPHost,
+		SMTPPort:               DefaultSMTPPort,
+		SMTPUser:               DefaultSMTPUser,
+		SMTPPass:               DefaultSMTPPass,
 	}
 }
 

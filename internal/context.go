@@ -74,6 +74,10 @@ type Context struct {
 	Authenticated bool
 	IsAdmin       bool
 
+	DisplayDatesInTimezone string
+	DisplayTimePreference  string
+	OpenLinksInPreference  string
+
 	Error       bool
 	Message     string
 	Lang        string // language
@@ -149,6 +153,10 @@ func NewContext(s *Server, req *http.Request) *Context {
 		BlacklistedFeeds:  conf.BlacklistedFeeds,
 		EnabledFeatures:   conf.Features.AsStrings(),
 
+		DisplayDatesInTimezone: conf.DisplayDatesInTimezone,
+		DisplayTimePreference:  conf.DisplayTimePreference,
+		OpenLinksInPreference:  conf.OpenLinksInPreference,
+
 		Commit:      yarn.Commit,
 		Theme:       conf.Theme,
 		Lang:        conf.Lang,
@@ -195,7 +203,11 @@ func NewContext(s *Server, req *http.Request) *Context {
 
 		ctx.User = user
 	} else {
-		ctx.User = &User{}
+		ctx.User = &User{
+			DisplayDatesInTimezone: conf.DisplayDatesInTimezone,
+			DisplayTimePreference:  conf.DisplayTimePreference,
+			OpenLinksInPreference:  conf.OpenLinksInPreference,
+		}
 		ctx.Twter = types.Twter{}
 	}
 

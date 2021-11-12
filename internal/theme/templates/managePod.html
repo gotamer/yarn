@@ -8,12 +8,12 @@
       <form action="/manage/pod" enctype="multipart/form-data" method="POST">
         <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
         <label for="podName">
-            Pod Name:
-            <input id="podName" type="text" name="podName" placeholder="Pod Name" aria-label="podName" value="{{ .InstanceName }}">
+          Pod Name:
+          <input id="podName" type="text" name="podName" placeholder="Pod Name" aria-label="podName" value="{{ .InstanceName }}">
         </label>
         <label for="podDescription">
-            Pod Description:
-            <input id="podDescription" type="text" name="podDescription" placeholder="Pod Description" aria-label="podDescription" value="{{ .Meta.Description }}">
+          Pod Description:
+          <input id="podDescription" type="text" name="podDescription" placeholder="Pod Description" aria-label="podDescription" value="{{ .Meta.Description }}">
         </label>
         <label for="logo">
           Change logo:
@@ -54,6 +54,40 @@
           <textarea id="enabledFeatures" name="enabledFeatures" rows=3>{{ $.EnabledFeatures | join "\r\n" }}</textarea>
         </label>
 
+        <div class="grid">
+          <label for="displayDatesInTimezone">
+            {{tr . "SettingsFormTimezoneTitle"}}
+            <select id="displayDatesInTimezone" name="displayDatesInTimezone">
+              {{ range .Timezones }}
+              <option value="{{ .TzName }}" {{ if eq $.DisplayDatesInTimezone .TzName }}selected{{ end }}>{{ .NameWithOffset }}</option>
+              {{ end }}
+            </select>
+          </label>
+
+          <fieldset>
+            <legend>{{tr . "SettingsFormTimePreferenceTitle"}}</legend>
+            <label for="12h">
+              <input type="radio" name="displayTimePreference" value="12h" {{ if eq $.DisplayTimePreference "12h" }}checked{{ end }}>
+              12hr
+            </label>
+            <label for="24h">
+              <input type="radio" name="displayTimePreference" value="24h" {{ if eq $.DisplayTimePreference "24h" }}checked{{ end }}>
+              24hr
+            </label>
+          </fieldset>
+
+          <fieldset>
+            <legend>{{tr . "SettingsFormOpenLinksInPreferenceTitle"}}</legend>
+            <label for="samewindow">
+              <input type="radio" name="openLinksInPreference" value="samewindow" {{ if eq $.OpenLinksInPreference "samewindow" }}checked{{ end }}>
+              Same Window
+            </label>
+            <label for="newwindow">
+              <input type="radio" name="openLinksInPreference" value="newwindow" {{ if eq $.OpenLinksInPreference "newwindow" }}checked{{ end }}>
+              New Window (default)
+            </label>
+          </fieldset>
+        </div>
         <button type="submit" class="primary">Update</button>
       </form>
     </div>

@@ -43,6 +43,10 @@ func (s *Server) ManagePodHandler() httprouter.Handle {
 		blacklistedFeeds := r.FormValue("blacklistedFeeds")
 		enabledFeatures := r.FormValue("enabledFeatures")
 
+		displayDatesInTimezone := r.FormValue("displayDatesInTimezone")
+		displayTimePreference := r.FormValue("displayTimePreference")
+		openLinksInPreference := r.FormValue("openLinksInPreference")
+
 		// Clean lines from DOS (\r\n) to UNIX (\n)
 		logo = strings.ReplaceAll(logo, "\r\n", "\n")
 
@@ -118,6 +122,11 @@ func (s *Server) ManagePodHandler() httprouter.Handle {
 			s.render("error", w, ctx)
 			return
 		}
+
+		// Update Pod Settings (overrideable by Users)
+		s.config.DisplayDatesInTimezone = displayDatesInTimezone
+		s.config.DisplayTimePreference = displayTimePreference
+		s.config.OpenLinksInPreference = openLinksInPreference
 
 		// Save config file
 		if err := s.config.Settings().Save(filepath.Join(s.config.Data, "settings.yaml")); err != nil {
