@@ -7,7 +7,7 @@
       </hgroup>
       <form action="/login/email" method="POST">
         <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
-        <input type="text" name="username" placeholder="{{tr . "LoginFormUsername"}}" aria-label="Username" autocomplete="username" autofocus required>
+        <input type="text" name="username" placeholder="{{tr . "LoginFormUsername"}}" aria-label="Username" autocomplete="nickname" autofocus required>
         <input type="email" name="email" placeholder="{{tr . "EmailAddress"}}" aria-label="Email" autocomplete="email" required>
         <button type="submit">{{tr . "LoginFormEmailLogin"}}</button>
         <p>
