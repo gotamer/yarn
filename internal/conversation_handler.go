@@ -82,7 +82,6 @@ func (s *Server) ConversationHandler() httprouter.Handle {
 		ks = append(ks, tags.Tags()...)
 
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		w.Header().Set("Last-Modified", twt.Created().Format(http.TimeFormat))
 		if strings.HasPrefix(twt.Twter().URL, s.config.BaseURL) {
 			w.Header().Set(
 				"Link",
