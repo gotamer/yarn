@@ -777,28 +777,6 @@ func (s *Server) SettingsHandler() httprouter.Handle {
 	}
 }
 
-// DeleteTokenHandler ...
-func (s *Server) DeleteTokenHandler() httprouter.Handle {
-	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s, r)
-
-		signature := p.ByName("signature")
-
-		if err := s.db.DelToken(signature); err != nil {
-			ctx.Error = true
-			ctx.Message = s.tr(ctx, "ErrorDeletingToken")
-			s.render("error", w, ctx)
-			return
-		}
-
-		ctx.Error = false
-		ctx.Message = s.tr(ctx, "MsgDeleteTokenSuccess")
-
-		http.Redirect(w, r, "/settings", http.StatusFound)
-
-	}
-}
-
 // FollowersHandler ...
 func (s *Server) FollowersHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {

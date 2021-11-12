@@ -982,26 +982,6 @@ other = "填寫下面表單重置您的密碼"
 hash = "sha1-3fb75e3bfe4de94eb5198656fa9de95352dab915"
 other = "重置密碼"
 
-[SettingsAPIClient]
-hash = "sha1-1bdd79b12628d8c4ec4226ff4207341dcb869ab8"
-other = "客戶端"
-
-[SettingsAPICreated]
-hash = "sha1-accf40c89baa4fa88e6a7ff11e1f805beecafd3f"
-other = "創建時間"
-
-[SettingsAPIDelete]
-hash = "sha1-f6fdbe48dc54dd86f63097a03bd24094dedd713a"
-other = "刪除"
-
-[SettingsAPIExpiry]
-hash = "sha1-ba8f571e0f93e1c1532af206aa8ee39bb19f1cb9"
-other = "有效期"
-
-[SettingsAPITitle]
-hash = "sha1-ee50ac8b7e16fca6b3119b7ed72141788be927b8"
-other = "API 令牌"
-
 [SettingsDeleteAccountFormDelete]
 hash = "sha1-f6fdbe48dc54dd86f63097a03bd24094dedd713a"
 other = "刪除"

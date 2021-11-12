@@ -59,8 +59,7 @@ type User struct {
 	IsFollowingPubliclyVisible bool   `default:"true"`
 	IsBookmarksPubliclyVisible bool   `default:"true"`
 
-	Feeds  []string `default:"[]"`
-	Tokens []string `default:"[]"`
+	Feeds []string `default:"[]"`
 
 	Bookmarks map[string]string `default:"{}"`
 	Followers map[string]string `default:"{}"`
@@ -70,36 +69,6 @@ type User struct {
 	muted   map[string]string
 	remotes map[string]string
 	sources map[string]string
-}
-
-// Token ...
-type Token struct {
-	Signature string
-	Value     string
-	UserAgent string
-	CreatedAt time.Time
-	ExpiresAt time.Time
-}
-
-func LoadToken(data []byte) (token *Token, err error) {
-	token = &Token{}
-	if err := defaults.Set(token); err != nil {
-		return nil, err
-	}
-
-	if err = json.Unmarshal(data, &token); err != nil {
-		return nil, err
-	}
-
-	return
-}
-
-func (t *Token) Bytes() ([]byte, error) {
-	data, err := json.Marshal(t)
-	if err != nil {
-		return nil, err
-	}
-	return data, nil
 }
 
 func CreateFeed(conf *Config, db Store, user *User, name string, force bool) error {
@@ -351,25 +320,8 @@ func (u *User) String() string {
 	return fmt.Sprintf("%s@%s", u.Username, url.Hostname())
 }
 
-// HasToken will add a token to a user if it doesn't exist already
-func (u *User) AddToken(token *Token) {
-	if !u.HasToken(token.Signature) {
-		u.Tokens = append(u.Tokens, token.Signature)
-	}
-}
-
 func (u *User) IsZero() bool {
 	return u.Username == ""
-}
-
-// HasToken will compare a token value with stored tokens
-func (u *User) HasToken(token string) bool {
-	for _, t := range u.Tokens {
-		if t == token {
-			return true
-		}
-	}
-	return false
 }
 
 func (u *User) OwnsFeed(name string) bool {

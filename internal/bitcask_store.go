@@ -17,7 +17,6 @@ const (
 	feedsKeyPrefix    = "/feeds"
 	sessionsKeyPrefix = "/sessions"
 	usersKeyPrefix    = "/users"
-	tokensKeyPrefix   = "/tokens"
 )
 
 // BitcaskStore ...
@@ -329,63 +328,4 @@ func (bs *BitcaskStore) GetAllSessions() ([]*session.Session, error) {
 	}
 
 	return sessions, nil
-}
-
-func (bs *BitcaskStore) GetUserTokens(user *User) ([]*Token, error) {
-	tokens := []*Token{}
-	for _, signature := range user.Tokens {
-		tkn, err := bs.GetToken(signature)
-		if err != nil {
-			return tokens, err
-		}
-
-		tokens = append(tokens, tkn)
-	}
-
-	return tokens, nil
-}
-
-func (bs *BitcaskStore) GetToken(signature string) (*Token, error) {
-	key := []byte(fmt.Sprintf("%s/%s", tokensKeyPrefix, signature))
-	data, err := bs.db.Get(key)
-	if err == bitcask.ErrKeyNotFound {
-		return nil, ErrTokenNotFound
-	}
-	tkn, err := LoadToken(data)
-	if err != nil {
-		return nil, err
-	}
-
-	return tkn, nil
-}
-
-func (bs *BitcaskStore) SetToken(signature string, tkn *Token) error {
-	data, err := tkn.Bytes()
-	if err != nil {
-		return err
-	}
-
-	key := []byte(fmt.Sprintf("%s/%s", tokensKeyPrefix, signature))
-	if err := bs.db.Put(key, data); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (bs *BitcaskStore) DelToken(signature string) error {
-	key := []byte(fmt.Sprintf("%s/%s", tokensKeyPrefix, signature))
-	return bs.db.Delete(key)
-}
-
-func (bs *BitcaskStore) LenTokens() int64 {
-	var count int64
-
-	if err := bs.db.Scan([]byte(tokensKeyPrefix), func(_ []byte) error {
-		count++
-		return nil
-	}); err != nil {
-		log.WithError(err).Error("error scanning")
-	}
-
-	return count
 }

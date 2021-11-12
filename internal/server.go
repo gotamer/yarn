@@ -233,13 +233,6 @@ func (s *Server) setupMetrics() {
 			return float64(s.db.LenUsers())
 		},
 	)
-	metrics.NewGaugeFunc(
-		"db", "tokens",
-		"Number of database /tokens keys",
-		func() float64 {
-			return float64(s.db.LenTokens())
-		},
-	)
 
 	// feed cache sources
 	metrics.NewGauge(
@@ -647,7 +640,6 @@ func (s *Server) initRoutes() {
 
 	s.router.GET("/settings", httproutermiddleware.Handler("settings", s.am.MustAuth(s.SettingsHandler()), mdlw))
 	s.router.POST("/settings", httproutermiddleware.Handler("settings", s.am.MustAuth(s.SettingsHandler()), mdlw))
-	s.router.POST("/token/delete/:signature", httproutermiddleware.Handler("token_delete", s.am.MustAuth(s.DeleteTokenHandler()), mdlw))
 
 	s.router.GET("/version", httproutermiddleware.Handler("version", s.PodVersionHandler(), mdlw))
 	s.router.GET("/config", httproutermiddleware.Handler("config", s.am.MustAuth(s.PodConfigHandler()), mdlw))

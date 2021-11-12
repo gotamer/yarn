@@ -41,6 +41,15 @@ var (
 	ErrInvalidToken = errors.New("error: invalid token")
 )
 
+// Token ...
+type Token struct {
+	Signature string
+	Value     string
+	UserAgent string
+	CreatedAt time.Time
+	ExpiresAt time.Time
+}
+
 // API ...
 type API struct {
 	router  *Router
@@ -336,18 +345,6 @@ func (a *API) AuthEndpoint() httprouter.Handle {
 		token, err := a.CreateToken(user, r)
 		if err != nil {
 			log.WithError(err).Error("error creating token")
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			return
-		}
-
-		user.AddToken(token)
-		if err := a.db.SetToken(token.Signature, token); err != nil {
-			log.WithError(err).Error("error saving token object")
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			return
-		}
-		if err := a.db.SetUser(user.Username, user); err != nil {
-			log.WithError(err).Error("error saving user object")
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}

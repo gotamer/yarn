@@ -13,7 +13,6 @@ import (
 var (
 	ErrInvalidStore   = errors.New("error: invalid store")
 	ErrUserNotFound   = errors.New("error: user not found")
-	ErrTokenNotFound  = errors.New("error: token not found")
 	ErrFeedNotFound   = errors.New("error: feed not found")
 	ErrInvalidSession = errors.New("error: invalid session")
 )
@@ -46,11 +45,6 @@ type Store interface {
 	SyncSession(sess *session.Session) error
 	LenSessions() int64
 	GetAllSessions() ([]*session.Session, error)
-
-	GetUserTokens(user *User) ([]*Token, error)
-	SetToken(signature string, token *Token) error
-	DelToken(signature string) error
-	LenTokens() int64
 }
 
 type StoreFactory func() (Store, error)
