@@ -228,10 +228,10 @@ function persist(e) {
 u("input#title").on("change", persist);
 u("textarea#text").on("change", persist);
 
-u(".reply").on("click", replyTo);
-u(".fork").on("click", forkFrom);
-u(".edit").on("click", editTwt);
-u(".delete").on("click", deleteTwt);
+u("#replyBtn").on("click", replyTo);
+u("#forkBtn").on("click", forkFrom);
+u("#editBtn").on("click", editTwt);
+u("#deleteBtn").on("click", deleteTwt);
 
 u("#post").on("click", function(e) {
   e.preventDefault();
