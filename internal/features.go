@@ -154,26 +154,33 @@ func (f *FeatureFlags) IsEnabled(feature FeatureType) bool {
 }
 
 func (f *FeatureFlags) MarshalJSON() ([]byte, error) {
-	var vs []FeatureType
+	var vs []string
 	f.RLock()
 	for flag := range f.flags {
-		vs = append(vs, flag)
+		vs = append(vs, flag.String())
 	}
 	f.RUnlock()
 	return json.Marshal(vs)
 }
 
 func (f *FeatureFlags) UnmarshalJSON(b []byte) error {
-	var vs []FeatureType
+	var vs []string
 	if err := json.Unmarshal(b, &vs); err != nil {
 		return err
 	}
+
+	features, err := FeaturesFromStrings(vs)
+	if err != nil {
+		return err
+	}
+
 	f.Lock()
 	f.flags = make(map[FeatureType]bool)
-	for _, v := range vs {
-		f.flags[v] = true
+	for _, feature := range features {
+		f.flags[feature] = true
 	}
 	f.Unlock()
+
 	return nil
 }
 
