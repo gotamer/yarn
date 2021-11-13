@@ -132,10 +132,39 @@ func (s *Server) ResetPasswordMagicLinkHandler() httprouter.Handle {
 			return
 		}
 
-		ctx.PasswordResetToken = passwordResetToken
+		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+			var username = fmt.Sprintf("%v", claims["username"])
+			var expiresAt int = int(claims["expiresAt"].(float64))
 
-		// Show newPassword page
-		s.render("newPassword", w, ctx)
+			now := time.Now()
+			secs := now.Unix()
+
+			// Check token expiry
+			if secs > int64(expiresAt) {
+				ctx.Error = true
+				ctx.Message = s.tr(ctx, "ErrorTokenExpired")
+				s.render("error", w, ctx)
+				return
+			}
+
+			_, err := s.db.GetUser(username)
+			if err != nil {
+				ctx.Error = true
+				ctx.Message = s.tr(ctx, "ErrorGetUser")
+				s.render("error", w, ctx)
+				return
+			}
+
+			ctx.PasswordResetToken = passwordResetToken
+
+			// Show newPassword page
+			s.render("newPassword", w, ctx)
+		} else {
+			ctx.Error = true
+			ctx.Message = err.Error()
+			s.render("error", w, ctx)
+			return
+		}
 	}
 }
 
