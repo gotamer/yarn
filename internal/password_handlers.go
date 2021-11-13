@@ -193,7 +193,7 @@ func (s *Server) NewPasswordHandler() httprouter.Handle {
 			s.render("error", w, ctx)
 			return
 		}
-		if tokenCache.GetString(token.Signature) == "" {
+		if tokenCache.Get(token.Signature) != 1 {
 			ctx.Error = true
 			ctx.Message = s.tr(ctx, "ErrorInvalidToken")
 			s.render("error", w, ctx)
