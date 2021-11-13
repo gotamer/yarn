@@ -37,7 +37,7 @@ func (cache *TTLCache) get(k string) interface{} {
 	defer cache.RUnlock()
 	v, ok := cache.items[k]
 	if !ok {
-		return 0
+		return nil
 	}
 	return v.value
 }
