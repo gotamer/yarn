@@ -58,8 +58,12 @@ FROM alpine:latest
 
 RUN apk --no-cache -U add ca-certificates tzdata ffmpeg
 
-RUN adduser -D -H yarnd yarnd
-RUN mkdir -p /data && chown -R yarnd:yarnd /data
+ENV PUID=1000
+ENV PGID=1000
+
+RUN addgroup -g "${PGID}" yarnd && \
+    adduser -D -H -G yarnd -h /var/empty -u "${PUID}" yarnd && \
+    mkdir -p /data && chown -R yarnd:yarnd /data
 
 VOLUME /data
 
@@ -68,9 +72,9 @@ WORKDIR /
 # force cgo resolver
 ENV GODEBUG=netdns=cgo
 
-COPY --from=build /src/yarnd /yarnd
+COPY --from=build /src/yarnd /usr/local/bin/yarnd
 
-USER yarnd
+COPY .dockerfiles/entrypoint.sh /init
 
-ENTRYPOINT ["/yarnd"]
-CMD [""]
+ENTRYPOINT ["/init"]
+CMD ["yarnd"]
