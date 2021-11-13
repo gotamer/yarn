@@ -56,7 +56,7 @@ RUN make server VERSION=$VERSION COMMIT=$COMMIT
 # Runtime
 FROM alpine:latest
 
-RUN apk --no-cache -U add ca-certificates tzdata ffmpeg
+RUN apk --no-cache -U add su-exec shadow ca-certificates tzdata ffmpeg
 
 ENV PUID=1000
 ENV PGID=1000
