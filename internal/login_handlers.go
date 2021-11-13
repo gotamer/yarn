@@ -160,6 +160,7 @@ func (s *Server) LoginEmailHandler() httprouter.Handle {
 			s.render("error", w, ctx)
 			return
 		}
+		tokenCache.SetString(token.Signature, tokenString)
 
 		if err := SendMagicLinkAuthEmail(s.config, user, email, tokenString); err != nil {
 			log.WithError(err).Errorf("unable to send magic-link-auth email to %s", user.Username)
@@ -203,6 +204,12 @@ func (s *Server) MagicLinkAuthHandler() httprouter.Handle {
 			return []byte(s.config.MagicLinkSecret), nil
 		})
 		if err != nil {
+			ctx.Error = true
+			ctx.Message = s.tr(ctx, "ErrorInvalidToken")
+			s.render("error", w, ctx)
+			return
+		}
+		if tokenCache.GetString(token.Signature) == "" {
 			ctx.Error = true
 			ctx.Message = s.tr(ctx, "ErrorInvalidToken")
 			s.render("error", w, ctx)

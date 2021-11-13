@@ -1331,7 +1331,7 @@ func URLForWhoFollows(baseURL string, feed types.Feed, feedFollowers int) string
 		// indicator to avoid refetching our Who Follows Resource if the number did
 		// not change since they last checked their followers.
 		feedFollowers,
-		GenerateToken(feed.URL),
+		GenerateWhoFollowsToken(feed.URL),
 	)
 }
 

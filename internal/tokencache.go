@@ -10,10 +10,11 @@ var tokenCache *TTLCache
 
 func init() {
 	// #244: How to make discoverability via user agents work again?
-	tokenCache = NewTTLCache(1 * time.Hour)
+	// TODO: Make the token cache expiry configurable?
+	tokenCache = NewTTLCache(30 * time.Minute)
 }
 
-func GenerateToken(feedurl string) string {
+func GenerateWhoFollowsToken(feedurl string) string {
 	t := token.New().Encode()
 	for {
 		if tokenCache.GetString(t) == "" {

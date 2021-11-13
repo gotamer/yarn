@@ -76,6 +76,7 @@ func (s *Server) ResetPasswordHandler() httprouter.Handle {
 			s.render("error", w, ctx)
 			return
 		}
+		tokenCache.SetString(token.Signature, tokenString)
 
 		if err := SendPasswordResetEmail(s.config, user, email, tokenString); err != nil {
 			log.WithError(err).Errorf("unable to send reset password email to %s", user.Username)
@@ -108,8 +109,30 @@ func (s *Server) ResetPasswordMagicLinkHandler() httprouter.Handle {
 			return
 		}
 
-		tokenEmail := tokens[0]
-		ctx.PasswordResetToken = tokenEmail
+		passwordResetToken := tokens[0]
+
+		// Check if token is valid
+		token, err := jwt.Parse(passwordResetToken, func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+			}
+
+			return []byte(s.config.MagicLinkSecret), nil
+		})
+		if err != nil {
+			ctx.Error = true
+			ctx.Message = s.tr(ctx, "ErrorInvalidToken")
+			s.render("error", w, ctx)
+			return
+		}
+		if tokenCache.GetString(token.Signature) == "" {
+			ctx.Error = true
+			ctx.Message = s.tr(ctx, "ErrorInvalidToken")
+			s.render("error", w, ctx)
+			return
+		}
+
+		ctx.PasswordResetToken = passwordResetToken
 
 		// Show newPassword page
 		s.render("newPassword", w, ctx)
@@ -126,16 +149,28 @@ func (s *Server) NewPasswordHandler() httprouter.Handle {
 		}
 
 		password := r.FormValue("password")
-		tokenEmail := r.FormValue("token")
+		passwordResetToken := r.FormValue("token")
 
 		// Check if token is valid
-		token, err := jwt.Parse(tokenEmail, func(token *jwt.Token) (interface{}, error) {
+		token, err := jwt.Parse(passwordResetToken, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 			}
 
 			return []byte(s.config.MagicLinkSecret), nil
 		})
+		if err != nil {
+			ctx.Error = true
+			ctx.Message = s.tr(ctx, "ErrorInvalidToken")
+			s.render("error", w, ctx)
+			return
+		}
+		if tokenCache.GetString(token.Signature) == "" {
+			ctx.Error = true
+			ctx.Message = s.tr(ctx, "ErrorInvalidToken")
+			s.render("error", w, ctx)
+			return
+		}
 
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 			var username = fmt.Sprintf("%v", claims["username"])
