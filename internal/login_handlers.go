@@ -141,12 +141,9 @@ func (s *Server) LoginEmailHandler() httprouter.Handle {
 		}
 
 		// Create magic link with a short expiry time of ~10m (hard-coded)
-		// TOOD: Make the expiry time configurable?
-		now := time.Now()
-		secs := now.Unix()
-		expiresAfterSeconds := int64(600) // Link expires after 10 minutes
 
-		expiryTime := secs + expiresAfterSeconds
+		// TOOD: Make the expiry time configurable?
+		expiryTime := time.Now().Add(30 * time.Minute).Unix()
 
 		// Create magic link
 		token := jwt.NewWithClaims(

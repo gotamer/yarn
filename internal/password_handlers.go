@@ -58,11 +58,9 @@ func (s *Server) ResetPasswordHandler() httprouter.Handle {
 		}
 
 		// Create magic link expiry time
-		now := time.Now()
-		secs := now.Unix()
-		expiresAfterSeconds := int64(600) // Link expires after 10 minutes
 
-		expiryTime := secs + expiresAfterSeconds
+		// TODO: Make the token expiration configurable.
+		expiryTime := time.Now().Add(30 * time.Minute).Unix()
 
 		// Create magic link
 		token := jwt.NewWithClaims(
