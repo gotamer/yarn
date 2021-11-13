@@ -215,6 +215,7 @@ func (s *Server) MagicLinkAuthHandler() httprouter.Handle {
 			s.render("error", w, ctx)
 			return
 		}
+		tokenCache.Del(token.Signature)
 
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 			var username = fmt.Sprintf("%v", claims["username"])

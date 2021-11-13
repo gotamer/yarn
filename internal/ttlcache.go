@@ -67,6 +67,13 @@ func (cache *TTLCache) set(k string, v interface{}) interface{} {
 	return v
 }
 
+func (cache *TTLCache) Del(k string) {
+	cache.Lock()
+	defer cache.Unlock()
+
+	delete(cache.items, k)
+}
+
 func (cache *TTLCache) Set(k string, v int) int {
 	val, _ := cache.set(k, v).(int)
 	return val

@@ -131,6 +131,7 @@ func (s *Server) ResetPasswordMagicLinkHandler() httprouter.Handle {
 			s.render("error", w, ctx)
 			return
 		}
+		tokenCache.Del(token.Signature)
 
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 			var username = fmt.Sprintf("%v", claims["username"])
@@ -200,6 +201,7 @@ func (s *Server) NewPasswordHandler() httprouter.Handle {
 			s.render("error", w, ctx)
 			return
 		}
+		tokenCache.Del(token.Signature)
 
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 			var username = fmt.Sprintf("%v", claims["username"])

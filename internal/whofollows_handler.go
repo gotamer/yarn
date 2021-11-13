@@ -43,6 +43,7 @@ func (s *Server) WhoFollowsHandler() httprouter.Handle {
 			}
 			return
 		}
+		tokenCache.Del(token)
 
 		followers := make(map[string]string)
 
