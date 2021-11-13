@@ -1,4 +1,12 @@
 
+<a name="0.7.2"></a>
+## [0.7.2](https://git.mills.io/yarnsocial/yarn/compare/0.7.1...0.7.2) (2021-11-13)
+
+### Bug Fixes
+
+* Fix Docker image to just work without any arguments and drop chown of default data volume
+
+
 <a name="0.7.1"></a>
 ## [0.7.1](https://git.mills.io/yarnsocial/yarn/compare/0.7.0...0.7.1) (2021-11-13)
 
@@ -14,6 +22,10 @@
 ### Features
 
 * Add an improved Docker image that supports PUID/PGID env vars to run yarnd as different users (e.g: to support Synolgy)
+
+### Updates
+
+* Update CHANGELOG for 0.7.1
 
 
 <a name="0.7.0"></a>
