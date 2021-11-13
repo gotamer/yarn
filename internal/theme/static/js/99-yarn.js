@@ -242,6 +242,58 @@ u("#post").on("click", function(e) {
   u("#form").first().submit();
 });
 
+u("#followBtn").on("click", function (e) {
+  e.preventDefault();
+
+  Twix.ajax({
+    type: "GET",
+    url: u(e.target).attr("href"),
+    success: function(data) {
+      u(e.target).attr("style", "display: none;");
+      u("#unfollowBtn").attr("style", "display: inline;");
+    },
+  });
+});
+
+u("#unfollowBtn").on("click", function (e) {
+  e.preventDefault();
+
+  Twix.ajax({
+    type: "GET",
+    url: u(e.target).attr("href"),
+    success: function(data) {
+      u(e.target).attr("style", "display: none;");
+      u("#followBtn").attr("style", "display: inline;");
+    },
+  });
+});
+
+u("#muteBtn").on("click", function (e) {
+  e.preventDefault();
+
+  Twix.ajax({
+    type: "GET",
+    url: u(e.target).attr("href"),
+    success: function(data) {
+      u(e.target).attr("style", "display: none;");
+      u("#unmuteBtn").attr("style", "display: inline;");
+    },
+  });
+});
+
+u("#unmuteBtn").on("click", function (e) {
+  e.preventDefault();
+
+  Twix.ajax({
+    type: "GET",
+    url: u(e.target).attr("href"),
+    success: function(data) {
+      u(e.target).attr("style", "display: none;");
+      u("#muteBtn").attr("style", "display: inline;");
+    },
+  });
+});
+
 u.prototype.getSelection = function() {
   var e = this.first();
 
