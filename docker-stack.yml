@@ -4,7 +4,7 @@ version: "3.8"
 services:
   yarnd:
     image: prologic/yarnd:latest
-    command: -d /data -s bitcask:///data/yarn.db
+    command: yarnd -d /data -s bitcask:///data/yarn.db
     ports:
       - "8000:8000/tcp"
     environment:
