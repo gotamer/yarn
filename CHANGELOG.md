@@ -1,4 +1,54 @@
 
+<a name="0.7.0"></a>
+## [0.7.0](https://git.mills.io/yarnsocial/yarn/compare/0.6.2...0.7.0) (2021-11-13)
+
+### Bug Fixes
+
+* Fix bug in setting tokens for passwrod reset and magiclink auth
+* Fix minor bug in TTLCache.get()
+* Fix cached tokens to be deleted after use
+* Fix token expiry check on password reset form
+* Fix password reset and magiclink auth tokens to only be usable once with a default TTL of 30m
+* Fix edit/reply/fork buttons ot use ID selectors
+* Fix /custom static route for prod builds
+* Fix incorrect cache header used in conversation view
+* Fix FeatureFlags' JSON marshalling/unmarshalling
+* Fix Cached.UpdateFeed() to not overwrite a cached feed with an empty set of twts
+* Fix misspelled translation key for ErrTokenExpired
+* Fix autocomplete for Login via EMail's username field
+* Fix potential nil pointer bug in PermalinkHandler()
+* Fix bug that logs pod owner out when deleting users
+* Fix the session cookie name once and for all 🥳
+* Fix Pod Base URL automatically if it's missing a Scheme, log a warning and assume https://
+* Fix caching bug with editing and deleting last twt
+* Fix default MediaResolution to match default themes page width of 850px (Fixes #508)
+* Fix Cache.FetchTwts() to Normalize Feed.URL(s) before doing anything
+* Fix Session Cookie name to by config.LocalURL().Hostname() so the Pod name can be more free form
+* Fix NormalizeURL() to strip URL Fragments from Feed URIs
+* Fix short time ago formats (Fixes #509)
+* Fix title entries of Atom/XML feeds
+
+### Features
+
+* Add improved UX for Follow/Unfollow and Mute/Unmute with graceful JS fallback
+* Add support for Pod-level (User overridable) Timezone, Time and external link preferences
+* Add support for /custom/*filepath arbitrary static file serving from a theme with any directory/file structure
+* Add missing lang msg for MsgMagicLinkAuthEmailSent
+* Add support for Login via Email with feature magic_link_auth
+* Add isFeatureEnabled() func to templates
+* Add support for custom pages (Fixes #393)
+* Add s simple JS confirm to logout to avoid accidental logout
+* Add a PruneUsers job that runs once per week with an email list of candidate users to delete for the Pod Owner based on some heuristics
+* Add new pod yarn.meff.me to manually track versions to help keep the ecosystem up-to-date as we grow :D
+* Add basic validation of the Pod's Base URL to ensure it is TLS enabled in non-debug (production) mode
+* Add pagination extension spec (#494)
+
+### Updates
+
+* Update deps
+* Update contributing guidelines
+
+
 <a name="0.6.2"></a>
 ## [0.6.2](https://git.mills.io/yarnsocial/yarn/compare/0.6.1...0.6.2) (2021-11-08)
 
@@ -13,6 +63,10 @@
 * Add RotateFeeds job (#504)
 * Add article target (#506)
 * Add per-handler latency metrics
+
+### Updates
+
+* Update CHANGELOG for 0.6.2
 
 
 <a name="0.6.1"></a>
