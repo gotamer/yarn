@@ -76,7 +76,8 @@ func (s *Server) ResetPasswordHandler() httprouter.Handle {
 			s.render("error", w, ctx)
 			return
 		}
-		tokenCache.SetString(token.Signature, tokenString)
+		parts := strings.SplitN(tokenString, ".", 3)
+		tokenCache.Inc(parts[2])
 
 		if err := SendPasswordResetEmail(s.config, user, email, tokenString); err != nil {
 			log.WithError(err).Errorf("unable to send reset password email to %s", user.Username)
@@ -125,13 +126,13 @@ func (s *Server) ResetPasswordMagicLinkHandler() httprouter.Handle {
 			s.render("error", w, ctx)
 			return
 		}
-		if tokenCache.GetString(token.Signature) == "" {
+		if tokenCache.Get(token.Signature) == 0 {
 			ctx.Error = true
 			ctx.Message = s.tr(ctx, "ErrorInvalidToken")
 			s.render("error", w, ctx)
 			return
 		}
-		tokenCache.Del(token.Signature)
+		tokenCache.Dec(token.Signature)
 
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 			var username = fmt.Sprintf("%v", claims["username"])
