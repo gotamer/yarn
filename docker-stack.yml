@@ -2,9 +2,9 @@
 version: "3.8"
 
 services:
-  twtxt:
-    image: jointwt/twtxt:latest
-    command: -d /data -s bitcask:///data/twtxt.db
+  yarnd:
+    image: prologic/yarnd:latest
+    command: -d /data -s bitcask:///data/yarn.db
     ports:
       - "8000:8000/tcp"
     environment:
