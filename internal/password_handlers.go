@@ -130,7 +130,6 @@ func (s *Server) ResetPasswordMagicLinkHandler() httprouter.Handle {
 			s.render("error", w, ctx)
 			return
 		}
-		tokenCache.Dec(token.Signature)
 
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 			var username = fmt.Sprintf("%v", claims["username"])
