@@ -1,4 +1,21 @@
 
+<a name="0.7.1"></a>
+## [0.7.1](https://git.mills.io/yarnsocial/yarn/compare/0.7.0...0.7.1) (2021-11-13)
+
+### Bug Fixes
+
+* Fix signal handling using su-exec and ownership of default data volume /data
+* Fix example Docker Compose for Docker Swarm to match Docker image entrypoint chagne
+* Fix password reset token by properly checking counters (#519)
+* Fix password reset token by not decrementing it twice in the token cache
+* Fix expiryAt timestamp for magic_link auth and password reset tokens
+* Fix example Docker Compose for Docker Swarm
+
+### Features
+
+* Add an improved Docker image that supports PUID/PGID env vars to run yarnd as different users (e.g: to support Synolgy)
+
+
 <a name="0.7.0"></a>
 ## [0.7.0](https://git.mills.io/yarnsocial/yarn/compare/0.6.2...0.7.0) (2021-11-13)
 
@@ -45,6 +62,7 @@
 
 ### Updates
 
+* Update CHANGELOG for 0.7.0
 * Update deps
 * Update contributing guidelines
 
