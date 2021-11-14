@@ -133,7 +133,11 @@
     {{ formatTwt $.Twt $.User }}
   </div>
   <hr />
-  <em class="twt-hash"> #{{ $.Twt.Hash }} </em>
+  {{ if isFeatureEnabled "strip_conv_subject_hashes" }}
+    <a href="/search?tag={{ $.Twt.Hash }}" title="Search for this twt hash"><em class="twt-hash">#{{ $.Twt.Hash }}</em></a>
+    {{ else }}
+    <em class="twt-hash">#{{ $.Twt.Hash }}</em>
+  {{ end }}
   <nav>
     <ul>
       {{ if $.Authenticated }}
