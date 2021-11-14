@@ -1058,7 +1058,7 @@ func (ua TwtxtUserAgent) IsPublicURL() bool {
 	}
 
 	if len(ips) == 0 {
-		log.Warn("error User-Agent lookup failed for %q or has no resolvable IP", ua.String())
+		log.Warnf("error User-Agent lookup failed for %s or has no resolvable IP", ua.String())
 		return false
 	}
 

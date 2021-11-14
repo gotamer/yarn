@@ -222,7 +222,7 @@ func (c *Config) Validate() error {
 
 	// Automatically correct missing Scheme in Pod Base URL
 	if c.baseURL.Scheme == "" {
-		log.Warnf("pod base url (-u/--base-url) %s is missing the scheme")
+		log.Warnf("pod base url (-u/--base-url) %s is missing the scheme", c.BaseURL)
 		c.baseURL.Scheme = "http"
 		c.BaseURL = c.baseURL.String()
 	}
@@ -249,7 +249,7 @@ func (c *Config) Validate() error {
 
 	// Automatically correct missing Scheme in Pod Base URL
 	if c.baseURL.Scheme == "" {
-		log.Warnf("pod base url (-u/--base-url) %s is missing the scheme")
+		log.Warnf("pod base url (-u/--base-url) %s is missing the scheme", c.BaseURL)
 		c.baseURL.Scheme = "https"
 		c.BaseURL = c.baseURL.String()
 	}
