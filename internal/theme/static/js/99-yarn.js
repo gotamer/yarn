@@ -228,10 +228,10 @@ function persist(e) {
 u("input#title").on("change", persist);
 u("textarea#text").on("change", persist);
 
-u("#replyBtn").on("click", replyTo);
-u("#forkBtn").on("click", forkFrom);
-u("#editBtn").on("click", editTwt);
-u("#deleteBtn").on("click", deleteTwt);
+u(".replyBtn").on("click", replyTo);
+u(".forkBtn").on("click", forkFrom);
+u(".editBtn").on("click", editTwt);
+u(".deleteBtn").on("click", deleteTwt);
 
 u("#post").on("click", function(e) {
   e.preventDefault();
@@ -240,6 +240,32 @@ u("#post").on("click", function(e) {
   u("#post").html('<i class="icss-spinner icss-pulse"></i>&nbsp;Posting...');
   u("#post").attr("disabled", true);
   u("#form").first().submit();
+});
+
+u(".bookmarkBtn").on("click", function (e) {
+  e.preventDefault();
+  console.log(e);
+  Twix.ajax({
+    type: "GET",
+    url: u(e.target).closest("a").attr("href"),
+    success: function(data) {
+      u(e.target).attr("style", "display: none;");
+      u(".unbookmarkBtn").attr("style", "display: inline;");
+    },
+  });
+});
+
+u(".unbookmarkBtn").on("click", function (e) {
+  e.preventDefault();
+
+  Twix.ajax({
+    type: "GET",
+    url: u(e.target).closest("a").attr("href"),
+    success: function(data) {
+      u(e.target).attr("style", "display: none;");
+      u(".bookmarkBtn").attr("style", "display: inline;");
+    },
+  });
 });
 
 u("#followBtn").on("click", function (e) {

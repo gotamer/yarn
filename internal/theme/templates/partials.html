@@ -115,13 +115,16 @@
             {{ dateInZone (formatForDateTime $.Twt.Created $.User.DisplayTimeFormat) $.Twt.Created $.User.DisplayDatesInTimezone }}
           </time>
         </a>
-        <span> &nbsp;({{ $.Twt.Created | time }})</span>
+        <span>({{ $.Twt.Created | time }})</span>
         {{ if $.Authenticated }}
-        <span> &nbsp;
-          <a id="bookmarkBtn" href="/bookmark/{{ $.Twt.Hash }}" title="{{ if $.User.Bookmarked $.Twt.Hash }}{{tr $.Ctx "BookmarkRemoveTwt"}}{{ else }}{{tr $.Ctx "BookmarkAddTwt"}}{{ end }}">
-            <i class="icss-{{ if $.User.Bookmarked $.Twt.Hash }}bookmark{{ else }}bookmark-o{{ end }}"></i>
-          </a>
-        </span>
+          <span>
+            <a class="bookmarkBtn" style="display: {{ if not ($.User.Bookmarked $.Twt.Hash) }}inline{{ else }}none{{ end }};" href="/bookmark/{{ $.Twt.Hash }}" title="{{tr $.Ctx "BookmarkAddTwt"}}">
+              <i class="icss-bookmark-o"></i>
+            </a>
+            <a class="unbookmarkBtn" style="display: {{ if ($.User.Bookmarked $.Twt.Hash) }}inline{{ else }}none{{ end }};" href="/bookmark/{{ $.Twt.Hash }}" title="{{tr $.Ctx "BookmarkRemoveTwt"}}">
+              <i class="icss-bookmark"></i>
+            </a>
+          </span>
         {{ end }}
       </div>
     </div>
@@ -135,21 +138,21 @@
     <ul>
       {{ if $.Authenticated }}
         {{ if eq $.LastTwt.Hash $.Twt.Hash }}
-          <li><a id="editBtn" href="#" data-hash="{{ $.Twt.Hash }}" data-text="{{ $.Twt.Text | unparseTwt }}"><i class="icss-edit"></i> {{tr $.Ctx "TwtEditLinkTitle"}}</a></li>
-          <li><a id="deleteBtn" href="#" data-hash="{{ $.Twt.Hash }}"><i class="icss-x"></i> {{tr $.Ctx "TwtDeleteLinkTitle"}}</a></li>
+          <li><a class="editBtn" href="#" data-hash="{{ $.Twt.Hash }}" data-text="{{ $.Twt.Text | unparseTwt }}"><i class="icss-edit"></i> {{tr $.Ctx "TwtEditLinkTitle"}}</a></li>
+          <li><a class="deleteBtn" href="#" data-hash="{{ $.Twt.Hash }}"><i class="icss-x"></i> {{tr $.Ctx "TwtDeleteLinkTitle"}}</a></li>
         {{ end }}
-        <li><a id="replyBtn" href="#" data-reply="{{ $.User.Reply $.Twt }}"><i class="icss-arrow-left"></i> {{tr $.Ctx "TwtReplyLinkTitle"}}</a></li>
+        <li><a class="replyBtn" href="#" data-reply="{{ $.User.Reply $.Twt }}"><i class="icss-arrow-left"></i> {{tr $.Ctx "TwtReplyLinkTitle"}}</a></li>
         {{ if and (eq $.view "conv") (not (eq $.view "rootconv")) }}
-          <li><a id="forkBtn" href="#" data-fork="{{ $.User.Fork $.Twt }}"><i class="icss-arrows"></i> {{tr $.Ctx "TwtForkLinkTitle"}}</a></li>
+          <li><a class="forkBtn" href="#" data-fork="{{ $.User.Fork $.Twt }}"><i class="icss-arrows"></i> {{tr $.Ctx "TwtForkLinkTitle"}}</a></li>
         {{ else if eq $.view "rootconv" }} 
           {{ with urlForRootConv $.Twt }}
-            <li><a id="convBtn" href="{{ urlForRootConv $.Twt }}"><i class="icss-comment"></i> {{tr $.Ctx "TwtRootLinkTitle"}}</a></li>
+            <li><a class="convBtn" href="{{ urlForRootConv $.Twt }}"><i class="icss-comment"></i> {{tr $.Ctx "TwtRootLinkTitle"}}</a></li>
           {{ end }}
         {{ end }}
       {{ end }}
       {{ if and (not (eq $.view "conv")) (not (eq $.view "rootconv")) }}
         {{ with urlForConv $.Twt }}
-          <li><a id="convBtn" href="{{ urlForConv $.Twt }}"><i class="icss-comment"></i> {{tr $.Ctx "TwtConversationLinkTitle"}}</a></li>
+          <li><a class="convBtn" href="{{ urlForConv $.Twt }}"><i class="icss-comment"></i> {{tr $.Ctx "TwtConversationLinkTitle"}}<span class="badge">{{ conversationLength $.Twt $.User }}</span></a></li>
         {{ end }}
       {{ end }}
     </ul>
