@@ -69,12 +69,12 @@ func NewTemplateManager(conf *Config, translator *Translator, cache *Cache, arch
 	funcMap["hostnameFromURL"] = HostnameFromURL
 	funcMap["prettyURL"] = PrettyURL
 	funcMap["isLocalURL"] = IsLocalURLFactory(conf)
-	funcMap["formatTwt"] = FormatTwtFactory(conf)
+	funcMap["formatTwt"] = FormatTwtFactory(conf, cache, archive)
 	funcMap["unparseTwt"] = UnparseTwtFactory(conf)
 	funcMap["formatForDateTime"] = FormatForDateTime
 	funcMap["urlForConv"] = URLForConvFactory(conf, cache, archive)
 	funcMap["urlForRootConv"] = URLForRootConvFactory(conf, cache, archive)
-	funcMap["conversationLength"] = ConversationLength(conf, cache, archive)
+	funcMap["getConvLength"] = GetConvLength(conf, cache, archive)
 	funcMap["isAdminUser"] = IsAdminUserFactory(conf)
 	funcMap["isSpecialFeed"] = IsSpecialFeed
 	funcMap["twtType"] = func(twt types.Twt) string { return fmt.Sprintf("%T", twt) }

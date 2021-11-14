@@ -16,6 +16,7 @@ const (
 	FeatureInvalid FeatureType = iota
 	FeatureFoo
 	FeatureMagicLinkAuth
+	FeatureStripConvSubjectHashes
 )
 
 // Interface guards
@@ -32,6 +33,8 @@ func (f FeatureType) String() string {
 		return "foo"
 	case FeatureMagicLinkAuth:
 		return "magic_link_auth"
+	case FeatureStripConvSubjectHashes:
+		return "strip_conv_subject_hashes"
 	default:
 		return "invalid_feature"
 	}
@@ -64,6 +67,8 @@ func FeatureFromString(s string) (FeatureType, error) {
 		return FeatureFoo, nil
 	case "magic_link_auth":
 		return FeatureMagicLinkAuth, nil
+	case "strip_conv_subject_hashes":
+		return FeatureStripConvSubjectHashes, nil
 	default:
 		fs := fmt.Sprintf("available features: %s", strings.Join(AvailableFeatures(), " "))
 		return FeatureInvalid, fmt.Errorf("Error unrecognised feature: %s (%s)", s, fs)

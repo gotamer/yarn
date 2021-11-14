@@ -1237,102 +1237,65 @@ func URLForExternalAvatar(conf *Config, uri string) string {
 	)
 }
 
-func ConversationLength(conf *Config, cache *Cache, archive Archiver) func(twt types.Twt, u *User) int {
+func GetConvLength(conf *Config, cache *Cache, archive Archiver) func(twt types.Twt, u *User) int {
 	return func(twt types.Twt, u *User) int {
-		subject := twt.Subject().String()
-		if subject == "" {
-			return 0
+		if subject, _ := GetTwtConvSubjectHash(cache, archive, twt); subject != "" {
+			return len(cache.GetByUserView(u, fmt.Sprintf("subject:%s", subject), false))
 		}
-
-		var hash string
-
-		re := regexp.MustCompile(`\(#([a-z0-9]+)\)`)
-		match := re.FindStringSubmatch(subject)
-		if match != nil {
-			hash = match[1]
-		} else {
-			re = regexp.MustCompile(`(@|#)<([^ ]+) *([^>]+)>`)
-			match = re.FindStringSubmatch(subject)
-			if match != nil {
-				hash = match[2]
-			}
-		}
-
-		if _, ok := cache.Lookup(hash); !ok && !archive.Has(hash) {
-			return 0
-		}
-
-		return len(cache.GetByUserView(u, fmt.Sprintf("subject:(#%s)", hash), false))
+		return 0
 	}
+}
+
+func GetTwtConvSubjectHash(cache *Cache, archive Archiver, twt types.Twt) (string, string) {
+	subject := twt.Subject().String()
+	if subject == "" {
+		return "", ""
+	}
+
+	var hash string
+
+	re := regexp.MustCompile(`\(#([a-z0-9]+)\)`)
+	match := re.FindStringSubmatch(subject)
+	if match != nil {
+		hash = match[1]
+	} else {
+		re = regexp.MustCompile(`(@|#)<([^ ]+) *([^>]+)>`)
+		match = re.FindStringSubmatch(subject)
+		if match != nil {
+			hash = match[2]
+		}
+	}
+
+	if _, ok := cache.Lookup(hash); !ok && !archive.Has(hash) {
+		return "", ""
+	}
+
+	return fmt.Sprintf("(#%s)", hash), hash
 }
 
 func URLForConvFactory(conf *Config, cache *Cache, archive Archiver) func(twt types.Twt) string {
 	return func(twt types.Twt) string {
-		subject := twt.Subject().String()
-		if subject == "" {
-			return ""
+		if _, hash := GetTwtConvSubjectHash(cache, archive, twt); hash != "" {
+			return fmt.Sprintf(
+				"%s/conv/%s",
+				strings.TrimSuffix(conf.BaseURL, "/"),
+				hash,
+			)
 		}
-
-		var hash string
-
-		re := regexp.MustCompile(`\(#([a-z0-9]+)\)`)
-		match := re.FindStringSubmatch(subject)
-		if match != nil {
-			hash = match[1]
-		} else {
-			re = regexp.MustCompile(`(@|#)<([^ ]+) *([^>]+)>`)
-			match = re.FindStringSubmatch(subject)
-			if match != nil {
-				hash = match[2]
-			}
-		}
-
-		if _, ok := cache.Lookup(hash); !ok && !archive.Has(hash) {
-			return ""
-		}
-
-		return fmt.Sprintf(
-			"%s/conv/%s",
-			strings.TrimSuffix(conf.BaseURL, "/"),
-			hash,
-		)
+		return ""
 	}
 }
 
 func URLForRootConvFactory(conf *Config, cache *Cache, archive Archiver) func(twt types.Twt) string {
 	return func(twt types.Twt) string {
-		subject := twt.Subject().String()
-		if subject == "" {
-			return ""
+		if _, hash := GetTwtConvSubjectHash(cache, archive, twt); hash != "" && hash != twt.Hash() {
+			return fmt.Sprintf(
+				"%s/conv/%s",
+				strings.TrimSuffix(conf.BaseURL, "/"),
+				hash,
+			)
 		}
-
-		var hash string
-
-		re := regexp.MustCompile(`\(#([a-z0-9]+)\)`)
-		match := re.FindStringSubmatch(subject)
-		if match != nil {
-			hash = match[1]
-		} else {
-			re = regexp.MustCompile(`(@|#)<([^ ]+) *([^>]+)>`)
-			match = re.FindStringSubmatch(subject)
-			if match != nil {
-				hash = match[2]
-			}
-		}
-
-		if _, ok := cache.Lookup(hash); !ok && !archive.Has(hash) {
-			return ""
-		}
-
-		if twt.Hash() == hash {
-			return ""
-		}
-
-		return fmt.Sprintf(
-			"%s/conv/%s",
-			strings.TrimSuffix(conf.BaseURL, "/"),
-			hash,
-		)
+		return ""
 	}
 }
 
@@ -1563,7 +1526,7 @@ func FormatForDateTime(t time.Time, timeFormat string) string {
 }
 
 // FormatTwtFactory formats a twt into a valid HTML snippet
-func FormatTwtFactory(conf *Config) func(twt types.Twt, u *User) template.HTML {
+func FormatTwtFactory(conf *Config, cache *Cache, archive Archiver) func(twt types.Twt, u *User) template.HTML {
 	return func(twt types.Twt, u *User) template.HTML {
 		renderHookProcessURLs := func(w io.Writer, node ast.Node, entering bool) (ast.WalkStatus, bool) {
 			// Ensure only whitelisted ![](url) images
@@ -1646,7 +1609,17 @@ func FormatTwtFactory(conf *Config) func(twt types.Twt, u *User) template.HTML {
 
 		renderer := html.NewRenderer(opts)
 
-		md := []byte(twt.FormatText(types.HTMLFmt, conf))
+		markdownInput := twt.FormatText(types.MarkdownFmt, conf)
+		log.Debugf("markdownInput:\n%q", markdownInput)
+		if conf.Features.IsEnabled(FeatureStripConvSubjectHashes) {
+			if subject, _ := GetTwtConvSubjectHash(cache, archive, twt); subject != "" {
+				log.Debugf("subject: %s", subject)
+				markdownInput = strings.ReplaceAll(markdownInput, subject, "")
+				markdownInput = strings.TrimSpace(markdownInput)
+			}
+		}
+
+		md := []byte(markdownInput)
 		maybeUnsafeHTML := markdown.ToHTML(md, mdParser, renderer)
 
 		p := bluemonday.UGCPolicy()
