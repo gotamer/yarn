@@ -2,8 +2,8 @@
   <article class="grid">
     <div>
       <hgroup>
-          <h2>{{tr . "SupportTitle"}}</h2>
-          <h3>{{tr . "SupportSummary"}}</h3>
+        <h2>{{tr . "SupportTitle"}}</h2>
+        <h3>{{tr . "SupportSummary"}}</h3>
       </hgroup>
       <form action="/support" method="POST">
         <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
@@ -11,11 +11,9 @@
         <input type="email" name="email" placeholder="{{tr . "SupportFormEmail"}}" aria-label="Email" required>
         <input type="text" name="subject" placeholder="{{tr . "SupportFormSubject"}}" aria-label="Subject" required>
         <textarea name="message" placeholder="{{tr . "SupportFormMessage"}}" aria-label="Message" rows="4" cols="50" required></textarea>
-
         <small>{{tr . "SupportCaptchaSummary"}}</small>
         <img id="captcha" src="/_captcha" alt="captcha" height="50" width="150" />
         <input type="text" name="captchaInput" class="captchaInput" placeholder="{{tr . "SupportFormCaptcha"}}" aria-label="Captcha" required>
-
         <button type="submit">{{tr . "SupportFormSubmit"}}</button>
       </form>
     </div>

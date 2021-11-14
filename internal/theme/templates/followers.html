@@ -1,51 +1,51 @@
-{{define "content"}}
+{{ define "content" }}
   <article class="grid">
     <div>
       <hgroup>
-          <h2>{{tr . "FollowersTitle"}}</h2>
+        <h2>{{ tr . "FollowersTitle" }}</h2>
         <h3>
           {{ if $.User.Is .Profile.URL }}
-          {{tr . "FollowersFollowingYou"}}
+          {{ tr . "FollowersFollowingYou" }}
           {{ else }}
-          {{(tr . "FollowersFollowingUser" (dict "Username" .Profile.Username))|html}} </b>
+          {{ (tr . "FollowersFollowingUser" (dict "Username" .Profile.Username)) | html }}
           {{ end }}
         </h3>
       </hgroup>
       {{ if .Profile.Followers }}
         <ol>
-          {{$ctx:=.}}
+          {{ $ctx:=. }}
           {{ range $Nick, $URL := .Profile.Followers }}
             <li>
               {{ if $.User.Is $URL }}
-              <a href="{{ $URL }}">{{tr $ctx "MeLinkTitle"}}</a>
+                <a href="{{ $URL }}">{{ tr $ctx "MeLinkTitle" }}</a>
               {{ else }}
                 {{ if isLocalURL $URL }}
                   <a href="{{ $URL | trimSuffix "/twtxt.txt" }}">{{ $Nick }}</a>
                 {{ else }}
-                  <a href="/external?uri={{ $URL }}&nick={{ $Nick  }}">{{ $Nick }}</a>
+                  <a href="/external?uri={{ $URL }}&nick={{ $Nick }}">{{ $Nick }}</a>
                 {{ end }}
                 (<a href="{{ $URL }}">{{ $URL }}</a>)
-
                 {{ if $.Authenticated }}
                   {{ if not ($.User.Is $URL) }}
                     {{ if $.User.Follows $URL }}
-                    [<a href="/unfollow?nick={{ $Nick }}">{{tr $ctx "UnfollowLinkTitle"}}</a>]
+                      [<a href="/unfollow?nick={{ $Nick }}">{{ tr $ctx "UnfollowLinkTitle" }}</a>]
                     {{ else }}
-                    [<a href="/follow?nick={{ $Nick }}&url={{ $URL }}">{{tr $ctx "FollowLinkTitle"}}</a>]
+                      [<a href="/follow?nick={{ $Nick }}&url={{ $URL }}">{{ tr $ctx "FollowLinkTitle" }}</a>]
                     {{ end }}
                   {{ end }}
                 {{ end }}
               {{ end }}
             </li>
           {{ end }}
-        </oL>
+        </ol>
       {{ else }}
         <small>
           {{ if $.User.Is .Profile.URL }}
-          {{(tr . "FollowersNoFollowersSummary" (dict "InstanceName" .InstanceName))|html}}
+            {{ (tr . "FollowersNoFollowersSummary" (dict "InstanceName" .InstanceName)) | html }}
           {{ else }}
-          <b>{{ .Profile.Username }}</b> {{tr . "FollowersNoFollowers"}}</i>
+            <b>{{ .Profile.Username }}</b> {{ tr . "FollowersNoFollowers" }}
           {{ end }}
+        </small>
       {{ end }}
     </div>
   </article>

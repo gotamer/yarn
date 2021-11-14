@@ -1,13 +1,13 @@
-{{define "content"}}
+{{ define "content" }}
   <article class="grid">
     <div>
       <hgroup>
-        <h2>{{tr . "FollowingTitle"}}</h2>
-        <h3>{{(tr . "FollowingFollowingUser" (dict "Username" .Profile.Username))|html}}</h3>
+        <h2>{{ tr . "FollowingTitle" }}</h2>
+        <h3>{{ (tr . "FollowingFollowingUser" (dict "Username" .Profile.Username)) | html }}</h3>
       </hgroup>
       {{ if .Profile.Following }}
         <ol>
-          {{$ctx:=.}}
+          {{ $ctx:=. }}
           {{ range $Nick, $URL := .Profile.Following }}
             <li>
               {{ if isLocalURL $URL }}
@@ -15,14 +15,13 @@
               {{ else }}
                 <a href="/external?uri={{ $URL }}&nick={{ $Nick  }}">
               {{ end }}
-              {{ if $.User.Is $URL }}{{tr $ctx "MeLinkTitle"}}{{ else }}{{ $Nick }}{{ end }}</a>
-
+              {{ if $.User.Is $URL }}{{ tr $ctx "MeLinkTitle" }}{{ else }}{{ $Nick }}{{ end }}</a>
               {{ if $.Authenticated }}
                 {{ if not ($.User.Is $URL) }}
                   {{ if $.User.Follows $URL }}
-                  [<a href="/unfollow?nick={{ $Nick }}">{{tr $ctx "UnfollowLinkTitle"}}</a>]
+                  [<a href="/unfollow?nick={{ $Nick }}">{{ tr $ctx "UnfollowLinkTitle" }}</a>]
                   {{ else }}
-                  [<a href="/follow?nick={{ $Nick }}&url={{ $URL }}">{{tr $ctx "FollowLinkTitle"}}</a>]
+                  [<a href="/follow?nick={{ $Nick }}&url={{ $URL }}">{{ tr $ctx "FollowLinkTitle" }}</a>]
                   {{ end }}
                 {{ end }}
               {{ end }}
@@ -31,7 +30,7 @@
         </ol>
       {{ else }}
         <small>
-          <b>{{ .Profile.Username }}</b> {{tr . "FollowingNoFollowing"}}</i>
+          <b>{{ .Profile.Username }}</b> {{ tr . "FollowingNoFollowing" }}
         </small>
       {{ end }}
     </div>

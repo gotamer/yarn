@@ -1,4 +1,4 @@
-{{define "content"}}
+{{ define "content" }}
   <div class="grid">
     <div>
       <hgroup>
@@ -6,7 +6,7 @@
           {{ if $.User.Is .Profile.URL }}
             <a href="{{ $.User.URL | trimSuffix "/twtxt.txt" }}" class="u-url">
               <img class="avatar u-photo" src="/user/{{ $.User.Username }}/avatar" alt="" />
-              <span class="p-name">{{tr . "MeLinkTitle"}}</span>
+              <span class="p-name">{{ tr . "MeLinkTitle" }}</span>
             </a>
           {{ else }}
             <a href="{{ .Profile.URL | trimSuffix "/twtxt.txt" }}" class="u-url p-name">
@@ -19,37 +19,36 @@
           <h3>
             <a id="followBtn" style="display: {{ if not ($.User.Follows .Profile.URL) }}inline{{ else }}none{{ end }};" href="/follow?nick={{ .Profile.Username  }}&url={{ .Profile.URL }}">
               <i class="icss-plus"></i>
-              {{tr . "FollowLinkTitle"}}
+              {{ tr . "FollowLinkTitle" }}
             </a>
             <a id="unfollowBtn" style="display: {{ if $.User.Follows .Profile.URL }}inline{{ else }}none{{ end }};" href="/unfollow?nick={{ .Profile.Username  }}">
               <i class="icss-minus"></i>
-              {{tr . "UnfollowLinkTitle"}}
+              {{ tr . "UnfollowLinkTitle" }}
             </a>
-
             {{ if $.User.OwnsFeed .Profile.Username }}
-            | <a href="/feed/{{ .Profile.Username  }}/manage">{{tr . "FeedManageLinkTitle"}}</a>
+            | <a href="/feed/{{ .Profile.Username  }}/manage">{{ tr . "FeedManageLinkTitle" }}</a>
             {{ end }}
           </h3>
-        {{ end}}
+        {{ end }}
         <p><i>{{ .Profile.Tagline }}</i></p>
         <details>
-          <summary>{{tr . "ProfileBlockUserTitle"}}</summary>
-          {{(tr . "ProfileBlockUserContent" (dict "InstanceName" .InstanceName))|html}}
+          <summary>{{ tr . "ProfileBlockUserTitle" }}</summary>
+          {{ (tr . "ProfileBlockUserContent" (dict "InstanceName" .InstanceName)) | html }}
           <ul>
             <li>
               <a id="muteBtn" style="display: {{ if not ($.User.HasMuted .Profile.URL) }}inline{{ else }}none{{ end }};" href="/mute?nick={{ .Profile.Username }}&url={{ .Profile.URL }}">
                 <i class="icss-sound-0"></i>
-                {{tr . "ProfileMuteLinkTitle"}}
+                {{ tr . "ProfileMuteLinkTitle" }}
               </a>
               <a id="unmuteBtn" style="display: {{ if $.User.HasMuted .Profile.URL }}inline{{ else }}none{{ end }};" href="/unmute?nick={{ .Profile.Username }}">
                 <i class="icss-sound-3"></i>
-                {{tr . "ProfileUnmuteLinkTitle"}}
+                {{ tr . "ProfileUnmuteLinkTitle" }}
               </a>
             </li>
             <li>
               <a href="/report?nick={{ .Profile.Username  }}&url={{ .Profile.URL }}">
                 <i class="icss-exclamation-circle" style="color:red;"></i>
-                {{tr . "ProfileReportLinkTitle"}}
+                {{ tr . "ProfileReportLinkTitle" }}
               </a>
             </li>
           </ul>
@@ -60,12 +59,12 @@
           <a href="{{ .Profile.URL }}">@{{ .Profile.Username }}
             <i class="icss-exchagne"></i>
           </a>
-          {{tr . "ProfileFollowsYou"}}
+          {{ tr . "ProfileFollowsYou" }}
         {{ else }}
           <a href="{{ .Profile.URL }}">@{{ .Profile.Username }}
             <i class="icss-x"></i>
           </a>
-          {{(tr . "ProfileDoesNotFollowYou")|html}}
+          {{ (tr . "ProfileDoesNotFollowYou") | html }}
         {{ end }}
       </p>
     </div>
@@ -75,10 +74,10 @@
   </div>
   <div class="container">
     <hgroup>
-        <h2>{{tr . "RecentTwtsTitle"}}</h2>
-        <h3>{{tr . "RecentTwtsSummary" (dict "Username" .Profile.Username)}}</h3>
+      <h2>{{ tr . "RecentTwtsTitle" }}</h2>
+      <h3>{{ tr . "RecentTwtsSummary" (dict "Username" .Profile.Username) }}</h3>
     </hgroup>
   </div>
   {{ template "post" (dict "Authenticated" $.Authenticated "User" $.User "TwtPrompt" $.TwtPrompt "MaxTwtLength" $.MaxTwtLength "Reply" $.Reply "AutoFocus" true "CSRFToken" $.CSRFToken "Ctx" .) }}
   {{ template "feed" (dict "Authenticated" $.Authenticated "User" $.User "Profile" $.Profile "LastTwt" $.LastTwt "Pager" $.Pager "Twts" $.Twts "Ctx" . "view" "profile") }}
-{{end}}
+{{ end }}

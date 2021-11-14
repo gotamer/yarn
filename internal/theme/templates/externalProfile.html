@@ -1,4 +1,4 @@
-{{define "content"}}
+{{ define "content" }}
   <div class="grid">
     <div>
       <hgroup>
@@ -16,37 +16,37 @@
           {{ if .Profile.Follows }}
             <a href="/unfollow?nick={{ .Profile.Username  }}">
             <i class="icss-minus"></i>
-            {{tr . "UnfollowLinkTitle"}}
+            {{ tr . "UnfollowLinkTitle" }}
             </a>
           {{ else }}
             <a href="/follow?nick={{ .Profile.Username  }}&url={{ .Profile.URL }}">
             <i class="icss-plus"></i>
-            {{tr . "FollowLinkTitle"}}
+            {{ tr . "FollowLinkTitle" }}
             </a>
           {{ end }}
         </h3>
         <p><i>{{ .Profile.Tagline }}</i></p>
         <details>
-            <summary>{{tr . "ProfileBlockUserTitle"}}</summary>
-            {{(tr . "ProfileBlockUserContent" (dict "InstanceName" .InstanceName))|html}}
+          <summary>{{ tr . "ProfileBlockUserTitle" }}</summary>
+          {{ (tr . "ProfileBlockUserContent" (dict "InstanceName" .InstanceName)) | html }}
           <ul>
             <li>
               {{ if $.Profile.Muted }}
                 <a href="/unmute?nick={{ .Profile.Username }}">
                   <i class="icss-sound-3"></i>
-                  {{tr . "ProfileUnmuteLinkTitle"}}
+                  {{ tr . "ProfileUnmuteLinkTitle" }}
                 </a>
               {{ else }}
                 <a href="/mute?nick={{ .Profile.Username }}&url={{ .Profile.URL }}">
                   <i class="icss-sound-0"></i>
-                  {{tr . "ProfileMuteLinkTitle"}}
+                  {{ tr . "ProfileMuteLinkTitle" }}
                 </a>
               {{ end }}
             </li>
             <li>
               <a href="/report?nick={{ .Profile.Username  }}&url={{ .Profile.URL }}">
                 <i class="icss-exclamation-circle" style="color:red;"></i>
-                {{tr . "ProfileReportLinkTitle"}}
+                {{ tr . "ProfileReportLinkTitle" }}
               </a>
             </li>
           </ul>
@@ -58,22 +58,22 @@
           <a href="{{ .Profile.URL }}">@{{ .Profile.Username }}
             <i class="icss-exchagne"></i>
           </a>
-          {{tr . "ProfileFollowsYou"}}
+          {{ tr . "ProfileFollowsYou" }}
         {{ else }}
           <a href="{{ .Profile.URL }}">@{{ .Profile.Username }}
             <i class="icss-x"></i>
           </a>
-          {{(tr . "ProfileDoesNotFollowYou")|html}}
+          {{(tr . "ProfileDoesNotFollowYou") | html }}
         {{ end }}
       </p>
     </div>
   </div>
   <div class="container">
     <hgroup>
-        <h2>{{tr . "RecentTwtsTitle"}}</h2>
-        <h3>{{tr . "RecentTwtsSummary" (dict "Username" .Profile.Username)}}</h3>
+      <h2>{{ tr . "RecentTwtsTitle" }}</h2>
+      <h3>{{ tr . "RecentTwtsSummary" (dict "Username" .Profile.Username) }}</h3>
     </hgroup>
   </div>
   {{ template "post" (dict "Authenticated" $.Authenticated "User" $.User "TwtPrompt" $.TwtPrompt "MaxTwtLength" $.MaxTwtLength "Reply" $.Reply "AutoFocus" true "CSRFToken" $.CSRFToken "Ctx" .) }}
   {{ template "feed" (dict "Authenticated" $.Authenticated "User" $.User "Profile" $.Profile "LastTwt" $.LastTwt "Pager" $.Pager "Twts" $.Twts "Ctx" . "view" "profile") }}
-{{end}}
+{{ end }}

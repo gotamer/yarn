@@ -1,7 +1,7 @@
-{{define "content"}}
+{{ define "content" }}
   <article class="container-fluid">
     <hgroup>
-        <h2>{{ .InstanceName }} Version Information</h2>
+      <h2>{{ .InstanceName }} Version Information</h2>
     </hgroup>
     <table>
       <tr><td>Software</td><td>{{ .SoftwareVersion.Software }}</td></tr>
@@ -10,7 +10,7 @@
       <tr><td>Commit</td><td>{{ .SoftwareVersion.Commit }}</td></tr>
       <tr><td>Author</td><td>{{ .SoftwareVersion.Author }}</td></tr>
       <tr><td>License</td><td>{{ .SoftwareVersion.License }}</td></tr>
-      <tr><td>Cpoyright</td><td>{{ .SoftwareVersion.Copyright }}</td></tr>
+      <tr><td>Copyright</td><td>{{ .SoftwareVersion.Copyright }}</td></tr>
     </table>
   </article>
 {{ end }}

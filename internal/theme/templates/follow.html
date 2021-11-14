@@ -1,20 +1,20 @@
-{{define "content"}}
+{{ define "content" }}
   <article class="grid">
     <div>
       <hgroup>
-          <h2>{{tr . "FollowTitle"}}</h2>
-          <h3>{{tr . "FollowSummary"}}</h3>
+        <h2>{{ tr . "FollowTitle" }}</h2>
+        <h3>{{ tr . "FollowSummary" }}</h3>
       </hgroup>
       <form action="/follow" method="POST">
         <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
-        <input type="nick" name="nick" placeholder="{{tr . "FollowFormNickname"}}" aria-label="Username" autocomplete="nickname" autofocus required>
-        <input type="url" name="url" placeholder="{{tr . "FollowFormURL"}}" aria-label="URL" autocomplete="url" required>
-        <button type="submit" class="primary">{{tr . "FollowFormFollow"}}</button>
+        <input type="nick" name="nick" placeholder="{{ tr . "FollowFormNickname" }}" aria-label="Username" autocomplete="nickname" autofocus required>
+        <input type="url" name="url" placeholder="{{ tr . "FollowFormURL" }}" aria-label="URL" autocomplete="url" required>
+        <button type="submit" class="primary">{{ tr . "FollowFormFollow" }}</button>
         <p>
-        {{(tr . "FollowHowToContent" (dict "InstanceName" $.InstanceName))|html}}
+          {{ (tr . "FollowHowToContent" (dict "InstanceName" $.InstanceName)) | html }}
         </p>
       </form>
     </div>
     <div></div>
   </article>
-{{end}}
+{{ end }}

@@ -1,4 +1,4 @@
-{{define "base"}}
+{{ define "base" }}
 <!DOCTYPE html>
 <html lang="en" {{ with .Theme }}data-theme="{{ . }}"{{ end }}>
   <head>
@@ -51,25 +51,25 @@
         <li>
           <a href="/" title="Last updated {{ .TimelineUpdatedAt | time }}">
             <i class="icss-chat"></i>
-            {{tr . "NavTimeline"}}
+            {{ tr . "NavTimeline" }}
           </a>
         </li>
         <li>
           <a href="/discover" title="Last updated {{ .DiscoverUpdatedAt | time }}">
             <i class="icss-users"></i>
-            {{tr . "NavDiscover"}}
+            {{ tr . "NavDiscover" }}
           </a>
         </li>
         <li>
           <a href="/mentions" title="Last mentioned {{ .LastMentionedAt | time }}">
             <i class="icss-smiley"></i>
-            {{tr . "NavMentions"}}
+            {{ tr . "NavMentions" }}
           </a>
         </li>
         <li>
           <a href="/feeds">
             <i class="icss-rss"></i>
-            {{tr . "NavFeeds"}}
+            {{ tr . "NavFeeds" }}
           </a>
         </li>
       {{ end }}
@@ -79,27 +79,27 @@
         <li>
           <a class="secondary" href="/settings">
             <i class="icss-gear"></i>
-            {{tr . "NavSettings"}}
+            {{ tr . "NavSettings" }}
           </a>
         </li>
         <li>
           <a class="secondary" href="/logout" onclick="return confirm('Are you sure you want logout?')">
             <i class="icss-exit"></i>
-            {{tr . "NavLogout"}}
+            {{ tr . "NavLogout" }}
           </a>
         </li>
       {{ else }}
         <li>
           <a href="/login">
             <i class="icss-key"></i>
-            {{tr . "NavLogin"}}
+            {{ tr . "NavLogin" }}
           </a>
         </li>
         {{ if not .RegisterDisabled }}
           <li>
             <a href="/register">
               <i class="icss-smiley"></i>
-              {{tr . "NavRegister"}}
+              {{ tr . "NavRegister" }}
             </a>
           </li>
         {{ end }}
@@ -107,16 +107,16 @@
     </ul>
   </nav>
   <main class="container">
-    {{template "content" . }}
+    {{ template "content" . }}
   </main>
   <footer class="container">
     <div class="footer-copyright">
       Running <a href="https://git.mills.io/yarnsocial/yarn" target="_blank">yarnd</a>
-      <a href="/version">{{ .SoftwareVersion.FullVersion }}</a> &mdash; 
+      <a href="/version">{{ .SoftwareVersion.FullVersion }}</a> &mdash;
       a <a href="https://yarn.social" target="_blank">Yarn.social</a> pod.
     </div>
     <div class="footer-menu">
-        <a href="/about" class="menu-item">{{tr . "MenuAbout"}}</a>
+      <a href="/about" class="menu-item">{{tr . "MenuAbout"}}</a>
       <a href="/privacy" class="menu-item">{{tr . "MenuPrivacy"}}</a>
       <a href="/abuse" class="menu-item">{{tr . "MenuAbuse"}}</a>
       <a href="/help" class="menu-item">{{tr . "MenuHelp"}}</a>
@@ -135,4 +135,4 @@
   {{ end }}
 </body>
 </html>
-{{end}}
+{{ end }}

@@ -1,34 +1,34 @@
-{{define "content"}}
+{{ define "content" }}
   <article class="grid">
     <div>
       <hgroup>
-          <h2>{{tr . "RegisterTitle"}}</h2>
-        <p> {{tr . "RegisterSummary" (dict "InstanceName" $.InstanceName)}}</p>
+        <h2>{{ tr . "RegisterTitle" }}</h2>
+        <p>{{ tr . "RegisterSummary" (dict "InstanceName" $.InstanceName) }}</p>
       </hgroup>
       <form id="register" action="/register" method="POST">
         <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
-        <input type="text" name="username" placeholder="{{tr . "RegisterFormUsername"}}" aria-label="Username" autocomplete="nickname" autofocus required>
-        <input type="password" name="password" placeholder="{{tr . "RegisterFormPassword"}}" aria-label="Password" autocomplete="current-password" required>
-        <input type="email" name="email" placeholder="{{tr . "EmailAddress"}}" aria-label="Email">
+        <input type="text" name="username" placeholder="{{ tr . "RegisterFormUsername" }}" aria-label="Username" autocomplete="nickname" autofocus required>
+        <input type="password" name="password" placeholder="{{ tr . "RegisterFormPassword" }}" aria-label="Password" autocomplete="current-password" required>
+        <input type="email" name="email" placeholder="{{ tr . "EmailAddress" }}" aria-label="Email">
         <small>
-            <b>{{tr . "RegisterFormEmailSummary"}}</b>
+            <b>{{ tr . "RegisterFormEmailSummary" }}</b>
         </small>
         <fieldset>
           <label>
             <input id="agree" type="checkbox" name="agree" role="switch">
-            {{(tr . "RegisterGuidelines")|html}}
+            {{ (tr . "RegisterGuidelines") | html }}
           </label>
         </fieldset>
-        <button type="submit">{{tr . "RegisterFormRegister"}}</button>
+        <button type="submit">{{ tr . "RegisterFormRegister" }}</button>
         <p></p>
-            {{(tr . "RegisterFormLogin")|html}}
+            {{ (tr . "RegisterFormLogin") | html }}
       </form>
     </div>
     <div>
       <hgroup>
-          <h2>{{tr . "RegisterHowToTitle"}}</h2>
+          <h2>{{ tr . "RegisterHowToTitle" }}</h2>
       </hgroup>
-      {{(tr . "RegisterHowToContent" (dict "InstanceName" $.InstanceName))|html}}
+      {{ (tr . "RegisterHowToContent" (dict "InstanceName" $.InstanceName)) | html }}
     </div>
   </article>
-{{end}}
+{{ end }}

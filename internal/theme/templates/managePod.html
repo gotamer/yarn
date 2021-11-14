@@ -1,5 +1,5 @@
-{{define "content"}}
-<article class="grid">
+{{ define "content" }}
+  <article class="grid">
     <div>
       <hgroup>
         <h2>Manage Pod<h2>
@@ -16,44 +16,41 @@
           <input id="podDescription" type="text" name="podDescription" placeholder="Pod Description" aria-label="podDescription" value="{{ .Meta.Description }}">
         </label>
         <label for="logo">
-          Change logo:
+          Change Logo:
           <textarea id="logo" name="podLogo" rows=10>{{ $.Logo }}</textarea>
         </label>
         <p>You can use the template variable <pre>{{"{{"}} .PodName {{"}}"}}</pre> in your logo</p>
         <div class="grid">
-            <div>
-                <label for="maxTwtLength">
-                Max Twt Length:
-                <input id="maxTwtLength" type="number" name="maxTwtLength" placeholder="Max Twt Length" aria-label="maxTwtLength" value="{{ .MaxTwtLength }}">
-                </label>
-            </div>
-            <div>
-                <legend>Other settings:</legend>
-                <label for="enableOpenRegistrations">
-                <input id="enableOpenRegistrations" type="checkbox" name="enableOpenRegistrations" aria-label="Allow open registrations" role="switch" {{ if not .RegisterDisabled }}checked{{ end }} />
-                Allow open registrations
-                </label>
-                <label for="enableOpenProfiles">
-                <input id="enableOpenProfiles" type="checkbox" name="enableOpenProfiles" aria-label="Allow open profiles" role="switch" {{ if .OpenProfiles }}checked{{ end }} />
-                Allow open profiles
-                </label>
-            </div>
+          <div>
+            <label for="maxTwtLength">
+              Max Twt Length:
+              <input id="maxTwtLength" type="number" name="maxTwtLength" placeholder="Max Twt Length" aria-label="maxTwtLength" value="{{ .MaxTwtLength }}">
+            </label>
+          </div>
+          <div>
+            <legend>Other settings:</legend>
+            <label for="enableOpenRegistrations">
+              <input id="enableOpenRegistrations" type="checkbox" name="enableOpenRegistrations" aria-label="Allow open registrations" role="switch" {{ if not .RegisterDisabled }}checked{{ end }} />
+              Allow open registrations
+            </label>
+            <label for="enableOpenProfiles">
+              <input id="enableOpenProfiles" type="checkbox" name="enableOpenProfiles" aria-label="Allow open profiles" role="switch" {{ if .OpenProfiles }}checked{{ end }} />
+              Allow open profiles
+            </label>
+          </div>
         </div>
         <label for="whitelistedImages">
           Whitelisted Image Domains:
           <textarea id="whitelistedImages" name="whitelistedImages" rows=5>{{ $.WhitelistedImages | join "\r\n" }}</textarea>
         </label>
-
         <label for="blacklistedFeeds">
           Blacklisted Feeds:
           <textarea id="blacklistedFeeds" name="blacklistedFeeds" rows=5>{{ $.BlacklistedFeeds | join "\r\n" }}</textarea>
         </label>
-
         <label for="enabledFeatures">
           Enabled Optional Features
           <textarea id="enabledFeatures" name="enabledFeatures" rows=3>{{ $.EnabledFeatures | join "\r\n" }}</textarea>
         </label>
-
         <div class="grid">
           <label for="displayDatesInTimezone">
             {{tr . "SettingsFormTimezoneTitle"}}
@@ -63,7 +60,6 @@
               {{ end }}
             </select>
           </label>
-
           <fieldset>
             <legend>{{tr . "SettingsFormTimePreferenceTitle"}}</legend>
             <label for="12h">
@@ -75,9 +71,8 @@
               24hr
             </label>
           </fieldset>
-
           <fieldset>
-            <legend>{{tr . "SettingsFormOpenLinksInPreferenceTitle"}}</legend>
+            <legend>{{ tr . "SettingsFormOpenLinksInPreferenceTitle" }}</legend>
             <label for="samewindow">
               <input type="radio" name="openLinksInPreference" value="samewindow" {{ if eq $.OpenLinksInPreference "samewindow" }}checked{{ end }}>
               Same Window
@@ -91,5 +86,5 @@
         <button type="submit" class="primary">Update</button>
       </form>
     </div>
-</article>
-{{end}}
+  </article>
+{{ end }}
