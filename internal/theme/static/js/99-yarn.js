@@ -244,13 +244,12 @@ u("#post").on("click", function(e) {
 
 u(".bookmarkBtn").on("click", function (e) {
   e.preventDefault();
-  console.log(e);
   Twix.ajax({
     type: "GET",
-    url: u(e.target).closest("a").attr("href"),
+    url: u(e.target).closest("a.bookmarkBtn").attr("href"),
     success: function(data) {
-      u(e.target).attr("style", "display: none;");
-      u(".unbookmarkBtn").attr("style", "display: inline;");
+      u(e.target).closest("a.bookmarkBtn").attr("style", "display: none;");
+      u(e.target).parent().parent().find("a.unbookmarkBtn").attr("style", "display: inline;");
     },
   });
 });
@@ -260,10 +259,10 @@ u(".unbookmarkBtn").on("click", function (e) {
 
   Twix.ajax({
     type: "GET",
-    url: u(e.target).closest("a").attr("href"),
+    url: u(e.target).closest("a.unbookmarkBtn").attr("href"),
     success: function(data) {
-      u(e.target).attr("style", "display: none;");
-      u(".bookmarkBtn").attr("style", "display: inline;");
+      u(e.target).closest("a.unbookmarkBtn").attr("style", "display: none;");
+      u(e.target).parent().parent().find("a.bookmarkBtn").attr("style", "display: inline;");
     },
   });
 });
