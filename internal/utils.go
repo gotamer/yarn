@@ -1610,10 +1610,8 @@ func FormatTwtFactory(conf *Config, cache *Cache, archive Archiver) func(twt typ
 		renderer := html.NewRenderer(opts)
 
 		markdownInput := twt.FormatText(types.MarkdownFmt, conf)
-		log.Debugf("markdownInput:\n%q", markdownInput)
 		if conf.Features.IsEnabled(FeatureStripConvSubjectHashes) {
 			if subject, _ := GetTwtConvSubjectHash(cache, archive, twt); subject != "" {
-				log.Debugf("subject: %s", subject)
 				markdownInput = strings.ReplaceAll(markdownInput, subject, "")
 				markdownInput = strings.TrimSpace(markdownInput)
 			}
