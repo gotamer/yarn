@@ -126,6 +126,13 @@ func (f *FeatureFlags) Disable(feature FeatureType) {
 	f.flags[feature] = false
 }
 
+func (f *FeatureFlags) Reset() {
+	f.Lock()
+	defer f.Unlock()
+
+	f.flags = make(map[FeatureType]bool)
+}
+
 func (f *FeatureFlags) DisableAll(features []FeatureType) {
 	f.Lock()
 	defer f.Unlock()
@@ -225,6 +232,7 @@ func (f *FeatureFlags) UnmarshalYAML(unmarshal func(interface{}) error) error {
 // WithEnabledFeatures enables the selected features
 func WithEnabledFeatures(features []FeatureType) Option {
 	return func(cfg *Config) error {
+		cfg.Features.Reset()
 		cfg.Features.EnableAll(features)
 		return nil
 	}
