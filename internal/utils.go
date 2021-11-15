@@ -1640,14 +1640,11 @@ func FormatTwtFactory(conf *Config, cache *Cache, archive Archiver) func(twt typ
 	}
 }
 
-// FormatTwtContextFactory formats a twt's context into a valid HTML snippet
-// A Twt's Context is defined as the content of the Root Twt of the Conversation
-// rendered in plain text up to a maximu length with an elipsis if longer...
-func FormatTwtContextFactory(conf *Config, cache *Cache, archive Archiver) func(twt types.Twt, u *User) template.HTML {
-	return func(twt types.Twt, u *User) template.HTML {
+func GetRootTwtFactory(conf *Config, cache *Cache, archive Archiver) func(twt types.Twt, u *User) types.Twt {
+	return func(twt types.Twt, u *User) types.Twt {
 		_, hash := GetTwtConvSubjectHash(cache, archive, twt)
 		if hash == "" {
-			return template.HTML("")
+			return types.NilTwt
 		}
 
 		var rootTwt types.Twt
@@ -1658,6 +1655,25 @@ func FormatTwtContextFactory(conf *Config, cache *Cache, archive Archiver) func(
 			rootTwt = twt
 		} else {
 			log.Warnf("unable to get context for twt: %s", hash)
+			return types.NilTwt
+		}
+
+		if u.HasMuted(rootTwt.Twter().URL) {
+			return types.NilTwt
+		}
+
+		return rootTwt
+	}
+}
+
+// FormatTwtContextFactory formats a twt's context into a valid HTML snippet
+// A Twt's Context is defined as the content of the Root Twt of the Conversation
+// rendered in plain text up to a maximu length with an elipsis if longer...
+func FormatTwtContextFactory(conf *Config, cache *Cache, archive Archiver) func(twt types.Twt, u *User) template.HTML {
+	getRootTwt := GetRootTwtFactory(conf, cache, archive)
+	return func(twt types.Twt, u *User) template.HTML {
+		rootTwt := getRootTwt(twt, u)
+		if rootTwt.IsZero() {
 			return template.HTML("")
 		}
 
@@ -1671,7 +1687,6 @@ func FormatTwtContextFactory(conf *Config, cache *Cache, archive Archiver) func(
 			}
 		}
 
-		//when := rootTwt.Created().Format(time.RFC3339)
 		text := fmt.Sprintf("%s > %s", who, TextWithEllipsis(what, maxTwtContextLength))
 
 		return template.HTML(text)

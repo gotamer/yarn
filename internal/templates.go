@@ -72,6 +72,7 @@ func NewTemplateManager(conf *Config, translator *Translator, cache *Cache, arch
 	funcMap["formatTwt"] = FormatTwtFactory(conf, cache, archive)
 	funcMap["unparseTwt"] = UnparseTwtFactory(conf)
 	funcMap["formatTwtContext"] = FormatTwtContextFactory(conf, cache, archive)
+	funcMap["getRootTwt"] = GetRootTwtFactory(conf, cache, archive)
 	funcMap["formatForDateTime"] = FormatForDateTime
 	funcMap["urlForConv"] = URLForConvFactory(conf, cache, archive)
 	funcMap["urlForRootConv"] = URLForRootConvFactory(conf, cache, archive)
