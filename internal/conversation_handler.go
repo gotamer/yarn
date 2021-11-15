@@ -92,7 +92,7 @@ func (s *Server) ConversationHandler() httprouter.Handle {
 			)
 		}
 
-		twts := s.cache.GetByUserView(ctx.User, fmt.Sprintf("subject:(#%s)", hash), false)
+		twts := s.cache.GetByUserView(ctx.User, fmt.Sprintf("subject:(#%s)", hash), false)[:]
 		if !inCache {
 			twts = append(twts, twt)
 		}

@@ -1088,7 +1088,7 @@ func (a *API) ConversationEndpoint() httprouter.Handle {
 			return
 		}
 
-		twts := a.cache.GetByUserView(loggedInUser, fmt.Sprintf("subject:(#%s)", hash), false)
+		twts := a.cache.GetByUserView(loggedInUser, fmt.Sprintf("subject:(#%s)", hash), false)[:]
 		if !inCache {
 			twts = append(twts, twt)
 		}

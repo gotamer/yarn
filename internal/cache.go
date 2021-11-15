@@ -704,7 +704,7 @@ func (cache *Cache) GetByUser(u *User, refresh bool) types.Twts {
 // GetByUserView ...
 func (cache *Cache) GetByUserView(u *User, view string, refresh bool) types.Twts {
 	if u == nil {
-		return cache.GetByView(view)[:]
+		return cache.GetByView(view)
 	}
 
 	key := fmt.Sprintf("%s:%s", u.Username, view)
@@ -714,7 +714,7 @@ func (cache *Cache) GetByUserView(u *User, view string, refresh bool) types.Twts
 	cache.mu.RUnlock()
 
 	if ok && !refresh {
-		return cached.Twts[:]
+		return cached.Twts
 	}
 
 	twts := FilterTwts(u, cache.GetByView(view))
@@ -724,7 +724,7 @@ func (cache *Cache) GetByUserView(u *User, view string, refresh bool) types.Twts
 	cache.Views[key] = NewCached(twts, "")
 	cache.mu.Unlock()
 
-	return twts[:]
+	return twts
 }
 
 // GetByURL ...
