@@ -139,7 +139,7 @@
   </div>
   <hr />
   <a href="/search?tag={{ $.Twt.Hash }}" title="Search for this twt hash"><em class="twt-hash">#{{ $.Twt.Hash }}</em></a>
-  <nav>
+  <nav class="twt-nav">
     <ul>
       {{ if $.Authenticated }}
         {{ if eq $.LastTwt.Hash $.Twt.Hash }}
