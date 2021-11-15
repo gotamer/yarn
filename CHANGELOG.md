@@ -1,4 +1,13 @@
 
+<a name="0.7.4"></a>
+## [0.7.4](https://git.mills.io/yarnsocial/yarn/compare/0.7.3...0.7.4) (2021-11-15)
+
+### Bug Fixes
+
+* Fix dupe Twt bug in User views by returning a copy of the view's slice
+* Fix broken logic for archived root twts
+
+
 <a name="0.7.3"></a>
 ## [0.7.3](https://git.mills.io/yarnsocial/yarn/compare/0.7.2...0.7.3) (2021-11-15)
 
@@ -19,6 +28,7 @@
 
 ### Updates
 
+* Update CHANGELOG for 0.7.3
 * Update 'internal/theme/templates/settings.html' (#521)
 * Update tools/check-versions.sh with new pod: txt.quisquiliae.com
 
