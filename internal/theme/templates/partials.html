@@ -130,7 +130,7 @@
     </div>
   </div>
   <div class="p-summary">
-    {{ if isFeatureEnabled "show_twt_context" }}
+    {{ if and (not (eq $.view "conv")) (isFeatureEnabled "show_twt_context") }}
       {{ with urlForRootConv $.Twt }}
         <a href="{{ urlForRootConv $.Twt }}"><small class="twt-context">{{ formatTwtContext $.Twt $.User }}</small></a>
       {{ end }}
