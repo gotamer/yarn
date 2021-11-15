@@ -341,13 +341,13 @@ em.twt-hash {
 }
 
 /* Twt Context */
-article .p-summary a em, em.twt-context {
+article .p-summary a small, small.twt-context {
   color: darkgray;
   font-style: normal;
   font-weight: 100;
   color: var(--muted-text);
 }
-em.twt-context {
+small.twt-context {
   display: block;
   font-size: small;
   padding-top: 0.25rem;

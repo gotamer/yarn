@@ -132,7 +132,7 @@
   <div class="p-summary">
     {{ if isFeatureEnabled "show_twt_context" }}
       {{ with urlForRootConv $.Twt }}
-        <a href="{{ urlForRootConv $.Twt }}"><em class="twt-context">{{ formatTwtContext $.Twt $.User }}</em></a>
+        <a href="{{ urlForRootConv $.Twt }}"><small class="twt-context">{{ formatTwtContext $.Twt $.User }}</small></a>
       {{ end }}
     {{ end }}
     {{ formatTwt $.Twt $.User }}
