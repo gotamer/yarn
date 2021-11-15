@@ -68,7 +68,7 @@ const (
 
 	maxUsernameLength   = 15 // avg 6 chars / 2 syllables per name commonly
 	maxFeedNameLength   = 25 // avg 4.7 chars per word in English so ~5 words
-	maxTwtContextLength = 100
+	maxTwtContextLength = 140
 
 	requestTimeout = time.Second * 30
 
