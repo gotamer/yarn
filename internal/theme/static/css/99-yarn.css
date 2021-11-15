@@ -356,6 +356,12 @@ small.twt-context {
   overflow: hidden;
 }
 
+/* Twt Nav */
+
+.twt-nav a {
+  font-size: 85%;
+}
+
 /* Footer Style */
 footer {
   border-top: 1px solid var(--primary);
