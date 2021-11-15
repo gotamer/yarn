@@ -348,6 +348,7 @@ article .p-summary a em, em.twt-context {
   color: var(--muted-text);
 }
 em.twt-context {
+  display: block;
   font-size: small;
   padding-top: 0.25rem;
   text-overflow: ellipsis;
