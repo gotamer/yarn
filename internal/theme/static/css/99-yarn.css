@@ -62,13 +62,8 @@ article:target {
 }
 
 .badge {
-  background-color: var(--primary);
-  color: white;
-  border-radius: 100px;
-  padding: 0px 4px;
-  font-size: 9px;
-  margin-left: -3px;
-  position: absolute;
+  color: var(--muted-text);
+  padding-left: 0.25rem;
 }
 
 .nav {
@@ -312,6 +307,10 @@ video {
   border-radius: 0.25rem !important;
 }
 
+article .p-summary p {
+  margin: 0.75rem 0;
+}
+
 /* Video Summary Content Styling */
 article .p-summary p video,
 article .p-summary p img{
@@ -341,7 +340,8 @@ em.twt-hash {
 }
 
 /* Twt Context */
-article .p-summary a small, small.twt-context {
+article .p-summary a small,
+small.twt-context {
   color: darkgray;
   font-style: normal;
   font-weight: 100;
@@ -350,10 +350,11 @@ article .p-summary a small, small.twt-context {
 small.twt-context {
   display: block;
   font-size: small;
-  padding-top: 0.25rem;
+  padding: 0.25rem 0;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+  border-bottom: 1px dashed var(--muted-border);
 }
 
 /* Twt Nav */
@@ -473,7 +474,7 @@ footer .footer-menu a:last-child::after{
     display: inline;
   }
   .u-author.h-card{
-    margin-bottom: 10px;
+    margin-bottom: 20px;
   }
   .u-author.h-card>div{
     flex: 20%;
