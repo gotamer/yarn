@@ -93,7 +93,7 @@ func (s *Server) ConversationHandler() httprouter.Handle {
 		}
 
 		twts := s.cache.GetByUserView(ctx.User, fmt.Sprintf("subject:(#%s)", hash), false)
-		if !inCache {
+		if len(twts) > 0 && twts[(len(twts)-1)].Hash() != twt.Hash() {
 			twts = append(twts, twt)
 		}
 		sort.Sort(sort.Reverse(twts))
