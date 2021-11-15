@@ -35,6 +35,15 @@ func (f *flagSliceOfFeatureType) Type() string {
 }
 
 func (f *flagSliceOfFeatureType) Set(value string) error {
+	if strings.ToLower(value) == "list" {
+		fmt.Println("Available Features:")
+		for _, feature := range internal.AvailableFeatures() {
+			fmt.Printf(" - %s\n", feature)
+		}
+		fmt.Println()
+		os.Exit(0)
+	}
+
 	feature, err := internal.FeatureFromString(value)
 	if err != nil {
 		log.Warnf("invalid feature %s", value)
