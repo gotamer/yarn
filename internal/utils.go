@@ -1246,12 +1246,7 @@ func GetConvLength(conf *Config, cache *Cache, archive Archiver) func(twt types.
 	}
 }
 
-func GetTwtConvSubjectHash(cache *Cache, archive Archiver, twt types.Twt) (string, string) {
-	subject := twt.Subject().String()
-	if subject == "" {
-		return "", ""
-	}
-
+func ExtractHashFromSubject(subject string) string {
 	var hash string
 
 	re := regexp.MustCompile(`\(#([a-z0-9]+)\)`)
@@ -1266,6 +1261,16 @@ func GetTwtConvSubjectHash(cache *Cache, archive Archiver, twt types.Twt) (strin
 		}
 	}
 
+	return hash
+}
+
+func GetTwtConvSubjectHash(cache *Cache, archive Archiver, twt types.Twt) (string, string) {
+	subject := twt.Subject().String()
+	if subject == "" {
+		return "", ""
+	}
+
+	hash := ExtractHashFromSubject(subject)
 	if _, ok := cache.Lookup(hash); !ok && !archive.Has(hash) {
 		return "", ""
 	}

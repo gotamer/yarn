@@ -21,7 +21,7 @@ import (
 
 const (
 	feedCacheFile    = "cache"
-	feedCacheVersion = 13 // increase this if breaking changes occur to cache file.
+	feedCacheVersion = 14 // increase this if breaking changes occur to cache file.
 
 	localViewKey    = "local"
 	discoverViewKey = "discover"
@@ -548,12 +548,12 @@ func (cache *Cache) Refresh() {
 		discoverTwts types.Twts
 	)
 
-	hash := make(map[string]types.Twt)
+	twtMap := make(map[string]types.Twt)
 
 	isLocalURL := IsLocalURLFactory(cache.conf)
 	filterOutFeedsAndBots := FilterOutFeedsAndBotsFactory(cache.conf)
 	for _, twt := range allTwts {
-		hash[twt.Hash()] = twt
+		twtMap[twt.Hash()] = twt
 
 		if isLocalURL(twt.Twter().URL) {
 			localTwts = append(localTwts, twt)
@@ -567,9 +567,19 @@ func (cache *Cache) Refresh() {
 	tags := GroupTwtsBy(allTwts, GroupByTag)
 	subjects := GroupTwtsBy(allTwts, GroupBySubject)
 
+	// XXX: I _think_ this is a big of a hack.
+	// Insert at the top of all subjet views the origina Twt (if any)
+	// This is mostly to support "forked" conversations
+	for k, v := range subjects {
+		hash := ExtractHashFromSubject(k)
+		if twt, ok := twtMap[hash]; ok {
+			subjects[k] = append(types.Twts{twt}, v...)
+		}
+	}
+
 	cache.mu.Lock()
 	cache.List = NewCached(allTwts, "")
-	cache.Map = hash
+	cache.Map = twtMap
 	cache.Views = map[string]*Cached{
 		localViewKey:    NewCached(localTwts, ""),
 		discoverViewKey: NewCached(discoverTwts, ""),
