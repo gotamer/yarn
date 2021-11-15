@@ -10,6 +10,6 @@
   {{ if .Authenticated }}
     {{ template "post" (dict "Authenticated" $.Authenticated "User" $.User "TwtPrompt" $.TwtPrompt "MaxTwtLength" $.MaxTwtLength "Reply" $.Reply "AutoFocus" false "CSRFToken" $.CSRFToken "Ctx" .) }}
   {{ else }}
-  <small>{{ (tr . "ConversationJoinSummary") | html }}</small>
+    <small>{{ (tr . "ConversationJoinSummary") | html }}</small>
   {{ end }}
 {{ end }}
