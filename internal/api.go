@@ -1089,7 +1089,7 @@ func (a *API) ConversationEndpoint() httprouter.Handle {
 		}
 
 		twts := a.cache.GetByUserView(loggedInUser, fmt.Sprintf("subject:(#%s)", hash), false)
-		if len(twts) > 0 && twts[(len(twts)-1)].Hash() != twt.Hash() {
+		if !inCache {
 			twts = append(twts, twt)
 		}
 		sort.Sort(sort.Reverse(twts))

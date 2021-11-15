@@ -21,7 +21,7 @@ import (
 
 const (
 	feedCacheFile    = "cache"
-	feedCacheVersion = 15 // increase this if breaking changes occur to cache file.
+	feedCacheVersion = 16 // increase this if breaking changes occur to cache file.
 
 	localViewKey    = "local"
 	discoverViewKey = "discover"
@@ -573,8 +573,8 @@ func (cache *Cache) Refresh() {
 	for k, v := range subjects {
 		hash := ExtractHashFromSubject(k)
 		if twt, ok := twtMap[hash]; ok {
-			if len(v) > 0 && v[0].Hash() != twt.Hash() {
-				subjects[k] = append(types.Twts{twt}, v...)
+			if len(v) > 0 && v[(len(v)-1)].Hash() != twt.Hash() {
+				subjects[k] = append(subjects[k], twt)
 			}
 		}
 	}
