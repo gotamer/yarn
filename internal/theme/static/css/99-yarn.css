@@ -1,7 +1,3 @@
-* {
-  /*border: thin solid pink;*/
-}
-
 body, html {
     overflow-x: hidden;
 }
@@ -66,16 +62,8 @@ article:target {
 }
 
 .badge {
-  /*font-size: small;*/
   color: var(--muted-text);
   padding-left: 0.25rem;
-  /*background-color: var(--primary);*/
-  /*color: white;*/
-  /*border-radius: 100px;*/
-  /*padding: 0px 4px;*/
-  /*font-size: 9px;*/
-  /*margin-left: -3px;*/
-  /*position: absolute;*/
 }
 
 .nav {
@@ -352,8 +340,7 @@ em.twt-hash {
 }
 
 /* Twt Context */
-article .p-summary a small,
-small.twt-context {
+article .p-summary a small, small.twt-context {
   color: darkgray;
   font-style: normal;
   font-weight: 100;
@@ -366,7 +353,7 @@ small.twt-context {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-  border-bottom: 1px dashed var(--muted-border);
+  border-bottom: 1px dashed var(--muted-text);
 }
 
 /* Footer Style */
@@ -480,7 +467,7 @@ footer .footer-menu a:last-child::after{
     display: inline;
   }
   .u-author.h-card{
-    margin-bottom: 20px;
+    margin-bottom: 10px;
   }
   .u-author.h-card>div{
     flex: 20%;
