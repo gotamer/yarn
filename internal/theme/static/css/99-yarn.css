@@ -351,6 +351,8 @@ em.twt-context {
   font-size: small;
   padding-top: 0.25rem;
   text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 /* Footer Style */
