@@ -340,6 +340,19 @@ em.twt-hash {
   padding-top: 0.25rem;
 }
 
+/* Twt Context */
+article .p-summary a em, em.twt-context {
+  color: darkgray;
+  font-style: normal;
+  font-weight: 100;
+  color: var(--muted-text);
+}
+em.twt-context {
+  font-size: small;
+  padding-top: 0.25rem;
+  text-overflow: ellipsis;
+}
+
 /* Footer Style */
 footer {
   border-top: 1px solid var(--primary);

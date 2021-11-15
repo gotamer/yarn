@@ -17,6 +17,7 @@ const (
 	FeatureFoo
 	FeatureMagicLinkAuth
 	FeatureStripConvSubjectHashes
+	FeatureShowTwtContext
 )
 
 // Interface guards
@@ -35,6 +36,8 @@ func (f FeatureType) String() string {
 		return "magic_link_auth"
 	case FeatureStripConvSubjectHashes:
 		return "strip_conv_subject_hashes"
+	case FeatureShowTwtContext:
+		return "show_twt_context"
 	default:
 		return "invalid_feature"
 	}
@@ -69,6 +72,8 @@ func FeatureFromString(s string) (FeatureType, error) {
 		return FeatureMagicLinkAuth, nil
 	case "strip_conv_subject_hashes":
 		return FeatureStripConvSubjectHashes, nil
+	case "show_twt_context":
+		return FeatureShowTwtContext, nil
 	default:
 		fs := fmt.Sprintf("available features: %s", strings.Join(AvailableFeatures(), " "))
 		return FeatureInvalid, fmt.Errorf("Error unrecognised feature: %s (%s)", s, fs)

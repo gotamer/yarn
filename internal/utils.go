@@ -66,8 +66,9 @@ const (
 	twtxtBot = "twtxt"
 	statsBot = "stats"
 
-	maxUsernameLength = 15 // avg 6 chars / 2 syllables per name commonly
-	maxFeedNameLength = 25 // avg 4.7 chars per word in English so ~5 words
+	maxUsernameLength   = 15 // avg 6 chars / 2 syllables per name commonly
+	maxFeedNameLength   = 25 // avg 4.7 chars per word in English so ~5 words
+	maxTwtContextLength = 100
 
 	requestTimeout = time.Second * 30
 
@@ -1636,6 +1637,44 @@ func FormatTwtFactory(conf *Config, cache *Cache, archive Archiver) func(twt typ
 		html := p.SanitizeBytes(maybeUnsafeHTML)
 
 		return template.HTML(html)
+	}
+}
+
+// FormatTwtContextFactory formats a twt's context into a valid HTML snippet
+// A Twt's Context is defined as the content of the Root Twt of the Conversation
+// rendered in plain text up to a maximu length with an elipsis if longer...
+func FormatTwtContextFactory(conf *Config, cache *Cache, archive Archiver) func(twt types.Twt, u *User) template.HTML {
+	return func(twt types.Twt, u *User) template.HTML {
+		_, hash := GetTwtConvSubjectHash(cache, archive, twt)
+		if hash == "" {
+			return template.HTML("")
+		}
+
+		var rootTwt types.Twt
+
+		if twt, inCache := cache.Lookup(hash); inCache {
+			rootTwt = twt
+		} else if twt, err := archive.Get(hash); err == nil {
+			rootTwt = twt
+		} else {
+			log.Warnf("unable to get context for twt: %s", hash)
+			return template.HTML("")
+		}
+
+		who := rootTwt.Twter().DomainNick()
+		what := rootTwt.FormatText(types.TextFmt, conf)
+
+		if conf.Features.IsEnabled(FeatureStripConvSubjectHashes) {
+			if subject, _ := GetTwtConvSubjectHash(cache, archive, rootTwt); subject != "" {
+				what = strings.ReplaceAll(what, subject, "")
+				what = strings.TrimSpace(what)
+			}
+		}
+
+		//when := rootTwt.Created().Format(time.RFC3339)
+		text := fmt.Sprintf("%s > %s", who, TextWithEllipsis(what, maxTwtContextLength))
+
+		return template.HTML(text)
 	}
 }
 

@@ -115,7 +115,7 @@
             {{ dateInZone (formatForDateTime $.Twt.Created $.User.DisplayTimeFormat) $.Twt.Created $.User.DisplayDatesInTimezone }}
           </time>
         </a>
-        <span>({{ $.Twt.Created | time }})</span>
+        <span>&nbsp;({{ $.Twt.Created | time }})</span>
         {{ if $.Authenticated }}
           <span>
             <a class="bookmarkBtn" style="display: {{ if not ($.User.Bookmarked $.Twt.Hash) }}inline{{ else }}none{{ end }};" href="/bookmark/{{ $.Twt.Hash }}" title="{{tr $.Ctx "BookmarkAddTwt"}}">
@@ -129,6 +129,11 @@
       </div>
     </div>
   </div>
+  {{ if isFeatureEnabled "show_twt_context" }}
+    {{ with urlForRootConv $.Twt }}
+      <a href="{{ urlForRootConv $.Twt }}"><em class="twt-context">{{ formatTwtContext $.Twt $.User }}</em></a>
+    {{ end }}
+  {{ end }}
   <div class="p-summary">
     {{ formatTwt $.Twt $.User }}
   </div>
