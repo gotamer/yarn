@@ -358,6 +358,10 @@ small.twt-context {
   border-bottom: 1px dashed var(--muted-border);
 }
 
+article .p-summary p {
+  margin: 0.75rem 0;
+}
+
 /* Twt Nav */
 
 .twt-nav a {
