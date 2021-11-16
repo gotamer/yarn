@@ -174,7 +174,7 @@
         {{ end }}
       {{ else if not (eq $.view "conv") }}
         {{ with urlForConv $.Twt }}
-        <li><a class="convBtn" href="{{ urlForConv $.Twt }}"><i class="icss-comment"></i> {{tr $.Ctx "TwtConversationLinkTitle"}}{{ if gt (getConvLength $.Twt $.User) 1 }}<span class="badge">{{ getConvLength $.Twt $.User }}</span>{{ end }}</a></li>
+        <li><a class="convBtn" href="{{ urlForConv $.Twt }}"><i class="icss-comment"></i> {{tr $.Ctx "TwtConversationLinkTitle"}}{{ if gt (getConvLength $.Twt $.User) 1 }}<span class="yarn-count-badge">{{ getConvLength $.Twt $.User }}</span>{{ end }}</a></li>
         {{ end }}
       {{ end }}
     </ul>
