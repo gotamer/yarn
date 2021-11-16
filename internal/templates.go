@@ -75,8 +75,10 @@ func NewTemplateManager(conf *Config, translator *Translator, cache *Cache, arch
 	funcMap["getRootTwt"] = GetRootTwtFactory(conf, cache, archive)
 	funcMap["formatForDateTime"] = FormatForDateTime
 	funcMap["urlForConv"] = URLForConvFactory(conf, cache, archive)
+	funcMap["urlForFork"] = URLForForkFactory(conf, cache, archive)
 	funcMap["urlForRootConv"] = URLForRootConvFactory(conf, cache, archive)
 	funcMap["getConvLength"] = GetConvLength(conf, cache, archive)
+	funcMap["getForkLength"] = GetForkLength(conf, cache, archive)
 	funcMap["isAdminUser"] = IsAdminUserFactory(conf)
 	funcMap["isSpecialFeed"] = IsSpecialFeed
 	funcMap["twtType"] = func(twt types.Twt) string { return fmt.Sprintf("%T", twt) }

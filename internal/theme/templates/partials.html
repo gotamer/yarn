@@ -135,7 +135,7 @@
         {{ $rootTwt := getRootTwt $.Twt $.User }}
         <small class="twt-context">
           &rdsh;
-          <a href="{{ urlForRootConv $.Twt }}#{{ $rootTwt.Hash }}" title="Show conversation for #{{ $rootTwt.Hash }}">
+          <a href="{{ urlForRootConv $.Twt }}#{{ $.Twt.Hash }}" title="Show conversation for #{{ $rootTwt.Hash }}">
             {{ if $.User.Is $rootTwt.Twter.URL }}
               {{ tr $.Ctx "MeLinkTitle" }}
             {{ else }}
@@ -165,10 +165,14 @@
         {{ end }}
         <li><a class="replyBtn" href="#" data-reply="{{ $.User.Reply $.Twt }}"><i class="icss-arrow-left"></i> {{tr $.Ctx "TwtReplyLinkTitle"}}</a></li>
         {{ if and (eq $.view "conv") (not (eq $.view "rootconv")) }}
+          {{ if gt (getForkLength $.Twt $.User) 0 }}
+            <li><a class="convBtn" href="{{ urlForFork $.Twt }}"><i class="icss-arrows"></i> {{tr $.Ctx "TwtForkLinkTitle"}}<span class="yarn-count-badge">{{ getForkLength $.Twt $.User }}</span></a></li>
+          {{ else }}
           <li><a class="forkBtn" href="#" data-fork="{{ $.User.Fork $.Twt }}"><i class="icss-arrows"></i> {{tr $.Ctx "TwtForkLinkTitle"}}</a></li>
+          {{ end }}
         {{ end }}
       {{ end }}
-      {{ if eq $.view "rootconv" }} 
+      {{ if eq $.view "rootconv" }}
         {{ with urlForRootConv $.Twt }}
           <li><a class="convBtn" href="{{ urlForRootConv $.Twt }}"><i class="icss-comment"></i> {{tr $.Ctx "TwtRootLinkTitle"}}</a></li>
         {{ end }}

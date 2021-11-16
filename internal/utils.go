@@ -1247,6 +1247,12 @@ func GetConvLength(conf *Config, cache *Cache, archive Archiver) func(twt types.
 	}
 }
 
+func GetForkLength(conf *Config, cache *Cache, archive Archiver) func(twt types.Twt, u *User) int {
+	return func(twt types.Twt, u *User) int {
+		return len(cache.GetByUserView(u, fmt.Sprintf("subject:%s", fmt.Sprintf("(#%s)", twt.Hash())), false)) - 1
+	}
+}
+
 func ExtractHashFromSubject(subject string) string {
 	var hash string
 
@@ -1289,6 +1295,16 @@ func URLForConvFactory(conf *Config, cache *Cache, archive Archiver) func(twt ty
 			)
 		}
 		return ""
+	}
+}
+
+func URLForForkFactory(conf *Config, cache *Cache, archive Archiver) func(twt types.Twt) string {
+	return func(twt types.Twt) string {
+		return fmt.Sprintf(
+			"%s/conv/%s",
+			strings.TrimSuffix(conf.BaseURL, "/"),
+			twt.Hash(),
+		)
 	}
 }
 
