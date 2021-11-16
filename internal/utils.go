@@ -1763,7 +1763,7 @@ func FormatTwtContextFactory(conf *Config, cache *Cache, archive Archiver) func(
 
 		markdownInput := rootTwt.FormatText(types.MarkdownFmt, conf)
 		if conf.Features.IsEnabled(FeatureStripConvSubjectHashes) {
-			if subject, _ := GetTwtConvSubjectHash(cache, archive, twt); subject != "" {
+			if subject, _ := GetTwtConvSubjectHash(cache, archive, rootTwt); subject != "" {
 				markdownInput = strings.ReplaceAll(markdownInput, subject, "")
 				markdownInput = strings.TrimSpace(markdownInput)
 			}
@@ -1792,7 +1792,6 @@ func FormatTwtContextFactory(conf *Config, cache *Cache, archive Archiver) func(
 		if err != nil {
 			log.WithError(err).Warn("error finding first paragraph for twt context")
 			return template.HTML("")
-
 		}
 
 		return template.HTML(firstParagraph)

@@ -133,24 +133,25 @@
     {{ if and (not (eq $.view "conv")) (isFeatureEnabled "show_twt_context") }}
       {{ with urlForRootConv $.Twt }}
         {{ $rootTwt := getRootTwt $.Twt $.User }}
-        <a href="{{ urlForRootConv $.Twt }}#{{ $rootTwt.Hash }}">
-          <small class="twt-context">
-            &rdsh;
+        <small class="twt-context">
+          &rdsh;
+          <a href="{{ urlForRootConv $.Twt }}#{{ $rootTwt.Hash }}" title="Show conversation for #{{ $rootTwt.Hash }}">
             {{ if $.User.Is $rootTwt.Twter.URL }}
-              {{tr $.Ctx "MeLinkTitle"}}
+              {{ tr $.Ctx "MeLinkTitle" }}
             {{ else }}
               {{ if isLocalURL $rootTwt.Twter.URL }}
                 {{ $rootTwt.Twter.Nick }}
               {{ else }}
-                {{ $rootTwt.Twter.Nick }}@{{ $rootTwt.Twter.URL | hostnameFromURL }}
+                {{ $rootTwt.Twter.Nick }}&commat;{{ $rootTwt.Twter.URL | hostnameFromURL }}
               {{ end }}
             {{ end }}
-            &gt;&nbsp;
-            {{ formatTwtContext $.Twt $.User }}
-          </small>
-        </a>
-      {{ end }}
-    {{ end }}
+          </a>
+          &gt;
+          {{ formatTwtContext $.Twt $.User }}
+        </small>
+        <!--</a>-->
+      {{- end -}}
+    {{- end -}}
     {{ formatTwt $.Twt $.User }}
   </div>
   <hr />
