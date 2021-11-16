@@ -132,7 +132,7 @@
   <div class="p-summary">
     {{ if and (not (eq $.view "conv")) (isFeatureEnabled "show_twt_context") }}
       {{ with urlForRootConv $.Twt }}
-        <a href="{{ urlForRootConv $.Twt }}"><small class="twt-context">In reply to:&nbsp;{{ formatTwtContext $.Twt $.User }}</small></a>
+        <a href="{{ urlForRootConv $.Twt }}"><small class="twt-context">{{ formatTwtContext $.Twt $.User }}</small></a>
       {{ end }}
     {{ end }}
     {{ formatTwt $.Twt $.User }}
@@ -157,7 +157,7 @@
         {{ end }}
       {{ else if not (eq $.view "conv") }}
         {{ with urlForConv $.Twt }}
-        <li><a class="convBtn" href="{{ urlForConv $.Twt }}"><i class="icss-comment"></i> {{tr $.Ctx "TwtConversationLinkTitle"}}{{ if gt (getConvLength $.Twt $.User) 1 }}<small class="badge">({{ getConvLength $.Twt $.User }})</small>{{ end }}</a></li>
+        <li><a class="convBtn" href="{{ urlForConv $.Twt }}"><i class="icss-comment"></i> {{tr $.Ctx "TwtConversationLinkTitle"}}{{ if gt (getConvLength $.Twt $.User) 1 }}<span class="badge">{{ getConvLength $.Twt $.User }}</span>{{ end }}</a></li>
         {{ end }}
       {{ end }}
     </ul>
