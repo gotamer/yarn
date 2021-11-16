@@ -298,6 +298,7 @@ func (s *Settings) Save(path string) error {
 	if err != nil {
 		return err
 	}
+	defer f.Close()
 
 	data, err := yaml.MarshalWithOptions(s, yaml.Indent(4))
 	if err != nil {

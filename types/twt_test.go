@@ -21,6 +21,7 @@ func BenchmarkAll(b *testing.B) {
 		fmt.Println(err)
 		b.FailNow()
 	}
+	defer f.Close()
 
 	wr := nilWriter{}
 	twter := types.Twter{Nick: "prologic", URL: "https://twtxt.net/user/prologic/twtxt.txt"}
@@ -58,6 +59,7 @@ func BenchmarkParse(b *testing.B) {
 		fmt.Println(err)
 		b.FailNow()
 	}
+	defer f.Close()
 
 	twter := types.Twter{Nick: "prologic", URL: "https://twtxt.net/user/prologic/twtxt.txt"}
 
@@ -88,6 +90,7 @@ func BenchmarkOutput(b *testing.B) {
 		fmt.Println(err)
 		b.FailNow()
 	}
+	defer f.Close()
 
 	wr := nilWriter{}
 	twter := types.Twter{Nick: "prologic", URL: "https://twtxt.net/user/prologic/twtxt.txt"}

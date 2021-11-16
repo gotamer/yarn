@@ -184,7 +184,6 @@ func (cache *Cache) Store(conf *Config) error {
 		log.WithError(err).Error("error opening cache file for writing")
 		return err
 	}
-
 	defer f.Close()
 
 	if _, err = f.Write(b.Bytes()); err != nil {
