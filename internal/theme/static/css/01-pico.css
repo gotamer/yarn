@@ -73,7 +73,7 @@
      --contrast-focus:    rgba(89, 107, 120, 0.25);
      --contrast-border:   rgba(255, 223, 128, 0.33);
      --contrast-inverse:  #10181e;
-     --input-background:  #10181e;
+     --input-background:  #181818;
      --input-border:      #374956;
      --valid:             #1f7a5c;
      --invalid:           #943838;
@@ -117,7 +117,7 @@
    --contrast-focus:    rgba(89, 107, 120, 0.25);
    --contrast-border:   rgba(255, 223, 128, 0.33);
    --contrast-inverse:  #10181e;
-   --input-background:  #10181e;
+   --input-background:  #181818;
    --input-border:      #374956;
    --valid:             #1f7a5c;
    --invalid:           #943838;
