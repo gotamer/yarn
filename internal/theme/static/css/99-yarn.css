@@ -479,7 +479,7 @@ footer .footer-menu a:last-child::after{
     display: inline;
   }
   .u-author.h-card{
-    margin-bottom: 20px;
+    margin-bottom: 10px;
   }
   .u-author.h-card>div{
     flex: 20%;
