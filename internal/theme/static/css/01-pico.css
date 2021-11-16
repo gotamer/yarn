@@ -86,7 +86,7 @@
      --card-sections:     #141d24;
      --card-shadow:       0 0.125rem 1rem rgba(0, 0, 0, 0.08), 0 0.125rem 2rem rgba(0, 0, 0, 0.04), 0 0 0 0.0625rem rgba(0, 0, 0, 0.1);
      --code-background:   #2f2f2f;
-     --code-inlined:      rgba(65, 84, 98, 0.25);
+     --code-inlined:      #050505;
      --code-color-1:      #73828c;
      --code-color-2:      #a65980;
      --code-color-3:      #599fa6;
@@ -130,7 +130,7 @@
    --card-sections:     #141d24;
    --card-shadow:       0 0.125rem 1rem rgba(0, 0, 0, 0.08), 0 0.125rem 2rem rgba(0, 0, 0, 0.04), 0 0 0 0.0625rem rgba(0, 0, 0, 0.1);
    --code-background:   #2f2f2f;
-   --code-inlined:      rgba(65, 84, 98, 0.25);
+   --code-inlined:      #050505;
    --code-color-1:      #73828c;
    --code-color-2:      #a65980;
    --code-color-3:      #599fa6;
