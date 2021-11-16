@@ -347,13 +347,16 @@ article .p-summary a small, small.twt-context {
   font-weight: 100;
   color: var(--muted-text);
 }
+
 small.twt-context {
   display: block;
   font-size: small;
   padding-top: 0.25rem;
+  padding: 0.25rem 0;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+  border-bottom: 1px dashed var(--muted-border);
 }
 
 /* Twt Nav */
