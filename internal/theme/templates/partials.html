@@ -132,7 +132,23 @@
   <div class="p-summary">
     {{ if and (not (eq $.view "conv")) (isFeatureEnabled "show_twt_context") }}
       {{ with urlForRootConv $.Twt }}
-        <a href="{{ urlForRootConv $.Twt }}"><small class="twt-context">{{ formatTwtContext $.Twt $.User }}</small></a>
+        {{ $rootTwt := getRootTwt $.Twt $.User }}
+        <a href="{{ urlForRootConv $.Twt }}#{{ $rootTwt.Hash }}">
+          <small class="twt-context">
+            &rdsh;
+            {{ if $.User.Is $rootTwt.Twter.URL }}
+              {{tr $.Ctx "MeLinkTitle"}}
+            {{ else }}
+              {{ if isLocalURL $rootTwt.Twter.URL }}
+                {{ $rootTwt.Twter.Nick }}
+              {{ else }}
+                {{ $rootTwt.Twter.Nick }}@{{ $rootTwt.Twter.URL | hostnameFromURL }}
+              {{ end }}
+            {{ end }}
+            &gt;&nbsp;
+            {{ formatTwtContext $.Twt $.User }}
+          </small>
+        </a>
       {{ end }}
     {{ end }}
     {{ formatTwt $.Twt $.User }}

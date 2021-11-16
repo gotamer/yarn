@@ -1677,19 +1677,125 @@ func FormatTwtContextFactory(conf *Config, cache *Cache, archive Archiver) func(
 			return template.HTML("")
 		}
 
-		who := rootTwt.Twter().DomainNick()
-		what := rootTwt.FormatText(types.TextFmt, conf)
+		renderHookProcessURLs := func(w io.Writer, node ast.Node, entering bool) (ast.WalkStatus, bool) {
+			// Ensure only whitelisted ![](url) images
+			image, ok := node.(*ast.Image)
+			if ok && entering {
+				u, err := url.Parse(string(image.Destination))
+				if err != nil {
+					log.WithError(err).Warn("TwtFactory: error parsing url")
+					return ast.GoToNext, false
+				}
 
+				src := u.String()
+				html := fmt.Sprintf(
+					`<a href="%s" alt="%s" target="_blank"><i class="icss-image"></i></a>`,
+					src, image.Title,
+				)
+
+				_, _ = io.WriteString(w, html)
+
+				return ast.SkipChildren, true
+			}
+
+			span, ok := node.(*ast.HTMLSpan)
+			if !ok {
+				return ast.GoToNext, false
+			}
+
+			leaf := span.Leaf
+			doc, err := goquery.NewDocumentFromReader(bytes.NewReader(leaf.Literal))
+			if err != nil {
+				log.WithError(err).Warn("error parsing HTMLSpan")
+				return ast.GoToNext, false
+			}
+
+			// Ensure only whitelisted img src=(s) and fix non-secure links
+			img := doc.Find("img")
+			if img.Length() > 0 {
+				src, ok := img.Attr("src")
+				if !ok {
+					return ast.GoToNext, false
+				}
+
+				alt, _ := img.Attr("alt")
+
+				u, err := url.Parse(src)
+				if err != nil {
+					log.WithError(err).Warn("error parsing URL")
+					return ast.GoToNext, false
+				}
+
+				html := fmt.Sprintf(
+					`<a href="%s" alt="%s" target="_blank"><i class="icss-image"></i></a>`,
+					u, alt,
+				)
+
+				_, _ = io.WriteString(w, html)
+
+				return ast.GoToNext, true
+			}
+
+			// Let it go! Lget it go!
+			return ast.GoToNext, false
+		}
+
+		extensions := parser.NoExtensions
+		mdParser := parser.NewWithExtensions(extensions)
+		htmlFlags := html.FlagsNone
+
+		openLinksIn := conf.OpenLinksInPreference
+		if u != nil {
+			openLinksIn = u.OpenLinksInPreference
+		}
+
+		if strings.ToLower(openLinksIn) == "newwindow" {
+			htmlFlags = htmlFlags | html.HrefTargetBlank
+		}
+
+		opts := html.RendererOptions{
+			Flags:          htmlFlags,
+			Generator:      "",
+			RenderNodeHook: renderHookProcessURLs,
+		}
+
+		renderer := html.NewRenderer(opts)
+
+		markdownInput := rootTwt.FormatText(types.MarkdownFmt, conf)
 		if conf.Features.IsEnabled(FeatureStripConvSubjectHashes) {
-			if subject, _ := GetTwtConvSubjectHash(cache, archive, rootTwt); subject != "" {
-				what = strings.ReplaceAll(what, subject, "")
-				what = strings.TrimSpace(what)
+			if subject, _ := GetTwtConvSubjectHash(cache, archive, twt); subject != "" {
+				markdownInput = strings.ReplaceAll(markdownInput, subject, "")
+				markdownInput = strings.TrimSpace(markdownInput)
 			}
 		}
 
-		text := fmt.Sprintf("%s > %s", who, TextWithEllipsis(what, maxTwtContextLength))
+		md := []byte(markdownInput)
+		maybeUnsafeHTML := markdown.ToHTML(md, mdParser, renderer)
 
-		return template.HTML(text)
+		p := bluemonday.UGCPolicy()
+		p.AllowAttrs("id", "controls").OnElements("audio")
+		p.AllowAttrs("id", "controls", "playsinline", "preload", "poster").OnElements("video")
+		p.AllowAttrs("src", "type").OnElements("source")
+		p.AllowAttrs("target").OnElements("a")
+		p.AllowAttrs("class").OnElements("i")
+		p.AllowAttrs("alt", "loading").OnElements("a", "img")
+		p.AllowAttrs("style").OnElements("a", "code", "img", "p", "pre", "span")
+		html := p.SanitizeBytes(maybeUnsafeHTML)
+
+		doc, err := goquery.NewDocumentFromReader(bytes.NewReader(html))
+		if err != nil {
+			log.WithError(err).Warn("error parsing twt context html")
+			return template.HTML("")
+		}
+
+		firstParagraph, err := doc.Find("p").First().Html()
+		if err != nil {
+			log.WithError(err).Warn("error finding first paragraph for twt context")
+			return template.HTML("")
+
+		}
+
+		return template.HTML(firstParagraph)
 	}
 }
 
