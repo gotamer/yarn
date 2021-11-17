@@ -130,12 +130,12 @@ func (s *Server) UploadMediaHandler() httprouter.Handle {
 			uri.Path = URLForTask(s.config.BaseURL, uuid)
 		}
 
-		if s.config.DisableFfmpeg {
-			http.Error(w, "FFMpeg support disabled", http.StatusNotFound)
-			return
-		}
-
 		if strings.HasPrefix(ctype, "audio/") {
+			if s.config.DisableFfmpeg {
+				http.Error(w, "FFMpeg support disabled", http.StatusNotFound)
+				return
+			}
+
 			fn, err := ReceiveAudio(mfile)
 			if err != nil {
 				log.WithError(err).Error("error writing uploaded audio")
@@ -154,6 +154,10 @@ func (s *Server) UploadMediaHandler() httprouter.Handle {
 		}
 
 		if strings.HasPrefix(ctype, "video/") {
+			if s.config.DisableFfmpeg {
+				http.Error(w, "FFMpeg support disabled", http.StatusNotFound)
+				return
+			}
 			fn, err := ReceiveVideo(mfile)
 			if err != nil {
 				log.WithError(err).Error("error writing uploaded video")

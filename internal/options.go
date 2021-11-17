@@ -201,6 +201,7 @@ func NewConfig() *Config {
 		DisableGzip:            DefaultDisableGzip,
 		DisableLogger:          DefaultDisableLogger,
 		DisableFfmpeg:          DefaultDisableFfmpeg,
+		DisableMedia:           DefaultDisableMedia,
 		Features:               NewFeatureFlags(),
 		DisplayDatesInTimezone: DefaultDisplayDatesInTimezone,
 		DisplayTimePreference:  DefaultDisplayTimePreference,
