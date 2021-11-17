@@ -31,7 +31,7 @@ article:target {
   width: 60px;
   height: 60px;
   object-fit: cover;
-  border: 3px solid var(--h1);
+  border: 2px solid var(--h1);
   border-radius: 50%;
   -webkit-border-radius: 60px;;
   -moz-border-radius: 60px;
