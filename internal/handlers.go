@@ -302,7 +302,7 @@ func (s *Server) AvatarHandler() httprouter.Handle {
 
 // PostHandler ...
 func (s *Server) PostHandler() httprouter.Handle {
-	isLocalURL := IsLocalURLFactory(s.config)
+	//isLocalURL := IsLocalURLFactory(s.config)
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		ctx := NewContext(s, r)
 
@@ -377,16 +377,16 @@ func (s *Server) PostHandler() httprouter.Handle {
 		}
 
 		var sources types.Feeds
-		var twt types.Twt = types.NilTwt
+		//var twt types.Twt = types.NilTwt
 
 		switch postas {
 		case "", user.Username:
 			sources = user.Source()
 
 			if hash != "" && lastTwt.Hash() == hash {
-				twt, err = AppendTwt(s.config, s.db, user, text, lastTwt.Created())
+				_, err = AppendTwt(s.config, s.db, user, text, lastTwt.Created())
 			} else {
-				twt, err = AppendTwt(s.config, s.db, user, text)
+				_, err = AppendTwt(s.config, s.db, user, text)
 			}
 		default:
 			if user.OwnsFeed(postas) {
@@ -401,9 +401,9 @@ func (s *Server) PostHandler() httprouter.Handle {
 				}
 
 				if hash != "" && lastTwt.Hash() == hash {
-					twt, err = AppendSpecial(s.config, s.db, postas, text, lastTwt.Created)
+					_, err = AppendSpecial(s.config, s.db, postas, text, lastTwt.Created)
 				} else {
-					twt, err = AppendSpecial(s.config, s.db, postas, text)
+					_, err = AppendSpecial(s.config, s.db, postas, text)
 				}
 			} else {
 				err = ErrFeedImposter
@@ -426,19 +426,24 @@ func (s *Server) PostHandler() httprouter.Handle {
 
 		// WebMentions ...
 		// TODO: Use a queue here instead?
-		if _, err := s.tasks.Dispatch(NewFuncTask(func() error {
-			for _, m := range twt.Mentions() {
-				twter := m.Twter()
-				if !isLocalURL(twter.URL) {
-					if err := WebMention(twter.URL, URLForTwt(s.config.BaseURL, twt.Hash())); err != nil {
-						log.WithError(err).Warnf("error sending webmention to %s", twter.URL)
+		// TODO: Fix Webmentions
+		// TODO: https://git.mills.io/yarnsocial/yarn/issues/438
+		// TODO: https://git.mills.io/yarnsocial/yarn/issues/515
+		/*
+			if _, err := s.tasks.Dispatch(NewFuncTask(func() error {
+				for _, m := range twt.Mentions() {
+					twter := m.Twter()
+					if !isLocalURL(twter.URL) {
+						if err := WebMention(twter.URL, URLForTwt(s.config.BaseURL, twt.Hash())); err != nil {
+							log.WithError(err).Warnf("error sending webmention to %s", twter.URL)
+						}
 					}
 				}
+				return nil
+			})); err != nil {
+				log.WithError(err).Warn("error submitting task for webmentions")
 			}
-			return nil
-		})); err != nil {
-			log.WithError(err).Warn("error submitting task for webmentions")
-		}
+		*/
 
 		http.Redirect(w, r, RedirectRefererURL(r, s.config, "/"), http.StatusFound)
 	}
