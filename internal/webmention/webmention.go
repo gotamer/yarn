@@ -147,13 +147,15 @@ func (wm *WebMention) processOutbox() {
 	values := make(url.Values)
 	values.Set("source", mention.source.String())
 	values.Set("target", mention.target.String())
-	if res, err := http.PostForm(endpoint.String(), values); err != nil || (res.StatusCode%100 != 2) {
+	res, err := http.PostForm(endpoint.String(), values)
+	if err != nil || (res.StatusCode%100 != 2) {
 		log.WithError(err).Errorf(
 			"error sending webmention source=%s target=%s status=%s",
 			mention.source.String(), mention.target.String(), res.Status,
 		)
 		return
 	}
+	defer res.Body.Close()
 	log.Infof(
 		"successfully sent webmention to %s (source=%s target=%s)",
 		endpoint.String(), mention.source.String(), mention.target.String(),
