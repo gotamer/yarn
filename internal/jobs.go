@@ -30,19 +30,13 @@ var (
 
 func InitJobs(conf *Config) {
 	Jobs = map[string]JobSpec{
-		// Continious Jobs
 		"SyncStore":         NewJobSpec("@every 1m", NewSyncStoreJob),
 		"UpdateFeeds":       NewJobSpec(conf.FetchInterval, NewUpdateFeedsJob),
 		"UpdateFeedSources": NewJobSpec("@every 15m", NewUpdateFeedSourcesJob),
 
-		// Hourly Jobs
 		"DeleteOldSessions": NewJobSpec("@hourly", NewDeleteOldSessionsJob),
 
-		// Daily Jobs
-		"Stats":      NewJobSpec("0 0 0 * * *", NewStatsJob),
-		"MergeStore": NewJobSpec("0 0 1 * * *", NewMergeStoreJob),
-
-		// Weekly Jobs
+		"Stats":       NewJobSpec("@daily", NewStatsJob),
 		"RotateFeeds": NewJobSpec("0 0 2 * * 0", NewRotateFeedsJob),
 		"PruneUsers":  NewJobSpec("0 0 3 * * 0", NewPruneUsersJob),
 
@@ -62,28 +56,6 @@ func InitJobs(conf *Config) {
 }
 
 type JobFactory func(conf *Config, cache *Cache, archive Archiver, store Store) cron.Job
-
-type MergeStoreJob struct {
-	conf    *Config
-	cache   *Cache
-	archive Archiver
-	db      Store
-}
-
-func NewMergeStoreJob(conf *Config, cache *Cache, archive Archiver, db Store) cron.Job {
-	return &MergeStoreJob{conf: conf, cache: cache, archive: archive, db: db}
-}
-
-func (job *MergeStoreJob) Run() {
-	log.Info("merging store...")
-
-	// Merge store
-	if err := job.db.Merge(); err != nil {
-		log.WithError(err).Error("error merging store")
-	}
-
-	log.Info("merged store")
-}
 
 type SyncStoreJob struct {
 	conf    *Config
