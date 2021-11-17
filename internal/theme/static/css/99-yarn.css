@@ -255,9 +255,10 @@ video {
 
 .p-name {
   left: 0px !important;
-  font-size: 34px;
-  color: #00bfff;
+  font-size: 25px;
+  color: var(--primary);
 }
+
 .p-org {
   left: 0px !important;
   font-size: 26px;
