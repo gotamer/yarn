@@ -53,7 +53,7 @@
  @media only screen and (prefers-color-scheme: dark) {
    :root:not([data-theme="light"]) {
      --background:        #000000;
-     --text:              #a2afb9;
+     --text:              #ffffff;
      --h1:                #edf0f3;
      --h2:                #d5dce2;
      --h3:                #bbc6ce;
@@ -97,7 +97,7 @@
 
  [data-theme="dark"] {
    --background:        #000000;
-   --text:              #a2afb9;
+   --text:              #ffffff;
    --h1:                #edf0f3;
    --h2:                #d5dce2;
    --h3:                #bbc6ce;
