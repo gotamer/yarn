@@ -275,6 +275,7 @@ video {
 .publish-time {
   display: flex;
   flex-direction: row;
+  font-size: 80%;
 }
 [data-tooltip]:not(a):not(button):not(input){
   border-bottom: none;
