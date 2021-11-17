@@ -13,17 +13,14 @@
           </a><span class="p-org">@{{ .Profile.URL | hostnameFromURL }}</span>
         </h2>
         <h3>
-          {{ if .Profile.Follows }}
-            <a href="/unfollow?nick={{ .Profile.Username  }}">
-            <i class="icss-minus"></i>
-            {{ tr . "UnfollowLinkTitle" }}
-            </a>
-          {{ else }}
-            <a href="/follow?nick={{ .Profile.Username  }}&url={{ .Profile.URL }}">
+          <a id="followBtn" style="display: {{ if not .Profile.Follows }}inline{{ else }}none{{ end }};" href="/follow?nick={{ .Profile.Username  }}&url={{ .Profile.URL }}">
             <i class="icss-plus"></i>
             {{ tr . "FollowLinkTitle" }}
-            </a>
-          {{ end }}
+          </a>
+          <a id="unfollowBtn" style="display: {{ if $.Profile.Follows }}inline{{ else }}none{{ end }};" href="/unfollow?nick={{ .Profile.Username  }}">
+            <i class="icss-minus"></i>
+            {{ tr . "UnfollowLinkTitle" }}
+          </a>
         </h3>
         <p><i>{{ .Profile.Tagline }}</i></p>
         <details>
@@ -31,17 +28,14 @@
           {{ (tr . "ProfileBlockUserContent" (dict "InstanceName" .InstanceName)) | html }}
           <ul>
             <li>
-              {{ if $.Profile.Muted }}
-                <a href="/unmute?nick={{ .Profile.Username }}">
-                  <i class="icss-sound-3"></i>
-                  {{ tr . "ProfileUnmuteLinkTitle" }}
-                </a>
-              {{ else }}
-                <a href="/mute?nick={{ .Profile.Username }}&url={{ .Profile.URL }}">
-                  <i class="icss-sound-0"></i>
-                  {{ tr . "ProfileMuteLinkTitle" }}
-                </a>
-              {{ end }}
+              <a id="muteBtn" style="display: {{ if not $.Profile.Muted }}inline{{ else }}none{{ end }};" href="/mute?nick={{ .Profile.Username }}&url={{ .Profile.URL }}">
+                <i class="icss-sound-0"></i>
+                {{ tr . "ProfileMuteLinkTitle" }}
+              </a>
+              <a id="unmuteBtn" style="display: {{ if .Profile.Muted }}inline{{ else }}none{{ end }};" href="/unmute?nick={{ .Profile.Username }}">
+                <i class="icss-sound-3"></i>
+                {{ tr . "ProfileUnmuteLinkTitle" }}
+              </a>
             </li>
             <li>
               <a href="/report?nick={{ .Profile.Username  }}&url={{ .Profile.URL }}">
