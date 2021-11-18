@@ -164,14 +164,17 @@
           <li><a class="deleteBtn" href="#" data-hash="{{ $.Twt.Hash }}"><i class="icss-x"></i> {{tr $.Ctx "TwtDeleteLinkTitle"}}</a></li>
         {{ end }}
         <li><a class="replyBtn" href="#" data-reply="{{ $.User.Reply $.Twt }}"><i class="icss-arrow-left"></i> {{tr $.Ctx "TwtReplyLinkTitle"}}</a></li>
-        {{ if and (eq $.view "conv") (not (eq $.view "rootconv")) }}
-          {{ if gt (getForkLength $.Twt $.User) 0 }}
-            <li><a class="convBtn" href="{{ urlForFork $.Twt }}"><i class="icss-arrows"></i> {{tr $.Ctx "TwtForkLinkTitle"}}<span class="yarn-count-badge">{{ getForkLength $.Twt $.User }}</span></a></li>
-          {{ else }}
+        {{ if lt (getForkLength $.Twt $.User) 1 }}
           <li><a class="forkBtn" href="#" data-fork="{{ $.User.Fork $.Twt }}"><i class="icss-arrows"></i> {{tr $.Ctx "TwtForkLinkTitle"}}</a></li>
-          {{ end }}
         {{ end }}
       {{ end }}
+
+      {{ if and (eq $.view "conv") (not (eq $.view "rootconv")) }}
+        {{ if gt (getForkLength $.Twt $.User) 0 }}
+          <li><a class="convBtn" href="{{ urlForFork $.Twt }}"><i class="icss-arrows"></i> {{tr $.Ctx "TwtForkLinkTitle"}}<span class="yarn-count-badge">{{ getForkLength $.Twt $.User }}</span></a></li>
+        {{ end }}
+      {{ end }}
+
       {{ if eq $.view "rootconv" }}
         {{ with urlForRootConv $.Twt }}
           <li><a class="convBtn" href="{{ urlForRootConv $.Twt }}"><i class="icss-comment"></i> {{tr $.Ctx "TwtRootLinkTitle"}}</a></li>
