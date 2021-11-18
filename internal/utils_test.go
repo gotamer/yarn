@@ -2,9 +2,14 @@ package internal
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 	"testing"
+	"time"
 
+	"git.mills.io/yarnsocial/yarn/types"
+	"git.mills.io/yarnsocial/yarn/types/lextwt"
+	"github.com/matryer/is"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -116,5 +121,29 @@ func TestIsLocalURL(t *testing.T) {
 		actual := strings.HasPrefix(NormalizeURL(testCase.url), NormalizeURL(testCase.baseURL))
 		assert.Equal(t, testCase.expected, actual)
 	}
+}
 
+func TestFormatTwtFactory(t *testing.T) {
+	is := is.New(t)
+
+	cfg := NewConfig()
+	cfg.baseURL = &url.URL{Host: "example.com"}
+	factory := FormatTwtFactory(cfg, NewCache(cfg), &NullArchiver{})
+	twter := types.Twter{
+		Nick: "test",
+		URL:  "https://example.com/twtxt.txt",
+	}
+	txt := factory(lextwt.NewTwt(twter,
+		lextwt.NewDateTime(parseTime("2021-01-24T02:19:54Z"), "2021-01-24T02:19:54Z"),
+		lextwt.NewMedia("This is Image", "https://example.com/hot.png", ""),
+	), NewUser())
+
+	is.Equal(string(txt), `<p><img title="This is Image" src="//example.com/hot.png" loading="lazy"></p>`+"\n")
+}
+
+func parseTime(s string) time.Time {
+	if dt, err := time.Parse(time.RFC3339, s); err == nil {
+		return dt
+	}
+	return time.Time{}
 }

@@ -479,10 +479,7 @@ type twtTestCase struct {
 }
 
 func TestParseTwt(t *testing.T) {
-	is := is.New(t)
-
 	twter := types.Twter{Nick: "example", URL: "http://example.com/example.txt"}
-
 	tests := []twtTestCase{
 		{
 			lit: "2016-02-03T23:03:00+00:00	@<example http://example.org/twtxt.txt>\u2028welcome to twtxt!\n",
@@ -494,8 +491,7 @@ func TestParseTwt(t *testing.T) {
 				lextwt.NewDateTime(parseTime("2016-02-03T23:03:00+00:00"), "2016-02-03T23:03:00+00:00"),
 				lextwt.NewMention("example", "http://example.org/twtxt.txt"),
 				lextwt.LineSeparator,
-				lextwt.NewText("welcome to twtxt"),
-				lextwt.NewText("!"),
+				lextwt.NewText("welcome to twtxt!"),
 			),
 		},
 
@@ -543,8 +539,7 @@ func TestParseTwt(t *testing.T) {
 				lextwt.NewText(" Web Key Directory: a way to self host your public key. instead of using a central system like pgp.mit.net or OpenPGP.org you have your key on a server you own. "),
 				lextwt.LineSeparator,
 				lextwt.LineSeparator,
-				lextwt.NewText("it takes an email@address.com hashes the part before the "),
-				lextwt.NewText("@ and turns it into "),
+				lextwt.NewText("it takes an email@address.com hashes the part before the @ and turns it into "),
 				lextwt.NewCode("[openpgpkey.]address.com/.well-known/openpgpkey[/address.com]/<hash>", lextwt.CodeInline),
 			),
 		},
@@ -555,8 +550,7 @@ func TestParseTwt(t *testing.T) {
 				twter,
 				lextwt.NewDateTime(parseTime("2020-07-20T06:59:52Z"), "2020-07-20T06:59:52Z"),
 				lextwt.NewMention("hjertnes", "https://hjertnes.social/twtxt.txt"),
-				lextwt.NewText(" Is it okay to have two personas :"),
-				lextwt.NewText(") I have "),
+				lextwt.NewText(" Is it okay to have two personas :) I have "),
 				lextwt.NewLink("", "https://twtxt.net/u/prologic", lextwt.LinkNaked),
 				lextwt.NewText(" and "),
 				lextwt.NewLink("", "https://prologic.github.io/twtxt.txt", lextwt.LinkNaked),
@@ -575,9 +569,7 @@ func TestParseTwt(t *testing.T) {
 				lextwt.NewLink("", "https://twtxt.net/media/L6g5PMqA2JXX7ra5PWiMsM", lextwt.LinkMedia),
 				lextwt.LineSeparator,
 				lextwt.LineSeparator,
-				lextwt.NewText("> Guy says to his colleague “just don’t fall in"),
-				lextwt.NewText("!” She replies “yeah good advice"),
-				lextwt.NewText("!”"),
+				lextwt.NewText("> Guy says to his colleague “just don’t fall in!” She replies “yeah good advice!”"),
 				lextwt.LineSeparator,
 				lextwt.LineSeparator,
 				lextwt.NewText("🤣"),
@@ -596,11 +588,9 @@ func TestParseTwt(t *testing.T) {
 				lextwt.NewSubjectTag("ezmdswq", ""),
 				lextwt.NewText(" "),
 				lextwt.NewMention("lyse", "https://lyse.isobeef.org/twtxt.txt"),
-				lextwt.NewText(" "),
-				lextwt.NewText("("),
+				lextwt.NewText(" ("),
 				lextwt.NewTag("ezmdswq", ""),
-				lextwt.NewText(") Looks good for me"),
-				lextwt.NewText("!  "),
+				lextwt.NewText(") Looks good for me!  "),
 				lextwt.NewLink("", "https://txt.sour.is/media/353DzAXLDCv43GofSMw6SL", lextwt.LinkMedia),
 			),
 		},
@@ -713,50 +703,54 @@ func TestParseTwt(t *testing.T) {
 				lextwt.NewMention("prologic", "https://twtxt.net/user/prologic/twtxt.txt"),
 				lextwt.NewText(" "),
 				lextwt.NewMention("fastidious", "https://arrakis.netbros.com/user/fastidious/twtxt.txt"),
-				lextwt.NewText(" Thanks guys"),
-				lextwt.NewText("! :-("),
-				lextwt.NewText("). "),
-				lextwt.NewText("("),
-				lextwt.NewText("as to be expected"),
-				lextwt.NewText("). "),
-				lextwt.NewText("("),
+				lextwt.NewText(" Thanks guys! :-(). (as to be expected). ("),
 				lextwt.NewMention("movq", "https://www.uninformativ.de/twtxt.txt"),
-				lextwt.NewText(" told me so ;-"),
-				lextwt.NewText(")"),
-				lextwt.NewText(")"),
+				lextwt.NewText(" told me so ;-))"),
+			),
+		},
+
+		{
+			lit: `2021-11-05T22:00:00+01:00	![alt](https://example.com/image.png "a title")`,
+			twt: lextwt.NewTwt(
+				twter,
+				lextwt.NewDateTime(parseTime("2021-11-05T22:00:00+01:00"), "2021-11-05T22:00:00+01:00"),
+				lextwt.NewMedia("alt", "https://example.com/image.png", "a title"),
 			),
 		},
 	}
 	fmtOpts := mockFmtOpts{"http://example.org"}
 	for i, tt := range tests {
-		t.Logf("TestParseTwt %d\n%v", i, tt.twt)
+		t.Run(fmt.Sprintf("TestParseTwt %d", i), func(t *testing.T) {
+			is := is.New(t)
+			t.Log("\n", tt.twt)
 
-		r := strings.NewReader(tt.lit)
-		lexer := lextwt.NewLexer(r)
-		parser := lextwt.NewParser(lexer)
-		parser.SetTwter(&twter)
-		twt := parser.ParseTwt()
+			r := strings.NewReader(tt.lit)
+			lexer := lextwt.NewLexer(r)
+			parser := lextwt.NewParser(lexer)
+			parser.SetTwter(&twter)
+			twt := parser.ParseTwt()
 
-		is.True(twt != nil)
-		if twt != nil {
-			testParseTwt(t, tt.twt, twt)
-		}
-		if tt.text != "" {
-			is.Equal(twt.FormatText(types.TextFmt, fmtOpts), tt.text)
-		}
-		if tt.md != "" {
-			is.Equal(twt.FormatText(types.MarkdownFmt, fmtOpts), tt.md)
-		}
-		if tt.html != "" {
-			is.Equal(twt.FormatText(types.HTMLFmt, fmtOpts), tt.html)
-		}
-		if tt.subject != "" {
-			is.Equal(fmt.Sprintf("%c", twt.Subject()), tt.subject)
-		}
-		if tt.twter != nil {
-			is.Equal(twt.Twter().Nick, tt.twter.Nick)
-			is.Equal(twt.Twter().URL, tt.twter.URL)
-		}
+			is.True(twt != nil)
+			if twt != nil {
+				testParseTwt(t, tt.twt, twt)
+			}
+			if tt.text != "" {
+				is.Equal(twt.FormatText(types.TextFmt, fmtOpts), tt.text)
+			}
+			if tt.md != "" {
+				is.Equal(twt.FormatText(types.MarkdownFmt, fmtOpts), tt.md)
+			}
+			if tt.html != "" {
+				is.Equal(twt.FormatText(types.HTMLFmt, fmtOpts), tt.html)
+			}
+			if tt.subject != "" {
+				is.Equal(fmt.Sprintf("%c", twt.Subject()), tt.subject)
+			}
+			if tt.twter != nil {
+				is.Equal(twt.Twter().Nick, tt.twter.Nick)
+				is.Equal(twt.Twter().URL, tt.twter.URL)
+			}
+		})
 	}
 }
 

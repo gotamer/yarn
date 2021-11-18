@@ -34,6 +34,7 @@ import (
 	"git.mills.io/prologic/go-gopher"
 	"git.mills.io/yarnsocial/yarn"
 	"git.mills.io/yarnsocial/yarn/types"
+	"git.mills.io/yarnsocial/yarn/types/lextwt"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/audiolion/ipip"
 	"github.com/disintegration/gift"
@@ -1486,7 +1487,7 @@ func RenderVideo(conf *Config, uri string) string {
 }
 
 // PreprocessMedia ...
-func PreprocessMedia(conf *Config, u *url.URL, alt string) string {
+func PreprocessMedia(conf *Config, u *url.URL, title string) string {
 	var html string
 
 	// Normalize the domain name
@@ -1510,13 +1511,13 @@ func PreprocessMedia(conf *Config, u *url.URL, alt string) string {
 			html = RenderAudio(conf, u.String())
 		default:
 			src := u.String()
-			html = fmt.Sprintf(`<img alt="%s" src="%s" loading=lazy>`, alt, src)
+			html = fmt.Sprintf(`<img title="%s" src="%s" loading=lazy>`, title, src)
 		}
 	} else {
 		src := u.String()
 		html = fmt.Sprintf(
-			`<a href="%s" alt="%s" target="_blank"><i class="icss-image"></i></a>`,
-			src, alt,
+			`<a href="%s" title="%s" target="_blank"><i class="icss-image"></i></a>`,
+			src, title,
 		)
 	}
 
@@ -1630,6 +1631,13 @@ func FormatTwtFactory(conf *Config, cache *Cache, archive Archiver) func(twt typ
 		}
 
 		renderer := html.NewRenderer(opts)
+
+		// copy alt to title if present.
+		for _, m := range twt.Links() {
+			if link, ok := m.(*lextwt.Link); ok {
+				link.TextToTitle()
+			}
+		}
 
 		markdownInput := twt.FormatText(types.MarkdownFmt, conf)
 		if conf.Features.IsEnabled(FeatureStripConvSubjectHashes) {

@@ -681,6 +681,8 @@ func (p *parser) ParseLineSeparator() Elem {
 //	 <scheme://example.com>
 //   [a link](scheme://example.com)
 //   ![a image](scheme://example.com/img.png)
+//   ![a image](scheme://example.com/img.png "a title")
+//   ![a image](scheme://example.com/img.png 'a title')
 //
 func (p *parser) ParseLink() *Link {
 	link := &Link{linkType: LinkStandard}
@@ -806,6 +808,38 @@ func (p *parser) ParseLink() *Link {
 		}
 
 		link.target = l.target
+
+		if p.curTokenIs(TokSPACE) {
+			p.push()
+
+			p.append(p.curTok.Literal...) // SPACE
+			p.next()
+
+			if p.curTokenIs(TokSQUOTE, TokDQUOTE) {
+				end := p.curTok.Type
+
+				p.append(p.curTok.Literal...) // ' or "
+				p.next()
+
+				p.push()
+				for !p.curTokenIs(end, TokRBRACK, TokLBRACK, TokRPAREN, TokLPAREN, TokEOF) {
+					p.append(p.curTok.Literal...) // text
+					p.next()
+
+					// Allow excaped chars to not close.
+					if p.curTokenIs(TokBSLASH) {
+						p.append(p.curTok.Literal...) // text
+						p.next()
+					}
+				}
+				link.title = p.Literal()
+				p.pop()
+
+				p.append(p.curTok.Literal...) // ' or " (matching above)
+				p.next()
+			}
+			p.pop()
+		}
 
 		if !p.curTokenIs(TokRPAREN) {
 			return nil

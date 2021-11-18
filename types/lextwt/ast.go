@@ -508,6 +508,7 @@ type Link struct {
 	linkType LinkType
 	text     string
 	target   string
+	title    string
 }
 
 var _ Elem = (*Link)(nil)
@@ -521,13 +522,24 @@ const (
 	LinkNaked
 )
 
-func NewLink(text, target string, linkType LinkType) *Link { return &Link{linkType, text, target} }
+func NewLink(text, target string, linkType LinkType) *Link {
+	return &Link{linkType, text, target, text}
+}
+func NewMedia(alt, target, title string) *Link {
+	return &Link{LinkMedia, alt, target, title}
+}
+
 func (n *Link) Clone() Elem {
 	if n == nil {
 		return nil
 	}
 	return &Link{
-		n.linkType, n.text, n.target,
+		n.linkType, n.text, n.target, n.title,
+	}
+}
+func (n *Link) TextToTitle() {
+	if n.title == "" {
+		n.title = n.text
 	}
 }
 func (n *Link) IsNil() bool { return n == nil }
@@ -538,6 +550,9 @@ func (n *Link) Literal() string {
 	case LinkPlain:
 		return fmt.Sprintf("<%s>", n.target)
 	case LinkMedia:
+		if n.title != "" {
+			return fmt.Sprintf(`![%s](%s "%s")`, n.text, n.target, n.title)
+		}
 		return fmt.Sprintf("![%s](%s)", n.text, n.target)
 	default:
 		return fmt.Sprintf("[%s](%s)", n.text, n.target)
@@ -650,6 +665,14 @@ func ParseText(text string) ([]Elem, error) {
 func (twt *Twt) append(elem Elem) {
 	if elem == nil || elem.IsNil() {
 		return
+	}
+
+	// merge Text into prior Text
+	if current, ok := elem.(*Text); ok && len(twt.msg) > 0 {
+		if last, ok := twt.msg[len(twt.msg)-1].(*Text); ok {
+			last.lit += current.lit
+			return
+		}
 	}
 
 	twt.msg = append(twt.msg, elem)

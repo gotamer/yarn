@@ -51,8 +51,10 @@ package lextwt
 // bang    = "!" ;
 // lb      = "[" ;
 // rb      = "]" ;
+// sq      = "'" ;
+// dq      = "\"" ;
 // LINK    = lb, TEXT, rb, lp, TEXT, rp ;
-// MEDIA   = bang, lb, [ TEXT ], rb, lp, TEXT, rp ;
+// MEDIA   = bang, lb, [ TEXT ], rb, lp, TEXT, [ sq | dq, TEXT, sq | dq ], rp ;
 //
 // TWT     = DATE, tab, [ { MENTION }, [ SUBJECT ] ], { ( Space, MENTION ) | ( Space,  TAG ) | TEXT | LINK | MEDIA | PLINK }, term;
 // ```
@@ -146,6 +148,8 @@ const (
 	TokRBRACK TokType = "]"
 	TokBANG   TokType = "!"
 	TokBSLASH TokType = `\`
+	TokSQUOTE TokType = "'"
+	TokDQUOTE TokType = `"`
 )
 
 // NewLexer tokenizes input for parser.
@@ -272,17 +276,24 @@ func (l *lexer) NextTok() bool {
 		case '\\':
 			l.loadRune(TokBSLASH)
 			return true
+		case '"':
+			l.loadRune(TokDQUOTE)
+			return true
+		case '\'':
+			l.loadRune(TokSQUOTE)
+			return true
 		case '`':
 			l.loadCode()
 			return true
 		case ':':
 			l.loadScheme()
 			return true
+
 		default:
 			if l.loadIdentifier() {
 				return true
 			}
-			l.loadString(" @#!:`<>()[]\u2028\n\t")
+			l.loadString(" @#!:`<>()[]\u2028\n\t'\"")
 			return true
 		}
 
