@@ -818,10 +818,10 @@ func (p *parser) ParseLink() *Link {
 			if p.curTokenIs(TokSQUOTE, TokDQUOTE) {
 				end := p.curTok.Type
 
+				p.push()
 				p.append(p.curTok.Literal...) // ' or "
 				p.next()
 
-				p.push()
 				for !p.curTokenIs(end, TokRBRACK, TokLBRACK, TokRPAREN, TokLPAREN, TokEOF) {
 					p.append(p.curTok.Literal...) // text
 					p.next()
@@ -832,11 +832,13 @@ func (p *parser) ParseLink() *Link {
 						p.next()
 					}
 				}
-				link.title = p.Literal()
-				p.pop()
 
 				p.append(p.curTok.Literal...) // ' or " (matching above)
 				p.next()
+
+				link.title = p.Literal()
+
+				p.pop()
 			}
 			p.pop()
 		}

@@ -714,7 +714,7 @@ func TestParseTwt(t *testing.T) {
 			twt: lextwt.NewTwt(
 				twter,
 				lextwt.NewDateTime(parseTime("2021-11-05T22:00:00+01:00"), "2021-11-05T22:00:00+01:00"),
-				lextwt.NewMedia("alt", "https://example.com/image.png", "a title"),
+				lextwt.NewMedia("alt", "https://example.com/image.png", `"a title"`),
 			),
 		},
 	}

@@ -523,10 +523,20 @@ const (
 )
 
 func NewLink(text, target string, linkType LinkType) *Link {
-	return &Link{linkType, text, target, text}
+	return &Link{
+		linkType: linkType,
+		text:     text,
+		target:   target,
+		title:    "",
+	}
 }
 func NewMedia(alt, target, title string) *Link {
-	return &Link{LinkMedia, alt, target, title}
+	return &Link{
+		linkType: LinkMedia,
+		text:     alt,
+		target:   target,
+		title:    title,
+	}
 }
 
 func (n *Link) Clone() Elem {
@@ -539,7 +549,7 @@ func (n *Link) Clone() Elem {
 }
 func (n *Link) TextToTitle() {
 	if n.title == "" {
-		n.title = n.text
+		n.title = `"` + n.text + `"`
 	}
 }
 func (n *Link) IsNil() bool { return n == nil }
@@ -551,7 +561,7 @@ func (n *Link) Literal() string {
 		return fmt.Sprintf("<%s>", n.target)
 	case LinkMedia:
 		if n.title != "" {
-			return fmt.Sprintf(`![%s](%s "%s")`, n.text, n.target, n.title)
+			return fmt.Sprintf(`![%s](%s %s)`, n.text, n.target, n.title)
 		}
 		return fmt.Sprintf("![%s](%s)", n.text, n.target)
 	default:

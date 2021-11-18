@@ -1633,9 +1633,12 @@ func FormatTwtFactory(conf *Config, cache *Cache, archive Archiver) func(twt typ
 		renderer := html.NewRenderer(opts)
 
 		// copy alt to title if present.
-		for _, m := range twt.Links() {
-			if link, ok := m.(*lextwt.Link); ok {
-				link.TextToTitle()
+		if cp, ok := twt.(*lextwt.Twt); ok {
+			twt = cp.Clone()
+			for _, m := range twt.Links() {
+				if link, ok := m.(*lextwt.Link); ok {
+					link.TextToTitle()
+				}
 			}
 		}
 
