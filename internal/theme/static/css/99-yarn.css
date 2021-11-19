@@ -63,13 +63,23 @@ article:target {
 .nav {
     z-index: 1050;
 }
+
+nav.pagination-nav a {
+    display: block;
+    margin: -1rem -0.5rem -1rem 0rem;
+    padding: 1rem 0rem;
+    border-radius: .25rem;
+}
+
 nav.toolbar-nav ul{
   margin-left: 0px;
   margin-right: 0px;
 }
+
 .toolbar-form-button {
   width: 40px;
 }
+
 .toolbar-form-button label {
 	cursor: pointer
 }
