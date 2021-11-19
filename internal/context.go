@@ -204,6 +204,7 @@ func NewContext(s *Server, req *http.Request) *Context {
 					URL:  URLForUser(conf.BaseURL, user.Username),
 				}
 				ctx.User = user
+				ctx.IsAdmin = strings.EqualFold(username, conf.AdminUser)
 			}
 		}
 	}
