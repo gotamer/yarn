@@ -130,7 +130,7 @@ func NewContext(s *Server, req *http.Request) *Context {
 	logo, err := RenderLogo(conf.Logo, conf.Name)
 	if err != nil {
 		log.WithError(err).Error("error rendering logo")
-		logo = template.HTML("")
+		logo = template.HTML(DefaultLogo)
 	}
 
 	// context
@@ -179,40 +179,33 @@ func NewContext(s *Server, req *http.Request) *Context {
 				URL:   fmt.Sprintf("%s/atom.xml", conf.BaseURL),
 			},
 		},
-	}
 
-	ctx.CSRFToken = nosurf.Token(req)
+		// Assume all users are anonymous (overridden below if Authenticated)
+		User: &User{
+			DisplayDatesInTimezone: conf.DisplayDatesInTimezone,
+			DisplayTimePreference:  conf.DisplayTimePreference,
+			OpenLinksInPreference:  conf.OpenLinksInPreference,
+		},
+		Twter: types.Twter{},
+
+		CSRFToken: nosurf.Token(req),
+	}
 
 	if sess := req.Context().Value(session.SessionKey); sess != nil {
 		if username, ok := sess.(*session.Session).Get("username"); ok {
 			ctx.Authenticated = true
 			ctx.Username = username
+			user, err := db.GetUser(ctx.Username)
+			if err != nil {
+				log.WithError(err).Warnf("error loading user object for %s", ctx.Username)
+			} else {
+				ctx.Twter = types.Twter{
+					Nick: user.Username,
+					URL:  URLForUser(conf.BaseURL, user.Username),
+				}
+				ctx.User = user
+			}
 		}
-	}
-
-	if ctx.Authenticated && ctx.Username != "" {
-		user, err := db.GetUser(ctx.Username)
-		if err != nil {
-			log.WithError(err).Warnf("error loading user object for %s", ctx.Username)
-		}
-
-		ctx.Twter = types.Twter{
-			Nick: user.Username,
-			URL:  URLForUser(conf.BaseURL, user.Username),
-		}
-
-		ctx.User = user
-	} else {
-		ctx.User = &User{
-			DisplayDatesInTimezone: conf.DisplayDatesInTimezone,
-			DisplayTimePreference:  conf.DisplayTimePreference,
-			OpenLinksInPreference:  conf.OpenLinksInPreference,
-		}
-		ctx.Twter = types.Twter{}
-	}
-
-	if ctx.Username == conf.AdminUser {
-		ctx.IsAdmin = true
 	}
 
 	// Set the theme based on user preferences
