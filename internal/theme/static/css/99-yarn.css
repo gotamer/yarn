@@ -20,7 +20,7 @@ article nav li {
 }
 
 article:target {
-    border: 1px solid var(--primary);
+    border: 1px solid var(--input-border);
 }
 
 .logo {
