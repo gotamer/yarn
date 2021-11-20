@@ -6,7 +6,7 @@
 ### {{ .Title }}
 
 {{ range .Commits -}}
-* @{{ .Author.Email | splitList "@" | first }}: {{ .Subject }}
+* {{ .Subject }}
 {{ end }}
 {{ end -}}
 
