@@ -5,6 +5,9 @@ body, html {
 article p img {
   display: block;
   margin-top: 0.5rem;
+  border-radius: 4px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
 }
 
 article hgroup h3 {
