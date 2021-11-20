@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	sync "github.com/sasha-s/go-deadlock"
+	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 )
 
@@ -173,7 +174,8 @@ func (f *FeatureFlags) UnmarshalJSON(b []byte) error {
 
 	features, err := FeaturesFromStrings(vs)
 	if err != nil {
-		return err
+		log.WithError(err).Warnf("error parsing features: %#s", vs)
+		return nil
 	}
 
 	f.Lock()
@@ -206,7 +208,8 @@ func (f *FeatureFlags) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 	features, err := FeaturesFromStrings(vs)
 	if err != nil {
-		return err
+		log.WithError(err).Warnf("error parsing features: %#s", vs)
+		return nil
 	}
 
 	f.Lock()
