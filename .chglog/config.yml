@@ -23,6 +23,15 @@ options:
     pattern_maps:
       - Subject
       - Type
+  refs:
+    actions:
+      - Closes
+      - Fixes
+  reverts:
+    pattern: "^Revert \"([\\s\\S]*)\"$"
+    pattern_maps:
+      - Header
   notes:
     keywords:
+      - NOTE
       - BREAKING CHANGE
