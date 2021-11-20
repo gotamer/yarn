@@ -13,11 +13,11 @@
           </a><span class="p-org">@{{ .Profile.URL | hostnameFromURL }}</span>
         </h2>
         <h3>
-          <a id="followBtn" style="display: {{ if not .Profile.Follows }}inline{{ else }}none{{ end }};" href="/follow?nick={{ .Profile.Username  }}&url={{ .Profile.URL }}">
+          <a class="followBtn" style="display: {{ if not .Profile.Follows }}inline{{ else }}none{{ end }};" href="/follow?nick={{ .Profile.Username  }}&url={{ .Profile.URL }}">
             <i class="icss-plus"></i>
             {{ tr . "FollowLinkTitle" }}
           </a>
-          <a id="unfollowBtn" style="display: {{ if $.Profile.Follows }}inline{{ else }}none{{ end }};" href="/unfollow?nick={{ .Profile.Username  }}">
+          <a class="unfollowBtn" style="display: {{ if $.Profile.Follows }}inline{{ else }}none{{ end }};" href="/unfollow?nick={{ .Profile.Username  }}">
             <i class="icss-minus"></i>
             {{ tr . "UnfollowLinkTitle" }}
           </a>

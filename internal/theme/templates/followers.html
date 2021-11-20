@@ -5,9 +5,9 @@
         <h2>{{ tr . "FollowersTitle" }}</h2>
         <h3>
           {{ if $.User.Is .Profile.URL }}
-          {{ tr . "FollowersFollowingYou" }}
+            {{ tr . "FollowersFollowingYou" }}
           {{ else }}
-          {{ (tr . "FollowersFollowingUser" (dict "Username" .Profile.Username)) | html }}
+            {{ (tr . "FollowersFollowingUser" (dict "Username" .Profile.Username)) | html }}
           {{ end }}
         </h3>
       </hgroup>
@@ -26,13 +26,14 @@
                 {{ end }}
                 (<a href="{{ $URL }}">{{ $URL }}</a>)
                 {{ if $.Authenticated }}
-                  {{ if not ($.User.Is $URL) }}
-                    {{ if $.User.Follows $URL }}
-                      [<a href="/unfollow?nick={{ $Nick }}">{{ tr $ctx "UnfollowLinkTitle" }}</a>]
-                    {{ else }}
-                      [<a href="/follow?nick={{ $Nick }}&url={{ $URL }}">{{ tr $ctx "FollowLinkTitle" }}</a>]
-                    {{ end }}
-                  {{ end }}
+                  <a class="followBtn" style="display: {{ if not ($.User.Follows $URL) }}inline{{ else }}none{{ end }};" href="/follow?nick={{ $Nick  }}&url={{ $URL }}">
+                    <i class="icss-plus"></i>
+                    {{ tr $ctx "FollowLinkTitle" }}
+                  </a>
+                  <a class="unfollowBtn" style="display: {{ if $.User.Follows $URL }}inline{{ else }}none{{ end }};" href="/unfollow?nick={{ $Nick  }}">
+                    <i class="icss-minus"></i>
+                    {{ tr $ctx "UnfollowLinkTitle" }}
+                  </a>
                 {{ end }}
               {{ end }}
             </li>

@@ -17,11 +17,11 @@
         </h2>
         {{ if not ($.User.Is .Profile.URL) }}
           <h3>
-            <a id="followBtn" style="display: {{ if not ($.User.Follows .Profile.URL) }}inline{{ else }}none{{ end }};" href="/follow?nick={{ .Profile.Username  }}&url={{ .Profile.URL }}">
+            <a class="followBtn" style="display: {{ if not ($.User.Follows .Profile.URL) }}inline{{ else }}none{{ end }};" href="/follow?nick={{ .Profile.Username  }}&url={{ .Profile.URL }}">
               <i class="icss-plus"></i>
               {{ tr . "FollowLinkTitle" }}
             </a>
-            <a id="unfollowBtn" style="display: {{ if $.User.Follows .Profile.URL }}inline{{ else }}none{{ end }};" href="/unfollow?nick={{ .Profile.Username  }}">
+            <a class="unfollowBtn" style="display: {{ if $.User.Follows .Profile.URL }}inline{{ else }}none{{ end }};" href="/unfollow?nick={{ .Profile.Username  }}">
               <i class="icss-minus"></i>
               {{ tr . "UnfollowLinkTitle" }}
             </a>
