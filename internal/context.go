@@ -43,8 +43,6 @@ type Meta struct {
 }
 
 type Context struct {
-	Config string
-
 	Debug bool
 
 	Logo                    template.HTML
@@ -68,7 +66,6 @@ type Context struct {
 	Reply         string
 	Username      string
 	User          *User
-	Tokens        []*Token
 	LastTwt       types.Twt
 	Profile       types.Profile
 	Authenticated bool
