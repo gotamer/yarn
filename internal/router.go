@@ -136,6 +136,21 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	r.Router.ServeHTTP(w, req)
 }
 
+// ServeFiles ...
+func (r *Router) ServeFiles(path string, root http.FileSystem) {
+	if len(path) < 10 || path[len(path)-10:] != "/*filepath" {
+		panic("path must end with /*filepath in path '" + path + "'")
+	}
+
+	fileServer := http.FileServer(root)
+
+	r.GET(path, func(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+		w.Header().Set("Service-Worker-Allowed", "/")
+		req.URL.Path = ps.ByName("filepath")
+		fileServer.ServeHTTP(w, req)
+	})
+}
+
 // ServeFilesWithCacheControl ...
 func (r *Router) ServeFilesWithCacheControl(path string, root fs.FS) {
 	if len(path) < 10 || path[len(path)-10:] != "/*filepath" {
@@ -147,6 +162,7 @@ func (r *Router) ServeFilesWithCacheControl(path string, root fs.FS) {
 	r.GET(path, func(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
 		w.Header().Set("Vary", "Accept-Encoding")
 		w.Header().Set("Cache-Control", "public, max-age=7776000")
+		w.Header().Set("Service-Worker-Allowed", "/")
 		req.URL.Path = ps.ByName("filepath")
 		fileServer.ServeHTTP(w, req)
 	})
