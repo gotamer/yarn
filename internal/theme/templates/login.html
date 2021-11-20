@@ -23,12 +23,8 @@
             {{ tr . "Instead" }}
           {{ end }}
         </p>
-        <p>
-        <a href="/resetPassword">{{ tr . "ResetPasswordLinkTitle" }}</a>
-        </p>
-        {{ if isFeatureEnabled "magic_link_auth" }}
-          <p><a href="/login/email">{{ tr . "LoginViaEmailAddress" }}</a></p>
-        {{ end }}
+        <p><a href="/resetPassword">{{ tr . "ResetPasswordLinkTitle" }}</a></p>
+        <p><a href="/login/email">{{ tr . "LoginViaEmailAddress" }}</a></p>
       </form>
     </div>
     <div>
@@ -39,13 +35,11 @@
       <p>
       {{ (tr . "ForgottenPasswordContent") | html }}
       </p>
-      {{ if isFeatureEnabled "magic_link_auth" }}
-        <p>
-          You may also login via your Email account by simply supplying your Username and Email Address.
-          If the Username and Email Address match a valid account, an email will be sent to you with a link
-          that you can click on to automatically log you in without requiring a password.
-        </p>
-      {{ end }}
+      <p>
+        You may also login via your Email account by simply supplying your Username and Email Address.
+        If the Username and Email Address match a valid account, an email will be sent to you with a link
+        that you can click on to automatically log you in without requiring a password.
+      </p>
     </div>
   </article>
 {{ end }}

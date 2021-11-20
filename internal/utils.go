@@ -1643,11 +1643,9 @@ func FormatTwtFactory(conf *Config, cache *Cache, archive Archiver) func(twt typ
 		}
 
 		markdownInput := twt.FormatText(types.MarkdownFmt, conf)
-		if conf.Features.IsEnabled(FeatureStripConvSubjectHashes) {
-			if subject, _ := GetTwtConvSubjectHash(cache, archive, twt); subject != "" {
-				markdownInput = strings.ReplaceAll(markdownInput, subject, "")
-				markdownInput = strings.TrimSpace(markdownInput)
-			}
+		if subject, _ := GetTwtConvSubjectHash(cache, archive, twt); subject != "" {
+			markdownInput = strings.ReplaceAll(markdownInput, subject, "")
+			markdownInput = strings.TrimSpace(markdownInput)
 		}
 
 		md := []byte(markdownInput)
@@ -1789,11 +1787,9 @@ func FormatTwtContextFactory(conf *Config, cache *Cache, archive Archiver) func(
 		renderer := html.NewRenderer(opts)
 
 		markdownInput := rootTwt.FormatText(types.MarkdownFmt, conf)
-		if conf.Features.IsEnabled(FeatureStripConvSubjectHashes) {
-			if subject, _ := GetTwtConvSubjectHash(cache, archive, rootTwt); subject != "" {
-				markdownInput = strings.ReplaceAll(markdownInput, subject, "")
-				markdownInput = strings.TrimSpace(markdownInput)
-			}
+		if subject, _ := GetTwtConvSubjectHash(cache, archive, rootTwt); subject != "" {
+			markdownInput = strings.ReplaceAll(markdownInput, subject, "")
+			markdownInput = strings.TrimSpace(markdownInput)
 		}
 
 		md := []byte(markdownInput)
