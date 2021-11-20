@@ -45,21 +45,20 @@ type Meta struct {
 type Context struct {
 	Debug bool
 
-	Logo                    template.HTML
-	BaseURL                 string
-	InstanceName            string
-	SoftwareVersion         SoftwareConfig
-	TwtsPerPage             int
-	TwtPrompt               string
-	MaxTwtLength            int
-	RegisterDisabled        bool
-	OpenProfiles            bool
-	DisableMedia            bool
-	DisableFfmpeg           bool
-	RegisterDisabledMessage string
-	WhitelistedImages       []string
-	BlacklistedFeeds        []string
-	EnabledFeatures         []string
+	Logo              template.HTML
+	BaseURL           string
+	InstanceName      string
+	SoftwareVersion   SoftwareConfig
+	TwtsPerPage       int
+	TwtPrompt         string
+	MaxTwtLength      int
+	RegisterDisabled  bool
+	OpenProfiles      bool
+	DisableMedia      bool
+	DisableFfmpeg     bool
+	WhitelistedImages []string
+	BlacklistedFeeds  []string
+	EnabledFeatures   []string
 
 	Timezones []*timezones.Zoneinfo
 

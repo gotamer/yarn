@@ -898,10 +898,6 @@ other = "來自 {{ .Username }} 的最新推文"
 hash = "sha1-5471aee8e78958c108a802ab9385f2a13f184d2b"
 other = "最新推文"
 
-[RegisterDisabledMessage]
-hash = "sha1-14d26e1e7754b30ed7402bbaf188baa629d8a79b"
-other = "當前實例禁止註冊, 請聯繫管理員"
-
 [EmailAddress]
 hash = "sha1-c94d3175a6560565410511df2cebab9cda96027e"
 other = "電子郵件"

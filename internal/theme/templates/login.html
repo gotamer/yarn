@@ -18,12 +18,10 @@
         <button type="submit">{{ tr . "LoginFormLogin" }}</button>
         <p>
         {{ tr . "LoginNoAccountTitle" }}
-          {{ if .RegisterDisabled }}
-          <a href="#" title="{{ with .RegisterDisabledMessage }}{{ .RegisterDisabledMessage }}{{ else }}{{ tr . "RegisterDisabledMessage" }}{{ end }}">{{ tr . "RegisterLinkTitle" }}</a>
-          {{ else }}
-          <a href="/register">{{ tr . "RegisterLinkTitle" }}</a>
+          {{ if not .RegisterDisabled }}
+            <a href="/register">{{ tr . "RegisterLinkTitle" }}</a>
+            {{ tr . "Instead" }}
           {{ end }}
-          {{ tr . "Instead" }}
         </p>
         <p>
         <a href="/resetPassword">{{ tr . "ResetPasswordLinkTitle" }}</a>
@@ -38,11 +36,6 @@
         <h2>{{ tr . "LoginHowToTitle" }}</h2>
       </hgroup>
       {{ (tr . "LoginHowToContent" (dict "InstanceName" $.InstanceName)) | html }}
-      {{ if .RegisterDisabled }}
-      <p>
-      {{ tr . "RegisterDisabledMessage" }}
-      </p>
-      {{end}}
       <p>
       {{ (tr . "ForgottenPasswordContent") | html }}
       </p>

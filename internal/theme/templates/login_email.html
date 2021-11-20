@@ -12,12 +12,10 @@
         <button type="submit">{{ tr . "LoginFormEmailLogin" }}</button>
         <p>
         {{ tr . "LoginNoAccountTitle" }}
-          {{ if .RegisterDisabled }}
-          <a href="#" title="{{ with .RegisterDisabledMessage }}{{ .RegisterDisabledMessage }}{{ else }}{{ tr . "RegisterDisabledMessage" }}{{ end }}">{{ tr . "RegisterLinkTitle" }}</a>
-          {{ else }}
-          <a href="/register">{{ tr . "RegisterLinkTitle" }}</a>
+          {{ if not .RegisterDisabled }}
+            <a href="/register">{{ tr . "RegisterLinkTitle" }}</a>
+            {{ tr . "Instead" }}
           {{ end }}
-          {{ tr . "Instead" }}
         </p>
         <p><a href="/login">{{ tr . "LoginViaUsernamePassword" }}</a></p>
       </form>
