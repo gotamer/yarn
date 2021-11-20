@@ -1,9 +1,10 @@
 
 <a name="0.8.0"></a>
-## [0.8.0](https://git.mills.io/yarnsocial/yarn/compare/0.7.4...0.8.0) (2021-11-20)
+## [0.8.0](https://git.mills.io/yarnsocial/yarn/compare/0.7.4...0.8.0) (2021-11-21)
 
 ### Bug Fixes
 
+* @prologic: Fix loading pod settings with invalid features (Fixes #556)
 * @prologic: Fix IsAdmin contexxt variable
 * @prologic: Fix a potential panic in NewContext()
 * @prologic: Fix bug with --disable-ffmpeg that also disable incorrectly uploading of photos/pictures
@@ -28,6 +29,7 @@
 
 ### Updates
 
+* @prologic: Update CHANGELOG for 0.8.0
 * @prologic: Update CHANGELOG template and config
 * @fastidious: Update 'internal/theme/static/css/99-yarn.css' (#534)
 * @fastidious: Update 'internal/theme/static/css/99-yarn.css' (#533)
