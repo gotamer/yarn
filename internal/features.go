@@ -174,7 +174,7 @@ func (f *FeatureFlags) UnmarshalJSON(b []byte) error {
 
 	features, err := FeaturesFromStrings(vs)
 	if err != nil {
-		log.WithError(err).Warnf("error parsing features: %#s", vs)
+		log.WithError(err).Warnf("error parsing features: %#v", vs)
 		return nil
 	}
 
@@ -208,7 +208,7 @@ func (f *FeatureFlags) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 	features, err := FeaturesFromStrings(vs)
 	if err != nil {
-		log.WithError(err).Warnf("error parsing features: %#s", vs)
+		log.WithError(err).Warnf("error parsing features: %#v", vs)
 		return nil
 	}
 
