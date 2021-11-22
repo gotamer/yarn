@@ -1,5 +1,5 @@
 .external-image:before {
-  src: url("fonts/tabler-icons.woff") format("woff");
+  src: url("tabler-icons.woff") format("woff");
   font-family: "tabler-icons";
   font-style: normal;
   font-weight: 400;
