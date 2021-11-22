@@ -2,14 +2,13 @@
 {{ if $.Authenticated }}
 <nav class="toolbar-nav">
   <ul>
-    <li style="padding-right:5px;">&nbsp;</li>
-    <li class="toolbar-form-button"><a id="bBtn" href="#" title="Bold"><i class="ti ti-bold"></i></a></li>
-    <li class="toolbar-form-button"><a id="iBtn" href="#" title="Italic"><i class="ti ti-italic"></i></a></li>
-    <li class="toolbar-form-button"><a id="sBtn" href="#" title="Strikethrough"><i class="ti ti-strikethrough"></i></a></li>
-    <li class="toolbar-form-button"><a id="cBtn" href="#" title="Code"><i class="ti ti-code"></i></a></li>
-    <li class="toolbar-form-button"><a id="usrBtn" href="#" title="Mention"><i class="ti ti-user-circle"></i></a></li>
-    <li class="toolbar-form-button"><a id="lnkBtn" href="#" title="Link"><i class="ti ti-link"></i></a></li>
-    <li class="toolbar-form-button"><a id="imgBtn" href="#" title="Image"><i class="ti ti-photo"></i></a></li>
+    <li class="toolbar-form-button" style="padding-bottom:20px;"><a id="bBtn" href="#" title="Bold"><i class="ti ti-bold"></i></a></li>
+    <li class="toolbar-form-button" style="padding-bottom:20px;"><a id="iBtn" href="#" title="Italic"><i class="ti ti-italic"></i></a></li>
+    <li class="toolbar-form-button" style="padding-bottom:20px;"><a id="sBtn" href="#" title="Strikethrough"><i class="ti ti-strikethrough"></i></a></li>
+    <li class="toolbar-form-button" style="padding-bottom:20px;"><a id="cBtn" href="#" title="Code"><i class="ti ti-code"></i></a></li>
+    <li class="toolbar-form-button" style="padding-bottom:20px;"><a id="usrBtn" href="#" title="Mention"><i class="ti ti-user-circle"></i></a></li>
+    <li class="toolbar-form-button" style="padding-bottom:20px;"><a id="lnkBtn" href="#" title="Link"><i class="ti ti-link"></i></a></li>
+    <li class="toolbar-form-button" style="padding-bottom:20px;"><a id="imgBtn" href="#" title="Image"><i class="ti ti-photo"></i></a></li>
     {{ if not $.Ctx.DisableMedia }}
       <li class="toolbar-form-button" style="padding-bottom:2px;">
         <form id="imageUploadForm" action="/upload" enctype="multipart/form-data" method="POST" title="Upload image">
