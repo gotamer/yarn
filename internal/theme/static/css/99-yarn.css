@@ -81,6 +81,7 @@ nav.toolbar-nav ul{
 
 .toolbar-form-button {
   width: 40px;
+  padding-bottom: 20px;
 }
 
 .toolbar-form-button label {
