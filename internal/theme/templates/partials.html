@@ -2,38 +2,39 @@
 {{ if $.Authenticated }}
 <nav class="toolbar-nav">
   <ul>
-    <li><a id="bBtn" href="#" title="Bold"><i class="icss-text-bold"></i></a></li>
-    <li><a id="iBtn" href="#" title="Italic"><i class="icss-text-italic"></i></a></li>
-    <li><a id="cBtn" href="#" title="Code"><i class="icss-text-width"></i></a></li>
-    <li><a id="sBtn" href="#" title="Strikethrough"><i class="icss-x"></i></a></li>
-    <li><a id="usrBtn" href="#" title="Mention"><i class="icss-user-circle"></i></a></li>
-    <li><a id="lnkBtn" href="#" title="Link"><i class="icss-link"></i></a></li>
-    <li><a id="imgBtn" href="#" title="Image"><i class="icss-image"></i></a></li>
+    <li style="padding-right:5px;">&nbsp;</li>
+    <li class="toolbar-form-button"><a id="bBtn" href="#" title="Bold"><i class="ti ti-bold"></i></a></li>
+    <li class="toolbar-form-button"><a id="iBtn" href="#" title="Italic"><i class="ti ti-italic"></i></a></li>
+    <li class="toolbar-form-button"><a id="sBtn" href="#" title="Strikethrough"><i class="ti ti-strikethrough"></i></a></li>
+    <li class="toolbar-form-button"><a id="cBtn" href="#" title="Code"><i class="ti ti-code"></i></a></li>
+    <li class="toolbar-form-button"><a id="usrBtn" href="#" title="Mention"><i class="ti ti-user-circle"></i></a></li>
+    <li class="toolbar-form-button"><a id="lnkBtn" href="#" title="Link"><i class="ti ti-link"></i></a></li>
+    <li class="toolbar-form-button"><a id="imgBtn" href="#" title="Image"><i class="ti ti-photo"></i></a></li>
     {{ if not $.Ctx.DisableMedia }}
-      <li class="toolbar-form-button">
+      <li class="toolbar-form-button" style="padding-bottom:2px;">
         <form id="imageUploadForm" action="/upload" enctype="multipart/form-data" method="POST" title="Upload image">
           <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
           <label for="uploadImage">
-            <i id="uploadImageButton" class="icss-camera"></i>
+            <i id="uploadImageButton" class="ti ti-camera"></i>
           </label>
           <input id="uploadImage" class="invisible width-none" type="file" accept="image/*" name="media_file" />
         </form>
       </li>
       {{ if not $.Ctx.DisableFfmpeg }}
-        <li class="toolbar-form-button">
+        <li class="toolbar-form-button" style="padding-bottom:2px;">
           <form id="audioUploadForm" action="/upload" enctype="multipart/form-data" method="POST" title="Upload audio">
             <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
             <label for="uploadAudio">
-              <i id="uploadAudioButton" class="icss-microphone"></i>
+              <i id="uploadAudioButton" class="ti ti-microphone"></i>
             </label>
             <input id="uploadAudio" class="invisible width-none" type="file" accept="audio/*" name="media_file" />
           </form>
         </li>
-        <li class="toolbar-form-button">
+        <li class="toolbar-form-button" style="padding-bottom:2px;">
           <form id="videoUploadForm" action="/upload" enctype="multipart/form-data" method="POST" title="Upload video">
             <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
             <label for="uploadVideo">
-              <i id="uploadVideoButton" class="icss-video-camera"></i>
+              <i id="uploadVideoButton" class="ti ti-video"></i>
             </label>
             <input id="uploadVideo" class="invisible width-none" type="file" accept="video/*" name="media_file" />
           </form>
@@ -63,7 +64,7 @@
         {{ end }}
       </select>
       <button id="post" type="submit">
-        <i class="icss-paper-plane"></i>
+        <i class="ti ti-send"></i>
         {{tr $.Ctx  "TwtFormPost"}}
       </button>
     </div>
@@ -90,7 +91,7 @@
             {{ if $.Twt.Twter.Avatar }}
               <img class="avatar u-photo" src="/externalAvatar?uri={{ $.Twt.Twter.URL }}" alt="" loading=lazy />
             {{ else }}
-              <i class="icss-rss" style="font-size:3em"></i>
+              <i class="ti ti-rss" style="font-size:3em"></i>
             {{ end }}
           </a>
         {{ end }}
@@ -119,10 +120,10 @@
         {{ if $.Authenticated }}
           <span>
             <a class="bookmarkBtn" style="display: {{ if not ($.User.Bookmarked $.Twt.Hash) }}inline{{ else }}none{{ end }};" href="/bookmark/{{ $.Twt.Hash }}" title="{{tr $.Ctx "BookmarkAddTwt"}}">
-              <i class="icss-bookmark-o"></i>
+              <i class="ti ti-bookmark"></i>
             </a>
             <a class="unbookmarkBtn" style="display: {{ if ($.User.Bookmarked $.Twt.Hash) }}inline{{ else }}none{{ end }};" href="/bookmark/{{ $.Twt.Hash }}" title="{{tr $.Ctx "BookmarkRemoveTwt"}}">
-              <i class="icss-bookmark"></i>
+              <i class="ti ti-bookmark-off"></i>
             </a>
           </span>
         {{ end }}
@@ -159,30 +160,30 @@
     <ul>
       {{ if $.Authenticated }}
         {{ if eq $.LastTwt.Hash $.Twt.Hash }}
-          <li><a class="editBtn" href="#" data-hash="{{ $.Twt.Hash }}" data-text="{{ $.Twt.Text | unparseTwt }}"><i class="icss-edit"></i> {{tr $.Ctx "TwtEditLinkTitle"}}</a></li>
-          <li><a class="deleteBtn" href="#" data-hash="{{ $.Twt.Hash }}"><i class="icss-x"></i> {{tr $.Ctx "TwtDeleteLinkTitle"}}</a></li>
+          <li><a class="editBtn" href="#" data-hash="{{ $.Twt.Hash }}" data-text="{{ $.Twt.Text | unparseTwt }}"><i class="ti ti-edit"></i> {{tr $.Ctx "TwtEditLinkTitle"}}</a></li>
+          <li><a class="deleteBtn" href="#" data-hash="{{ $.Twt.Hash }}"><i class="ti ti-trash"></i> {{tr $.Ctx "TwtDeleteLinkTitle"}}</a></li>
         {{ end }}
-        <li><a class="replyBtn" href="#" data-reply="{{ $.User.Reply $.Twt }}"><i class="icss-arrow-left"></i> {{tr $.Ctx "TwtReplyLinkTitle"}}</a></li>
+        <li><a class="replyBtn" href="#" data-reply="{{ $.User.Reply $.Twt }}"><i class="ti ti-message-plus"></i> {{tr $.Ctx "TwtReplyLinkTitle"}}</a></li>
         {{ if and (eq $.view "conv") (not (eq $.view "rootconv")) }}
           {{ if lt (getForkLength $.Twt $.User) 1 }}
-            <li><a class="forkBtn" href="#" data-fork="{{ $.User.Fork $.Twt }}"><i class="icss-arrows"></i> {{tr $.Ctx "TwtForkLinkTitle"}}</a></li>
+            <li><a class="forkBtn" href="#" data-fork="{{ $.User.Fork $.Twt }}"><i class="ti ti-messages"></i> {{tr $.Ctx "TwtForkLinkTitle"}}</a></li>
           {{ end }}
         {{ end }}
       {{ end }}
 
       {{ if and (eq $.view "conv") (not (eq $.view "rootconv")) }}
         {{ if gt (getForkLength $.Twt $.User) 0 }}
-          <li><a class="convBtn" href="{{ urlForFork $.Twt }}"><i class="icss-arrows"></i> {{tr $.Ctx "TwtForkLinkTitle"}}<span class="yarn-count-badge">{{ getForkLength $.Twt $.User }}</span></a></li>
+          <li><a class="convBtn" href="{{ urlForFork $.Twt }}"><i class="ti ti-messages"></i> {{tr $.Ctx "TwtForkLinkTitle"}}<span class="yarn-count-badge">{{ getForkLength $.Twt $.User }}</span></a></li>
         {{ end }}
       {{ end }}
 
       {{ if eq $.view "rootconv" }}
         {{ with urlForRootConv $.Twt }}
-          <li><a class="convBtn" href="{{ urlForRootConv $.Twt }}"><i class="icss-comment"></i> {{tr $.Ctx "TwtRootLinkTitle"}}</a></li>
+          <li><a class="convBtn" href="{{ urlForRootConv $.Twt }}"><i class="ti ti-message"></i> {{tr $.Ctx "TwtRootLinkTitle"}}</a></li>
         {{ end }}
       {{ else if not (eq $.view "conv") }}
         {{ with urlForConv $.Twt }}
-        <li><a class="convBtn" href="{{ urlForConv $.Twt }}"><i class="icss-comment"></i> {{tr $.Ctx "TwtConversationLinkTitle"}}{{ if gt (getConvLength $.Twt $.User) 1 }}<span class="yarn-count-badge">{{ getConvLength $.Twt $.User }}</span>{{ end }}</a></li>
+        <li><a class="convBtn" href="{{ urlForConv $.Twt }}"><i class="ti ti-message"></i> {{tr $.Ctx "TwtConversationLinkTitle"}}{{ if gt (getConvLength $.Twt $.User) 1 }}<span class="yarn-count-badge">{{ getConvLength $.Twt $.User }}</span>{{ end }}</a></li>
         {{ end }}
       {{ end }}
     </ul>
@@ -217,12 +218,12 @@
       {{ if $.Pager.HasPrev }}
         {{ with $.Ctx.Twter.URL }}
           {{ if isLocalURL $.Ctx.Twter.URL }}
-            <a href="?p={{ $.Pager.PrevPage }}">{{tr $.Ctx "PagerPrevLinkTitle"}}</a>
+            <a href="?p={{ $.Pager.PrevPage }}"><i class="ti ti-caret-left"></i>&nbsp;{{tr $.Ctx "PagerPrevLinkTitle"}}</a>
           {{ else }}
-            <a href="/external?uri={{ $.Ctx.Twter.URL }}&nick={{ $.Ctx.Twter.Nick }}&p={{ $.Pager.PrevPage }}">{{tr $.Ctx "PagerPrevLinkTitle"}}</a>
+            <a href="/external?uri={{ $.Ctx.Twter.URL }}&nick={{ $.Ctx.Twter.Nick }}&p={{ $.Pager.PrevPage }}"><i class="ti ti-caret-left"></i>&nbsp;{{tr $.Ctx "PagerPrevLinkTitle"}}</a>
           {{ end }}
         {{ else }}
-          <a href="?p={{ $.Pager.PrevPage }}">{{tr $.Ctx "PagerPrevLinkTitle"}}</a>
+          <a href="?p={{ $.Pager.PrevPage }}"><i class="ti ti-caret-left"></i>&nbsp;{{tr $.Ctx "PagerPrevLinkTitle"}}</a>
         {{ end }}
       {{ else }}
       {{ end }}
@@ -236,12 +237,12 @@
       {{ if $.Pager.HasNext }}
         {{ with $.Ctx.Twter.URL }}
           {{ if isLocalURL $.Ctx.Twter.URL }}
-            <a href="?p={{ $.Pager.NextPage }}">{{tr $.Ctx "PagerNextLinkTitle"}}</a>
+            <a href="?p={{ $.Pager.NextPage }}">{{tr $.Ctx "PagerNextLinkTitle"}}&nbsp;<i class="ti ti-caret-right"></i></a>
           {{ else }}
-            <a href="/external?uri={{ $.Ctx.Twter.URL }}&nick={{ $.Ctx.Twter.Nick }}&p={{ $.Pager.NextPage }}">{{tr $.Ctx "PagerNextLinkTitle"}}</a>
+            <a href="/external?uri={{ $.Ctx.Twter.URL }}&nick={{ $.Ctx.Twter.Nick }}&p={{ $.Pager.NextPage }}">{{tr $.Ctx "PagerNextLinkTitle"}}&nbsp;<i class="ti ti-caret-right"></i></a>
           {{ end }}
         {{ else }}
-          <a href="?p={{ $.Pager.NextPage }}">{{tr $.Ctx "PagerNextLinkTitle"}}</a>
+          <a href="?p={{ $.Pager.NextPage }}">{{tr $.Ctx "PagerNextLinkTitle"}}&nbsp;<i class="ti ti-caret-right"></i></a>
         {{ end }}
       {{ else }}
       {{ end }}
@@ -254,28 +255,28 @@
 {{ define "profileLinks" }}
 <ul>
   {{ if $.ShowConfig }}
-    <li><a  href="/user/{{ $.Profile.Username }}/config.yaml">{{tr $.Ctx "ProfileConfigLinkTitle"}}&nbsp;<i class="icss-gear"></i></a></li>
+    <li><a  href="/user/{{ $.Profile.Username }}/config.yaml"><i class="ti ti-settings"></i>&nbsp;{{tr $.Ctx "ProfileConfigLinkTitle"}}</a></li>
   {{ end }}
-  <li><a target="_blank" href="{{ $.Profile.URL }}">{{tr $.Ctx "ProfileTwtxtLinkTitle"}}&nbsp;<i class="icss-link"></i></a></li>
+  <li><a target="_blank" href="{{ $.Profile.URL }}"><i class="ti ti-link"></i>&nbsp;{{tr $.Ctx "ProfileTwtxtLinkTitle"}}</a></li>
   {{ if eq $.Profile.Type "User" }}
-    <li><a target="_blank" href="{{ $.Profile.URL | trimSuffix "/twtxt.txt" }}/atom.xml">{{tr $.Ctx "ProfileAtomLinkTitle"}}&nbsp;<i class="icss-rss"></i></a></li>
+    <li><a target="_blank" href="{{ $.Profile.URL | trimSuffix "/twtxt.txt" }}/atom.xml"><i class="ti ti-rss"></i>&nbsp;{{tr $.Ctx "ProfileAtomLinkTitle"}}</a></li>
   {{ end }}
   {{ if $.Profile.ShowFollowers }}
     {{ if eq $.Profile.Type "External" }}
       <li><a href="#" title="Details on followers are not available on external feeds">{{tr $.Ctx "ProfileFollowersLinkTitle"}} {{ $.Profile.NFollowers }}</a></li>
     {{ else }}
-      <li><a href="/user/{{ $.Profile.Username }}/followers">{{tr $.Ctx "ProfileFollowersLinkTitle"}} {{ $.Profile.NFollowers }}</a></li>
+      <li><a href="/user/{{ $.Profile.Username }}/followers"><i class="ti ti-users"></i>&nbsp;{{tr $.Ctx "ProfileFollowersLinkTitle"}} {{ $.Profile.NFollowers }}</a></li>
     {{ end }}
   {{ end }}
   {{ if $.Profile.ShowFollowing }}
     {{ if eq $.Profile.Type "External" }}
-      <li><a href="/externalFollowing?uri={{ $.Profile.URL }}">{{tr $.Ctx "ProfileFollowingLinkTitle"}} {{ $.Profile.NFollowing }}</a></li>
+      <li><a href="/externalFollowing?uri={{ $.Profile.URL }}"><i class="ti ti-users"></i>&nbsp;{{tr $.Ctx "ProfileFollowingLinkTitle"}} {{ $.Profile.NFollowing }}</a></li>
     {{ else }}
-      <li><a href="/user/{{ $.Profile.Username }}/following">{{tr $.Ctx "ProfileFollowingLinkTitle"}} {{ $.Profile.NFollowing }}</a></li>
+      <li><a href="/user/{{ $.Profile.Username }}/following"><i class="ti ti-users"></i>&nbsp;{{tr $.Ctx "ProfileFollowingLinkTitle"}} {{ $.Profile.NFollowing }}</a></li>
     {{ end }}
   {{ end }}
   {{ if $.Profile.ShowBookmarks }}
-    <li><a href="/user/{{ $.Profile.Username }}/bookmarks">{{tr $.Ctx "ProfileBookmarksLinkTitle"}} {{ $.Profile.Bookmarks | len }}</a></li>
+    <li><a href="/user/{{ $.Profile.Username }}/bookmarks"><i class="ti ti-bookmarks"></i>&nbsp;{{tr $.Ctx "ProfileBookmarksLinkTitle"}} {{ $.Profile.Bookmarks | len }}</a></li>
   {{ end }}
 </ul>
 {{ end }}

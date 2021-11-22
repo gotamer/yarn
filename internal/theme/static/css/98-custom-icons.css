@@ -1,0 +1,15 @@
+.external-image:before {
+  src: url("fonts/tabler-icons.woff") format("woff");
+  font-family: "tabler-icons";
+  font-style: normal;
+  font-weight: 400;
+  content: "\eb0a";
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

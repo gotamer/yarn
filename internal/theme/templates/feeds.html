@@ -42,9 +42,9 @@
               <nav>
                 <ul>
                   {{ if $.User.Follows .URL }}
-                    <li><a href="/unfollow?nick={{ .Name }}"><i class="icss-minus" aria-hidden="true"></i> {{ tr $ctx "UnfollowLinkTitle" }}</a></li>
+                    <li><a href="/unfollow?nick={{ .Name }}"><i class="ti ti-circle-minus" aria-hidden="true"></i> {{ tr $ctx "UnfollowLinkTitle" }}</a></li>
                   {{ else }}
-                    <li><a href="/follow?nick={{ .Name }}&url={{ .URL }}"><i class="icss-plus" aria-hidden="true"></i> {{ tr $ctx "FollowLinkTitle" }}</a></li>
+                    <li><a href="/follow?nick={{ .Name }}&url={{ .URL }}"><i class="ti ti-circle-plus" aria-hidden="true"></i> {{ tr $ctx "FollowLinkTitle" }}</a></li>
                   {{ end }}
                   <li><a href="/feed/{{ .Name  }}/manage">{{ tr $ctx "FeedManageLinkTitle" }}</a></li>
                 </ul>
@@ -91,9 +91,9 @@
               <nav>
                 <ul>
                   {{ if $.User.Follows .URL }}
-                    <li><a href="/unfollow?nick={{ .Name  }}"><i class="icss-minus" aria-hidden="true"></i> {{ tr $ctx "UnfollowLinkTitle" }}</a></li>
+                    <li><a href="/unfollow?nick={{ .Name  }}"><i class="ti ti-circle-minus" aria-hidden="true"></i> {{ tr $ctx "UnfollowLinkTitle" }}</a></li>
                   {{ else }}
-                    <li><a href="/follow?nick={{ .Name  }}&url={{ .URL }}"><i class="icss-plus" aria-hidden="true"></i> {{ tr $ctx "FollowLinkTitle" }}</a></li>
+                    <li><a href="/follow?nick={{ .Name  }}&url={{ .URL }}"><i class="ti ti-circle-plus" aria-hidden="true"></i> {{ tr $ctx "FollowLinkTitle" }}</a></li>
                   {{ end }}
                 </ul>
               </nav>

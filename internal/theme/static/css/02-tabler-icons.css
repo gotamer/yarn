@@ -1,0 +1,182 @@
+/*!
+ * Tabler Icons 1.44.0 by tabler - https://tabler.io
+ * License - https://github.com/tabler/tabler-icons/blob/master/LICENSE
+ */
+@font-face {
+  font-family: "tabler-icons";
+  font-style: normal;
+  font-weight: 400;
+  src: url("fonts/tabler-icons.woff") format("woff")
+}
+
+.ti {
+  font-family: "tabler-icons" !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.ti-bell-ringing:before {
+  content: "\ed07";
+}
+
+.ti-bold:before {
+  content: "\eb7b";
+}
+
+.ti-bookmark:before {
+  content: "\ea3a";
+}
+
+.ti-bookmark-off:before {
+  content: "\eced";
+}
+
+.ti-bookmarks:before {
+  content: "\ed08";
+}
+
+.ti-camera:before {
+  content: "\ea54";
+}
+
+.ti-caret-left:before {
+  content: "\eb5e";
+}
+
+.ti-caret-right:before {
+  content: "\eb5f";
+}
+
+.ti-circle-minus:before {
+  content: "\ea68";
+}
+
+.ti-circle-plus:before {
+  content: "\ea69";
+}
+
+.ti-code:before {
+  content: "\ea77";
+}
+
+.ti-compass:before {
+  content: "\ea79";
+}
+
+.ti-door-enter:before {
+  content: "\ef4c";
+}
+
+.ti-door-exit:before {
+  content: "\ef4d";
+}
+
+.ti-edit:before {
+  content: "\ea98";
+}
+
+.ti-italic:before {
+  content: "\eb93";
+}
+
+.ti-link:before {
+  content: "\eade";
+}
+
+.ti-menu-2:before {
+  content: "\ec42";
+}
+
+.ti-message:before {
+  content: "\eaef";
+}
+
+.ti-message-circle:before {
+  content: "\eaed";
+}
+
+.ti-message-plus:before {
+  content: "\ec9a";
+}
+
+.ti-messages:before {
+  content: "\eb6c";
+}
+
+.ti-microphone:before {
+  content: "\eaf0";
+}
+
+.ti-moon:before {
+  content: "\eaf8";
+}
+
+.ti-photo:before {
+  content: "\eb0a";
+}
+
+.ti-rss:before {
+  content: "\eb19";
+}
+
+.ti-send:before {
+  content: "\eb1e";
+}
+
+.ti-settings:before {
+  content: "\eb20";
+}
+
+.ti-shadow:before {
+  content: "\eed8";
+}
+
+.ti-strikethrough:before {
+  content: "\eb9e";
+}
+
+.ti-sun:before {
+  content: "\eb30";
+}
+
+.ti-trash:before {
+  content: "\eb41";
+}
+
+.ti-urgent:before {
+  content: "\eb48";
+}
+
+.ti-user-check:before {
+  content: "\eb49";
+}
+
+.ti-user-circle:before {
+  content: "\ef68";
+}
+
+.ti-user-plus:before {
+  content: "\eb4b";
+}
+
+.ti-users:before {
+  content: "\ebf2";
+}
+
+.ti-video:before {
+  content: "\ed22";
+}
+
+.ti-volume:before {
+  content: "\eb51";
+}
+
+.ti-volume-3:before {
+  content: "\eb50";
+}

@@ -29,11 +29,11 @@
                 </a>
               {{ if $.Authenticated }}
                 <a class="followBtn" style="display: {{ if not ($.User.Follows $URL) }}inline{{ else }}none{{ end }};" href="/follow?nick={{ $Nick  }}&url={{ $URL }}">
-                  <i class="icss-plus"></i>
+                  <i class="ti ti-circle-plus"></i>
                   {{ tr $ctx "FollowLinkTitle" }}
                 </a>
                 <a class="unfollowBtn" style="display: {{ if $.User.Follows $URL }}inline{{ else }}none{{ end }};" href="/unfollow?nick={{ $Nick  }}">
-                  <i class="icss-minus"></i>
+                  <i class="ti ti-circle-minus"></i>
                   {{ tr $ctx "UnfollowLinkTitle" }}
                 </a>
               {{ end }}

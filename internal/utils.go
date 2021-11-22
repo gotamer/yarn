@@ -1516,7 +1516,7 @@ func PreprocessMedia(conf *Config, u *url.URL, title string) string {
 	} else {
 		src := u.String()
 		html = fmt.Sprintf(
-			`<a href="%s" title="%s" target="_blank"><i class="icss-image"></i></a>`,
+			`<a href="%s" title="%s" target="_blank"><i class="external-image"></i></a>`,
 			src, title,
 		)
 	}
@@ -1714,7 +1714,7 @@ func FormatTwtContextFactory(conf *Config, cache *Cache, archive Archiver) func(
 
 				src := u.String()
 				html := fmt.Sprintf(
-					`<a href="%s" alt="%s" target="_blank"><i class="icss-image"></i></a>`,
+					`<a href="%s" alt="%s" target="_blank"><i class="external-image"></i></a>`,
 					src, image.Title,
 				)
 
@@ -1752,7 +1752,7 @@ func FormatTwtContextFactory(conf *Config, cache *Cache, archive Archiver) func(
 				}
 
 				html := fmt.Sprintf(
-					`<a href="%s" alt="%s" target="_blank"><i class="icss-image"></i></a>`,
+					`<a href="%s" alt="%s" target="_blank"><i class="external-image"></i></a>`,
 					u, alt,
 				)
 

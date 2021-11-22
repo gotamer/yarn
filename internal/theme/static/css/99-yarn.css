@@ -383,9 +383,11 @@ article .p-summary p {
 
 /* Twt Nav */
 
+/* Keep same size?
 .twt-nav a {
   font-size: 85%;
 }
+*/
 
 /* Footer Style */
 footer {

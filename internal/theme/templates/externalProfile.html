@@ -7,18 +7,18 @@
             {{ if .Profile.Avatar }}
               <img class="avatar u-photo" src="/externalAvatar?uri={{ .Profile.URL }}" alt="" loading=lazy />
             {{ else }}
-              <i class="icss-rss" style="font-size:3em"></i>
+              <i class="ti ti-rss" style="font-size:3em"></i>
             {{ end }}
             <span class="p-name">{{ .Profile.Username }}</span>
           </a><span class="p-org">@{{ .Profile.URL | hostnameFromURL }}</span>
         </h2>
         <h3>
           <a class="followBtn" style="display: {{ if not .Profile.Follows }}inline{{ else }}none{{ end }};" href="/follow?nick={{ .Profile.Username  }}&url={{ .Profile.URL }}">
-            <i class="icss-plus"></i>
+            <i class="ti ti-circle-plus"></i>
             {{ tr . "FollowLinkTitle" }}
           </a>
           <a class="unfollowBtn" style="display: {{ if $.Profile.Follows }}inline{{ else }}none{{ end }};" href="/unfollow?nick={{ .Profile.Username  }}">
-            <i class="icss-minus"></i>
+            <i class="ti ti-circle-minus"></i>
             {{ tr . "UnfollowLinkTitle" }}
           </a>
         </h3>
@@ -29,17 +29,17 @@
           <ul>
             <li>
               <a id="muteBtn" style="display: {{ if not $.Profile.Muted }}inline{{ else }}none{{ end }};" href="/mute?nick={{ .Profile.Username }}&url={{ .Profile.URL }}">
-                <i class="icss-sound-0"></i>
+                <i class="ti ti-volume-3"></i>
                 {{ tr . "ProfileMuteLinkTitle" }}
               </a>
               <a id="unmuteBtn" style="display: {{ if .Profile.Muted }}inline{{ else }}none{{ end }};" href="/unmute?nick={{ .Profile.Username }}">
-                <i class="icss-sound-3"></i>
+                <i class="ti ti-volume"></i>
                 {{ tr . "ProfileUnmuteLinkTitle" }}
               </a>
             </li>
             <li>
               <a href="/report?nick={{ .Profile.Username  }}&url={{ .Profile.URL }}">
-                <i class="icss-exclamation-circle" style="color:red;"></i>
+                <i class="ti ti-urgent" style="color:red;"></i>
                 {{ tr . "ProfileReportLinkTitle" }}
               </a>
             </li>
@@ -50,12 +50,12 @@
       <p>
         {{ if .Profile.FollowedBy }}
           <a href="{{ .Profile.URL }}">@{{ .Profile.Username }}
-            <i class="icss-exchagne"></i>
+            <i class="ti ti-user-check"></i>
           </a>
           {{ tr . "ProfileFollowsYou" }}
         {{ else }}
           <a href="{{ .Profile.URL }}">@{{ .Profile.Username }}
-            <i class="icss-x"></i>
+            <i class="ti ti-user-check"></i>
           </a>
           {{(tr . "ProfileDoesNotFollowYou") | html }}
         {{ end }}

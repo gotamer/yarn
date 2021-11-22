@@ -142,7 +142,7 @@
  /**
   * Document
   * Content-box & Responsive typography
-  */
+ */
  *,
  *::before,
  *::after {
@@ -160,16 +160,16 @@
    text-rendering: optimizeLegibility; }
    @media (min-width: 576px) {
      html {
-       font-size: 17px; } }
+       font-size: 16px; } }
    @media (min-width: 768px) {
      html {
-       font-size: 18px; } }
+       font-size: 17px; } }
    @media (min-width: 992px) {
      html {
-       font-size: 19px; } }
+       font-size: 18px; } }
    @media (min-width: 1200px) {
      html {
-       font-size: 18px; } }
+       font-size: 19px; } }
 
  /**
   * Sectioning
@@ -190,7 +190,7 @@
      margin-right: auto;
      margin-left: auto;
      padding: 1rem 0; }
-  
+
  /**
   * Container
   */
@@ -295,7 +295,7 @@
  table,
  ul {
    margin-top: 0;
-   margin-bottom: 1.5rem;
+   margin-bottom: 0.5rem;
    color: var(--text);
    font-size: 1rem;
    font-style: normal; }
@@ -1015,7 +1015,7 @@
   */
  article {
    margin: 1rem 0;
-   padding: 1rem 1rem;
+   padding: 0.75rem;
    overflow: hidden;
    border-radius: 0.25rem;
    background: var(--card-background);
@@ -1064,14 +1064,14 @@
    nav li {
      display: inline-block;
      margin: 0;
-     padding: 1rem 1rem 1rem 0rem; }
+     padding: 0rem 1rem 1rem 0rem; }
      nav li > *,
      nav li > input:not([type="checkbox"]):not([type="radio"]) {
        margin-bottom: 0; }
    nav a {
      display: block;
      margin: -1rem -0.5rem;
-     padding: 1rem 0.5rem;
+     padding: 1rem 0.5rem 0 0.5rem;
      border-radius: 0.25rem; }
      nav a:hover, nav a:active, nav a:focus {
        text-decoration: none; }
@@ -1175,4 +1175,3 @@
      content: ''; }
    [data-tooltip]:focus::before, [data-tooltip]:focus::after, [data-tooltip]:hover::before, [data-tooltip]:hover::after {
      opacity: 1; }
-
