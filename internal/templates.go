@@ -27,18 +27,11 @@ const (
 
 var customTimeMagnitudes = []humanize.RelTimeMagnitude{
 	{D: time.Second, Format: "now", DivBy: time.Second},
-	{D: 2 * time.Second, Format: "1s %s", DivBy: 1},
 	{D: time.Minute, Format: "%ds %s", DivBy: time.Second},
-	{D: 2 * time.Minute, Format: "1m %s", DivBy: 1},
 	{D: time.Hour, Format: "%dm %s", DivBy: time.Minute},
-	{D: 2 * time.Hour, Format: "1h %s", DivBy: 1},
 	{D: humanize.Day, Format: "%dh %s", DivBy: time.Hour},
-	{D: 2 * humanize.Day, Format: "1d %s", DivBy: 1},
 	{D: humanize.Week, Format: "%dd %s", DivBy: humanize.Day},
-	{D: 2 * humanize.Week, Format: "1w %s", DivBy: 1},
-	{D: humanize.Month, Format: "%dw %s", DivBy: humanize.Week},
-	{D: 18 * humanize.Month, Format: "1y %s", DivBy: 1},
-	{D: 2 * humanize.Year, Format: "2y %s", DivBy: 1},
+	{D: humanize.Year, Format: "%dw %s", DivBy: humanize.Week},
 	{D: humanize.LongTime, Format: "%dy %s", DivBy: humanize.Year},
 	{D: math.MaxInt64, Format: "a long while %s", DivBy: 1},
 }
