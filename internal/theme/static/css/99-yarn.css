@@ -84,6 +84,11 @@ nav.toolbar-nav ul{
   padding-bottom: 20px;
 }
 
+.toolbar-form-button-media {
+  width: 40px;
+  padding-bottom: 22px;
+}
+
 .toolbar-form-button label {
 	cursor: pointer
 }
