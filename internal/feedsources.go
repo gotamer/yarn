@@ -17,6 +17,8 @@ import (
 type FeedSource struct {
 	Name string
 	URL  string
+	Avatar string
+	Description string
 }
 
 type FeedSourceMap map[string][]FeedSource
@@ -120,7 +122,7 @@ func FetchFeedSources(conf *Config, sources []string) *FeedSources {
 }
 
 func ParseFeedSource(scanner *bufio.Scanner) (feedsources []FeedSource, err error) {
-	re := regexp.MustCompile(`^(.+?)(\s+)(.+)$`) // .+? is ungreedy
+	re := regexp.MustCompile(`^(.+?)(\s+)(.+?)((\s+)(.+?)(\s+)(.+))?$`) // .+? is ungreedy
 	for scanner.Scan() {
 		line := scanner.Text()
 		if line == "" {
@@ -132,11 +134,11 @@ func ParseFeedSource(scanner *bufio.Scanner) (feedsources []FeedSource, err erro
 		parts := re.FindStringSubmatch(line)
 		// "Submatch 0 is the match of the entire expression, submatch 1 the
 		// match of the first parenthesized subexpression, and so on."
-		if len(parts) != 4 {
+		if len(parts) != 9 {
 			log.Warnf("could not parse: '%s'", line)
 			continue
 		}
-		feedsources = append(feedsources, FeedSource{parts[1], parts[3]})
+		feedsources = append(feedsources, FeedSource{parts[1], parts[3], parts[6], parts[8]})
 	}
 	if err := scanner.Err(); err != nil {
 		return nil, err
