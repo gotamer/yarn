@@ -10,7 +10,7 @@
     <li class="toolbar-form-button"><a id="lnkBtn" href="#" title="Link"><i class="ti ti-link"></i></a></li>
     <li class="toolbar-form-button"><a id="imgBtn" href="#" title="Image"><i class="ti ti-photo"></i></a></li>
     {{ if not $.Ctx.DisableMedia }}
-      <li class="toolbar-form-button">
+      <li class="toolbar-form-button-media">
         <form id="imageUploadForm" action="/upload" enctype="multipart/form-data" method="POST" title="Upload image">
           <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
           <label for="uploadImage">
@@ -20,7 +20,7 @@
         </form>
       </li>
       {{ if not $.Ctx.DisableFfmpeg }}
-        <li class="toolbar-form-button">
+        <li class="toolbar-form-button-media">
           <form id="audioUploadForm" action="/upload" enctype="multipart/form-data" method="POST" title="Upload audio">
             <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
             <label for="uploadAudio">
@@ -29,7 +29,7 @@
             <input id="uploadAudio" class="invisible width-none" type="file" accept="audio/*" name="media_file" />
           </form>
         </li>
-        <li class="toolbar-form-button">
+        <li class="toolbar-form-button-media">
           <form id="videoUploadForm" action="/upload" enctype="multipart/form-data" method="POST" title="Upload video">
             <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
             <label for="uploadVideo">
