@@ -15,52 +15,58 @@
             </a>
           {{ end }}
         </h2>
-        {{ if not ($.User.Is .Profile.URL) }}
-          <h3>
-            <a class="followBtn" style="display: {{ if not ($.User.Follows .Profile.URL) }}inline{{ else }}none{{ end }};" href="/follow?nick={{ .Profile.Username  }}&url={{ .Profile.URL }}">
-              <i class="ti ti-circle-plus"></i>
-              {{ tr . "FollowLinkTitle" }}
-            </a>
-            <a class="unfollowBtn" style="display: {{ if $.User.Follows .Profile.URL }}inline{{ else }}none{{ end }};" href="/unfollow?nick={{ .Profile.Username  }}">
-              <i class="ti ti-circle-minus"></i>
-              {{ tr . "UnfollowLinkTitle" }}
-            </a>
-            {{ if $.User.OwnsFeed .Profile.Username }}
-            | <a href="/feed/{{ .Profile.Username  }}/manage">{{ tr . "FeedManageLinkTitle" }}</a>
-            {{ end }}
-          </h3>
+        {{ if $.Authenticated }}
+          {{ if not ($.User.Is .Profile.URL) }}
+            <h3>
+              <a class="followBtn" style="display: {{ if not ($.User.Follows .Profile.URL) }}inline{{ else }}none{{ end }};" href="/follow?nick={{ .Profile.Username  }}&url={{ .Profile.URL }}">
+                <i class="ti ti-circle-plus"></i>
+                {{ tr . "FollowLinkTitle" }}
+              </a>
+              <a class="unfollowBtn" style="display: {{ if $.User.Follows .Profile.URL }}inline{{ else }}none{{ end }};" href="/unfollow?nick={{ .Profile.Username  }}">
+                <i class="ti ti-circle-minus"></i>
+                {{ tr . "UnfollowLinkTitle" }}
+              </a>
+              {{ if $.User.OwnsFeed .Profile.Username }}
+              | <a href="/feed/{{ .Profile.Username  }}/manage">{{ tr . "FeedManageLinkTitle" }}</a>
+              {{ end }}
+            </h3>
+          {{ end }}
         {{ end }}
-        <p><i>{{ .Profile.Tagline }}</i></p>
-        <details>
-          <summary>{{ tr . "ProfileBlockUserTitle" }}</summary>
-          {{ (tr . "ProfileBlockUserContent" (dict "InstanceName" .InstanceName)) | html }}
-          <ul>
-            <li>
-              <a id="muteBtn" style="display: {{ if not ($.User.HasMuted .Profile.URL) }}inline{{ else }}none{{ end }};" href="/mute?nick={{ .Profile.Username }}&url={{ .Profile.URL }}">
-                <i class="ti ti-volume-3"></i>
-                {{ tr . "ProfileMuteLinkTitle" }}
-              </a>
-              <a id="unmuteBtn" style="display: {{ if $.User.HasMuted .Profile.URL }}inline{{ else }}none{{ end }};" href="/unmute?nick={{ .Profile.Username }}">
-                <i class="ti ti-volume"></i>
-                {{ tr . "ProfileUnmuteLinkTitle" }}
-              </a>
-            </li>
-            <li>
-              <a href="/report?nick={{ .Profile.Username  }}&url={{ .Profile.URL }}">
-                <i class="ti ti-urgent" style="color:red;"></i>
-                {{ tr . "ProfileReportLinkTitle" }}
-              </a>
-            </li>
-          </ul>
-        </details>
+          <p><i>{{ .Profile.Tagline }}</i></p>
+        {{ if $.Authenticated }}
+          <details>
+            <summary>{{ tr . "ProfileBlockUserTitle" }}</summary>
+            {{ (tr . "ProfileBlockUserContent" (dict "InstanceName" .InstanceName)) | html }}
+            <ul>
+              <li>
+                <a id="muteBtn" style="display: {{ if not ($.User.HasMuted .Profile.URL) }}inline{{ else }}none{{ end }};" href="/mute?nick={{ .Profile.Username }}&url={{ .Profile.URL }}">
+                  <i class="ti ti-volume-3"></i>
+                  {{ tr . "ProfileMuteLinkTitle" }}
+                </a>
+                <a id="unmuteBtn" style="display: {{ if $.User.HasMuted .Profile.URL }}inline{{ else }}none{{ end }};" href="/unmute?nick={{ .Profile.Username }}">
+                  <i class="ti ti-volume"></i>
+                  {{ tr . "ProfileUnmuteLinkTitle" }}
+                </a>
+              </li>
+              <li>
+                <a href="/report?nick={{ .Profile.Username  }}&url={{ .Profile.URL }}">
+                  <i class="ti ti-urgent" style="color:red;"></i>
+                  {{ tr . "ProfileReportLinkTitle" }}
+                </a>
+              </li>
+            </ul>
+          </details>
+        {{ end }}
       </hgroup>
-      <p>
-        {{ if $.Profile.FollowedBy }}
-          <a href="{{ .Profile.URL }}">@{{ .Profile.Username }}</a>{{ tr . "ProfileFollowsYou" }}
-        {{ else }}
-          <a href="{{ .Profile.URL }}">@{{ .Profile.Username }}</a>{{ (tr . "ProfileDoesNotFollowYou") | html }}
+        {{ if $.Authenticated }}
+          <p>
+            {{ if $.Profile.FollowedBy }}
+              <a href="{{ .Profile.URL }}">@{{ .Profile.Username }}</a>&nbsp;{{ (tr . "ProfileFollowsYou") | html }}
+            {{ else }}
+              <a href="{{ .Profile.URL }}">@{{ .Profile.Username }}</a>&nbsp;{{ (tr . "ProfileDoesNotFollowYou") | html }}
+            {{ end }}
+          </p>
         {{ end }}
-      </p>
     </div>
     <div>
       {{ template "profileLinks" (dict "Profile" .Profile "ShowConfig" false "Ctx" .) }}
