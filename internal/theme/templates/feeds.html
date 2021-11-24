@@ -60,6 +60,7 @@
       <p><small>{{ (tr . "FeedsNoFeedsSummary") | html }}</small></p>
     {{ end }}
   </article>
+
   <article id="localfeeds">
       <hgroup>
         <h2>{{ tr . "FeedsLocalFeedsTitle" }}</h2>
@@ -105,6 +106,7 @@
         </div>
       {{ end }}
   </article>
+
   <article id="externalfeeds">
     <hgroup>
       <h2>{{ tr . "FeedsExternalFeedsTitle" }}</h2>
@@ -112,22 +114,38 @@
     </hgroup>
     {{ $ctx:=. }}
     {{ range $Source, $Feeds := .FeedSources }}
-    <details>
-      <summary>{{ $Source | prettyURL }}</summary>
-      <ul>
+    	<div class="grid">
         {{ range $Feeds }}
-        <li>
-          <a href="/external?uri={{ .URL }}&nick={{ .Name  }}">{{ .Name }}</a>
-          &nbsp;
-          {{ if $.User.Follows .URL }}
-          [<a href="/unfollow?nick={{ .Name  }}">{{ tr $ctx "UnfollowLinkTitle" }}</a>]
-          {{ else }}
-          [<a href="/follow?nick={{ .Name  }}&url={{ .URL }}">{{ tr $ctx "FollowLinkTitle" }}</a>]
+        <div>
+    	    <div class="u-author h-card">
+      	    <div>
+      	    	{{ if .Avatar }}
+      	      	<img class="avatar u-photo" src="{{ .Avatar }}" alt="" />
+      	      {{ else }}
+      	      	<img class="avatar u-photo" src="https://via.placeholder.com/32" alt="" />
+      	      {{ end }}
+            </div>
+            <div class="author">
+              <a href="/external?uri={{ .URL }}&nick={{ .Name  }}" class="p-name">{{ .Name }}</a>
+            </div>
+          </div>
+          {{ if .Description }}
+	          <div class="p-summary">
+	            {{ .Description }}
+	          </div>
           {{ end }}
-        </li>
+          <nav>
+          	<ul>
+          		{{ if $.User.Follows .URL }}
+          			<li><a href="/unfollow?nick={{ .Name  }}"><i class="ti ti-circle-minus" aria-hidden="true"></i> {{ tr $ctx "UnfollowLinkTitle" }}</a></li>
+              {{ else }}
+                <li><a href="/follow?nick={{ .Name  }}&url={{ .URL }}"><i class="ti ti-circle-plus" aria-hidden="true"></i> {{ tr $ctx "FollowLinkTitle" }}</a></li>
+              {{ end }}
+            </ul>
+          </nav>
+        </div>
         {{ end }}
-      </ul>
-    </details>
+    	</div>
     {{ end }}
   </article>
 {{ end }}
