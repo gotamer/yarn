@@ -387,13 +387,13 @@ article .p-summary p {
   margin: 0.75rem 0;
 }
 
-/* Twt Nav */
-
-/* Keep same size?
-.twt-nav a {
-  font-size: 85%;
+.settingsBtn, .logoutBtn {
+  color: var(--secondary);
 }
-*/
+
+.settingsBtn:hover, .logoutBtn:hover {
+  color: var(--secondary-hover);
+}
 
 /* Footer Style */
 footer {
@@ -452,7 +452,6 @@ footer .footer-menu a:last-child{
 footer .footer-menu a:last-child::after{
   content: none;
 }
-
 /* Toolbar styling */
 @media (max-width: 576px) {
   .toolbar-nav li {
@@ -500,8 +499,11 @@ footer .footer-menu a:last-child::after{
     margin: 10px auto 0px;
     padding: 5px;
   }
-
-  /* Name off timeline author */
+  #uploadImageButton, #uploadAudioButton, #uploadVideoButton {
+    display: block;
+    margin-top: 15px;
+  }
+  /* Name of timeline author */
   hgroup .u-author.h-card{
     display: inline;
   }
@@ -519,7 +521,7 @@ footer .footer-menu a:last-child::after{
     object-fit: cover;
   }
   .u-author.h-card .author{
-    flex: 80%;
+    flex: 130%;
   }
   .u-author.h-card .author .p-name{
     font-size: 20px;
@@ -538,6 +540,45 @@ footer .footer-menu a:last-child::after{
   }
   nav.pagination-nav{
     justify-content: space-between;
+  }
+  .ti-menu-2 {
+    font-size: 2rem;
+  }
+  .timelineBtn {
+    margin-top: 4rem;
+  }
+  .timelineBtn, .discoverBtn, .mentionsBtn, .feedsBtn, .settingsBtn, .logoutBtn, .loginBtn, .registerBtn {
+    padding-bottom: 1rem;
+    font-size: 1rem !important;
+  }
+  .ti-message-circle, .ti-compass, .ti-bell-ringing, .ti-rss-nav, .ti-settings-nav, .ti-door-exit, .ti-door-enter, .ti-user-plus {
+    margin-left: 2rem;
+    vertical-align: top;
+    font-size: 1.3rem !important;
+  }
+  .editBtn, .deleteBtn, .replyBtn, .forkBtn, .convBtn {
+    font-size: 0;
+  }
+  .ti-edit, .ti-trash, .ti-message, .ti-messages, .ti-message-plus {
+    padding-right: 1.1rem;
+    font-size: 1.5rem;
+  }
+  .yarn-count-badge {
+    font-size: 10px;
+    margin-left: -25px;
+  }
+  .mobile-menu {
+    padding-top: 15px;
+    padding-right: 25px;
+  }
+}
+@media (max-width: 768px) {
+  .timelineBtn, .discoverBtn, .mentionsBtn, .feedsBtn, .settingsBtn, .logoutBtn, .loginBtn, .registerBtn {
+    font-size: 0;
+  }
+  .ti-message-circle, .ti-compass, .ti-bell-ringing, .ti-rss-nav, .ti-settings-nav, .ti-door-exit, .ti-door-enter, .ti-user-plus {
+    padding-right: 1.1rem;
+    font-size: 1.5rem;
   }
 }
 @media (max-width: 1200px) {

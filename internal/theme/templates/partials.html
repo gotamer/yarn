@@ -159,13 +159,13 @@
     <ul>
       {{ if $.Authenticated }}
         {{ if eq $.LastTwt.Hash $.Twt.Hash }}
-          <li><a class="editBtn" href="#" data-hash="{{ $.Twt.Hash }}" data-text="{{ $.Twt.Text | unparseTwt }}"><i class="ti ti-edit"></i> {{tr $.Ctx "TwtEditLinkTitle"}}</a></li>
-          <li><a class="deleteBtn" href="#" data-hash="{{ $.Twt.Hash }}"><i class="ti ti-trash"></i> {{tr $.Ctx "TwtDeleteLinkTitle"}}</a></li>
+          <li><a class="editBtn" href="#" data-hash="{{ $.Twt.Hash }}" data-text="{{ $.Twt.Text | unparseTwt }}"><i class="ti ti-edit" data-hash="{{ $.Twt.Hash }}" data-text="{{ $.Twt.Text | unparseTwt }}"></i> {{tr $.Ctx "TwtEditLinkTitle"}}</a></li>
+          <li><a class="deleteBtn" href="#" data-hash="{{ $.Twt.Hash }}"><i class="ti ti-trash" data-hash="{{ $.Twt.Hash }}"></i> {{tr $.Ctx "TwtDeleteLinkTitle"}}</a></li>
         {{ end }}
-        <li><a class="replyBtn" href="#" data-reply="{{ $.User.Reply $.Twt }}"><i class="ti ti-message-plus"></i> {{tr $.Ctx "TwtReplyLinkTitle"}}</a></li>
+        <li><a class="replyBtn" href="#" data-reply="{{ $.User.Reply $.Twt }}"><i class="ti ti-message-plus" data-reply="{{ $.User.Reply $.Twt }}"></i> {{tr $.Ctx "TwtReplyLinkTitle"}}</a></li>
         {{ if and (eq $.view "conv") (not (eq $.view "rootconv")) }}
           {{ if lt (getForkLength $.Twt $.User) 1 }}
-            <li><a class="forkBtn" href="#" data-fork="{{ $.User.Fork $.Twt }}"><i class="ti ti-messages"></i> {{tr $.Ctx "TwtForkLinkTitle"}}</a></li>
+            <li><a class="forkBtn" href="#" data-fork="{{ $.User.Fork $.Twt }}"><i class="ti ti-messages" data-fork="{{ $.User.Fork $.Twt }}"></i> {{tr $.Ctx "TwtForkLinkTitle"}}</a></li>
           {{ end }}
         {{ end }}
       {{ end }}

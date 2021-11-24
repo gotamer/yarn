@@ -125,11 +125,19 @@
   content: "\eb19";
 }
 
+.ti-rss-nav:before {
+  content: "\eb19";
+}
+
 .ti-send:before {
   content: "\eb1e";
 }
 
 .ti-settings:before {
+  content: "\eb20";
+}
+
+.ti-settings-nav:before {
   content: "\eb20";
 }
 

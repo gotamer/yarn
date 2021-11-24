@@ -46,29 +46,29 @@
           <i class="ti ti-menu-2"></i>
         </a>
       </li>
-      <li><a href="/">{{ $.Logo }}</a></li>
+      <li><a class="podLogo" href="/">{{ $.Logo }}</a></li>
       {{ if .Authenticated }}
         <li>
-          <a href="/" title="Last updated {{ .TimelineUpdatedAt | time }}">
+          <a class="timelineBtn" href="/" title="Last updated {{ .TimelineUpdatedAt | time }}">
             <i class="ti ti-message-circle"></i>
             {{ tr . "NavTimeline" }}
           </a>
         </li>
         <li>
-          <a href="/discover" title="Last updated {{ .DiscoverUpdatedAt | time }}">
+          <a class="discoverBtn" href="/discover" title="Last updated {{ .DiscoverUpdatedAt | time }}">
             <i class="ti ti-compass"></i>
             {{ tr . "NavDiscover" }}
           </a>
         </li>
         <li>
-          <a href="/mentions" title="Last mentioned {{ .LastMentionedAt | time }}">
+          <a class="mentionsBtn" href="/mentions" title="Last mentioned {{ .LastMentionedAt | time }}">
             <i class="ti ti-bell-ringing"></i>
             {{ tr . "NavMentions" }}
           </a>
         </li>
         <li>
-          <a href="/feeds">
-            <i class="ti ti-rss"></i>
+          <a class="feedsBtn" href="/feeds">
+            <i class="ti ti-rss-nav"></i>
             {{ tr . "NavFeeds" }}
           </a>
         </li>
@@ -77,27 +77,27 @@
     <ul>
       {{ if .Authenticated }}
         <li>
-          <a class="secondary" href="/settings">
-            <i class="ti ti-settings"></i>
+          <a class="settingsBtn" class="secondary" href="/settings">
+            <i class="ti ti-settings-nav"></i>
             {{ tr . "NavSettings" }}
           </a>
         </li>
         <li>
-          <a class="secondary" href="/logout" onclick="return confirm('Are you sure you want logout?')">
+          <a class="logoutBtn" class="secondary" href="/logout" onclick="return confirm('Are you sure you want logout?')">
             <i class="ti ti-door-exit"></i>
             {{ tr . "NavLogout" }}
           </a>
         </li>
       {{ else }}
         <li>
-          <a href="/login">
+          <a class="loginBtn" href="/login">
             <i class="ti ti-door-enter"></i>
             {{ tr . "NavLogin" }}
           </a>
         </li>
         {{ if not .RegisterDisabled }}
           <li>
-            <a href="/register">
+            <a class="registerBtn" href="/register">
               <i class="ti ti-user-plus"></i>
               {{ tr . "NavRegister" }}
             </a>
@@ -121,7 +121,7 @@
       <a href="/abuse" class="menu-item">{{tr . "MenuAbuse"}}</a>
       <a href="/help" class="menu-item">{{tr . "MenuHelp"}}</a>
       <a href="/support" class="menu-item">{{tr . "MenuSupport"}}</a>
-      <a href="/atom.xml"> <i class="ti ti-rss"></i></a>
+      <a href="/atom.xml" class="footer-rss"> <i class="ti ti-rss"></i></a>
     </div>
   </footer>
   {{ if $.Debug }}
