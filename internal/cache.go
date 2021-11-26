@@ -127,6 +127,18 @@ func NewCached(twts types.Twts, lastModified string) *Cached {
 	}
 }
 
+// Inject ...
+func (cached *Cached) Inject(url, lastmodiied string, twt types.Twt) {
+	cached.mu.Lock()
+	defer cached.mu.Unlock()
+
+	twts := UniqTwts(append(cached.Twts, twt))
+	sort.Sort(twts)
+
+	cached.Twts = twts
+	cached.LastModified = lastmodiied
+}
+
 // Update ...
 func (cached *Cached) Update(url, lastmodiied string, twts types.Twts) {
 	// Avoid overwriting a cached Feed with no Twts
@@ -592,6 +604,21 @@ func (cache *Cache) Refresh() {
 		cache.Views["subject:"+k] = NewCached(v, "")
 	}
 	cache.mu.Unlock()
+}
+
+// InjectFeed ...
+func (cache *Cache) InjectFeed(url string, twt types.Twt) {
+	cache.mu.RLock()
+	cached, ok := cache.Feeds[url]
+	cache.mu.RUnlock()
+
+	if !ok {
+		cache.mu.Lock()
+		cache.Feeds[url] = NewCached(types.Twts{twt}, time.Now().Format(http.TimeFormat))
+		cache.mu.Unlock()
+	} else {
+		cached.Inject(url, time.Now().Format(http.TimeFormat), twt)
+	}
 }
 
 // UpdateFeed ...

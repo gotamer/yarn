@@ -143,6 +143,21 @@ type ProfileResponse struct {
 	Twter   Twter   `json:"twter"`
 }
 
+// InjectRequest ...
+type InjectRequest struct {
+	Twt Twt `json:"twt"`
+}
+
+// NewInjectRequest ...
+func NewInjectRequest(r io.Reader) (req InjectRequest, err error) {
+	body, err := ioutil.ReadAll(r)
+	if err != nil {
+		return
+	}
+	err = json.Unmarshal(body, &req)
+	return
+}
+
 // ConversationRequest ...
 type ConversationRequest struct {
 	Hash string `json:"hash"`
