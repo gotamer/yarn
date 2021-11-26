@@ -1008,6 +1008,8 @@ func (a *API) InjectEndpoint() httprouter.Handle {
 			return
 		}
 
+		GetExternalAvatar(a.config, twt.Twter())
+
 		a.cache.InjectFeed(twt.Twter().URL, twt)
 		if err := a.archive.Archive(twt); err != nil {
 			log.WithError(err).Warnf("error archiving injected twt %s", twt.Hash())
