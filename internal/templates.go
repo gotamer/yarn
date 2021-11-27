@@ -12,7 +12,6 @@ import (
 	text_template "text/template"
 	"time"
 
-	"git.mills.io/yarnsocial/yarn/types"
 	"github.com/Masterminds/sprig/v3"
 	humanize "github.com/dustin/go-humanize"
 	sync "github.com/sasha-s/go-deadlock"
@@ -74,7 +73,6 @@ func NewTemplateManager(conf *Config, translator *Translator, cache *Cache, arch
 	funcMap["getForkLength"] = GetForkLength(conf, cache, archive)
 	funcMap["isAdminUser"] = IsAdminUserFactory(conf)
 	funcMap["isSpecialFeed"] = IsSpecialFeed
-	funcMap["twtType"] = func(twt types.Twt) string { return fmt.Sprintf("%T", twt) }
 	funcMap["isFeatureEnabled"] = func(name string) bool {
 		return IsFeatureEnabled(conf.Features, name)
 	}
