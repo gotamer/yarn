@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 
 	sync "github.com/sasha-s/go-deadlock"
@@ -122,7 +121,6 @@ func FetchFeedSources(conf *Config, sources []string) *FeedSources {
 }
 
 func ParseFeedSource(scanner *bufio.Scanner) (feedsources []FeedSource, err error) {
-	re := regexp.MustCompile(`^(.+?)(\s+)(.+?)((\s+)(.+?)(\s+)(.+))?$`) // .+? is ungreedy
 	for scanner.Scan() {
 		line := scanner.Text()
 		if line == "" {
@@ -131,14 +129,13 @@ func ParseFeedSource(scanner *bufio.Scanner) (feedsources []FeedSource, err erro
 		if strings.HasPrefix(line, "#") {
 			continue
 		}
-		parts := re.FindStringSubmatch(line)
-		// "Submatch 0 is the match of the entire expression, submatch 1 the
-		// match of the first parenthesized subexpression, and so on."
-		if len(parts) != 9 {
+
+		parts := strings.Split(line, "\t")
+		if len(parts) != 4 {
 			log.Warnf("could not parse: '%s'", line)
 			continue
 		}
-		feedsources = append(feedsources, FeedSource{parts[1], parts[3], parts[6], parts[8]})
+		feedsources = append(feedsources, FeedSource{parts[0], parts[1], parts[2], parts[3]})
 	}
 	if err := scanner.Err(); err != nil {
 		return nil, err
