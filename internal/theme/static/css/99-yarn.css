@@ -14,10 +14,6 @@ a {
   text-decoration: none !important;
 }
 
-a:hover {
-  color: #ececec;
-}
-
 article p img {
   display: block;
   margin-top: 0.5rem;
@@ -206,6 +202,10 @@ nav.toolbar-nav ul{
   color: lime;
   position: absolute;
   animation: 1.5s linear infinite rotate;
+}
+
+.manage-users {
+  margin-bottom: 1rem;
 }
 
 audio {

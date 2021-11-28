@@ -69,6 +69,10 @@
   content: "\ea79";
 }
 
+.ti-device-analytics:before {
+  content: "\ee72";
+}
+
 .ti-door-enter:before {
   content: "\ef4c";
 }
