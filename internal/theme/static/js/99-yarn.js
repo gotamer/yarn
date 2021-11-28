@@ -237,7 +237,7 @@ u("#post").on("click", function(e) {
   e.preventDefault();
   localStorage.setItem('title', '');
   localStorage.setItem('text', '');
-  u("#post").html('<i class="icss-spinner icss-pulse"></i>&nbsp;Posting...');
+  u("#post").html('<i class="ti ti-rotate-clockwise-2 icon-rotate"></i>&nbsp;Posting...');
   u("#post").attr("disabled", true);
   u("#form").first().submit();
 });
@@ -647,11 +647,11 @@ function pollForTask(taskURL, delay, maxDelay, timeout, errorCallback, successCa
 }
 
 u("#uploadImage").on("change", function(e) {
-  u("#uploadImageButton").removeClass("icss-camera");
-  u("#uploadImageButton").addClass("icss-spinner icss-pulse");
+  u("#uploadImageButton").removeClass("ti-camera");
+  u("#uploadImageButton").addClass("ti-rotate-clockwise-2 icon-rotate");
   u("#uploadImageForm").data("tooltip", "Uploading...");
 
-  u("#uploadImage").html('<i class="icss-spinner icss-pulse"></i>');
+  u("#uploadImage").html('<i class="ti ti-rotate-clockwise-2 icon-rotate"></i>');
   Twix.ajax({
     type: "POST",
     url: u("#imageUploadForm").attr("action"),
@@ -666,8 +666,8 @@ u("#uploadImage").on("change", function(e) {
         30000,
         Date.now() + maxTaskWait,
         function(errorData) {
-          u("#uploadImageButton").removeClass("icss-spinner icss-pulse");
-          u("#uploadImageButton").addClass("icss-camera");
+          u("#uploadImageButton").removeClass("ti-rotate-clockwise-2 icon-rotate");
+          u("#uploadImageButton").addClass("ti-camera");
           alert(
             "An error occurred uploading your image: " +
             errorData.error
@@ -681,15 +681,15 @@ u("#uploadImage").on("change", function(e) {
           var size = el.text().length;
           text.setSelectionRange(size, size);
 
-          u("#uploadImageButton").removeClass("icss-spinner icss-pulse");
-          u("#uploadImageButton").addClass("icss-camera");
+          u("#uploadImageButton").removeClass("ti-rotate-clockwise-2 icon-rotate");
+          u("#uploadImageButton").addClass("ti-camera");
           u("#uploadImage").data("tooltip", "Upload");
         }
       );
     },
     error: function(statusCode, statusText) {
-      u("#uploadImageButton").removeClass("icss-spinner icss-pulse");
-      u("#uploadImageButton").addClass("icss-camera");
+      u("#uploadImageButton").removeClass("ti-rotate-clockwise-2 icon-rotate");
+      u("#uploadImageButton").addClass("ti-camera");
       alert(
         "An error occurred uploading your image: " +
         statusCode +
@@ -701,11 +701,11 @@ u("#uploadImage").on("change", function(e) {
 });
 
 u("#uploadAudio").on("change", function(e) {
-  u("#uploadAudioButton").removeClass("icss-microphone");
-  u("#uploadAudioButton").addClass("icss-spinner icss-pulse");
+  u("#uploadAudioButton").removeClass("ti-microphone");
+  u("#uploadAudioButton").addClass("ti-rotate-clockwise-2 icon-rotate");
   u("#uploadAudioForm").data("tooltip", "Uploading...");
 
-  u("#uploadAudio").html('<i class="icss-spinner icss-pulse"></i>');
+  u("#uploadAudio").html('<i class="ti ti-rotate-clockwise-2 icon-rotate"></i>');
   Twix.ajax({
     type: "POST",
     url: u("#audioUploadForm").attr("action"),
@@ -720,8 +720,8 @@ u("#uploadAudio").on("change", function(e) {
         30000,
         Date.now() + maxTaskWait,
         function(errorData) {
-          u("#uploadAudioButton").removeClass("icss-spinner icss-pulse");
-          u("#uploadAudioButton").addClass("icss-microphone");
+          u("#uploadAudioButton").removeClass("ti-rotate-clockwise-2 icon-rotate");
+          u("#uploadAudioButton").addClass("ti-microphone");
           alert(
             "An error occurred uploading your audio: " +
             errorData.error
@@ -735,15 +735,15 @@ u("#uploadAudio").on("change", function(e) {
           var size = el.text().length;
           text.setSelectionRange(size, size);
 
-          u("#uploadAudioButton").removeClass("icss-spinner icss-pulse");
-          u("#uploadAudioButton").addClass("icss-microphone");
+          u("#uploadAudioButton").removeClass("ti-rotate-clockwise-2 icon-rotate");
+          u("#uploadAudioButton").addClass("ti-microphone");
           u("#uploadAudio").data("tooltip", "Upload");
         }
       );
     },
     error: function(statusCode, statusText) {
-      u("#uploadAudioButton").removeClass("icss-spinner icss-pulse");
-      u("#uploadAudioButton").addClass("icss-microphone");
+      u("#uploadAudioButton").removeClass("ti-rotate-clockwise-2 icon-rotate");
+      u("#uploadAudioButton").addClass("ti-microphone");
       alert(
         "An error occurred uploading your audio: " +
         statusCode +
@@ -755,11 +755,11 @@ u("#uploadAudio").on("change", function(e) {
 });
 
 u("#uploadVideo").on("change", function(e) {
-  u("#uploadVideoButton").removeClass("icss-video-camera");
-  u("#uploadVideoButton").addClass("icss-spinner icss-pulse");
+  u("#uploadVideoButton").removeClass("ti-video");
+  u("#uploadVideoButton").addClass("ti-rotate-clockwise-2 icon-rotate");
   u("#uploadVideoForm").data("tooltip", "Uploading...");
 
-  u("#uploadVideo").html('<i class="icss-spinner icss-pulse"></i>');
+  u("#uploadVideo").html('<i class="ti ti-rotate-clockwise-2 icon-rotate"></i>');
   Twix.ajax({
     type: "POST",
     url: u("#videoUploadForm").attr("action"),
@@ -774,8 +774,8 @@ u("#uploadVideo").on("change", function(e) {
         30000,
         Date.now() + maxTaskWait,
         function(errorData) {
-          u("#uploadVideoButton").removeClass("icss-spinner icss-pulse");
-          u("#uploadVideoButton").addClass("icss-video-camera");
+          u("#uploadVideoButton").removeClass("ti-rotate-clockwise-2 icon-rotate");
+          u("#uploadVideoButton").addClass("ti-video");
           alert(
             "An error occurred uploading your video: " +
             errorData.error
@@ -789,15 +789,15 @@ u("#uploadVideo").on("change", function(e) {
           var size = el.text().length;
           text.setSelectionRange(size, size);
 
-          u("#uploadVideoButton").removeClass("icss-spinner icss-pulse");
-          u("#uploadVideoButton").addClass("icss-video-camera");
+          u("#uploadVideoButton").removeClass("ti-rotate-clockwise-2 icon-rotate");
+          u("#uploadVideoButton").addClass("ti-video");
           u("#uploadVideo").data("tooltip", "Upload");
         }
       );
     },
     error: function(statusCode, statusText) {
-      u("#uploadVideoButton").removeClass("icss-spinner icss-pulse");
-      u("#uploadVideoButton").addClass("icss-video-camera");
+      u("#uploadVideoButton").removeClass("ti-rotate-clockwise-2 icon-rotate");
+      u("#uploadVideoButton").addClass("ti-video");
       alert(
         "An error occurred uploading your video: " +
         statusCode +

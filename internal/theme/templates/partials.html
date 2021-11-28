@@ -54,17 +54,18 @@
       </div>
     </div>
   </div>
-  <div class="grid">
+  <div class="submit-bar">
     <div>
       <select id="postas" class="postas" name="postas">
-          <option value="{{ $.User.Username }}" selected>{{tr $.Ctx "TwtFormPostAs" (dict "Username" $.User.Username)}}</option>
+        <option value="{{ $.User.Username }}" selected>{{ tr $.Ctx "TwtFormPostAs" (dict "Username" $.User.Username) }}</option>
         {{ range $index, $feed := $.User.Feeds }}
         <option value="{{ $feed }}">{{ $feed }}</option>
         {{ end }}
       </select>
+    </div>
+    <div>
       <button id="post" type="submit">
-        <i class="ti ti-send"></i>
-        {{tr $.Ctx  "TwtFormPost"}}
+        <i class="ti ti-send"></i> {{ tr $.Ctx "TwtFormPost" }}
       </button>
     </div>
   </div>
@@ -103,9 +104,10 @@
       {{ if isLocalURL $.Twt.Twter.URL }}
       <a href="{{ $.Twt.Twter.URL | trimSuffix "/twtxt.txt" }}" class="p-name">{{ $.Twt.Twter.Nick }}</a>
       {{ else }}
-      <a href="/external?uri={{ $.Twt.Twter.URL }}&nick={{ $.Twt.Twter.Nick }}" class="p-name">
-        {{ $.Twt.Twter.Nick }}
-        <span class="p-org">@{{ $.Twt.Twter.URL | hostnameFromURL }}</span>
+      <a href="/external?uri={{ $.Twt.Twter.URL }}&nick={{ $.Twt.Twter.Nick }}">
+        <div class="long-text-wrap">
+          <span class="p-name">{{ $.Twt.Twter.Nick }}</span><span class="p-org">​&#xfeff;<wbr>@{{ $.Twt.Twter.URL | hostnameFromURL }}</span>
+        </div>
       </a>
       {{ end }}
       {{ end }}
@@ -241,31 +243,30 @@
 {{ end }}
 {{ end }}
 
+{{ define "followStats"}}
+{{ if $.Profile.ShowFollowing }}
+<div>
+  {{ if eq $.Profile.Type "External" }}
+    <a href="/externalFollowing?uri={{ $.Profile.URL }}"><strong>{{ tr $.Ctx "ProfileFollowingLinkTitle" | trimSuffix ":" }}</strong><br/>{{ $.Profile.NFollowing }}</a>
+  {{ else }}
+    <a href="/user/{{ $.Profile.Username }}/following"><strong>{{ tr $.Ctx "ProfileFollowingLinkTitle" | trimSuffix ":" }}</strong><br/>{{ $.Profile.NFollowing }}</a>
+  {{ end }}
+</div>
+{{ end }}
+{{ if $.Profile.ShowFollowers }}
+<div>
+  {{ if eq $.Profile.Type "External" }}
+    <a href="#" title="Details on followers are not available on external feeds"><strong>{{ tr $.Ctx "ProfileFollowersLinkTitle" | trimSuffix ":" }}</strong><br/>{{ $.Profile.NFollowers }}</a>
+  {{ else }}
+    <a href="/user/{{ $.Profile.Username }}/followers"><strong>{{ tr $.Ctx "ProfileFollowersLinkTitle" | trimSuffix ":" }}</strong><br/>{{ $.Profile.NFollowers }}</a>
+  {{ end }}
+</div>
+{{ end }}
+{{ end }}
+
 {{ define "profileLinks" }}
-<ul>
-  {{ if $.ShowConfig }}
-    <li><a  href="/user/{{ $.Profile.Username }}/config.yaml"><i class="ti ti-settings"></i>&nbsp;{{tr $.Ctx "ProfileConfigLinkTitle"}}</a></li>
-  {{ end }}
-  <li><a target="_blank" href="{{ $.Profile.URL }}"><i class="ti ti-link"></i>&nbsp;{{tr $.Ctx "ProfileTwtxtLinkTitle"}}</a></li>
-  {{ if eq $.Profile.Type "User" }}
-    <li><a target="_blank" href="{{ $.Profile.URL | trimSuffix "/twtxt.txt" }}/atom.xml"><i class="ti ti-rss"></i>&nbsp;{{tr $.Ctx "ProfileAtomLinkTitle"}}</a></li>
-  {{ end }}
-  {{ if $.Profile.ShowFollowers }}
-    {{ if eq $.Profile.Type "External" }}
-      <li><a href="#" title="Details on followers are not available on external feeds">{{tr $.Ctx "ProfileFollowersLinkTitle"}} {{ $.Profile.NFollowers }}</a></li>
-    {{ else }}
-      <li><a href="/user/{{ $.Profile.Username }}/followers"><i class="ti ti-users"></i>&nbsp;{{tr $.Ctx "ProfileFollowersLinkTitle"}} {{ $.Profile.NFollowers }}</a></li>
-    {{ end }}
-  {{ end }}
-  {{ if $.Profile.ShowFollowing }}
-    {{ if eq $.Profile.Type "External" }}
-      <li><a href="/externalFollowing?uri={{ $.Profile.URL }}"><i class="ti ti-users"></i>&nbsp;{{tr $.Ctx "ProfileFollowingLinkTitle"}} {{ $.Profile.NFollowing }}</a></li>
-    {{ else }}
-      <li><a href="/user/{{ $.Profile.Username }}/following"><i class="ti ti-users"></i>&nbsp;{{tr $.Ctx "ProfileFollowingLinkTitle"}} {{ $.Profile.NFollowing }}</a></li>
-    {{ end }}
-  {{ end }}
-  {{ if $.Profile.ShowBookmarks }}
-    <li><a href="/user/{{ $.Profile.Username }}/bookmarks"><i class="ti ti-bookmarks"></i>&nbsp;{{tr $.Ctx "ProfileBookmarksLinkTitle"}} {{ $.Profile.Bookmarks | len }}</a></li>
-  {{ end }}
-</ul>
+<a target="_blank" href="{{ $.Profile.URL }}"><i class="ti ti-link-profile"></i> {{ tr $.Ctx "ProfileTwtxtLinkTitle" }}</a>
+<a target="_blank" href="{{ $.Profile.URL | trimSuffix "/twtxt.txt" }}/atom.xml"><i class="ti ti-rss-profile"></i> {{ tr $.Ctx "ProfileAtomLinkTitle" }}</a>
+<a target="_blank" href="{{ $.Profile.URL | trimSuffix "/twtxt.txt" }}/bookmarks"><i class="ti ti-bookmarks"></i> {{ tr $.Ctx "ProfileBookmarksLinkTitle" | trimSuffix ":" }}</a>
+<a target="_blank" href="{{ $.Profile.URL | trimSuffix "/twtxt.txt" }}/config.yaml"><i class="ti ti-settings"></i> {{ tr $.Ctx "ProfileConfigLinkTitle" }}</a>
 {{ end }}

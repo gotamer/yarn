@@ -1,83 +1,34 @@
 {{ define "content" }}
-  <div class="grid">
-    <div>
-      <hgroup>
-        <h2 class="u-author h-card">
-          {{ if $.User.Is .Profile.URL }}
-            <a href="{{ $.User.URL | trimSuffix "/twtxt.txt" }}" class="u-url">
-              <img class="avatar u-photo" src="/user/{{ $.User.Username }}/avatar" alt="" />
-              <span class="p-name">{{ tr . "MeLinkTitle" }}</span>
-            </a>
-          {{ else }}
-            <a href="{{ .Profile.URL | trimSuffix "/twtxt.txt" }}" class="u-url p-name">
-              <img class="avatar u-photo" src="/user/{{ $.Profile.Username }}/avatar" alt="" />
-              <span class="p-name">{{ .Profile.Username }}</span>
-            </a>
-          {{ end }}
-        </h2>
-        {{ if $.Authenticated }}
-          {{ if not ($.User.Is .Profile.URL) }}
-            <h3>
-              <a class="followBtn" style="display: {{ if not ($.User.Follows .Profile.URL) }}inline{{ else }}none{{ end }};" href="/follow?nick={{ .Profile.Username  }}&url={{ .Profile.URL }}">
-                <i class="ti ti-circle-plus"></i>
-                {{ tr . "FollowLinkTitle" }}
-              </a>
-              <a class="unfollowBtn" style="display: {{ if $.User.Follows .Profile.URL }}inline{{ else }}none{{ end }};" href="/unfollow?nick={{ .Profile.Username  }}">
-                <i class="ti ti-circle-minus"></i>
-                {{ tr . "UnfollowLinkTitle" }}
-              </a>
-              {{ if $.User.OwnsFeed .Profile.Username }}
-              | <a href="/feed/{{ .Profile.Username  }}/manage">{{ tr . "FeedManageLinkTitle" }}</a>
-              {{ end }}
-            </h3>
-          {{ end }}
-        {{ end }}
-          <p><i>{{ .Profile.Tagline }}</i></p>
-        {{ if $.Authenticated }}
-          <details>
-            <summary>{{ tr . "ProfileBlockUserTitle" }}</summary>
-            {{ (tr . "ProfileBlockUserContent" (dict "InstanceName" .InstanceName)) | html }}
-            <ul>
-              <li>
-                <a id="muteBtn" style="display: {{ if not ($.User.HasMuted .Profile.URL) }}inline{{ else }}none{{ end }};" href="/mute?nick={{ .Profile.Username }}&url={{ .Profile.URL }}">
-                  <i class="ti ti-volume-3"></i>
-                  {{ tr . "ProfileMuteLinkTitle" }}
-                </a>
-                <a id="unmuteBtn" style="display: {{ if $.User.HasMuted .Profile.URL }}inline{{ else }}none{{ end }};" href="/unmute?nick={{ .Profile.Username }}">
-                  <i class="ti ti-volume"></i>
-                  {{ tr . "ProfileUnmuteLinkTitle" }}
-                </a>
-              </li>
-              <li>
-                <a href="/report?nick={{ .Profile.Username  }}&url={{ .Profile.URL }}">
-                  <i class="ti ti-urgent" style="color:red;"></i>
-                  {{ tr . "ProfileReportLinkTitle" }}
-                </a>
-              </li>
-            </ul>
-          </details>
-        {{ end }}
-      </hgroup>
-        {{ if $.Authenticated }}
-          <p>
-            {{ if $.Profile.FollowedBy }}
-              <a href="{{ .Profile.URL }}">@{{ .Profile.Username }}</a>&nbsp;{{ (tr . "ProfileFollowsYou") | html }}
-            {{ else }}
-              <a href="{{ .Profile.URL }}">@{{ .Profile.Username }}</a>&nbsp;{{ (tr . "ProfileDoesNotFollowYou") | html }}
-            {{ end }}
-          </p>
-        {{ end }}
-    </div>
-    <div>
-      {{ template "profileLinks" (dict "Profile" .Profile "ShowConfig" false "Ctx" .) }}
-    </div>
+
+  <div class="profile-name">
+    <span class="p-name">{{ .Profile.Username }}<span class="p-org">@{{ .Profile.URL | hostnameFromURL }}</span></span>
   </div>
-  {{ template "post" (dict "Authenticated" $.Authenticated "User" $.User "TwtPrompt" $.TwtPrompt "MaxTwtLength" $.MaxTwtLength "Reply" $.Reply "AutoFocus" true "CSRFToken" $.CSRFToken "Ctx" .) }}
-  <div class="container">
-    <hgroup>
-      <h2>{{ tr . "RecentTwtsTitle" }}</h2>
-      <h3>{{ tr . "RecentTwtsSummary" (dict "Username" .Profile.Username) }}</h3>
-    </hgroup>
+
+  <div class="profile-stats">
+    <a href="{{ $.Profile.URL | trimSuffix "/twtxt.txt" }}" class="u-url">
+      {{ if .Profile.Avatar }}
+      <img class="avatar u-photo" src="/user/{{ $.Profile.Username }}/avatar" alt="" loading=lazy />
+      {{ else }}
+      <i class="ti ti-rss-nav"></i>
+      {{ end }}
+    </a>
+    {{ template "followStats" (dict "Profile" .Profile "Ctx" .) }}
   </div>
+
+  <div class="profile-tagline">
+    {{ if gt (len .Profile.Tagline) 0 }}
+    <p>{{ .Profile.Tagline }}</p>
+    {{ end }}
+  </div>
+
+  <div class="profile-links">
+    {{ template "profileLinks" (dict "Profile" .Profile "Ctx" .) }}
+  </div>
+
+  <div class="profile-recent">
+    <h2>{{ tr . "RecentTwtsSummary" (dict "Username" .Profile.Username) }}</h2>
+  </div>
+
   {{ template "feed" (dict "Authenticated" $.Authenticated "User" $.User "Profile" $.Profile "LastTwt" $.LastTwt "Pager" $.Pager "Twts" $.Twts "Ctx" . "view" "profile") }}
+
 {{ end }}

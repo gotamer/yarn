@@ -1116,11 +1116,11 @@
        text-align: right; }
        nav#mainNav ul:nth-of-type(1) li:nth-of-type(1) a:focus {
          background: transparent; }
-       nav#mainNav ul:nth-of-type(1) li:nth-of-type(1) a i.icss-bars {
+       nav#mainNav ul:nth-of-type(1) li:nth-of-type(1) a i.ti-menu-2 {
          margin-top: 0.1em; }
      nav#mainNav ul:nth-of-type(1) li:nth-of-type(2) {
        text-align: left; }
-       nav#mainNav ul:nth-of-type(1) li:nth-of-type(2) a i.icss-home {
+       nav#mainNav ul:nth-of-type(1) li:nth-of-type(2) a i.ti-message-circle {
          margin-bottom: 0.3em; }
      nav#mainNav ul:nth-of-type(1) li:not(:nth-of-type(1)):not(:nth-of-type(2)) {
        padding-top: 0.5rem;

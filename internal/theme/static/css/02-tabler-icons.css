@@ -89,6 +89,10 @@
   content: "\eade";
 }
 
+.ti-link-profile:before {
+  content: "\eade";
+}
+
 .ti-menu-2:before {
   content: "\ec42";
 }
@@ -121,11 +125,19 @@
   content: "\eb0a";
 }
 
+.ti-rotate-clockwise-2:before {
+  content: "\ebb5";
+}
+
 .ti-rss:before {
   content: "\eb19";
 }
 
 .ti-rss-nav:before {
+  content: "\eb19";
+}
+
+.ti-rss-profile:before {
   content: "\eb19";
 }
 
@@ -151,6 +163,10 @@
 
 .ti-sun:before {
   content: "\eb30";
+}
+
+.ti-tool:before {
+  content: "\eb40";
 }
 
 .ti-trash:before {
