@@ -6,7 +6,7 @@
       <h3>Follow an existing twtxt feed</h3>
     </hgroup>
     <p>Enter the URL of an existing twtxt.txt feed to start following directly.</p>
-    <form id="follow" action="/feed" method="POST">
+    <form id="follow" action="/follow" method="POST">
       <fieldset>
         <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
         <div class="feed-flex">
