@@ -71,8 +71,6 @@ const (
 	maxFeedNameLength   = 25 // avg 4.7 chars per word in English so ~5 words
 	maxTwtContextLength = 140
 
-	requestTimeout = time.Second * 30
-
 	DayAgo   = time.Hour * 24
 	WeekAgo  = DayAgo * 7
 	MonthAgo = DayAgo * 30
@@ -110,9 +108,10 @@ var (
 		append([]string{}, specialUsernames...),
 		automatedFeeds...)
 
-	validFeedName  = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9_-]*$`)
-	validUsername  = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9_-]+$`)
-	userAgentRegex = regexp.MustCompile(`(.+) \(\+(https?://\S+/\S+); @(\S+)\)`)
+	validFeedName     = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9_-]*$`)
+	validUsername     = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9_-]+$`)
+	singleUserUARegex = regexp.MustCompile(`(.+) \(\+(https?://\S+/\S+); @(\S+)\)`)
+	multiUserUARegex  = regexp.MustCompile(`(.+) \(~(https?://\S+\/\S+); contact=(https?://\S+)\)`)
 
 	ErrInvalidFeedName  = errors.New("error: invalid feed name")
 	ErrBadRequest       = errors.New("error: request failed with non-200 response")
@@ -327,7 +326,7 @@ func Request(conf *Config, method, url string, headers http.Header) (*http.Respo
 	req.Header = headers
 
 	client := http.Client{
-		Timeout: requestTimeout,
+		Timeout: conf.RequestTimeout(),
 	}
 
 	res, err := client.Do(req)
@@ -1033,34 +1032,68 @@ func (u URI) String() string {
 	return fmt.Sprintf("%s://%s", u.Type, u.Path)
 }
 
-type TwtxtUserAgent struct {
+// TwtxtUserAgent ...
+type TwtxtUserAgent interface {
+	fmt.Stringer
+
+	// IsPod returns true if the Twtxt client's User-Agent appears to be a Yarn.social pod (single or multi-user).
+	IsPod() bool
+
+	// PodBaseURL returns the base URL of the client's User-Agent if it appears to be a Yarn.social pod (single or multi-user).
+	PodBaseURL() string
+
+	// IsPublicURL returns true if the Twtxt client's User-Agent is from what appears to be the public internet.
+	IsPublicURL() bool
+}
+
+// TwtxtUserAgent interface guards
+var (
+	_ TwtxtUserAgent = (*SingleUserAgent)(nil)
+	_ TwtxtUserAgent = (*MultiUserAgent)(nil)
+)
+
+// twtxtUserAgent is a base class for both single and multi-user Twtxt User Agents.
+type twtxtUserAgent struct {
 	Client string
-	Nick   string
-	URL    string
 }
 
-func (ua TwtxtUserAgent) String() string {
-	// twtxt/<version> (+<source.url>; @<source.nick>)
-	return fmt.Sprintf("%s (+%s; @%s)", ua.Client, ua.URL, ua.Nick)
+func (ua *twtxtUserAgent) IsPod() bool {
+	return strings.HasPrefix(ua.Client, "yarnd/")
 }
 
-func (ua TwtxtUserAgent) IsPublicURL() bool {
-	u, err := url.Parse(ua.URL)
+func (ua *twtxtUserAgent) podBaseURL(uri, relativeURLToTrim string) string {
+	if !ua.IsPod() {
+		return ""
+	}
+
+	u, err := url.Parse(uri)
+	if err != nil {
+		log.WithError(err).Warnf("error parsing User-Agent URL: %s", uri)
+		return ""
+	}
+
+	// Throw away the trailing part of the URL to get the base URL for this
+	// yarnd instance. It might serve from a subdirectory, so we cannot simply
+	// cut off the complete path.
+	rel, _ := url.Parse(relativeURLToTrim)
+	return NormalizeURL(u.ResolveReference(rel).String())
+}
+
+func (ua *twtxtUserAgent) isPublicURL(uri, userAgent string) bool {
+	u, err := url.Parse(uri)
 	if err != nil {
 		log.WithError(err).Warn("error parsing User-Agent URL")
 		return false
 	}
 
-	hostname := u.Hostname()
-
-	ips, err := net.LookupIP(hostname)
+	ips, err := net.LookupIP(u.Hostname())
 	if err != nil {
 		log.WithError(err).Warn("error looking up User-Agent IP")
 		return false
 	}
 
 	if len(ips) == 0 {
-		log.Warnf("error User-Agent lookup failed for %s or has no resolvable IP", ua.String())
+		log.Warnf("User-Agent lookup failed for %s or has no resolvable IP", userAgent)
 		return false
 	}
 
@@ -1079,18 +1112,66 @@ func (ua TwtxtUserAgent) IsPublicURL() bool {
 	return !ipip.IsPrivate(ip)
 }
 
-func ParseTwtxtUserAgent(ua string) (*TwtxtUserAgent, error) {
-	match := userAgentRegex.FindStringSubmatch(ua)
+// SingleUserAgent is a single Twtxt User Agent whether it be `tt`, `jenny` or a single-user `yarnd` client.
+type SingleUserAgent struct {
+	twtxtUserAgent
+	Nick   string
+	URL    string
+}
+
+func (ua *SingleUserAgent) String() string {
+	// <client>/<version> (+<source.url>; @<source.nick>)
+	return fmt.Sprintf("%s (+%s; @%s)", ua.Client, ua.URL, ua.Nick)
+}
+
+func (ua *SingleUserAgent) PodBaseURL() string {
+	// get rid of the trailing '/user/foo/twtxt.txt'
+	return ua.podBaseURL(ua.URL, "../..")
+}
+
+func (ua *SingleUserAgent) IsPublicURL() bool {
+	return ua.isPublicURL(ua.URL, ua.String())
+}
+
+// MultiUserAgent is a multi-user Twtxt client, currently only `yarnd` is such a client.
+type MultiUserAgent struct {
+	twtxtUserAgent
+	WhoFollowsURL string
+	SupportURL    string
+}
+
+func (ua *MultiUserAgent) String() string {
+	// <client>/<version> (~<whoFollowsURL>; contact=<supportURL>)
+	return fmt.Sprintf("%s (~%s; contact=%s)", ua.Client, ua.WhoFollowsURL, ua.SupportURL)
+}
+
+func (ua *MultiUserAgent) PodBaseURL() string {
+	// get rid of the trailing '/whoFollows?followers=42&token=abc'
+	return ua.podBaseURL(ua.WhoFollowsURL, "./")
+}
+
+func (ua *MultiUserAgent) IsPublicURL() bool {
+	return ua.isPublicURL(ua.WhoFollowsURL, ua.String())
+}
+
+func ParseUserAgent(ua string) (TwtxtUserAgent, error) {
+	if match := singleUserUARegex.FindStringSubmatch(ua); match != nil {
+		return &SingleUserAgent{
+			twtxtUserAgent: twtxtUserAgent{Client: match[1]},
+			URL:            match[2],
+			Nick:           match[3],
+		}, nil
+	}
+
+	match := multiUserUARegex.FindStringSubmatch(ua)
 	if match == nil {
 		return nil, ErrInvalidUserAgent
 	}
 
-	// TODO: Add support for Multi-user UserAgent(s)
-
-	return &TwtxtUserAgent{
-		Client: match[1],
-		URL:    match[2],
-		Nick:   match[3],
+	return &MultiUserAgent{
+		twtxtUserAgent: twtxtUserAgent{Client: match[1]},
+		WhoFollowsURL:  match[2],
+		SupportURL:     match[3],
 	}, nil
 }
 

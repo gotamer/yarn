@@ -1,9 +1,10 @@
 {{ define "content" }}
   <article class="container-fluid">
     <hgroup>
-      <h2>{{ .InstanceName }} Version Information</h2>
+      <h2>{{ .InstanceName }} Information</h2>
     </hgroup>
     <table>
+      <tr><td>Name</td><td>{{ .InstanceName }}</td></tr>
       <tr><td>Software</td><td>{{ .SoftwareVersion.Software }}</td></tr>
       <tr><td>FullVersion</td><td>{{ .SoftwareVersion.FullVersion }}</td></tr>
       <tr><td>Version</td><td>{{ .SoftwareVersion.Version }}</td></tr>

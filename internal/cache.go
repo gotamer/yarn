@@ -3,8 +3,10 @@ package internal
 import (
 	"bytes"
 	"encoding/gob"
+	"encoding/json"
 	"fmt"
 	"io"
+	"mime"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -21,10 +23,12 @@ import (
 
 const (
 	feedCacheFile    = "cache"
-	feedCacheVersion = 17 // increase this if breaking changes occur to cache file.
+	feedCacheVersion = 18 // increase this if breaking changes occur to cache file.
 
 	localViewKey    = "local"
 	discoverViewKey = "discover"
+
+	podInfoUpdateTTL = time.Hour * 24
 )
 
 // FilterFunc ...
@@ -153,6 +157,31 @@ func (cached *Cached) Update(url, lastmodiied string, twts types.Twts) {
 	cached.LastModified = lastmodiied
 }
 
+type PodInfo struct {
+	Name            string `json:"name"`
+	Description     string `json:"description"`
+	SoftwareVersion string `json:"software_version"`
+
+	// Maybe we store future data about other peer pods in the future?
+	// Right now the above is basically what is exposed now as the pod's name, description and what version of yarnd is running.
+	// This information will likely be used for Pod Owner/Operators to manage Image Domain Whitelisting between pods and internal
+	// automated operations like Pod Gossiping of Twts for things like Missing Root Twts for conversation views, etc.
+
+	// lastSeen records the timestamp of when we last saw this pod.
+	LastSeen time.Time `json:"-"`
+
+	// lastUpdated is used to periodically re-check the peering pod's /info endpoint in case of changes.
+	LastUpdated time.Time `json:"-"`
+}
+
+func (p *PodInfo) IsZero() bool {
+	return (p == nil) || (p.Name == "" && p.SoftwareVersion == "")
+}
+
+func (p *PodInfo) ShouldRefresh() bool {
+	return time.Since(p.LastUpdated) > podInfoUpdateTTL
+}
+
 // Cache ...
 type Cache struct {
 	mu sync.RWMutex
@@ -163,6 +192,7 @@ type Cache struct {
 
 	List  *Cached
 	Map   map[string]types.Twt
+	Peers map[string]*PodInfo
 	Feeds map[string]*Cached
 	Views map[string]*Cached
 }
@@ -171,6 +201,7 @@ func NewCache(conf *Config) *Cache {
 	return &Cache{
 		conf:  conf,
 		Map:   make(map[string]types.Twt),
+		Peers: make(map[string]*PodInfo),
 		Feeds: make(map[string]*Cached),
 		Views: make(map[string]*Cached),
 	}
@@ -245,6 +276,122 @@ func LoadCache(conf *Config) (*Cache, error) {
 	}
 
 	return cache, nil
+}
+
+// DetectPodFromRequest ...
+func (cache *Cache) DetectPodFromRequest(req *http.Request) error {
+	twtxtUA, err := ParseUserAgent(req.UserAgent())
+	if err != nil {
+		log.WithError(err).Warnf("error parsing Twtxt User-Agent '%s'", req.UserAgent())
+		return nil
+	}
+
+	if !twtxtUA.IsPod() {
+		log.Debugf("%s is not a pod!", req.UserAgent())
+		return nil
+	}
+
+	podBaseURL := twtxtUA.PodBaseURL()
+	log.Debugf("podBaseURL: %#v", podBaseURL)
+	if podBaseURL == "" {
+		log.Debugf("cannot find a valid pod base URL from %s", req.UserAgent())
+		return nil
+	}
+
+	cache.mu.RLock()
+	oldPodInfo, hasSeen := cache.Peers[podBaseURL]
+	cache.mu.RUnlock()
+
+	if hasSeen && !oldPodInfo.ShouldRefresh() {
+		log.Debugf("already seen pod %s", podBaseURL)
+		// This might in fact race if another goroutine would have fetched the
+		// pod info and updated the cache between our check above and the
+		// update here. However, since we're only setting a timestamp when
+		// we've last seen the peering pod, this should not be a problem at
+		// all. We just override it a fraction of a second later. Doesn't harm
+		// anything.
+		cache.mu.Lock()
+		oldPodInfo.LastSeen = time.Now()
+		cache.mu.Unlock()
+		return nil
+	}
+
+	// Set an empty &PodInfo{} to avoid multiple concurrent calls from making
+	// multiple callbacks to peering pods unncessarily for Multi-User pods and
+	// guard against race from other goroutine doing the same thing.
+	cache.mu.Lock()
+	oldPodInfo, hasSeen = cache.Peers[podBaseURL]
+	if hasSeen && !oldPodInfo.ShouldRefresh() {
+		cache.mu.Unlock()
+		log.Debugf("already seen pod %s", podBaseURL)
+		return nil
+	}
+	cache.Peers[podBaseURL] = &PodInfo{}
+	cache.mu.Unlock()
+
+	resetDummyPodInfo := func() {
+		cache.mu.Lock()
+		if oldPodInfo.IsZero() {
+			delete(cache.Peers, podBaseURL)
+		} else {
+			cache.Peers[podBaseURL] = oldPodInfo
+		}
+		cache.mu.Unlock()
+	}
+
+	headers := make(http.Header)
+	headers.Set("Accept", "application/json")
+
+	res, err := Request(cache.conf, http.MethodGet, podBaseURL+"/info", headers)
+	if err != nil {
+		resetDummyPodInfo()
+		log.WithError(err).Errorf("error making /info request to pod running at %s", podBaseURL)
+		return err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode / 100 != 2 {
+		resetDummyPodInfo()
+		log.Errorf("HTTP %s response for /info of pod running at %s", res.Status, podBaseURL)
+		return fmt.Errorf("non-success HTTP %s response for %s/info", res.Status, podBaseURL)
+	}
+
+	if ctype := res.Header.Get("Content-Type"); ctype != "" {
+		mediaType, _, err := mime.ParseMediaType(ctype)
+		if err != nil {
+			resetDummyPodInfo()
+			log.WithError(err).Errorf("error parsing content type header '%s' for /info of pod running at %s", ctype, podBaseURL)
+			return err
+		}
+		if mediaType != "application/json" {
+			resetDummyPodInfo()
+			log.Errorf("non-JSON response '%s' for /info of pod running at %s", ctype, podBaseURL)
+			return fmt.Errorf("non-JSON response content type '%s' for %s/info", ctype, podBaseURL)
+		}
+	}
+
+	data, err := io.ReadAll(res.Body)
+	if err != nil {
+		resetDummyPodInfo()
+		log.WithError(err).Errorf("error reading response body for /info of pod running at %s", podBaseURL)
+		return err
+	}
+
+	var podInfo PodInfo
+
+	if err := json.Unmarshal(data, &podInfo); err != nil {
+		resetDummyPodInfo()
+		log.WithError(err).Errorf("error decoding response body for /info of pod running at %s", podBaseURL)
+		return err
+	}
+	podInfo.LastSeen = time.Now()
+	podInfo.LastUpdated = time.Now()
+
+	cache.mu.Lock()
+	cache.Peers[podBaseURL] = &podInfo
+	cache.mu.Unlock()
+
+	return nil
 }
 
 // FetchTwts ...
@@ -634,6 +781,24 @@ func (cache *Cache) UpdateFeed(url, lastmodified string, twts types.Twts) {
 	} else {
 		cached.Update(url, lastmodified, twts)
 	}
+}
+
+// GetPeers ...
+func (cache *Cache) GetPeers() map[string]*PodInfo {
+	cache.mu.RLock()
+	cachedPeers := cache.Peers
+	cache.mu.RUnlock()
+
+	peers := make(map[string]*PodInfo)
+
+	for k, v := range cachedPeers {
+		if k == "" || v.IsZero() {
+			continue
+		}
+		peers[k] = v
+	}
+
+	return peers
 }
 
 // GetAll ...

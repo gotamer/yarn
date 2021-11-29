@@ -13,38 +13,142 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestParseTwtxtUserAgent(t *testing.T) {
+func TestParseUserAgent(t *testing.T) {
 	testCases := []struct {
+		name     string
 		ua       string
 		err      error
-		expected *TwtxtUserAgent
+		expected TwtxtUserAgent
 	}{
 		{
-			ua:       `Linguee Bot (http://www.linguee.com/bot; bot@linguee.com)`,
-			err:      ErrInvalidUserAgent,
-			expected: nil,
+			name: "non-Twtxt User Agent",
+			ua:   `Linguee Bot (http://www.linguee.com/bot; bot@linguee.com)`,
+			err:  ErrInvalidUserAgent,
 		},
 		{
-			ua:  `twtxt/1.2.3 (+https://foo.com/twtxt.txt; @foo)`,
-			err: nil,
-			expected: &TwtxtUserAgent{
-				Client: "twtxt/1.2.3",
+			name:     "Single-User Twtxt User Agent",
+			ua:       `twtxt/1.2.3 (+https://foo.com/twtxt.txt; @foo)`,
+			expected: &SingleUserAgent{
+				twtxtUserAgent: twtxtUserAgent{Client: "twtxt/1.2.3"},
 				Nick:   "foo",
 				URL:    "https://foo.com/twtxt.txt",
+			},
+		},
+		{
+			name:     "Multi-User Twtxt User Agent",
+			ua:       `yarnd/0.8.0@d4e265e (~https://example.com/whoFollows?followers=14&token=iABA0yhUz; contact=https://example.com/support)`,
+			expected: &MultiUserAgent{
+				twtxtUserAgent: twtxtUserAgent{Client: "yarnd/0.8.0@d4e265e"},
+				WhoFollowsURL:  "https://example.com/whoFollows?followers=14&token=iABA0yhUz",
+				SupportURL:     "https://example.com/support",
 			},
 		},
 	}
 
 	for _, testCase := range testCases {
-		actual, err := ParseTwtxtUserAgent(testCase.ua)
-		if err != nil {
-			assert.Equal(t, testCase.err, err)
-		} else {
+		t.Run(testCase.name, func(t *testing.T) {
+			actual, err := ParseUserAgent(testCase.ua)
+			if testCase.err != nil {
+				assert.Equal(t, testCase.err, err)
+			} else {
+				assert.NoError(t, err)
+				assert.IsType(t, testCase.expected, actual)
+				switch act := actual.(type) {
+				case *SingleUserAgent:
+					assert.Equal(t, testCase.expected.(*SingleUserAgent).Client, act.Client)
+					assert.Equal(t, testCase.expected.(*SingleUserAgent).Nick, act.Nick)
+					assert.Equal(t, testCase.expected.(*SingleUserAgent).URL, act.URL)
+				case *MultiUserAgent:
+					assert.Equal(t, testCase.expected.(*MultiUserAgent).Client, act.Client)
+					assert.Equal(t, testCase.expected.(*MultiUserAgent).WhoFollowsURL, act.WhoFollowsURL)
+					assert.Equal(t, testCase.expected.(*MultiUserAgent).SupportURL, act.SupportURL)
+				default:
+					assert.Fail(t, "test setup error: unsupported user agent type")
+				}
+			}
+		})
+	}
+}
+
+func TestTwtxtUserAgent_IsPod(t *testing.T) {
+	testCases := []struct{
+		name     string
+		ua       string
+		expected bool
+	}{
+		{
+			name:     "Single-User non-yarnd User Agent",
+			ua:       "twtxt/1.2.3 (+https://example.com/twtxt.txt; @foo)",
+			expected: false,
+		},
+		{
+			name:     "Single-User yarnd User Agent",
+			ua:       "yarnd/0.8.0@d4e265e (+https://example.com/user/foo/twtxt.txt; @foo)",
+			expected: true,
+		},
+		{
+			name:     "Multi-User non-yarnd User Agent",
+			ua:       "bernd/0.8.0@d4e265e (~https://example.com/whoFollows?followers=14&token=iABA0yhUz; contact=https://example.com/support)",
+			expected: false,
+		},
+		{
+			name:     "Multi-User yarnd User Agent",
+			ua:       "yarnd/0.8.0@d4e265e (~https://example.com/whoFollows?followers=14&token=iABA0yhUz; contact=https://example.com/support)",
+			expected: true,
+		},
+	}
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			ua, err := ParseUserAgent(testCase.ua)
 			assert.NoError(t, err)
-			assert.Equal(t, testCase.expected.Client, actual.Client)
-			assert.Equal(t, testCase.expected.Nick, actual.Nick)
-			assert.Equal(t, testCase.expected.URL, actual.URL)
-		}
+			assert.Equal(t, testCase.expected, ua.IsPod())
+		})
+	}
+}
+
+func TestTwtxtUserAgent_PodBaseURL(t *testing.T) {
+	testCases := []struct{
+		name     string
+		ua       string
+		expected string
+	}{
+		{
+			name:     "Single-User non-yarnd User Agent",
+			ua:       "twtxt/1.2.3 (+https://example.com/twtxt.txt; @foo)",
+			expected: "",
+		},
+		{
+			name:     "Single-User yarnd User Agent",
+			ua:       "yarnd/0.8.0@d4e265e (+https://example.com/user/foo/twtxt.txt; @foo)",
+			expected: "https://example.com",
+		},
+		{
+			name:     "Single-User yarnd with subdirectory User Agent",
+			ua:       "yarnd/0.8.0@d4e265e (+https://example.com/subdir/user/foo/twtxt.txt; @foo)",
+			expected: "https://example.com/subdir",
+		},
+		{
+			name:     "Multi-User non-yarnd User Agent",
+			ua:       "bernd/0.8.0@d4e265e (~https://example.com/whoFollows?followers=14&token=iABA0yhUz; contact=https://example.com/support)",
+			expected: "",
+		},
+		{
+			name:     "Multi-User yarnd User Agent",
+			ua:       "yarnd/0.8.0@d4e265e (~https://example.com/whoFollows?followers=14&token=iABA0yhUz; contact=https://example.com/support)",
+			expected: "https://example.com",
+		},
+		{
+			name:     "Multi-User yarnd with subdirectory User Agent",
+			ua:       "yarnd/0.8.0@d4e265e (~https://example.com/subdir/whoFollows?followers=14&token=iABA0yhUz; contact=https://example.com/subdir/support)",
+			expected: "https://example.com/subdir",
+		},
+	}
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			ua, err := ParseUserAgent(testCase.ua)
+			assert.NoError(t, err)
+			assert.Equal(t, testCase.expected, ua.PodBaseURL())
+		})
 	}
 }
 

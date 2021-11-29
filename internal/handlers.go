@@ -739,11 +739,15 @@ func (s *Server) SyndicationHandler() httprouter.Handle {
 	}
 }
 
-// PodVersionHandler ...
-func (s *Server) PodVersionHandler() httprouter.Handle {
+// PodInfoHandler ...
+func (s *Server) PodInfoHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		if r.Header.Get("Accept") == "application/json" {
-			data, err := json.Marshal(s.config.Version)
+			data, err := json.Marshal(PodInfo{
+				Name:            s.config.Name,
+				Description:     s.config.Description,
+				SoftwareVersion: s.config.Version.FullVersion,
+			})
 			if err != nil {
 				log.WithError(err).Error("error serializing pod version response")
 				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -754,7 +758,7 @@ func (s *Server) PodVersionHandler() httprouter.Handle {
 			_, _ = w.Write(data)
 		} else {
 			ctx := NewContext(s, r)
-			s.render("version", w, ctx)
+			s.render("info", w, ctx)
 		}
 	}
 }
@@ -762,7 +766,7 @@ func (s *Server) PodVersionHandler() httprouter.Handle {
 // PodConfigHandler ...
 func (s *Server) PodConfigHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		data, err := json.Marshal(s.config.Settings())
+		data, err := json.Marshal(s.config)
 		if err != nil {
 			log.WithError(err).Error("error serializing pod config response")
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)

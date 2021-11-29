@@ -15,6 +15,7 @@ preflight:
 deps:
 	@$(GOCMD) install github.com/tdewolff/minify/v2/cmd/minify@latest
 	@$(GOCMD) install github.com/nicksnyder/go-i18n/v2/goi18n@latest
+	@$(GOCMD) install github.com/astaxie/bat@latest
 
 dev : DEBUG=1
 dev : build
@@ -63,6 +64,10 @@ release:
 
 test:
 	@$(GOCMD) test -v -cover -race ./...
+
+coverage:
+	@$(GOCMD) test -v -cover -race -cover -coverprofile=coverage.out  ./...
+	@$(GOCMD) tool cover -html=coverage.out
 
 bench: bench-yarn.txt
 	go test -race -benchtime=1x -cpu 16 -benchmem -bench "^(Benchmark)" git.mills.io/yarnsocial/yarn/types

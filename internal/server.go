@@ -648,9 +648,10 @@ func (s *Server) initRoutes() {
 	s.router.GET("/settings", httproutermiddleware.Handler("settings", s.am.MustAuth(s.SettingsHandler()), mdlw))
 	s.router.POST("/settings", httproutermiddleware.Handler("settings", s.am.MustAuth(s.SettingsHandler()), mdlw))
 
-	s.router.GET("/version", httproutermiddleware.Handler("version", s.PodVersionHandler(), mdlw))
+	s.router.GET("/info", httproutermiddleware.Handler("info", s.PodInfoHandler(), mdlw))
 	s.router.GET("/config", httproutermiddleware.Handler("config", s.am.MustAuth(s.PodConfigHandler()), mdlw))
 	s.router.GET("/manage/pod", httproutermiddleware.Handler("manage_pod", s.ManagePodHandler(), mdlw))
+	s.router.GET("/manage/peers", httproutermiddleware.Handler("manage_peers", s.ManagePeersHandler(), mdlw))
 	s.router.POST("/manage/pod", httproutermiddleware.Handler("manage_pod", s.ManagePodHandler(), mdlw))
 	s.router.GET("/manage/refreshcache", httproutermiddleware.Handler("manage_refreshcache", s.RefreshCacheHandler(), mdlw))
 

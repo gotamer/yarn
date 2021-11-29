@@ -136,6 +136,9 @@ type Config struct {
 	DisplayDatesInTimezone string
 	DisplayTimePreference  string
 	OpenLinksInPreference  string
+
+	// requestTimeout defines the timeout for outgoing HTTP requests.
+	requestTimeout time.Duration
 }
 
 var _ types.FmtOpts = (*Config)(nil)
@@ -272,6 +275,15 @@ func (c *Config) TemplatesFS() fs.FS {
 	return os.DirFS(filepath.Join(c.Theme, "templates"))
 }
 
+// RequestTimeout returns the configured timeout for outgoing HTTP requests. If
+// not defined, it defaults to 30 seconds.
+func (c *Config) RequestTimeout() time.Duration {
+	if c.requestTimeout == 0 {
+		return 30 * time.Second
+	}
+	return c.requestTimeout
+}
+
 // LoadSettings loads pod settings from the given path
 func LoadSettings(path string) (*Settings, error) {
 	var settings Settings
@@ -315,3 +327,4 @@ func (s *Settings) Save(path string) error {
 
 	return f.Close()
 }
+

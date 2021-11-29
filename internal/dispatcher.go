@@ -2,11 +2,14 @@ package internal
 
 import (
 	"errors"
+
+	sync "github.com/sasha-s/go-deadlock"
 )
 
 // Dispatcher maintains a pool for available workers
 // and a task queue that workers will process
 type Dispatcher struct {
+	sync.RWMutex
 	maxWorkers int
 	maxQueue   int
 	workers    []*Worker
@@ -31,6 +34,9 @@ func NewDispatcher(maxWorkers int, maxQueue int) *Dispatcher {
 // Then, it starts a select loop to wait for tasks to be dispatched
 // to available workers
 func (d *Dispatcher) Start() {
+	d.Lock()
+	defer d.Unlock()
+
 	d.workers = []*Worker{}
 	d.workerPool = make(chan chan Task, d.maxWorkers)
 	d.taskQueue = make(chan Task, d.maxQueue)
@@ -63,6 +69,9 @@ func (d *Dispatcher) Start() {
 // Stop ends execution for all workers and closes all channels, then removes
 // all workers
 func (d *Dispatcher) Stop() {
+	d.Lock()
+	defer d.Unlock()
+
 	if !d.active {
 		return
 	}
@@ -79,6 +88,9 @@ func (d *Dispatcher) Stop() {
 
 // Lookup returns the matching `Task` given its id
 func (d *Dispatcher) Lookup(id string) (Task, bool) {
+	d.RLock()
+	defer d.RUnlock()
+
 	task, ok := d.taskMap[id]
 	return task, ok
 }
@@ -86,6 +98,9 @@ func (d *Dispatcher) Lookup(id string) (Task, bool) {
 // Dispatch pushes the given task into the task queue.
 // The first available worker will perform the task
 func (d *Dispatcher) Dispatch(task Task) (string, error) {
+	d.Lock()
+	defer d.Unlock()
+
 	if !d.active {
 		return "", errors.New("dispatcher is not active")
 	}

@@ -42,6 +42,7 @@
 /internal/theme/static/js/yarn.min.js
 
 bench-yarn.txt
+coverage.out
 
 .task/
 /doc/

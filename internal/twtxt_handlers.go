@@ -21,7 +21,7 @@ const defaultPreambleTemplate = `# Twtxt is an open, distributed microblogging p
 #
 # Learn more about twtxt at  https://github.com/buckket/twtxt
 #
-# This is hosted by a Yarn.social pod {{ .InstanceName }} running yarnd v{{ .SoftwareVersion.FullVersion }}
+# This is hosted by a Yarn.social pod {{ .InstanceName }} running yarnd {{ .SoftwareVersion.FullVersion }}
 # Learn more about Yarn.social at https://yarn.social
 #
 # nick        = {{ .Profile.Username }}
@@ -43,6 +43,10 @@ const defaultPreambleTemplate = `# Twtxt is an open, distributed microblogging p
 // TwtxtHandler ...
 func (s *Server) TwtxtHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		s.tasks.DispatchFunc(func() error {
+			return s.cache.DetectPodFromRequest(r)
+		})
+
 		ctx := NewContext(s, r)
 
 		nick := NormalizeUsername(p.ByName("nick"))
@@ -68,8 +72,8 @@ func (s *Server) TwtxtHandler() httprouter.Handle {
 			return
 		}
 
-		ua, _ := ParseTwtxtUserAgent(r.UserAgent())
-		if ua != nil {
+		twtxtUA, _ := ParseUserAgent(r.UserAgent())
+		if ua, ok := twtxtUA.(*SingleUserAgent); ok {
 			var (
 				user       *User
 				feed       *Feed

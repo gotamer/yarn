@@ -208,3 +208,7 @@
 .ti-volume-3:before {
   content: "\eb50";
 }
+
+.ti-affiliate:before {
+  content: '\edff';
+}

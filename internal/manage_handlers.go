@@ -158,7 +158,6 @@ func (s *Server) ManageUsersHandler() httprouter.Handle {
 		}
 
 		s.render("manageUsers", w, ctx)
-
 	}
 }
 
@@ -498,5 +497,25 @@ func (s *Server) RefreshCacheHandler() httprouter.Handle {
 		ctx.Error = false
 		ctx.Message = "Successfully refreshed cache"
 		s.render("error", w, ctx)
+	}
+}
+
+// ManagePeersHandler ...
+func (s *Server) ManagePeersHandler() httprouter.Handle {
+	isAdminUser := IsAdminUserFactory(s.config)
+
+	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		ctx := NewContext(s, r)
+
+		if !isAdminUser(ctx.User) {
+			ctx.Error = true
+			ctx.Message = "You are not a Pod Owner!"
+			s.render("403", w, ctx)
+			return
+		}
+
+		ctx.Peers = s.cache.GetPeers()
+
+		s.render("managePeers", w, ctx)
 	}
 }
