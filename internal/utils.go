@@ -1115,8 +1115,8 @@ func (ua *twtxtUserAgent) isPublicURL(uri, userAgent string) bool {
 // SingleUserAgent is a single Twtxt User Agent whether it be `tt`, `jenny` or a single-user `yarnd` client.
 type SingleUserAgent struct {
 	twtxtUserAgent
-	Nick   string
-	URL    string
+	Nick string
+	URL  string
 }
 
 func (ua *SingleUserAgent) String() string {

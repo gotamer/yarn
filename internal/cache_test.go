@@ -31,10 +31,10 @@ func newCallbackExpectedServerWithResponse(t *testing.T, reply func(w http.Respo
 	cleanup := func() {
 		server.Close()
 		select {
-			case <-called:
-				return
-			default:
-				t.Fatal("expected callback URL being called, but was not")
+		case <-called:
+			return
+		default:
+			t.Fatal("expected callback URL being called, but was not")
 		}
 	}
 	return server, cleanup
@@ -42,8 +42,8 @@ func newCallbackExpectedServerWithResponse(t *testing.T, reply func(w http.Respo
 
 func newCallbackExpectedServerWithNewPodInfo(t *testing.T) (*httptest.Server, func()) {
 	response, err := json.Marshal(PodInfo{
-		Name: "new name",
-		Description: "new description",
+		Name:            "new name",
+		Description:     "new description",
 		SoftwareVersion: "0.9001.23@7654321",
 	})
 	require.NoError(t, err, "marshalling pod info for callback failed")
@@ -104,7 +104,7 @@ func assertPodInfoNotInserted(t *testing.T, cache *Cache) {
 }
 
 func assertPodInfoNotUpdatedExceptLastSeen(t *testing.T, cache *Cache, podBaseURL string,
-		expectedNowReferenceBeforeCallForLastSeen, expectedLastUpdated time.Time) {
+	expectedNowReferenceBeforeCallForLastSeen, expectedLastUpdated time.Time) {
 
 	podInfo, ok := cache.Peers[podBaseURL]
 	require.True(t, ok, "cached pod info should not have been removed from the cache")
@@ -113,14 +113,14 @@ func assertPodInfoNotUpdatedExceptLastSeen(t *testing.T, cache *Cache, podBaseUR
 	assert.Equal(t, "old description", podInfo.Description, "cached pod description shold not have been updated")
 	assert.Equal(t, "0.42.0@1234567", podInfo.SoftwareVersion, "cached pod software version should not have been updated")
 	assertAfterOrAt(t, expectedNowReferenceBeforeCallForLastSeen, podInfo.LastSeen,
-			"cached last seen should have been updated to current point in time")
-	assertBefore(t, expectedNowReferenceBeforeCallForLastSeen.Add(10 * time.Second) /* allow for a little clock skew */,
-			podInfo.LastSeen, "cached last seen should not have been updated to be in the future")
+		"cached last seen should have been updated to current point in time")
+	assertBefore(t, expectedNowReferenceBeforeCallForLastSeen.Add(10*time.Second), /* allow for a little clock skew */
+		podInfo.LastSeen, "cached last seen should not have been updated to be in the future")
 	assert.Equal(t, expectedLastUpdated, podInfo.LastUpdated, "cached pod last updated should not have been updated")
 }
 
 func assertPodInfoUpdated(t *testing.T, cache *Cache, podBaseURL string,
-		expectedNowReferenceBeforeCallForLastSeenAndUpdated time.Time) {
+	expectedNowReferenceBeforeCallForLastSeenAndUpdated time.Time) {
 
 	podInfo, ok := cache.Peers[podBaseURL]
 	require.True(t, ok, "cached pod info should have been inserted into/not removed from the cache")
@@ -129,13 +129,13 @@ func assertPodInfoUpdated(t *testing.T, cache *Cache, podBaseURL string,
 	assert.Equal(t, "new description", podInfo.Description, "cached pod description shold have been updated")
 	assert.Equal(t, "0.9001.23@7654321", podInfo.SoftwareVersion, "cached pod software version should have been updated")
 	assertAfterOrAt(t, expectedNowReferenceBeforeCallForLastSeenAndUpdated, podInfo.LastSeen,
-			"cached last seen should have been updated to current point in time")
-	assertBefore(t, expectedNowReferenceBeforeCallForLastSeenAndUpdated.Add(10 * time.Second) /* allow for a little clock skew */,
-			podInfo.LastSeen, "cached last seen should not have been updated to be in the future")
+		"cached last seen should have been updated to current point in time")
+	assertBefore(t, expectedNowReferenceBeforeCallForLastSeenAndUpdated.Add(10*time.Second), /* allow for a little clock skew */
+		podInfo.LastSeen, "cached last seen should not have been updated to be in the future")
 	assertAfterOrAt(t, expectedNowReferenceBeforeCallForLastSeenAndUpdated, podInfo.LastUpdated,
-			"cached last updated should have been updated to current point in time")
-	assertBefore(t, expectedNowReferenceBeforeCallForLastSeenAndUpdated.Add(10 * time.Second) /* allow for a little clock skew */,
-			podInfo.LastUpdated, "cached last updated should not have been updated to be in the future")
+		"cached last updated should have been updated to current point in time")
+	assertBefore(t, expectedNowReferenceBeforeCallForLastSeenAndUpdated.Add(10*time.Second), /* allow for a little clock skew */
+		podInfo.LastUpdated, "cached last updated should not have been updated to be in the future")
 }
 
 func TestCache_DetectPodFromRequest_whenNonTwtxtUserAgent_thenDoNothing(t *testing.T) {
@@ -205,7 +205,7 @@ func TestCache_DetectPodFromRequest_whenPodNeverSeenAndCallbackNotReplying_thenR
 
 	err := cache.DetectPodFromRequest(req)
 	assert.Error(t, err, "detecting pod should have failed")
-	assert.Contains(t, err.Error(), serverURL + "/info", "error message should contain callback URL")
+	assert.Contains(t, err.Error(), serverURL+"/info", "error message should contain callback URL")
 	assertPodInfoNotInserted(t, cache)
 }
 
@@ -218,10 +218,9 @@ func TestCache_DetectPodFromRequest_whenPodAlreadySeenAndCallbackNotReplying_the
 
 	err := cache.DetectPodFromRequest(req)
 	assert.Error(t, err, "detecting pod should have failed")
-	assert.Contains(t, err.Error(), serverURL + "/info", "error message should contain callback URL")
+	assert.Contains(t, err.Error(), serverURL+"/info", "error message should contain callback URL")
 	assertPodInfoNotUpdatedExceptLastSeen(t, cache, serverURL, now, lastSeenAndUpdated)
 }
-
 
 func TestCache_DetectPodFromRequest_whenPodNeverSeenAndCallbackReplyingWithHTTPNon200_thenReturnErrorAndDoNothing(t *testing.T) {
 	server, cleanup := newCallbackExpectedServerWithResponse(t, func(w http.ResponseWriter) {
@@ -235,7 +234,7 @@ func TestCache_DetectPodFromRequest_whenPodNeverSeenAndCallbackReplyingWithHTTPN
 
 	err := cache.DetectPodFromRequest(req)
 	assert.EqualError(t, err, fmt.Sprintf("non-success HTTP 404 Not Found response for %s/info", server.URL),
-			"detecting pod should have failed")
+		"detecting pod should have failed")
 	assertPodInfoNotInserted(t, cache)
 }
 
@@ -253,7 +252,7 @@ func TestCache_DetectPodFromRequest_whenPodAlreadySeenAndCallbackReplyingWithHTT
 
 	err := cache.DetectPodFromRequest(req)
 	assert.EqualError(t, err, fmt.Sprintf("non-success HTTP 404 Not Found response for %s/info", server.URL),
-			"detecting pod should have failed")
+		"detecting pod should have failed")
 	assertPodInfoNotUpdatedExceptLastSeen(t, cache, server.URL, now, lastSeenAndUpdated)
 }
 
@@ -304,7 +303,7 @@ func TestCache_DetectPodFromRequest_whenPodNeverSeenAndCallbackReplyingWithNonJS
 
 	err := cache.DetectPodFromRequest(req)
 	assert.EqualError(t, err, fmt.Sprintf("non-JSON response content type 'text/plain; charset=UTF-8' for %s/info", server.URL),
-			"detecting pod should have failed")
+		"detecting pod should have failed")
 	assertPodInfoNotInserted(t, cache)
 }
 
@@ -323,7 +322,7 @@ func TestCache_DetectPodFromRequest_whenPodAlreadySeenAndCallbackReplyingWithNon
 
 	err := cache.DetectPodFromRequest(req)
 	assert.EqualError(t, err, fmt.Sprintf("non-JSON response content type 'text/plain; charset=UTF-8' for %s/info", server.URL),
-			"detecting pod should have failed")
+		"detecting pod should have failed")
 	assertPodInfoNotUpdatedExceptLastSeen(t, cache, server.URL, now, lastSeenAndUpdated)
 }
 

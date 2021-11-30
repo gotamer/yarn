@@ -26,17 +26,17 @@ func TestParseUserAgent(t *testing.T) {
 			err:  ErrInvalidUserAgent,
 		},
 		{
-			name:     "Single-User Twtxt User Agent",
-			ua:       `twtxt/1.2.3 (+https://foo.com/twtxt.txt; @foo)`,
+			name: "Single-User Twtxt User Agent",
+			ua:   `twtxt/1.2.3 (+https://foo.com/twtxt.txt; @foo)`,
 			expected: &SingleUserAgent{
 				twtxtUserAgent: twtxtUserAgent{Client: "twtxt/1.2.3"},
-				Nick:   "foo",
-				URL:    "https://foo.com/twtxt.txt",
+				Nick:           "foo",
+				URL:            "https://foo.com/twtxt.txt",
 			},
 		},
 		{
-			name:     "Multi-User Twtxt User Agent",
-			ua:       `yarnd/0.8.0@d4e265e (~https://example.com/whoFollows?followers=14&token=iABA0yhUz; contact=https://example.com/support)`,
+			name: "Multi-User Twtxt User Agent",
+			ua:   `yarnd/0.8.0@d4e265e (~https://example.com/whoFollows?followers=14&token=iABA0yhUz; contact=https://example.com/support)`,
 			expected: &MultiUserAgent{
 				twtxtUserAgent: twtxtUserAgent{Client: "yarnd/0.8.0@d4e265e"},
 				WhoFollowsURL:  "https://example.com/whoFollows?followers=14&token=iABA0yhUz",
@@ -71,7 +71,7 @@ func TestParseUserAgent(t *testing.T) {
 }
 
 func TestTwtxtUserAgent_IsPod(t *testing.T) {
-	testCases := []struct{
+	testCases := []struct {
 		name     string
 		ua       string
 		expected bool
@@ -107,7 +107,7 @@ func TestTwtxtUserAgent_IsPod(t *testing.T) {
 }
 
 func TestTwtxtUserAgent_PodBaseURL(t *testing.T) {
-	testCases := []struct{
+	testCases := []struct {
 		name     string
 		ua       string
 		expected string

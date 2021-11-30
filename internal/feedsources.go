@@ -14,9 +14,9 @@ import (
 )
 
 type FeedSource struct {
-	Name string
-	URL  string
-	Avatar string
+	Name        string
+	URL         string
+	Avatar      string
 	Description string
 }
 

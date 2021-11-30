@@ -327,4 +327,3 @@ func (s *Settings) Save(path string) error {
 
 	return f.Close()
 }
-

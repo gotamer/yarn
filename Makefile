@@ -62,6 +62,9 @@ endif
 release:
 	@./tools/release.sh
 
+fmt:
+	@$(GOCMD) fmt ./...
+
 test:
 	@$(GOCMD) test -v -cover -race ./...
 

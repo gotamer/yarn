@@ -350,7 +350,7 @@ func (cache *Cache) DetectPodFromRequest(req *http.Request) error {
 	}
 	defer res.Body.Close()
 
-	if res.StatusCode / 100 != 2 {
+	if res.StatusCode/100 != 2 {
 		resetDummyPodInfo()
 		log.Errorf("HTTP %s response for /info of pod running at %s", res.Status, podBaseURL)
 		return fmt.Errorf("non-success HTTP %s response for %s/info", res.Status, podBaseURL)
