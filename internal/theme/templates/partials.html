@@ -267,6 +267,6 @@
 {{ define "profileLinks" }}
 <a target="_blank" href="{{ $.Profile.URL }}"><i class="ti ti-link-profile"></i> {{ tr $.Ctx "ProfileTwtxtLinkTitle" }}</a>
 <a target="_blank" href="{{ $.Profile.URL | trimSuffix "/twtxt.txt" }}/atom.xml"><i class="ti ti-rss-profile"></i> {{ tr $.Ctx "ProfileAtomLinkTitle" }}</a>
-<a target="_blank" href="{{ $.Profile.URL | trimSuffix "/twtxt.txt" }}/bookmarks"><i class="ti ti-bookmarks"></i> {{ tr $.Ctx "ProfileBookmarksLinkTitle" | trimSuffix ":" }}</a>
+<a href="{{ $.Profile.URL | trimSuffix "/twtxt.txt" }}/bookmarks"><i class="ti ti-bookmarks"></i> {{ tr $.Ctx "ProfileBookmarksLinkTitle" | trimSuffix ":" }}</a>
 <a target="_blank" href="{{ $.Profile.URL | trimSuffix "/twtxt.txt" }}/config.yaml"><i class="ti ti-settings"></i> {{ tr $.Ctx "ProfileConfigLinkTitle" }}</a>
 {{ end }}
