@@ -750,6 +750,11 @@ func (cache *Cache) Refresh() {
 	for k, v := range subjects {
 		cache.Views["subject:"+k] = NewCached(v, "")
 	}
+	for k, peer := range cache.Peers {
+		if peer.LastSeen.After(peer.LastUpdated) {
+			delete(cache.Peers, k)
+		}
+	}
 	cache.mu.Unlock()
 }
 
