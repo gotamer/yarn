@@ -291,7 +291,7 @@ func (cache *Cache) DetectPodFromRequest(req *http.Request) error {
 		return nil
 	}
 
-	if !twtxtUA.IsPublicURL() {
+	if !cache.conf.Debug && !twtxtUA.IsPublicURL() {
 		log.Warnf("ignoring non-public peering pod %s", twtxtUA)
 		return nil
 	}
