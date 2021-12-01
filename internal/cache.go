@@ -291,10 +291,13 @@ func (cache *Cache) DetectPodFromRequest(req *http.Request) error {
 		return nil
 	}
 
+	if !twtxtUA.IsPublicURL() {
+		log.Warnf("ignoring non-public peering pod %s", twtxtUA)
+		return nil
+	}
+
 	podBaseURL := twtxtUA.PodBaseURL()
-	log.Debugf("podBaseURL: %#v", podBaseURL)
 	if podBaseURL == "" {
-		log.Debugf("cannot find a valid pod base URL from %s", req.UserAgent())
 		return nil
 	}
 
@@ -303,7 +306,6 @@ func (cache *Cache) DetectPodFromRequest(req *http.Request) error {
 	cache.mu.RUnlock()
 
 	if hasSeen && !oldPodInfo.ShouldRefresh() {
-		log.Debugf("already seen pod %s", podBaseURL)
 		// This might in fact race if another goroutine would have fetched the
 		// pod info and updated the cache between our check above and the
 		// update here. However, since we're only setting a timestamp when
@@ -323,7 +325,6 @@ func (cache *Cache) DetectPodFromRequest(req *http.Request) error {
 	oldPodInfo, hasSeen = cache.Peers[podBaseURL]
 	if hasSeen && !oldPodInfo.ShouldRefresh() {
 		cache.mu.Unlock()
-		log.Debugf("already seen pod %s", podBaseURL)
 		return nil
 	}
 	cache.Peers[podBaseURL] = &PodInfo{}
