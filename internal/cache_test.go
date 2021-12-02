@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var peerCfg = &Config{requestTimeout: 100 * time.Millisecond}
+var peerCfg = &Config{Debug: true, requestTimeout: 100 * time.Millisecond}
 
 func newNoCallbackExpectedServer(t *testing.T) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {

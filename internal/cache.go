@@ -295,7 +295,6 @@ func (cache *Cache) DetectPodFromRequest(req *http.Request) error {
 	}
 
 	if !twtxtUA.IsPod() {
-		log.Debugf("%s is not a pod!", req.UserAgent())
 		return nil
 	}
 
