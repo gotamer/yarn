@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"sort"
@@ -8,6 +9,7 @@ import (
 	"time"
 
 	"github.com/julienschmidt/httprouter"
+	"github.com/rickb777/accept"
 	"github.com/securisec/go-keywords"
 	log "github.com/sirupsen/logrus"
 	"github.com/vcraescu/go-paginator"
@@ -97,6 +99,20 @@ func (s *Server) ConversationHandler() httprouter.Handle {
 			twts = append(twts, twt)
 		}
 		sort.Sort(sort.Reverse(twts))
+
+		if accept.PreferredContentTypeLike(r.Header, "application/json") == "application/json" {
+			data, err := json.Marshal(twts)
+			if err != nil {
+				log.WithError(err).Error("error serializing twt response")
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+			w.Header().Set("Last-Modified", twt.Created().Format(http.TimeFormat))
+			_, _ = w.Write(data)
+			return
+		}
 
 		var pagedTwts types.Twts
 
