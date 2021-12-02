@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ $# -ne 4 ]; then
+if [ $# -ne 3 ]; then
   echo "Usage: $(basename "$0") <source_pod> <target_pod> <twt_hash>"
   exit 1
 fi
@@ -13,4 +13,4 @@ curl -qso - -H 'Accept: application/json' "$source_pod/twt/$twt_hash" \
   | curl -vo - -X POST \
   -H "Token:$YARND_TOKEN" -H "Accept: application/json" \
   -H "Content-type:application/json" \
-  --data-binary @- "$target_pod/api/v1/inject
+  --data-binary @- "$target_pod/api/v1/inject"
