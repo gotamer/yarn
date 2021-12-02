@@ -11,13 +11,13 @@
         <th><abbr title="When this pod received the last feed fetch request from the peering pod">Last Seen<abbr></th>
         <th><abbr title="When this pod fetched the peering pod's information the last time (once a day)">Last Updated</abbr></th>
       </tr>
-      {{ range $k, $v := $.Peers }}
+      {{ range $peer := $.Peers }}
         <tr>
-          <td><a href="{{ $k }}">{{ $v.Name }}</a></td>
-          <td><small>{{ $v.Description | abbrev 60 }}</small></td>
-          <td><small>{{ $v.SoftwareVersion }}</small></td>
-          <td><small>{{ $v.LastSeen | time }}</small></td>
-          <td><small>{{ $v.LastUpdated | time }}</small></td>
+          <td><a href="{{ $peer.URI }}">{{ $peer.Name }}</a></td>
+          <td><small>{{ $peer.Description | abbrev 60 }}</small></td>
+          <td><small>{{ $peer.SoftwareVersion }}</small></td>
+          <td><small>{{ $peer.LastSeen | time }}</small></td>
+          <td><small>{{ $peer.LastUpdated | time }}</small></td>
         </tr>
       {{ end }}
     </table>

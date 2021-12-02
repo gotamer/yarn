@@ -158,6 +158,8 @@ func (cached *Cached) Update(url, lastmodiied string, twts types.Twts) {
 }
 
 type PodInfo struct {
+	URI string `json:"-"`
+
 	Name            string `json:"name"`
 	Description     string `json:"description"`
 	SoftwareVersion string `json:"software_version"`
@@ -181,6 +183,12 @@ func (p *PodInfo) IsZero() bool {
 func (p *PodInfo) ShouldRefresh() bool {
 	return time.Since(p.LastUpdated) > podInfoUpdateTTL
 }
+
+type Peers []PodInfo
+
+func (peers Peers) Len() int           { return len(peers) }
+func (peers Peers) Less(i, j int) bool { return peers[i].URI > peers[j].URI }
+func (peers Peers) Swap(i, j int)      { peers[i], peers[j] = peers[j], peers[i] }
 
 // Cache ...
 type Cache struct {
@@ -385,6 +393,7 @@ func (cache *Cache) DetectPodFromRequest(req *http.Request) error {
 		log.WithError(err).Errorf("error decoding response body for /info of pod running at %s", podBaseURL)
 		return err
 	}
+	podInfo.URI = podBaseURL
 	podInfo.LastSeen = time.Now()
 	podInfo.LastUpdated = time.Now()
 
@@ -790,19 +799,20 @@ func (cache *Cache) UpdateFeed(url, lastmodified string, twts types.Twts) {
 }
 
 // GetPeers ...
-func (cache *Cache) GetPeers() map[string]*PodInfo {
+func (cache *Cache) GetPeers() (peers Peers) {
 	cache.mu.RLock()
 	cachedPeers := cache.Peers
 	cache.mu.RUnlock()
 
-	peers := make(map[string]*PodInfo)
-
-	for k, v := range cachedPeers {
-		if k == "" || v.IsZero() {
+	for k, cachedPeer := range cachedPeers {
+		if k == "" || cachedPeer.IsZero() {
 			continue
 		}
-		peers[k] = v
+		peer := *cachedPeer
+		peers = append(peers, peer)
 	}
+
+	sort.Sort(peers)
 
 	return peers
 }

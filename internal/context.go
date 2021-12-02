@@ -102,7 +102,7 @@ type Context struct {
 	LastMentionedAt   time.Time
 
 	// Discovered Pods peering with us
-	Peers map[string]*PodInfo
+	Peers Peers
 
 	// Search
 	SearchQuery string
