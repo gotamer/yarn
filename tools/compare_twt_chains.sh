@@ -11,4 +11,5 @@ conv_hash="$3"
 
 comm -3 \
   <(curl -qso - -H 'Accept: application/json' "$source_pod/conv/$conv_hash" | jq -r '.[] | .hash' | sort) \
-  <(curl -qso - -H 'Accept: application/json' "$target_pod/conv/$conv_hash" | jq -r '.[] | .hash' | sort)
+  <(curl -qso - -H 'Accept: application/json' "$target_pod/conv/$conv_hash" | jq -r '.[] | .hash' | sort) \
+  | awk '{ print $1 }'
