@@ -583,8 +583,11 @@ footer .footer-menu a:last-child::after{
 }
 /* Toolbar styling */
 @media (max-width: 576px) {
-  .container {
+  main.container {
     padding: 0;
+  }
+  footer.container {
+    padding: 1rem;
   }
   .toolbar-nav li {
     padding: 1rem .2rem;
