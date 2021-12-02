@@ -187,7 +187,7 @@ func (p *PodInfo) ShouldRefresh() bool {
 type Peers []PodInfo
 
 func (peers Peers) Len() int           { return len(peers) }
-func (peers Peers) Less(i, j int) bool { return peers[i].URI > peers[j].URI }
+func (peers Peers) Less(i, j int) bool { return strings.Compare(peers[i].Name, peers[j].Name) < 0 }
 func (peers Peers) Swap(i, j int)      { peers[i], peers[j] = peers[j], peers[i] }
 
 // Cache ...
@@ -760,7 +760,8 @@ func (cache *Cache) Refresh() {
 		cache.Views["subject:"+k] = NewCached(v, "")
 	}
 	for k, peer := range cache.Peers {
-		if peer.LastSeen.After(peer.LastUpdated) {
+		delta := peer.LastSeen.Sub(peer.LastUpdated)
+		if delta > (podInfoUpdateTTL / 2) {
 			delete(cache.Peers, k)
 		}
 	}
