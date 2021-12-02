@@ -573,8 +573,6 @@ func (u *User) Fork(twt types.Twt) string {
 		tokens = append(tokens, fmt.Sprintf("@%s", twt.Twter().Nick))
 	}
 
-	tokens = UniqStrings(tokens)
-
 	return fmt.Sprintf("%s ", strings.Join(tokens, " "))
 }
 
