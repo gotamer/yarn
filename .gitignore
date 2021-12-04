@@ -8,6 +8,7 @@
 *.rej
 *.orig
 
+/app
 /dist
 
 /yarnc
