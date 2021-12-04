@@ -2,6 +2,7 @@ package internal
 
 import (
 	"errors"
+	"time"
 
 	sync "github.com/sasha-s/go-deadlock"
 )
@@ -50,6 +51,19 @@ func (d *Dispatcher) Start() {
 	}
 
 	d.active = true
+
+	go func() {
+		c := time.Tick(5 * time.Minute)
+		for range c {
+			d.Lock()
+			for k, v := range d.taskMap {
+				if v.State() == TaskStateComplete || v.State() == TaskStateFailed {
+					delete(d.taskMap, k)
+				}
+			}
+			d.Unlock()
+		}
+	}()
 
 	go func() {
 		for {
