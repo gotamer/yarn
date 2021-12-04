@@ -240,11 +240,8 @@ const myCommand :Spk.Manifest.Command = (
     # Note that this defines the *entire* environment seen by your app.
     (key = "PATH", value = "/usr/local/bin:/usr/bin:/bin"),
     (key = "SANDSTORM", value = "1"),
-    (key = "DEBUG", value = "true"),
     (key = "DATA", value = "/var/data"),
     (key = "STORE", value = "bitcask:///var/data/yarn.db"),
-    (key = "OPEN_REGISTRATIONS", value = "true"),
-    (key = "OPEN_PROFILES", value = "true"),
     # Export SANDSTORM=1 into the environment, so that apps running within Sandstorm
     # can detect if $SANDSTORM="1" at runtime, switching UI and/or backend to use
     # the app's Sandstorm-specific integration code.

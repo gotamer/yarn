@@ -5,6 +5,7 @@
 bin
 etc/ld.so.cache
 etc/localtime
+etc/mime.types
 lib
 lib64
 opt/app/.sandstorm/launcher.sh
@@ -14,6 +15,9 @@ sandstorm-http-bridge
 sandstorm-http-bridge-config
 sandstorm-manifest
 usr/bin/bash
+usr/bin/fold
+usr/bin/head
+usr/bin/tr
 usr/lib/x86_64-linux-gnu/ld-2.28.so
 usr/lib/x86_64-linux-gnu/libc-2.28.so
 usr/lib/x86_64-linux-gnu/libc.so.6
