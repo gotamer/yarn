@@ -1,4 +1,37 @@
 
+<a name="0.9.0"></a>
+## [0.9.0](https://git.mills.io/yarnsocial/yarn/compare/0.8.0...0.9.0) (2021-12-04)
+
+### Bug Fixes
+
+* Fix memory leak of the internal taskMap for async tasks
+* Fix cache tests
+* Fix display of peers to have a consistent sort order
+* Fix tools/inject_twt.sh
+* Fix bug causing inconsisstencyin order of (#hash) @mention in forks (left over UniqStringsfrom previous refactor :O)
+* Fix form used for Following new feeds (now under Feeds view)
+* Fix profile and externalProfile to only show Follow/Unfollow and Mute/Unmute for authenticated users
+* Fix media button formatting (#569)
+* Fix the location of the tabler-icons.woff icon font and where it's served from
+* Fix bug / bad data in customTimeMagnitudes table causing incorrect relative times to be displayed for >1m
+
+### Features
+
+* Add tools/compare_twt_chains.sh for comparing two pods conversation chains for set difference of twts
+* Add content-negogiated application/json output for /conv views
+* Add quick script for injecting twts from a source pod to a target pod given a hash
+* Add support for discovering peering pods (#582)
+* Add an experimental injection endpoint for injecting twts into the cache and archive
+
+### Updates
+
+* Update External Avatar for injected Twts
+* Update to tabler-icons v1.45.0
+* Update 'internal/theme/static/css/99-yarn.css'
+* Update 'internal/langs/active.en.toml' (#571)
+* Update icons for default theme to use Tabler Icons (#562)
+
+
 <a name="0.8.0"></a>
 ## [0.8.0](https://git.mills.io/yarnsocial/yarn/compare/0.7.4...0.8.0) (2021-11-21)
 
@@ -30,6 +63,7 @@
 
 ### Updates
 
+* Update CHANGELOG for 0.8.0
 * Update CHANGELOG for 0.8.0
 * Update CHANGELOG for 0.8.0
 * Update CHANGELOG template and config
