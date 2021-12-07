@@ -101,7 +101,7 @@ func (s *Server) LoginEmailHandler() httprouter.Handle {
 
 		if r.Method == "GET" {
 			ctx.Title = s.tr(ctx, "LoginEmailTitle")
-			s.render("login_email", w, ctx)
+			s.render("loginEmail", w, ctx)
 			return
 		}
 

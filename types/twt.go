@@ -33,15 +33,21 @@ func (twter Twter) IsZero() bool {
 
 func (twter Twter) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
-		Nick    string `json:"nick"`
-		URL     string `json:"url"`
-		Avatar  string `json:"avatar"`
-		Tagline string `json:"tagline"`
+		Nick      string           `json:"nick"`
+		URL       string           `json:"url"`
+		Avatar    string           `json:"avatar"`
+		Tagline   string           `json:"tagline"`
+		Following int              `json:"following"`
+		Followers int              `json:"followers"`
+		Follow    map[string]Twter `json:"follow"`
 	}{
-		Nick:    twter.Nick,
-		URL:     twter.URL,
-		Avatar:  twter.Avatar,
-		Tagline: twter.Tagline,
+		Nick:      twter.Nick,
+		URL:       twter.URL,
+		Avatar:    twter.Avatar,
+		Tagline:   twter.Tagline,
+		Following: twter.Following,
+		Followers: twter.Followers,
+		Follow:    twter.Follow,
 	})
 }
 func (twter Twter) String() string { return fmt.Sprintf("%v\t%v", twter.Nick, twter.URL) }

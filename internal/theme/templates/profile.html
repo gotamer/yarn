@@ -5,9 +5,9 @@
   </div>
 
   <div class="profile-stats">
-    <a href="{{ $.Profile.URL | trimSuffix "/twtxt.txt" }}" class="u-url">
+    <a {{ if not (eq $.Profile.Type "External") }}href="{{ $.Profile.URL | trimSuffix "/twtxt.txt" }}"{{ else }}href="/external?uri={{ $.Profile.URL}}&nick={{ $.Profile.Username }}"{{ end }} class="u-url">
       {{ if .Profile.Avatar }}
-      <img class="avatar u-photo" src="/user/{{ $.Profile.Username }}/avatar" alt="" loading=lazy />
+      <img class="avatar u-photo" {{ if not (eq $.Profile.Type "External") }}src="/user/{{ $.Profile.Username }}/avatar"{{ else }}src="/externalAvatar?uri={{ $.Profile.URL }}"{{ end }} alt="" loading=lazy />
       {{ else }}
       <i class="ti ti-rss-nav"></i>
       {{ end }}
@@ -33,16 +33,12 @@
   </div>
 
   <div class="profile-links">
-    {{ if not $.Profile.Follows }}
-    <a class="followBtn" href="/follow?nick={{ .Profile.Username  }}&url={{ .Profile.URL }}">
+    <a class="followBtn" style="display: {{ if not $.Profile.Follows }}inline{{ else }}none{{ end}};" href="/follow?nick={{ .Profile.Username  }}&url={{ .Profile.URL }}">
       <i class="ti ti-circle-plus"></i> {{ tr . "FollowLinkTitle" }}
     </a>
-    {{ end }}
-    {{ if $.Profile.Follows }}
-    <a class="unfollowBtn" href="/unfollow?nick={{ .Profile.Username  }}">
+    <a class="unfollowBtn" style="display: {{ if $.Profile.Follows }}inline{{ else }}none{{ end}};" href="/unfollow?nick={{ .Profile.Username  }}">
       <i class="ti ti-circle-minus"></i> {{ tr . "UnfollowLinkTitle" }}
     </a>
-    {{ end }}
     {{ template "profileLinks" (dict "Profile" .Profile "Ctx" .) }}
   </div>
 
@@ -51,10 +47,10 @@
     {{ (tr . "ProfileBlockUserContent" (dict "InstanceName" .InstanceName)) | html }}
     <ul>
       <li>
-        <a id="muteBtn" style="display: {{ if not $.Profile.Muted }}inline{{ else }}none{{ end }};" href="/mute?nick={{ .Profile.Username }}&url={{ .Profile.URL }}">
+        <a class="muteBtn" style="display: {{ if not $.Profile.Muted }}inline{{ else }}none{{ end }};" href="/mute?nick={{ .Profile.Username }}&url={{ .Profile.URL }}">
           <i class="ti ti-volume-3"></i> {{ tr . "ProfileMuteLinkTitle" }}
         </a>
-        <a id="unmuteBtn" style="display: {{ if .Profile.Muted }}inline{{ else }}none{{ end }};" href="/unmute?nick={{ .Profile.Username }}">
+        <a class="unmuteBtn" style="display: {{ if .Profile.Muted }}inline{{ else }}none{{ end }};" href="/unmute?nick={{ .Profile.Username }}">
           <i class="ti ti-volume"></i> {{ tr . "ProfileUnmuteLinkTitle" }}
         </a>
       </li>

@@ -137,7 +137,7 @@ func (s *Server) ExternalHandler() httprouter.Handle {
 		trdata["Nick"] = nick
 		trdata["URL"] = uri
 		ctx.Title = s.tr(ctx, "PageExternalProfileTitle", trdata)
-		s.render("externalProfile", w, ctx)
+		s.render("profile", w, ctx)
 	}
 }
 
@@ -158,9 +158,12 @@ func (s *Server) ExternalFollowingHandler() httprouter.Handle {
 		}
 
 		if !s.cache.IsCached(uri) {
-			sources := make(types.Feeds)
-			sources[types.Feed{Nick: nick, URL: uri}] = true
-			s.cache.FetchTwts(s.config, s.archive, sources, nil)
+			s.tasks.DispatchFunc(func() error {
+				sources := make(types.Feeds)
+				sources[types.Feed{Nick: nick, URL: uri}] = true
+				s.cache.FetchTwts(s.config, s.archive, sources, nil)
+				return nil
+			})
 		}
 
 		twts := s.cache.GetByURL(uri)
@@ -207,6 +210,8 @@ func (s *Server) ExternalFollowingHandler() httprouter.Handle {
 			}
 		}
 
+		log.Debugf("ctx.Twter.Follow: #%V", ctx.Twter.Follow)
+
 		following := make(map[string]string)
 		for followingNick, followingTwter := range ctx.Twter.Follow {
 			following[followingNick] = followingTwter.URL
@@ -252,7 +257,7 @@ func (s *Server) ExternalFollowingHandler() httprouter.Handle {
 		trdata["Nick"] = nick
 		trdata["URL"] = uri
 		ctx.Title = s.tr(ctx, "PageExternalFollowingTitle", trdata)
-		s.render("externalFollowing", w, ctx)
+		s.render("following", w, ctx)
 	}
 }
 

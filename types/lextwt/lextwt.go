@@ -98,7 +98,7 @@ func ParseFile(r io.Reader, twter types.Twter) (types.TwtFile, error) {
 		f.twter.Tagline = v.Value()
 	}
 
-	//f.twter.Follow = f.Info().FollowMap()
+	f.twter.Follow = f.Info().FollowMap()
 
 	if v, ok := f.Info().GetN("following", 0); ok {
 		if n, err := strconv.Atoi(v.Value()); err == nil {
