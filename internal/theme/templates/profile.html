@@ -16,14 +16,55 @@
   </div>
 
   <div class="profile-tagline">
+    {{ if .Profile.FollowedBy }}
+    <div class="profile-popular"><a href="{{ .Profile.URL }}">@{{ .Profile.Username }}</a> {{ tr . "ProfileFollowsYou" }}</div>
+    {{ else }}
+    {{ $splitFollow := split "(" (tr . "ProfileDoesNotFollowYou")}}
+    <div class="profile-popular">
+      <a href="{{ .Profile.URL }}">@{{ .Profile.Username }}</a> {{ ((index $splitFollow "_0") | trimSuffix ")") | html }}
+    </div>
+    <div class="profile-nofollow">
+      {{ ((index $splitFollow "_1") | trimSuffix ")") | html }}
+    </div>
+    {{ end }}
     {{ if gt (len .Profile.Tagline) 0 }}
     <p>{{ .Profile.Tagline }}</p>
     {{ end }}
   </div>
 
   <div class="profile-links">
+    {{ if not $.Profile.Follows }}
+    <a class="followBtn" href="/follow?nick={{ .Profile.Username  }}&url={{ .Profile.URL }}">
+      <i class="ti ti-circle-plus"></i> {{ tr . "FollowLinkTitle" }}
+    </a>
+    {{ end }}
+    {{ if $.Profile.Follows }}
+    <a class="unfollowBtn" href="/unfollow?nick={{ .Profile.Username  }}">
+      <i class="ti ti-circle-minus"></i> {{ tr . "UnfollowLinkTitle" }}
+    </a>
+    {{ end }}
     {{ template "profileLinks" (dict "Profile" .Profile "Ctx" .) }}
   </div>
+
+  <details class="profile-report">
+    <summary>{{ tr . "ProfileBlockUserTitle" }}</summary>
+    {{ (tr . "ProfileBlockUserContent" (dict "InstanceName" .InstanceName)) | html }}
+    <ul>
+      <li>
+        <a id="muteBtn" style="display: {{ if not $.Profile.Muted }}inline{{ else }}none{{ end }};" href="/mute?nick={{ .Profile.Username }}&url={{ .Profile.URL }}">
+          <i class="ti ti-volume-3"></i> {{ tr . "ProfileMuteLinkTitle" }}
+        </a>
+        <a id="unmuteBtn" style="display: {{ if .Profile.Muted }}inline{{ else }}none{{ end }};" href="/unmute?nick={{ .Profile.Username }}">
+          <i class="ti ti-volume"></i> {{ tr . "ProfileUnmuteLinkTitle" }}
+        </a>
+      </li>
+      <li>
+        <a href="/report?nick={{ .Profile.Username  }}&url={{ .Profile.URL }}" style="color:red;">
+          <i class="ti ti-urgent" style="color:red;"></i> {{ tr . "ProfileReportLinkTitle" }}
+        </a>
+      </li>
+    </ul>
+  </details>
 
   <div class="profile-recent">
     <h2>{{ tr . "RecentTwtsSummary" (dict "Username" .Profile.Username) }}</h2>
