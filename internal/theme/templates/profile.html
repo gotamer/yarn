@@ -16,6 +16,7 @@
   </div>
 
   <div class="profile-tagline">
+    {{ if .Authenticated }}
     {{ if .Profile.FollowedBy }}
     <div class="profile-popular"><a href="{{ .Profile.URL }}">@{{ .Profile.Username }}</a> {{ tr . "ProfileFollowsYou" }}</div>
     {{ else }}
@@ -27,21 +28,25 @@
       {{ ((index $splitFollow "_1") | trimSuffix ")") | html }}
     </div>
     {{ end }}
+    {{ end }}
     {{ if gt (len .Profile.Tagline) 0 }}
     <p>{{ .Profile.Tagline }}</p>
     {{ end }}
   </div>
 
   <div class="profile-links">
+    {{ if .Authenticated }}
     <a class="followBtn" style="display: {{ if not $.Profile.Follows }}inline{{ else }}none{{ end}};" href="/follow?nick={{ .Profile.Username  }}&url={{ .Profile.URL }}">
       <i class="ti ti-circle-plus"></i> {{ tr . "FollowLinkTitle" }}
     </a>
     <a class="unfollowBtn" style="display: {{ if $.Profile.Follows }}inline{{ else }}none{{ end}};" href="/unfollow?nick={{ .Profile.Username  }}">
       <i class="ti ti-circle-minus"></i> {{ tr . "UnfollowLinkTitle" }}
     </a>
+    {{ end }}
     {{ template "profileLinks" (dict "Profile" .Profile "Ctx" .) }}
   </div>
 
+  {{ if .Authenticated }}
   <details class="profile-report">
     <summary>{{ tr . "ProfileBlockUserTitle" }}</summary>
     {{ (tr . "ProfileBlockUserContent" (dict "InstanceName" .InstanceName)) | html }}
@@ -61,6 +66,7 @@
       </li>
     </ul>
   </details>
+  {{ end }}
 
   <div class="profile-recent">
     <h2>{{ tr . "RecentTwtsSummary" (dict "Username" .Profile.Username) }}</h2>

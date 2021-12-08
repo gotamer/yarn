@@ -173,6 +173,10 @@ nav.toolbar-nav ul{
   margin-bottom: -2rem !important;
 }
 
+.profile-recent h2 {
+  font-size: 1.25rem !important;
+}
+
 .feed-flex {
   display: flex;
   flex-wrap: wrap;
