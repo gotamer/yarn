@@ -210,8 +210,6 @@ func (s *Server) ExternalFollowingHandler() httprouter.Handle {
 			}
 		}
 
-		log.Debugf("ctx.Twter.Follow: #%V", ctx.Twter.Follow)
-
 		following := make(map[string]string)
 		for followingNick, followingTwter := range ctx.Twter.Follow {
 			following[followingNick] = followingTwter.URL
