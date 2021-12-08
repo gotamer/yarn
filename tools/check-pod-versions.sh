@@ -9,7 +9,7 @@ get_pod_version() {
   echo -n "$version"
 }
 
-pods="twtxt.net txt.sour.is twt.nfld.uk tt.vltra.plus yarn.andrewjvpowell.com we.loveprivacy.club arrakis.netbros.com tw.lohn.in yarn.meff.me txt.quisquiliae.com"
+pods="twtxt.net txt.sour.is twt.nfld.uk tt.vltra.plus yarn.andrewjvpowell.com we.loveprivacy.club arrakis.netbros.com tw.lohn.in yarn.meff.me txt.quisquiliae.com mentano.org"
 
 echo "Pod Version"
 
