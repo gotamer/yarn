@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"bytes"
 	"encoding/gob"
 	"encoding/json"
 	"fmt"
@@ -220,15 +219,6 @@ func (cache *Cache) Store(conf *Config) error {
 	cache.mu.RLock()
 	defer cache.mu.RUnlock()
 
-	b := new(bytes.Buffer)
-	enc := gob.NewEncoder(b)
-	err := enc.Encode(cache)
-
-	if err != nil {
-		log.WithError(err).Error("error encoding cache")
-		return err
-	}
-
 	fn := filepath.Join(conf.Data, feedCacheFile)
 	f, err := os.OpenFile(fn, os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
@@ -237,10 +227,38 @@ func (cache *Cache) Store(conf *Config) error {
 	}
 	defer f.Close()
 
-	if _, err = f.Write(b.Bytes()); err != nil {
-		log.WithError(err).Error("error writing cache file")
+	enc := gob.NewEncoder(f)
+
+	if err := enc.Encode(cache.Version); err != nil {
+		log.WithError(err).Error("error encoding cache.Version")
 		return err
 	}
+
+	if err := enc.Encode(cache.List); err != nil {
+		log.WithError(err).Error("error encoding cache.List")
+		return err
+	}
+
+	if err := enc.Encode(cache.Map); err != nil {
+		log.WithError(err).Error("error encoding cache.Map")
+		return err
+	}
+
+	if err := enc.Encode(cache.Peers); err != nil {
+		log.WithError(err).Error("error encoding cache.Peers")
+		return err
+	}
+
+	if err := enc.Encode(cache.Feeds); err != nil {
+		log.WithError(err).Error("error encoding cache.Feeds")
+		return err
+	}
+
+	if err := enc.Encode(cache.Views); err != nil {
+		log.WithError(err).Error("error encoding cache.Views")
+		return err
+	}
+
 	return nil
 }
 
@@ -263,16 +281,43 @@ func LoadCache(conf *Config) (*Cache, error) {
 	defer f.Close()
 
 	dec := gob.NewDecoder(f)
-	err = dec.Decode(&cache)
-	if err != nil {
-		if strings.Contains(err.Error(), "wrong type") {
-			log.WithError(err).Error("error decoding cache. removing corrupt file.")
-			// Remove invalid cache file.
-			os.Remove(fn)
-			cache.Version = feedCacheVersion
-			cache.Feeds = make(map[string]*Cached)
-			return cache, nil
-		}
+
+	cleanupCorruptCache := func() (*Cache, error) {
+		// Remove invalid cache file.
+		os.Remove(fn)
+		cache.Version = feedCacheVersion
+		cache.Feeds = make(map[string]*Cached)
+		return cache, nil
+	}
+
+	if err := dec.Decode(&cache.Version); err != nil {
+		log.WithError(err).Error("error decoding cache.Version, removing corrupt file")
+		return cleanupCorruptCache()
+	}
+
+	if err := dec.Decode(&cache.List); err != nil {
+		log.WithError(err).Error("error encoding cache.List, removing corrupt file")
+		return cleanupCorruptCache()
+	}
+
+	if err := dec.Decode(&cache.Map); err != nil {
+		log.WithError(err).Error("error decoding cache.Map, removing corrupt file")
+		return cleanupCorruptCache()
+	}
+
+	if err := dec.Decode(&cache.Peers); err != nil {
+		log.WithError(err).Error("error decoding cache.Peers, removing corrupt file")
+		return cleanupCorruptCache()
+	}
+
+	if err := dec.Decode(&cache.Feeds); err != nil {
+		log.WithError(err).Error("error decoding cache.Feeds, removing corrupt file")
+		return cleanupCorruptCache()
+	}
+
+	if err := dec.Decode(&cache.Views); err != nil {
+		log.WithError(err).Error("error decoding cache.Views, removing corrupt file")
+		return cleanupCorruptCache()
 	}
 
 	log.Infof("Cache version %d", cache.Version)
