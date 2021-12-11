@@ -19,6 +19,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"sort"
 	"strconv"
 	"strings"
@@ -39,6 +40,7 @@ import (
 	"github.com/audiolion/ipip"
 	"github.com/disintegration/gift"
 	"github.com/disintegration/imageorient"
+	"github.com/dustin/go-humanize"
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/ast"
 	"github.com/gomarkdown/markdown/html"
@@ -2098,4 +2100,16 @@ func RotateFeed(conf *Config, feed string) error {
 	}
 
 	return nil
+}
+
+// MemoryUsage returns information about thememory used by the runtime
+func MemoryUsage() string {
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+
+	return fmt.Sprintf(
+		"Alloc = %s TotalAlloc = %s Sys = %s NumGC = %d",
+		humanize.Bytes(m.Alloc), humanize.Bytes(m.TotalAlloc),
+		humanize.Bytes(m.Sys), m.NumGC,
+	)
 }

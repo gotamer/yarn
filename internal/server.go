@@ -700,11 +700,13 @@ func NewServer(bind string, options ...Option) (*Server, error) {
 		return nil, fmt.Errorf("error validating config: %w", err)
 	}
 
+	log.Debugf("Before Cache: %s", MemoryUsage())
 	cache, err := LoadCache(config)
 	if err != nil {
 		log.WithError(err).Error("error loading feed cache")
 		return nil, err
 	}
+	log.Debugf("After Cache: %s", MemoryUsage())
 
 	archive, err := NewDiskArchiver(filepath.Join(config.Data, archiveDir))
 	if err != nil {
