@@ -234,16 +234,6 @@ func (cache *Cache) Store(conf *Config) error {
 		return err
 	}
 
-	if err := enc.Encode(cache.List); err != nil {
-		log.WithError(err).Error("error encoding cache.List")
-		return err
-	}
-
-	if err := enc.Encode(cache.Map); err != nil {
-		log.WithError(err).Error("error encoding cache.Map")
-		return err
-	}
-
 	if err := enc.Encode(cache.Peers); err != nil {
 		log.WithError(err).Error("error encoding cache.Peers")
 		return err
@@ -254,19 +244,12 @@ func (cache *Cache) Store(conf *Config) error {
 		return err
 	}
 
-	if err := enc.Encode(cache.Views); err != nil {
-		log.WithError(err).Error("error encoding cache.Views")
-		return err
-	}
-
 	return nil
 }
 
 // LoadCache ...
 func LoadCache(conf *Config) (*Cache, error) {
 	cache := NewCache(conf)
-	cache.mu.Lock()
-	defer cache.mu.Unlock()
 
 	fn := filepath.Join(conf.Data, feedCacheFile)
 	f, err := os.Open(fn)
@@ -295,16 +278,6 @@ func LoadCache(conf *Config) (*Cache, error) {
 		return cleanupCorruptCache()
 	}
 
-	if err := dec.Decode(&cache.List); err != nil {
-		log.WithError(err).Error("error encoding cache.List, removing corrupt file")
-		return cleanupCorruptCache()
-	}
-
-	if err := dec.Decode(&cache.Map); err != nil {
-		log.WithError(err).Error("error decoding cache.Map, removing corrupt file")
-		return cleanupCorruptCache()
-	}
-
 	if err := dec.Decode(&cache.Peers); err != nil {
 		log.WithError(err).Error("error decoding cache.Peers, removing corrupt file")
 		return cleanupCorruptCache()
@@ -315,11 +288,6 @@ func LoadCache(conf *Config) (*Cache, error) {
 		return cleanupCorruptCache()
 	}
 
-	if err := dec.Decode(&cache.Views); err != nil {
-		log.WithError(err).Error("error decoding cache.Views, removing corrupt file")
-		return cleanupCorruptCache()
-	}
-
 	log.Infof("Cache version %d", cache.Version)
 	if cache.Version != feedCacheVersion {
 		log.Errorf("Cache version mismatch. Expect = %d, Got = %d. Removing old cache.", feedCacheVersion, cache.Version)
@@ -327,6 +295,8 @@ func LoadCache(conf *Config) (*Cache, error) {
 		cache.Version = feedCacheVersion
 		cache.Feeds = make(map[string]*Cached)
 	}
+
+	cache.Refresh()
 
 	return cache, nil
 }
