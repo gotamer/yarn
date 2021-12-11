@@ -22,7 +22,7 @@ import (
 
 const (
 	feedCacheFile    = "cache"
-	feedCacheVersion = 18 // increase this if breaking changes occur to cache file.
+	feedCacheVersion = 19 // increase this if breaking changes occur to cache file.
 
 	localViewKey    = "local"
 	discoverViewKey = "discover"
