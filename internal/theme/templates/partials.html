@@ -193,6 +193,8 @@
         <p>Try checking out the <a href="/discover">{{tr $.Ctx "NavDiscover"}}</a>
         timeline to see what's happenning on the {{ $.Ctx.InstanceName }} pod or
         <a href="/follow">{{tr $.Ctx "NavFollow" }}</a> a feed</p>
+      {{ else }}
+        <p>{{ .Profile.Username }} last posted {{ .Profile.LastPostedAt | time }}</p>
       {{ end }}
     {{ end }}
     {{ template "pager" (dict "Pager" $.Pager "Ctx" $.Ctx)}}

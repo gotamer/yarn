@@ -19,11 +19,11 @@
   <div class="profile-tagline">
     {{ if .Authenticated }}
     {{ if .Profile.FollowedBy }}
-    <div class="profile-popular"><a href="{{ .Profile.URL }}">@{{ .Profile.Username }}</a> {{ tr . "ProfileFollowsYou" }}</div>
+    <div class="profile-popular"><a href="{{ .Profile.URL }}">@{{ .Profile.Username }}</a> {{ tr . "ProfileFollowsYou" }}&nbsp;(<span class="last-seen">Last seen: {{ .Profile.LastSeenAt | lastseen }}</span>)</div>
     {{ else }}
     {{ $splitFollow := split "(" (tr . "ProfileDoesNotFollowYou")}}
     <div class="profile-popular">
-      <a href="{{ .Profile.URL }}">@{{ .Profile.Username }}</a> {{ ((index $splitFollow "_0") | trimSuffix ")") | html }}
+      <a href="{{ .Profile.URL }}">@{{ .Profile.Username }}</a> {{ ((index $splitFollow "_0") | trimSuffix ")") | html }}&nbsp;(<span class="last-seen">Last seen: {{ .Profile.LastSeenAt | time }}</span>)
     </div>
     <div class="profile-nofollow">
       {{ ((index $splitFollow "_1") | trimSuffix ")") | html }}
@@ -72,7 +72,5 @@
   <div class="profile-recent">
     <h2>{{ tr . "RecentTwtsSummary" (dict "Username" .Profile.Username) }}</h2>
   </div>
-
   {{ template "feed" (dict "Authenticated" $.Authenticated "User" $.User "Profile" $.Profile "LastTwt" $.LastTwt "Pager" $.Pager "Twts" $.Twts "Ctx" . "view" "profile") }}
-
 {{ end }}

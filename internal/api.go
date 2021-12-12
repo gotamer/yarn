@@ -172,7 +172,6 @@ func (a *API) getLoggedInUser(r *http.Request) *User {
 	user.Follow(user.Username, user.URL)
 
 	return user
-
 }
 
 func (a *API) isAuthorized(endpoint httprouter.Handle) httprouter.Handle {
@@ -210,6 +209,12 @@ func (a *API) isAuthorized(endpoint httprouter.Handle) httprouter.Handle {
 
 			ctx := context.WithValue(r.Context(), TokenContextKey, token)
 			ctx = context.WithValue(ctx, UserContextKey, user)
+
+			// TODO: Use event sourcing for this?
+			user.LastSeenAt = time.Now().Round(24 * time.Hour)
+			if err := a.db.SetUser(user.Username, user); err != nil {
+				log.WithError(err).Warnf("error updating user.LastSeenAt for %s", user.Username)
+			}
 
 			endpoint(w, r.WithContext(ctx), p)
 		} else {

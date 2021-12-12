@@ -30,6 +30,9 @@ type Profile struct {
 	// Timestamp of the profile's last Twt
 	LastPostedAt time.Time
 
+	// Timestamp of the profile's last activity (last seen) accurate to a day
+	LastSeenAt time.Time
+
 	Bookmarks map[string]string
 	Followers map[string]string
 	Following map[string]string

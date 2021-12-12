@@ -200,6 +200,7 @@ func NewContext(s *Server, req *http.Request) *Context {
 			ctx.Username = username
 			user, err := db.GetUser(ctx.Username)
 			if err != nil {
+				// TODO: What's the side effect of this happenning?
 				log.WithError(err).Warnf("error loading user object for %s", ctx.Username)
 			} else {
 				ctx.Twter = types.Twter{
@@ -208,6 +209,12 @@ func NewContext(s *Server, req *http.Request) *Context {
 				}
 				ctx.User = user
 				ctx.IsAdmin = strings.EqualFold(username, conf.AdminUser)
+
+				// TODO: Use event sourcing for this?
+				user.LastSeenAt = time.Now().Round(24 * time.Hour)
+				if err := db.SetUser(user.Username, user); err != nil {
+					log.WithError(err).Warnf("error updating user.LastSeenAt for %s", user.Username)
+				}
 			}
 		}
 	}

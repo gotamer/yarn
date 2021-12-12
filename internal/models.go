@@ -42,11 +42,12 @@ type Feed struct {
 
 // User ...
 type User struct {
-	Username  string
-	Password  string
-	Tagline   string
-	URL       string
-	CreatedAt time.Time
+	Username   string
+	Password   string
+	Tagline    string
+	URL        string
+	CreatedAt  time.Time
+	LastSeenAt time.Time
 
 	Theme                      string `default:"auto"`
 	Lang                       string `default:""`
@@ -527,6 +528,8 @@ func (u *User) Profile(baseURL string, viewer *User) types.Profile {
 		ShowBookmarks: showBookmarks,
 		ShowFollowers: showFollowers,
 		ShowFollowing: showFollowing,
+
+		LastSeenAt: u.LastSeenAt,
 	}
 }
 
