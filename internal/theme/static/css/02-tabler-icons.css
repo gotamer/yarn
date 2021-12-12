@@ -1,6 +1,7 @@
 /*!
- * Tabler Icons 1.44.0 by tabler - https://tabler.io
+ * Tabler Icons 1.47.0 by tabler - https://tabler.io
  * License - https://github.com/tabler/tabler-icons/blob/master/LICENSE
+ * Custom Icon Set - Last Updated: 12/12/21
  */
 @font-face {
   font-family: "tabler-icons";
@@ -19,6 +20,10 @@
   line-height: 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.ti-affiliate:before {
+  content: '\edff';
 }
 
 .ti-bell-ringing:before {
@@ -83,6 +88,10 @@
 
 .ti-edit:before {
   content: "\ea98";
+}
+
+.ti-heartbeat:before {
+  content: '\ef92';
 }
 
 .ti-italic:before {
@@ -207,8 +216,4 @@
 
 .ti-volume-3:before {
   content: "\eb50";
-}
-
-.ti-affiliate:before {
-  content: '\edff';
 }
