@@ -15,7 +15,7 @@
           <td>{{ $entry.Job.String }}</td>
           <td><small>{{ $entry.Next | time }}</small></td>
           <td><small>{{ $entry.Prev | time }}</small></td>
-          <td><form action="/manage/jobs" enctype="multipart/form-data" method="POST"><input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}"><input type="hidden" name="name" value="{{ $entry.Job.String }}"><input type="submit" value="Run now"></form></td>
+          <td><form class="vert-center" action="/manage/jobs" enctype="multipart/form-data" method="POST"><input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}"><input type="hidden" name="name" value="{{ $entry.Job.String }}"><input type="submit" value="Run now"></form></td>
         </tr>
       {{ end }}
     </table>

@@ -79,6 +79,11 @@ article:target {
   position: absolute;
 }
 
+.vert-center input {
+  margin-top: 0.3rem;
+  margin-bottom: -0.3rem !important;
+}
+
 .nav {
     z-index: 1050;
 }
