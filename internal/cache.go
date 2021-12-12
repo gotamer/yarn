@@ -214,6 +214,104 @@ func NewCache(conf *Config) *Cache {
 	}
 }
 
+func FromOldCache(conf *Config) (*Cache, error) {
+	cache := NewCache(conf)
+
+	fn := filepath.Join(conf.Data, feedCacheFile)
+	f, err := os.Open(fn)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			log.WithError(err).Error("error loading cache, cache file found but unreadable")
+			return nil, err
+		}
+		cache.Version = feedCacheVersion
+		cache.Feeds = make(map[string]*Cached)
+		return cache, nil
+	}
+	defer f.Close()
+
+	cleanupCorruptCache := func() (*Cache, error) {
+		// Remove invalid cache file.
+		os.Remove(fn)
+		cache.Version = feedCacheVersion
+		cache.Feeds = make(map[string]*Cached)
+		return cache, nil
+	}
+
+	dec := gob.NewDecoder(f)
+	err = dec.Decode(&cache)
+	if err != nil {
+		if strings.Contains(err.Error(), "wrong type") {
+			log.WithError(err).Error("error decoding cache. removing corrupt file.")
+			return cleanupCorruptCache()
+		}
+	}
+	log.Infof("Loaded old Cache v%d", cache.Version)
+
+	cache.Version = feedCacheVersion
+	if err := cache.Store(conf); err != nil {
+		log.WithError(err).Errorf("error migrating old cache")
+		return cleanupCorruptCache()
+	}
+	log.Infof("Successfully migrated old cache to v%d", cache.Version)
+
+	return cache, nil
+}
+
+// LoadCache ...
+func LoadCache(conf *Config) (*Cache, error) {
+	cache := NewCache(conf)
+
+	fn := filepath.Join(conf.Data, feedCacheFile)
+	f, err := os.Open(fn)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			log.WithError(err).Error("error loading cache, cache file found but unreadable")
+			return nil, err
+		}
+		cache.Version = feedCacheVersion
+		return cache, nil
+	}
+	defer f.Close()
+
+	dec := gob.NewDecoder(f)
+
+	cleanupCorruptCache := func() (*Cache, error) {
+		// Remove invalid cache file.
+		os.Remove(fn)
+		cache.Version = feedCacheVersion
+		cache.Feeds = make(map[string]*Cached)
+		return cache, nil
+	}
+
+	if err := dec.Decode(&cache.Version); err != nil {
+		log.WithError(err).Error("error decoding cache.Version, trying old version")
+		return FromOldCache(conf)
+	}
+
+	if err := dec.Decode(&cache.Peers); err != nil {
+		log.WithError(err).Error("error decoding cache.Peers, removing corrupt file")
+		return cleanupCorruptCache()
+	}
+
+	if err := dec.Decode(&cache.Feeds); err != nil {
+		log.WithError(err).Error("error decoding cache.Feeds, removing corrupt file")
+		return cleanupCorruptCache()
+	}
+
+	log.Infof("Cache version %d", cache.Version)
+	if cache.Version != feedCacheVersion {
+		log.Errorf("Cache version mismatch. Expect = %d, Got = %d. Removing old cache.", feedCacheVersion, cache.Version)
+		os.Remove(fn)
+		cache.Version = feedCacheVersion
+		cache.Feeds = make(map[string]*Cached)
+	}
+
+	cache.Refresh()
+
+	return cache, nil
+}
+
 // Store ...
 func (cache *Cache) Store(conf *Config) error {
 	cache.mu.RLock()
@@ -245,60 +343,6 @@ func (cache *Cache) Store(conf *Config) error {
 	}
 
 	return nil
-}
-
-// LoadCache ...
-func LoadCache(conf *Config) (*Cache, error) {
-	cache := NewCache(conf)
-
-	fn := filepath.Join(conf.Data, feedCacheFile)
-	f, err := os.Open(fn)
-	if err != nil {
-		if !os.IsNotExist(err) {
-			log.WithError(err).Error("error loading cache, cache file found but unreadable")
-			return nil, err
-		}
-		cache.Version = feedCacheVersion
-		return cache, nil
-	}
-	defer f.Close()
-
-	dec := gob.NewDecoder(f)
-
-	cleanupCorruptCache := func() (*Cache, error) {
-		// Remove invalid cache file.
-		os.Remove(fn)
-		cache.Version = feedCacheVersion
-		cache.Feeds = make(map[string]*Cached)
-		return cache, nil
-	}
-
-	if err := dec.Decode(&cache.Version); err != nil {
-		log.WithError(err).Error("error decoding cache.Version, removing corrupt file")
-		return cleanupCorruptCache()
-	}
-
-	if err := dec.Decode(&cache.Peers); err != nil {
-		log.WithError(err).Error("error decoding cache.Peers, removing corrupt file")
-		return cleanupCorruptCache()
-	}
-
-	if err := dec.Decode(&cache.Feeds); err != nil {
-		log.WithError(err).Error("error decoding cache.Feeds, removing corrupt file")
-		return cleanupCorruptCache()
-	}
-
-	log.Infof("Cache version %d", cache.Version)
-	if cache.Version != feedCacheVersion {
-		log.Errorf("Cache version mismatch. Expect = %d, Got = %d. Removing old cache.", feedCacheVersion, cache.Version)
-		os.Remove(fn)
-		cache.Version = feedCacheVersion
-		cache.Feeds = make(map[string]*Cached)
-	}
-
-	cache.Refresh()
-
-	return cache, nil
 }
 
 // DetectPodFromRequest ...
