@@ -519,3 +519,51 @@ func (s *Server) ManagePeersHandler() httprouter.Handle {
 		s.render("managePeers", w, ctx)
 	}
 }
+
+// ManageJobsHandler ...
+func (s *Server) ManageJobsHandler() httprouter.Handle {
+	isAdminUser := IsAdminUserFactory(s.config)
+
+	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		ctx := NewContext(s, r)
+
+		if !isAdminUser(ctx.User) {
+			ctx.Error = true
+			ctx.Message = "You are not a Pod Owner!"
+			s.render("403", w, ctx)
+			return
+		}
+
+		if r.Method == http.MethodPost {
+			name := strings.TrimSpace(r.FormValue("name"))
+
+			var job Job
+			for _, entry := range s.cron.Entries() {
+				if strings.EqualFold(name, entry.Job.(Job).String()) {
+					job = entry.Job.(Job)
+				}
+			}
+
+			if job == nil {
+				ctx.Error = true
+				ctx.Message = fmt.Sprintf("No job found by that name: %s", name)
+				s.render("404", w, ctx)
+				return
+			}
+
+			s.tasks.DispatchFunc(func() error {
+				job.Run()
+				return nil
+			})
+
+			ctx.Error = false
+			ctx.Message = fmt.Sprintf("Job %s successfully for execution", name)
+			s.render("error", w, ctx)
+
+			return
+		}
+
+		ctx.Jobs = s.cron.Entries()
+		s.render("manageJobs", w, ctx)
+	}
+}

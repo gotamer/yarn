@@ -9,9 +9,13 @@ import (
 
 	"git.mills.io/yarnsocial/yarn/types"
 	"github.com/dustin/go-humanize"
-	"github.com/robfig/cron"
 	log "github.com/sirupsen/logrus"
 )
+
+type Job interface {
+	fmt.Stringer
+	Run()
+}
 
 // JobSpec ...
 type JobSpec struct {
@@ -55,7 +59,7 @@ func InitJobs(conf *Config) {
 
 }
 
-type JobFactory func(conf *Config, cache *Cache, archive Archiver, store Store) cron.Job
+type JobFactory func(conf *Config, cache *Cache, archive Archiver, store Store) Job
 
 type SyncStoreJob struct {
 	conf    *Config
@@ -64,9 +68,11 @@ type SyncStoreJob struct {
 	db      Store
 }
 
-func NewSyncStoreJob(conf *Config, cache *Cache, archive Archiver, db Store) cron.Job {
+func NewSyncStoreJob(conf *Config, cache *Cache, archive Archiver, db Store) Job {
 	return &SyncStoreJob{conf: conf, cache: cache, archive: archive, db: db}
 }
+
+func (job *SyncStoreJob) String() string { return "SyncStore" }
 
 func (job *SyncStoreJob) Run() {
 	if err := job.db.Sync(); err != nil {
@@ -82,9 +88,11 @@ type StatsJob struct {
 	db      Store
 }
 
-func NewStatsJob(conf *Config, cache *Cache, archive Archiver, db Store) cron.Job {
+func NewStatsJob(conf *Config, cache *Cache, archive Archiver, db Store) Job {
 	return &StatsJob{conf: conf, cache: cache, archive: archive, db: db}
 }
+
+func (job *StatsJob) String() string { return "Stats" }
 
 func (job *StatsJob) Run() {
 	var (
@@ -157,9 +165,11 @@ type UpdateFeedsJob struct {
 	db      Store
 }
 
-func NewUpdateFeedsJob(conf *Config, cache *Cache, archive Archiver, db Store) cron.Job {
+func NewUpdateFeedsJob(conf *Config, cache *Cache, archive Archiver, db Store) Job {
 	return &UpdateFeedsJob{conf: conf, cache: cache, archive: archive, db: db}
 }
+
+func (job *UpdateFeedsJob) String() string { return "UpdateFeeds" }
 
 func (job *UpdateFeedsJob) Run() {
 	feeds, err := job.db.GetAllFeeds()
@@ -223,9 +233,11 @@ type UpdateFeedSourcesJob struct {
 	db      Store
 }
 
-func NewUpdateFeedSourcesJob(conf *Config, cache *Cache, archive Archiver, db Store) cron.Job {
+func NewUpdateFeedSourcesJob(conf *Config, cache *Cache, archive Archiver, db Store) Job {
 	return &UpdateFeedSourcesJob{conf: conf, cache: cache, archive: archive, db: db}
 }
+
+func (job *UpdateFeedSourcesJob) String() string { return "UpdateFeedSources" }
 
 func (job *UpdateFeedSourcesJob) Run() {
 	log.Infof("updating %d feed sources", len(job.conf.FeedSources))
@@ -248,9 +260,11 @@ type CreateAdminFeedsJob struct {
 	db      Store
 }
 
-func NewCreateAdminFeedsJob(conf *Config, cache *Cache, archive Archiver, db Store) cron.Job {
+func NewCreateAdminFeedsJob(conf *Config, cache *Cache, archive Archiver, db Store) Job {
 	return &CreateAdminFeedsJob{conf: conf, cache: cache, archive: archive, db: db}
 }
+
+func (job *CreateAdminFeedsJob) String() string { return "CreateAdminFeeds" }
 
 func (job *CreateAdminFeedsJob) Run() {
 	log.Infof("creating feeds for admin user: %s", job.conf.AdminUser)
@@ -287,9 +301,11 @@ type CreateAutomatedFeedsJob struct {
 	db      Store
 }
 
-func NewCreateAutomatedFeedsJob(conf *Config, cache *Cache, archive Archiver, db Store) cron.Job {
+func NewCreateAutomatedFeedsJob(conf *Config, cache *Cache, archive Archiver, db Store) Job {
 	return &CreateAutomatedFeedsJob{conf: conf, cache: cache, archive: archive, db: db}
 }
+
+func (job *CreateAutomatedFeedsJob) String() string { return "CreateAutomatedFeeds" }
 
 func (job *CreateAutomatedFeedsJob) Run() {
 	log.Infof("creating automated feeds ...")
@@ -311,9 +327,11 @@ type DeleteOldSessionsJob struct {
 	db      Store
 }
 
-func NewDeleteOldSessionsJob(conf *Config, cache *Cache, archive Archiver, db Store) cron.Job {
+func NewDeleteOldSessionsJob(conf *Config, cache *Cache, archive Archiver, db Store) Job {
 	return &DeleteOldSessionsJob{conf: conf, cache: cache, archive: archive, db: db}
 }
+
+func (job *DeleteOldSessionsJob) String() string { return "DeleteOldSessions" }
 
 func (job *DeleteOldSessionsJob) Run() {
 	log.Info("deleting old sessions")
@@ -341,9 +359,11 @@ type RotateFeedsJob struct {
 	db      Store
 }
 
-func NewRotateFeedsJob(conf *Config, cache *Cache, archive Archiver, db Store) cron.Job {
+func NewRotateFeedsJob(conf *Config, cache *Cache, archive Archiver, db Store) Job {
 	return &RotateFeedsJob{conf: conf, cache: cache, archive: archive, db: db}
 }
+
+func (job *RotateFeedsJob) String() string { return "RotateFeeds" }
 
 func (job *RotateFeedsJob) Run() {
 	feeds, err := GetAllFeeds(job.conf)
@@ -379,9 +399,11 @@ type PruneUsersJob struct {
 	db      Store
 }
 
-func NewPruneUsersJob(conf *Config, cache *Cache, archive Archiver, db Store) cron.Job {
+func NewPruneUsersJob(conf *Config, cache *Cache, archive Archiver, db Store) Job {
 	return &PruneUsersJob{conf: conf, cache: cache, archive: archive, db: db}
 }
+
+func (job *PruneUsersJob) String() string { return "PruneUsers" }
 
 func (job *PruneUsersJob) Run() {
 	candidateForDeletion := func(u *User) int {

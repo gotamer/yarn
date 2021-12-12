@@ -823,7 +823,7 @@ func (cache *Cache) Refresh() {
 		cache.Views["subject:"+k] = NewCached(v, "")
 	}
 	for k, peer := range cache.Peers {
-		if (peer.LastSeen.Sub(peer.LastUpdated)) > (podInfoUpdateTTL/2) || time.Now().Sub(peer.LastUpdated) > podInfoUpdateTTL {
+		if (peer.LastSeen.Sub(peer.LastUpdated)) > (podInfoUpdateTTL/2) || time.Since(peer.LastUpdated) > podInfoUpdateTTL {
 			delete(cache.Peers, k)
 		}
 	}

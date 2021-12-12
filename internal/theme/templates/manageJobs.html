@@ -1,0 +1,23 @@
+{{ define "content" }}
+  <article class="container-fluid">
+    <hgroup>
+      <h2>Background Jobs</h2>
+    </hgroup>
+    <table>
+      <tr>
+        <th>Name</th>
+        <th>Next Run</th>
+        <th>Last Run</th>
+        <th></th>
+      </tr>
+      {{ range $entry := $.Jobs }}
+        <tr>
+          <td>{{ $entry.Job.String }}</td>
+          <td><small>{{ $entry.Next | time }}</small></td>
+          <td><small>{{ $entry.Prev | time }}</small></td>
+          <td><form action="/manage/jobs" enctype="multipart/form-data" method="POST"><input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}"><input type="hidden" name="name" value="{{ $entry.Job.String }}"><input type="submit" value="Run now"></form></td>
+        </tr>
+      {{ end }}
+    </table>
+  </article>
+{{ end }}

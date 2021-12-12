@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/robfig/cron"
 	log "github.com/sirupsen/logrus"
 	"github.com/vcraescu/go-paginator"
 
@@ -103,6 +104,9 @@ type Context struct {
 
 	// Discovered Pods peering with us
 	Peers Peers
+
+	// Background Jobs
+	Jobs []*cron.Entry
 
 	// Search
 	SearchQuery string
