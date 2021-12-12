@@ -289,7 +289,10 @@ func LoadCache(conf *Config) (*Cache, error) {
 	}
 
 	if err := dec.Decode(&cache.Version); err != nil {
-		log.WithError(err).Error("error decoding cache.Version, trying old version")
+		log.Warnf(
+			"error decoding cache v%d, will try to load old cache %v instead...",
+			feedCacheVersion, (feedCacheVersion - 1),
+		)
 		return FromOldCache(conf)
 	}
 
