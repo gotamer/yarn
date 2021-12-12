@@ -214,6 +214,10 @@ func NewCache(conf *Config) *Cache {
 	}
 }
 
+// FromOldCache attempts to load an oldver version of the on-disk cache stored
+// at /path/to/data/cache -- If you change the way the `*Cache` is tored on disk
+// by modifying `Cache.Store()` or any of the data structures, please modfy this
+// function to support loading the previous version of the on-disk cache.
 func FromOldCache(conf *Config) (*Cache, error) {
 	cache := NewCache(conf)
 
