@@ -449,6 +449,7 @@ func (n *Subject) Text() string {
 	return n.tag.Literal()
 }
 func (n *Subject) Tag() types.TwtTag { return n.tag }
+func (n *Subject) Subject() string   { return n.subject }
 func (n *Subject) Format(state fmt.State, r rune) {
 	_, _ = state.Write([]byte("("))
 	if n.tag != nil {
@@ -574,9 +575,13 @@ func (n *Link) Format(state fmt.State, r rune) {
 func (n *Link) String() string {
 	return n.Literal()
 }
-func (n *Link) IsMedia() bool  { return n.linkType == LinkMedia }
-func (n *Link) Text() string   { return n.text }
-func (n *Link) Target() string { return n.target }
+func (n *Link) IsMedia() bool    { return n.linkType == LinkMedia }
+func (n *Link) IsPlain() bool    { return n.linkType == LinkPlain }
+func (n *Link) IsNaked() bool    { return n.linkType == LinkNaked }
+func (n *Link) IsStandard() bool { return n.linkType == LinkStandard }
+func (n *Link) Text() string     { return n.text }
+func (n *Link) Target() string   { return n.target }
+func (n *Link) Title() string    { return n.title }
 
 type Code struct {
 	codeType CodeType
@@ -601,7 +606,8 @@ func (n *Code) Clone() Elem {
 		n.codeType, n.lit,
 	}
 }
-func (n *Code) IsNil() bool { return n == nil }
+func (n *Code) IsNil() bool   { return n == nil }
+func (n *Code) IsBlock() bool { return n.codeType == CodeBlock }
 func (n *Code) Literal() string {
 	if n.codeType == CodeBlock {
 		return fmt.Sprintf("```%s```", n.lit)

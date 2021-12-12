@@ -941,7 +941,12 @@ func TestParseFile(t *testing.T) {
 	is := is.New(t)
 
 	twter := types.Twter{Nick: "example", URL: "https://example.com/twtxt.txt"}
-	override := types.Twter{Nick: "override", URL: "https://example.com/twtxt.txt", Following: 1}
+	override := types.Twter{
+		Nick:      "override",
+		URL:       "https://example.com/twtxt.txt",
+		Following: 1,
+		Follow:    map[string]types.Twter{"xuu@txt.sour.is": {Nick: "xuu@txt.sour.is", URL: "https://txt.sour.is/users/xuu.txt"}},
+	}
 
 	tests := []fileTestCase{
 		{
