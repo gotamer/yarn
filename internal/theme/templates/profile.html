@@ -1,7 +1,8 @@
 {{ define "content" }}
 
   <div class="profile-name">
-    <span class="p-name">{{ .Profile.Username }}<span class="p-org">@{{ .Profile.URL | hostnameFromURL }}</span></span>
+    <span class="p-name p-name-profile">{{ .Profile.Username }}</span>
+    <span class="p-org p-org-profile">{{ .Profile.URL | hostnameFromURL }}</span>
   </div>
 
   <div class="profile-stats">

@@ -146,7 +146,7 @@
     	      {{ end }}
           </div>
           <div class="author">
-            <a href="/external?uri={{ .URL }}&nick={{ .Name  }}" class="p-name long-text-wrap">{{ .Name }}</a>
+            <a href="/external?uri={{ .URL }}&nick={{ .Name  }}" class="p-name">{{ .Name }}</a>
             <div>
               {{ if $.User.Follows .URL }}
                 <a href="/unfollow?nick={{ .Name  }}"><i class="ti ti-circle-minus" aria-hidden="true"></i> {{ tr $ctx "UnfollowLinkTitle" }}</a>

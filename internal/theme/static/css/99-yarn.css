@@ -43,13 +43,12 @@ article:target {
 }
 
 .avatar, .avatar-full {
-  width: 60px !important;
-  height: 60px !important;
+  width: 3.5rem !important;
+  height: 3.5rem !important;
   object-fit: cover;
-  border: 2px solid var(--h1);
-  border-radius: 50%;
-  -webkit-border-radius: 60px;;
-  -moz-border-radius: 60px;
+  border-radius: 0.3rem;
+  -webkit-border-radius: 0.3rem;
+  -moz-border-radius: 0.3rem;
 }
 
 .avatar-full {
@@ -401,25 +400,33 @@ video {
 }
 
 .p-name {
-  left: 0px !important;
-  font-size: 135%;
-  font-weight: 500;
+  display: flex;
+  flex-direction: row;
+  font-size: 1rem;
+  font-weight: 600;
   color: var(--primary);
+  margin-top: -0.25rem;
+  margin-bottom: -0.25rem;
+}
+
+.p-name-profile {
+  font-size: 1.5rem;
 }
 
 .p-org {
-  line-height: 0 !important;
-  font-size: 20px;
-  font-weight: 100;
-  color: var(--secondary);
+  display: flex;
+  flex-direction: row;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #fff;
+}
+
+.p-org-profile {
+  font-size: 1.15rem
 }
 
 .p-name:hover {
   color: #ececec;
-}
-
-.p-org:hover {
-  color: var(--secondary-hover);
 }
 
 .author {
@@ -429,8 +436,9 @@ video {
 .publish-time {
   display: flex;
   flex-direction: row;
-  font-size: 80%;
+  font-size: 0.7rem;
 }
+
 [data-tooltip]:not(a):not(button):not(input){
   border-bottom: none;
 }
@@ -650,41 +658,6 @@ footer .footer-menu a:last-child::after{
     cursor: pointer;
     display: block;
     margin-top: 15px;
-  }
-  /* Name of timeline author */
-  hgroup .u-author.h-card{
-    display: inline;
-  }
-  .u-author.h-card{
-    margin-bottom: 10px;
-  }
-  .u-author.h-card>div{
-    flex: 20%;
-    min-width: 60px;
-    min-height: 60px;
-  }
-  .u-author.h-card>div img.avatar{
-    width: 60px;
-    height: 60px;
-    object-fit: cover;
-  }
-  .u-author.h-card .author{
-    flex: 130%;
-  }
-  .u-author.h-card .author .p-name{
-    font-size: 20px;
-    line-height: 25px;
-    overflow-wrap: anywhere;
-  }
-  .u-author.h-card .author .p-org{
-    font-size: 20px;
-    line-height: 0;
-    white-space: nowrap;
-    overflow-wrap: anywhere;
-  }
-  .u-author.h-card .publish-time{
-    font-size: 14px;
-    flex-flow: wrap;
   }
   nav.pagination-nav{
     justify-content: space-between;
