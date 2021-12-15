@@ -138,6 +138,8 @@
     </div>
     <button type="submit" class="primary">{{ tr . "SettingsFormUpdate" }}</button>
   </form>
+</article>
+<article class="grid">
   <details>
     <summary>Tools</summary>
     <p><strong>Bookmarklet:</strong> You can share links to websites you are on in your browser
@@ -146,6 +148,8 @@
     button. Simply drag and drop the button below on to your browsers bookmarks bar!</p>
     <a role="button" href="javascript:{{ .Bookmarklet }}">Share via {{ .InstanceName }}</a>
   </details>
+</article>
+<article class="grid">
   <details>
     <summary>{{ tr . "SettingsDeleteAccountTitle" }}</summary>
     <p>{{ (tr . "SettingsDeleteAccountSummary") | html }}</p>
