@@ -1239,6 +1239,22 @@ func HostnameFromURL(uri string) string {
 	return u.Hostname()
 }
 
+func BaseFromURL(uri string) string {
+	u, err := url.Parse(uri)
+	if err != nil {
+		log.WithError(err).Warnf("BaseURL(): error parsing url: %s", uri)
+		return uri
+	}
+
+	u.Fragment = ""
+	u.RawFragment = ""
+	u.Path = ""
+	u.RawPath = ""
+	u.RawQuery = ""
+
+	return u.String()
+}
+
 func PrettyURL(uri string) string {
 	u, err := url.Parse(uri)
 	if err != nil {

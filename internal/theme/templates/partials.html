@@ -100,13 +100,16 @@
     <div class="author">
       {{ if isLocalURL $.Twt.Twter.URL }}
       <a href="{{ $.Twt.Twter.URL | trimSuffix "/twtxt.txt" }}">
-        <span class="p-name">{{ $.Twt.Twter.Nick }}</span><span class="p-org">​{{ $.Twt.Twter.URL | hostnameFromURL }}</span>
+        <span class="p-name">{{ $.Twt.Twter.Nick }}</span>
       </a>
       {{ else }}
       <a href="/external?uri={{ $.Twt.Twter.URL }}&nick={{ $.Twt.Twter.Nick }}">
-        <span class="p-name">{{ $.Twt.Twter.Nick }}</span><span class="p-org">​{{ $.Twt.Twter.URL | hostnameFromURL }}</span>
+        <span class="p-name">{{ $.Twt.Twter.Nick }}</span>
       </a>
       {{ end }}
+      <a target="_blank" href="{{ $.Twt.Twter.URL | baseFromURL }}">
+        <span class="p-org">{{ $.Twt.Twter.URL | hostnameFromURL }}</span>
+      </a>
       <div class="publish-time">
         <a class="u-url" href="/twt/{{ $.Twt.Hash }}">
           <time class="dt-published" datetime="{{ $.Twt.Created | date "2006-01-02T15:04:05Z07:00" }}">

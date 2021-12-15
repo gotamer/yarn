@@ -59,6 +59,7 @@ func NewTemplateManager(conf *Config, translator *Translator, cache *Cache, arch
 
 	funcMap["time"] = CustomTime
 	funcMap["hostnameFromURL"] = HostnameFromURL
+	funcMap["baseFromURL"] = BaseFromURL
 	funcMap["prettyURL"] = PrettyURL
 	funcMap["isLocalURL"] = IsLocalURLFactory(conf)
 	funcMap["formatTwt"] = FormatTwtFactory(conf, cache, archive)
