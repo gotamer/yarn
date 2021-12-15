@@ -418,7 +418,7 @@ video {
   flex-direction: row;
   font-size: 0.9rem;
   font-weight: 500;
-  color: #fff;
+  color: var(--muted-text);
 }
 
 .p-org-profile {
@@ -495,16 +495,28 @@ article .p-summary blockquote {
 }
 
 /* Twt Hash */
+
+.h-entry {
+  padding-bottom: 0.3rem !important;
+}
+
 article .p-summary a em, em.twt-hash {
   color: darkgray;
   font-style: normal;
   font-weight: 100;
   color: var(--muted-text);
 }
+
 em.twt-hash {
   float: right;
   font-size: small;
   padding-top: 0.25rem;
+}
+
+article .twt-bookmark {
+  font-size: 1.1rem;
+  padding-left: 0.5rem;
+  float: right;
 }
 
 /* Twt Context */

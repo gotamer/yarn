@@ -1,7 +1,8 @@
 {{ define "content" }}
 <div>
   <div class="profile-name">
-    <span class="p-name">{{ .User.Username }}<span class="p-org">@{{ .User.URL | hostnameFromURL }}</span></span>
+    <span class="p-name p-name-profile">{{ .User.Username }}</span>
+    <span class="p-org p-org-profile">{{ .User.URL | hostnameFromURL }}</span>
   </div>
   <div class="profile-stats">
     <a href="{{ $.User.URL | trimSuffix "/twtxt.txt" }}" class="u-url">
