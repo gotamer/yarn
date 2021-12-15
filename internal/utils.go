@@ -1242,7 +1242,7 @@ func HostnameFromURL(uri string) string {
 func BaseFromURL(uri string) string {
 	u, err := url.Parse(uri)
 	if err != nil {
-		log.WithError(err).Warnf("BaseURL(): error parsing url: %s", uri)
+		log.WithError(err).Warnf("BaseFromURL(): error parsing url: %s", uri)
 		return uri
 	}
 
