@@ -418,7 +418,7 @@ video {
   flex-direction: row;
   font-size: 0.9rem;
   font-weight: 500;
-  color: #fff;
+  color: var(--muted-text);
 }
 
 .p-org-profile {
@@ -505,6 +505,7 @@ article .p-summary a em, em.twt-hash {
   font-weight: 100;
   color: var(--muted-text);
 }
+
 em.twt-hash {
   float: right;
   font-size: small;
@@ -513,7 +514,7 @@ em.twt-hash {
 
 article .twt-bookmark {
   font-size: 1.1rem;
-  padding-right: 0.5rem;
+  padding-left: 0.5rem;
   float: right;
 }
 

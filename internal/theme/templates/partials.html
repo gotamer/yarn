@@ -132,6 +132,16 @@
     {{ formatTwt $.Twt $.User }}
   </div>
   <hr />
+  {{ if $.Authenticated }}
+    <span class="twt-bookmark">
+      <a class="bookmarkBtn" style="display: {{ if not ($.User.Bookmarked $.Twt.Hash) }}inline{{ else }}none{{ end }};" href="/bookmark/{{ $.Twt.Hash }}" title="{{tr $.Ctx "BookmarkAddTwt"}}">
+        <i class="ti ti-bookmark"></i>
+      </a>
+      <a class="unbookmarkBtn" style="display: {{ if ($.User.Bookmarked $.Twt.Hash) }}inline{{ else }}none{{ end }};" href="/bookmark/{{ $.Twt.Hash }}" title="{{tr $.Ctx "BookmarkRemoveTwt"}}">
+        <i class="ti ti-bookmark-off"></i>
+      </a>
+    </span>
+  {{ end }}
   <a href="/search?tag={{ $.Twt.Hash }}" title="Search for this twt hash"><em class="twt-hash">#{{ $.Twt.Hash }}</em></a>
   {{ if $.Authenticated }}
     <span class="twt-bookmark">
