@@ -272,7 +272,7 @@ u(".followBtn").on("click", function (e) {
 
   Twix.ajax({
     type: "GET",
-    url: u(e.target).attr("href"),
+    url: u(e.target).closest("a.followBtn").attr("href"),
     success: function(data) {
       u(e.target).closest("a.followBtn").attr("style", "display: none;");
       u(e.target).parent().find("a.unfollowBtn").attr("style", "display: inline;");
@@ -285,7 +285,7 @@ u(".unfollowBtn").on("click", function (e) {
 
   Twix.ajax({
     type: "GET",
-    url: u(e.target).attr("href"),
+    url: u(e.target).closest("a.unfollowBtn").attr("href"),
     success: function(data) {
       u(e.target).closest("a.unfollowBtn").attr("style", "display: none;");
       u(e.target).parent().find("a.followBtn").attr("style", "display: inline;");
