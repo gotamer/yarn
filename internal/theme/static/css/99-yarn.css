@@ -425,10 +425,6 @@ video {
   font-size: 1.15rem
 }
 
-.p-name:hover {
-  color: #ececec;
-}
-
 .author {
   margin-left: 15px !important;
 }
