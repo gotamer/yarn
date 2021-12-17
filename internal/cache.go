@@ -844,8 +844,9 @@ func GetPeersForCached(cached *Cached, peers map[string]*Peer) Peers {
 	var matches Peers
 
 	for _, twt := range cached.Twts {
+		twterURL := NormalizeURL(twt.Twter().URL)
 		for uri, peer := range peers {
-			if strings.HasPrefix(NormalizeURL(twt.Twter().URL), NormalizeURL(uri)) {
+			if strings.HasPrefix(twterURL, NormalizeURL(uri)) {
 				matches = append(matches, peer)
 			}
 		}
