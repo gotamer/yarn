@@ -809,12 +809,6 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 
 	// Bust and repopulate twts for GetAll()
 	cache.Refresh()
-
-	if cache.conf.Features.IsEnabled(FeatureConverge) {
-		// Converge any missing Twts from peers
-		cache.Converge(archive)
-	}
-
 	metrics.Gauge("cache", "feeds").Set(float64(cache.FeedCount()))
 	metrics.Gauge("cache", "twts").Set(float64(cache.TwtCount()))
 }
