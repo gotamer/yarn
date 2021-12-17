@@ -156,7 +156,7 @@ func (cached *Cached) Update(url, lastmodiied string, twts types.Twts) {
 	cached.LastModified = lastmodiied
 }
 
-type PodInfo struct {
+type Peer struct {
 	URI string `json:"-"`
 
 	Name            string `json:"name"`
@@ -175,15 +175,71 @@ type PodInfo struct {
 	LastUpdated time.Time `json:"-"`
 }
 
-func (p *PodInfo) IsZero() bool {
+// XXX: Type aliases for backwards compatibility with Cache v19
+type PodInfo Peer
+
+func (p *Peer) IsZero() bool {
 	return (p == nil) || (p.Name == "" && p.SoftwareVersion == "")
 }
 
-func (p *PodInfo) ShouldRefresh() bool {
+func (p *Peer) ShouldRefresh() bool {
 	return time.Since(p.LastUpdated) > podInfoUpdateTTL
 }
 
-type Peers []PodInfo
+func (p *Peer) makeJsonRequest(conf *Config, path string) ([]byte, error) {
+	headers := make(http.Header)
+	headers.Set("Accept", "application/json")
+
+	res, err := Request(conf, http.MethodGet, p.URI+path, headers)
+	if err != nil {
+		log.WithError(err).Errorf("error making %s request to pod running at %s", path, p.URI)
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode/100 != 2 {
+		log.Errorf("HTTP %s response for %s of pod running at %s", res.Status, path, p.URI)
+		return nil, fmt.Errorf("non-success HTTP %s response for %s%s", res.Status, p.URI, path)
+	}
+
+	if ctype := res.Header.Get("Content-Type"); ctype != "" {
+		mediaType, _, err := mime.ParseMediaType(ctype)
+		if err != nil {
+			log.WithError(err).Errorf("error parsing content type header '%s' for %s of pod running at %s", ctype, path, p.URI)
+			return nil, err
+		}
+		if mediaType != "application/json" {
+			log.Errorf("non-JSON response '%s' for %s of pod running at %s", ctype, path, p.URI)
+			return nil, fmt.Errorf("non-JSON response content type '%s' for %s%s", ctype, p.URI, path)
+		}
+	}
+
+	data, err := io.ReadAll(res.Body)
+	if err != nil {
+		log.WithError(err).Errorf("error reading response body for %s of pod running at %s", path, p.URI)
+		return nil, err
+	}
+
+	return data, nil
+}
+
+func (p *Peer) GetTwt(conf *Config, hash string) (types.Twt, error) {
+	data, err := p.makeJsonRequest(conf, "/twt/"+hash)
+	if err != nil {
+		log.WithError(err).Errorf("error making /twt request for %s to peering pod %s", hash, p.URI)
+		return nil, err
+	}
+
+	twt, err := types.DecodeJSON(data)
+	if err != nil {
+		log.WithError(err).Errorf("error deserializing Twt %s from peering pod %s", hash, p.URI)
+		return nil, err
+	}
+
+	return twt, nil
+}
+
+type Peers []Peer
 
 func (peers Peers) Len() int           { return len(peers) }
 func (peers Peers) Less(i, j int) bool { return strings.Compare(peers[i].Name, peers[j].Name) < 0 }
@@ -199,7 +255,7 @@ type Cache struct {
 
 	List  *Cached
 	Map   map[string]types.Twt
-	Peers map[string]*PodInfo
+	Peers map[string]*Peer
 	Feeds map[string]*Cached
 	Views map[string]*Cached
 }
@@ -208,7 +264,7 @@ func NewCache(conf *Config) *Cache {
 	return &Cache{
 		conf:  conf,
 		Map:   make(map[string]types.Twt),
-		Peers: make(map[string]*PodInfo),
+		Peers: make(map[string]*Peer),
 		Feeds: make(map[string]*Cached),
 		Views: make(map[string]*Cached),
 	}
@@ -392,10 +448,10 @@ func (cache *Cache) DetectPodFromUserAgent(ua TwtxtUserAgent) error {
 	}
 
 	cache.mu.RLock()
-	oldPodInfo, hasSeen := cache.Peers[podBaseURL]
+	oldPeer, hasSeen := cache.Peers[podBaseURL]
 	cache.mu.RUnlock()
 
-	if hasSeen && !oldPodInfo.ShouldRefresh() {
+	if hasSeen && !oldPeer.ShouldRefresh() {
 		// This might in fact race if another goroutine would have fetched the
 		// pod info and updated the cache between our check above and the
 		// update here. However, since we're only setting a timestamp when
@@ -403,29 +459,29 @@ func (cache *Cache) DetectPodFromUserAgent(ua TwtxtUserAgent) error {
 		// all. We just override it a fraction of a second later. Doesn't harm
 		// anything.
 		cache.mu.Lock()
-		oldPodInfo.LastSeen = time.Now()
+		oldPeer.LastSeen = time.Now()
 		cache.mu.Unlock()
 		return nil
 	}
 
-	// Set an empty &PodInfo{} to avoid multiple concurrent calls from making
+	// Set an empty &Peer{} to avoid multiple concurrent calls from making
 	// multiple callbacks to peering pods unncessarily for Multi-User pods and
 	// guard against race from other goroutine doing the same thing.
 	cache.mu.Lock()
-	oldPodInfo, hasSeen = cache.Peers[podBaseURL]
-	if hasSeen && !oldPodInfo.ShouldRefresh() {
+	oldPeer, hasSeen = cache.Peers[podBaseURL]
+	if hasSeen && !oldPeer.ShouldRefresh() {
 		cache.mu.Unlock()
 		return nil
 	}
-	cache.Peers[podBaseURL] = &PodInfo{}
+	cache.Peers[podBaseURL] = &Peer{}
 	cache.mu.Unlock()
 
-	resetDummyPodInfo := func() {
+	resetDummyPeer := func() {
 		cache.mu.Lock()
-		if oldPodInfo.IsZero() {
+		if oldPeer.IsZero() {
 			delete(cache.Peers, podBaseURL)
 		} else {
-			cache.Peers[podBaseURL] = oldPodInfo
+			cache.Peers[podBaseURL] = oldPeer
 		}
 		cache.mu.Unlock()
 	}
@@ -435,14 +491,14 @@ func (cache *Cache) DetectPodFromUserAgent(ua TwtxtUserAgent) error {
 
 	res, err := Request(cache.conf, http.MethodGet, podBaseURL+"/info", headers)
 	if err != nil {
-		resetDummyPodInfo()
+		resetDummyPeer()
 		log.WithError(err).Errorf("error making /info request to pod running at %s", podBaseURL)
 		return err
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode/100 != 2 {
-		resetDummyPodInfo()
+		resetDummyPeer()
 		log.Errorf("HTTP %s response for /info of pod running at %s", res.Status, podBaseURL)
 		return fmt.Errorf("non-success HTTP %s response for %s/info", res.Status, podBaseURL)
 	}
@@ -450,12 +506,12 @@ func (cache *Cache) DetectPodFromUserAgent(ua TwtxtUserAgent) error {
 	if ctype := res.Header.Get("Content-Type"); ctype != "" {
 		mediaType, _, err := mime.ParseMediaType(ctype)
 		if err != nil {
-			resetDummyPodInfo()
+			resetDummyPeer()
 			log.WithError(err).Errorf("error parsing content type header '%s' for /info of pod running at %s", ctype, podBaseURL)
 			return err
 		}
 		if mediaType != "application/json" {
-			resetDummyPodInfo()
+			resetDummyPeer()
 			log.Errorf("non-JSON response '%s' for /info of pod running at %s", ctype, podBaseURL)
 			return fmt.Errorf("non-JSON response content type '%s' for %s/info", ctype, podBaseURL)
 		}
@@ -463,24 +519,24 @@ func (cache *Cache) DetectPodFromUserAgent(ua TwtxtUserAgent) error {
 
 	data, err := io.ReadAll(res.Body)
 	if err != nil {
-		resetDummyPodInfo()
+		resetDummyPeer()
 		log.WithError(err).Errorf("error reading response body for /info of pod running at %s", podBaseURL)
 		return err
 	}
 
-	var podInfo PodInfo
+	var peer Peer
 
-	if err := json.Unmarshal(data, &podInfo); err != nil {
-		resetDummyPodInfo()
+	if err := json.Unmarshal(data, &peer); err != nil {
+		resetDummyPeer()
 		log.WithError(err).Errorf("error decoding response body for /info of pod running at %s", podBaseURL)
 		return err
 	}
-	podInfo.URI = podBaseURL
-	podInfo.LastSeen = time.Now()
-	podInfo.LastUpdated = time.Now()
+	peer.URI = podBaseURL
+	peer.LastSeen = time.Now()
+	peer.LastUpdated = time.Now()
 
 	cache.mu.Lock()
-	cache.Peers[podBaseURL] = &podInfo
+	cache.Peers[podBaseURL] = &peer
 	cache.mu.Unlock()
 
 	return nil
@@ -749,6 +805,12 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 
 	// Bust and repopulate twts for GetAll()
 	cache.Refresh()
+
+	if cache.conf.Features.IsEnabled(FeatureConverge) {
+		// Converge any missing Twts from peers
+		cache.Converge(archive)
+	}
+
 	metrics.Gauge("cache", "feeds").Set(float64(cache.FeedCount()))
 	metrics.Gauge("cache", "twts").Set(float64(cache.TwtCount()))
 }
@@ -776,6 +838,78 @@ func (cache *Cache) TwtCount() int {
 	cache.mu.RLock()
 	defer cache.mu.RUnlock()
 	return len(cache.List.Twts)
+}
+
+func GetPeersForCached(cached *Cached, peers map[string]*Peer) []*Peer {
+	var matches []*Peer
+
+	for _, twt := range cached.Twts {
+		for uri, peer := range peers {
+			if strings.HasPrefix(NormalizeURL(twt.Twter().URL), NormalizeURL(uri)) {
+				matches = append(matches, peer)
+			}
+		}
+	}
+
+	return matches
+}
+
+// Converge ...
+func (cache *Cache) Converge(archive Archiver) {
+	// Missing Root Twts
+	missingRootTwts := make(map[string][]*Peer)
+	cache.mu.RLock()
+	for subject, cached := range cache.Views {
+		if !strings.HasPrefix(subject, "subject:") {
+			continue
+		}
+
+		hash := ExtractHashFromSubject(subject)
+		log.Debugf("hash: %s", hash)
+
+		if _, inCache := cache.Map[hash]; inCache {
+			log.Debugf("%s is in cache", hash)
+			continue
+		}
+
+		if _, err := archive.Get(hash); err == nil {
+			log.Debugf("%s is in archive", hash)
+			continue
+		}
+
+		log.Debugf("%s is missing...", hash)
+
+		peers := GetPeersForCached(cached, cache.Peers)
+		if len(peers) == 0 {
+			log.Debugf("no suitable peers found!")
+			continue
+		}
+
+		log.Debugf("%d possible peers found", len(peers))
+
+		missingRootTwts[hash] = peers
+	}
+	cache.mu.RUnlock()
+
+	for hash, peers := range missingRootTwts {
+		var missingTwt types.Twt
+		for _, peer := range peers {
+			if twt, err := peer.GetTwt(cache.conf, hash); err == nil {
+				missingTwt = twt
+				log.Debugf("found missing twt %s from peer %s", hash, peer)
+				break
+			}
+		}
+		if missingTwt == nil {
+			log.Debugf("unable to acquire missing twt %s from %d peers", hash, len(peers))
+			continue
+		}
+		cache.InjectFeed(missingTwt.Twter().URL, missingTwt)
+		GetExternalAvatar(cache.conf, missingTwt.Twter())
+		log.Debugf("successfully injected twt %s", hash)
+	}
+
+	cache.Refresh()
 }
 
 // Refresh ...
@@ -819,8 +953,8 @@ func (cache *Cache) Refresh() {
 	tags := GroupTwtsBy(allTwts, GroupByTag)
 	subjects := GroupTwtsBy(allTwts, GroupBySubject)
 
-	// XXX: I _think_ this is a big of a hack.
-	// Insert at the top of all subjet views the origina Twt (if any)
+	// XXX: I _think_ this is a bit of a hack.
+	// Insert at the top of all subject views the original Twt (if any)
 	// This is mostly to support "forked" conversations
 	for k, v := range subjects {
 		hash := ExtractHashFromSubject(k)

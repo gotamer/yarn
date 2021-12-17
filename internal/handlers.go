@@ -743,7 +743,7 @@ func (s *Server) SyndicationHandler() httprouter.Handle {
 func (s *Server) PodInfoHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		if r.Header.Get("Accept") == "application/json" {
-			data, err := json.Marshal(PodInfo{
+			data, err := json.Marshal(Peer{
 				Name:            s.config.Name,
 				Description:     s.config.Description,
 				SoftwareVersion: s.config.Version.FullVersion,

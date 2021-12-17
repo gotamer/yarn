@@ -41,7 +41,7 @@ func newCallbackExpectedServerWithResponse(t *testing.T, reply func(w http.Respo
 }
 
 func newCallbackExpectedServerWithNewPodInfo(t *testing.T) (*httptest.Server, func()) {
-	response, err := json.Marshal(PodInfo{
+	response, err := json.Marshal(Peer{
 		Name:            "new name",
 		Description:     "new description",
 		SoftwareVersion: "0.9001.23@7654321",
@@ -77,7 +77,7 @@ func newRequestWithUA(ua string) *http.Request {
 
 func newCacheWithPodInfo(podBaseURL string, lastSeenAndUpdated time.Time) *Cache {
 	cache := NewCache(peerCfg)
-	cache.Peers[podBaseURL] = &PodInfo{
+	cache.Peers[podBaseURL] = &Peer{
 		Name:            "old name",
 		Description:     "old description",
 		SoftwareVersion: "0.42.0@1234567",
