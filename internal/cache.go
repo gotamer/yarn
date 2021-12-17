@@ -422,6 +422,10 @@ func (cache *Cache) DetectPodFromRequest(req *http.Request) error {
 // DetectPodFromResponse ...
 func (cache *Cache) DetectPodFromResponse(res *http.Response) error {
 	poweredBy := res.Header.Get("Powered-By")
+	if poweredBy == "" {
+		return nil
+	}
+
 	ua, err := ParseUserAgent(poweredBy)
 	if err != nil {
 		log.WithError(err).Warnf("error parsing Powered-By header '%s'", poweredBy)
