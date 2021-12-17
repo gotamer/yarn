@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"sort"
+	"strings"
 
 	"git.mills.io/yarnsocial/yarn/types"
 	"github.com/julienschmidt/httprouter"
@@ -38,7 +39,7 @@ func (s *Server) SearchHandler() httprouter.Handle {
 			}
 		}
 
-		twts = append(twts, s.cache.GetByUserView(ctx.User, fmt.Sprintf("tag:%s", tag), false)...)
+		twts = append(twts, s.cache.GetByUserView(ctx.User, fmt.Sprintf("tag:%s", strings.ToLower(tag)), false)...)
 		sort.Sort(sort.Reverse(twts))
 
 		var pagedTwts types.Twts
