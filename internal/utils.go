@@ -114,6 +114,7 @@ var (
 	validUsername     = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9_-]+$`)
 	singleUserUARegex = regexp.MustCompile(`(.+) \(\+(https?://\S+/\S+); @(\S+)\)`)
 	multiUserUARegex  = regexp.MustCompile(`(.+) \(~(https?://\S+\/\S+); contact=(https?://\S+)\)`)
+	yarndUserUARegex  = regexp.MustCompile(`(.+) \(Pod: (\S+) Support: (https?://\S+)\)`)
 
 	ErrInvalidFeedName  = errors.New("error: invalid feed name")
 	ErrBadRequest       = errors.New("error: request failed with non-200 response")
@@ -1052,6 +1053,7 @@ type TwtxtUserAgent interface {
 var (
 	_ TwtxtUserAgent = (*SingleUserAgent)(nil)
 	_ TwtxtUserAgent = (*MultiUserAgent)(nil)
+	_ TwtxtUserAgent = (*YarndUserAgent)(nil)
 )
 
 // twtxtUserAgent is a base class for both single and multi-user Twtxt User Agents.
@@ -1156,6 +1158,27 @@ func (ua *MultiUserAgent) IsPublicURL() bool {
 	return ua.isPublicURL(ua.WhoFollowsURL, ua.String())
 }
 
+// YarndUserAgent is a generic `yarnd` client.
+type YarndUserAgent struct {
+	twtxtUserAgent
+	Name       string
+	SupportURL string
+}
+
+func (ua *YarndUserAgent) String() string {
+	// <client>/<version> (Pod: <name> Support: <supportURL>)
+	return fmt.Sprintf("%s (Pod: %s Support: %s)", ua.Client, ua.Name, ua.SupportURL)
+}
+
+func (ua *YarndUserAgent) PodBaseURL() string {
+	// get rid of the trailing '/support'
+	return ua.podBaseURL(ua.SupportURL, "./")
+}
+
+func (ua *YarndUserAgent) IsPublicURL() bool {
+	return ua.isPublicURL(ua.SupportURL, ua.String())
+}
+
 func ParseUserAgent(ua string) (TwtxtUserAgent, error) {
 	if match := singleUserUARegex.FindStringSubmatch(ua); match != nil {
 		return &SingleUserAgent{
@@ -1165,16 +1188,23 @@ func ParseUserAgent(ua string) (TwtxtUserAgent, error) {
 		}, nil
 	}
 
-	match := multiUserUARegex.FindStringSubmatch(ua)
-	if match == nil {
-		return nil, ErrInvalidUserAgent
+	if match := multiUserUARegex.FindStringSubmatch(ua); match != nil {
+		return &MultiUserAgent{
+			twtxtUserAgent: twtxtUserAgent{Client: match[1]},
+			WhoFollowsURL:  match[2],
+			SupportURL:     match[3],
+		}, nil
 	}
 
-	return &MultiUserAgent{
-		twtxtUserAgent: twtxtUserAgent{Client: match[1]},
-		WhoFollowsURL:  match[2],
-		SupportURL:     match[3],
-	}, nil
+	if match := yarndUserUARegex.FindStringSubmatch(ua); match != nil {
+		return &YarndUserAgent{
+			twtxtUserAgent: twtxtUserAgent{Client: match[1]},
+			Name:           match[2],
+			SupportURL:     match[3],
+		}, nil
+	}
+
+	return nil, ErrInvalidUserAgent
 }
 
 func ParseURI(uri string) (*URI, error) {

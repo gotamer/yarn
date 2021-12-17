@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"git.mills.io/yarnsocial/yarn"
 	"git.mills.io/yarnsocial/yarn/types"
 	"github.com/badgerodon/ioutil"
 	securejoin "github.com/cyphar/filepath-securejoin"
@@ -179,6 +180,7 @@ func (s *Server) TwtxtHandler() httprouter.Handle {
 
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		w.Header().Set("Link", fmt.Sprintf(`<%s/user/%s/webmention>; rel="webmention"`, s.config.BaseURL, nick))
+		w.Header().Set("Powered-By", fmt.Sprintf("yarnd/%s (Pod: %s Support: %s)", yarn.FullVersion(), s.config.Name, URLForPage(s.config.BaseURL, "support")))
 
 		mrs := ioutil.NewMultiReadSeeker(strings.NewReader(preamble), pr)
 		http.ServeContent(w, r, "", fileInfo.ModTime(), mrs)

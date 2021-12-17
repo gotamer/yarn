@@ -354,22 +354,39 @@ func (cache *Cache) Store(conf *Config) error {
 
 // DetectPodFromRequest ...
 func (cache *Cache) DetectPodFromRequest(req *http.Request) error {
-	twtxtUA, err := ParseUserAgent(req.UserAgent())
+	ua, err := ParseUserAgent(req.UserAgent())
 	if err != nil {
-		log.WithError(err).Warnf("error parsing Twtxt User-Agent '%s'", req.UserAgent())
+		log.WithError(err).Warnf("error parsing User-Agent '%s'", req.UserAgent())
 		return nil
 	}
 
-	if !twtxtUA.IsPod() {
+	return cache.DetectPodFromUserAgent(ua)
+}
+
+// DetectPodFromResponse ...
+func (cache *Cache) DetectPodFromResponse(res *http.Response) error {
+	poweredBy := res.Header.Get("Powered-By")
+	ua, err := ParseUserAgent(poweredBy)
+	if err != nil {
+		log.WithError(err).Warnf("error parsing Powered-By header '%s'", poweredBy)
 		return nil
 	}
 
-	if !cache.conf.Debug && !twtxtUA.IsPublicURL() {
-		log.Warnf("ignoring non-public peering pod %s", twtxtUA)
+	return cache.DetectPodFromUserAgent(ua)
+}
+
+// DetectPodFromUserAgent ...
+func (cache *Cache) DetectPodFromUserAgent(ua TwtxtUserAgent) error {
+	if !ua.IsPod() {
 		return nil
 	}
 
-	podBaseURL := twtxtUA.PodBaseURL()
+	if !cache.conf.Debug && !ua.IsPublicURL() {
+		log.Warnf("ignoring non-public peering pod %s", ua)
+		return nil
+	}
+
+	podBaseURL := ua.PodBaseURL()
 	if podBaseURL == "" {
 		return nil
 	}
@@ -648,6 +665,8 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 				twtsch <- nil
 				return
 			}
+
+			cache.DetectPodFromResponse(res)
 
 			var twts types.Twts
 
