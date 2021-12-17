@@ -855,6 +855,7 @@ func GetPeersForCached(cached *Cached, peers map[string]*Peer) []*Peer {
 // Converge ...
 func (cache *Cache) Converge(archive Archiver) {
 	// Missing Root Twts
+	// Missing Twt Hash -> List of Peer(s)
 	missingRootTwts := make(map[string][]*Peer)
 	cache.mu.RLock()
 	for subject, cached := range cache.Views {
@@ -863,29 +864,14 @@ func (cache *Cache) Converge(archive Archiver) {
 		}
 
 		hash := ExtractHashFromSubject(subject)
-		log.Debugf("hash: %s", hash)
-
-		if _, inCache := cache.Map[hash]; inCache {
-			log.Debugf("%s is in cache", hash)
+		if _, inCache := cache.Map[hash]; inCache || archive.Has(hash) {
 			continue
 		}
-
-		if _, err := archive.Get(hash); err == nil {
-			log.Debugf("%s is in archive", hash)
-			continue
-		}
-
-		log.Debugf("%s is missing...", hash)
 
 		peers := GetPeersForCached(cached, cache.Peers)
-		if len(peers) == 0 {
-			log.Debugf("no suitable peers found!")
-			continue
+		if len(peers) > 0 {
+			missingRootTwts[hash] = peers
 		}
-
-		log.Debugf("%d possible peers found", len(peers))
-
-		missingRootTwts[hash] = peers
 	}
 	cache.mu.RUnlock()
 
@@ -894,17 +880,13 @@ func (cache *Cache) Converge(archive Archiver) {
 		for _, peer := range peers {
 			if twt, err := peer.GetTwt(cache.conf, hash); err == nil {
 				missingTwt = twt
-				log.Debugf("found missing twt %s from peer %s", hash, peer)
 				break
 			}
 		}
-		if missingTwt == nil {
-			log.Debugf("unable to acquire missing twt %s from %d peers", hash, len(peers))
-			continue
+		if missingTwt != nil {
+			cache.InjectFeed(missingTwt.Twter().URL, missingTwt)
+			GetExternalAvatar(cache.conf, missingTwt.Twter())
 		}
-		cache.InjectFeed(missingTwt.Twter().URL, missingTwt)
-		GetExternalAvatar(cache.conf, missingTwt.Twter())
-		log.Debugf("successfully injected twt %s", hash)
 	}
 
 	cache.Refresh()

@@ -16,7 +16,6 @@ const (
 	// FeatureInvalid is the invalid feature (0)
 	FeatureInvalid FeatureType = iota
 	FeatureFoo
-	FeatureConverge
 )
 
 // Interface guards
@@ -31,8 +30,6 @@ func (f FeatureType) String() string {
 	switch f {
 	case FeatureFoo:
 		return "foo"
-	case FeatureConverge:
-		return "converge"
 	default:
 		return "invalid_feature"
 	}
@@ -63,8 +60,6 @@ func FeatureFromString(s string) (FeatureType, error) {
 	switch s {
 	case "foo":
 		return FeatureFoo, nil
-	case "converge":
-		return FeatureConverge, nil
 	default:
 		fs := fmt.Sprintf("available features: %s", strings.Join(AvailableFeatures(), " "))
 		return FeatureInvalid, fmt.Errorf("Error unrecognised feature: %s (%s)", s, fs)
