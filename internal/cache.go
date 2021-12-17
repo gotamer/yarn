@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
+	"math/rand"
 	"mime"
 	"net/http"
 	"os"
@@ -239,7 +241,7 @@ func (p *Peer) GetTwt(conf *Config, hash string) (types.Twt, error) {
 	return twt, nil
 }
 
-type Peers []Peer
+type Peers []*Peer
 
 func (peers Peers) Len() int           { return len(peers) }
 func (peers Peers) Less(i, j int) bool { return strings.Compare(peers[i].Name, peers[j].Name) < 0 }
@@ -838,8 +840,8 @@ func (cache *Cache) TwtCount() int {
 	return len(cache.List.Twts)
 }
 
-func GetPeersForCached(cached *Cached, peers map[string]*Peer) []*Peer {
-	var matches []*Peer
+func GetPeersForCached(cached *Cached, peers map[string]*Peer) Peers {
+	var matches Peers
 
 	for _, twt := range cached.Twts {
 		for uri, peer := range peers {
@@ -850,6 +852,12 @@ func GetPeersForCached(cached *Cached, peers map[string]*Peer) []*Peer {
 	}
 
 	return matches
+}
+
+func RandomSubsetOfPeers(peers Peers, pct float64) Peers {
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(peers), func(i, j int) { peers[i], peers[j] = peers[j], peers[i] })
+	return peers[:int(math.Ceil(float64(len(peers))*pct))]
 }
 
 // Converge ...
@@ -869,9 +877,10 @@ func (cache *Cache) Converge(archive Archiver) {
 		}
 
 		peers := GetPeersForCached(cached, cache.Peers)
-		if len(peers) > 0 {
-			missingRootTwts[hash] = peers
+		if len(peers) == 0 {
+			peers = RandomSubsetOfPeers(cache.GetPeers(), 0.6)
 		}
+		missingRootTwts[hash] = peers
 	}
 	cache.mu.RUnlock()
 
@@ -1006,8 +1015,7 @@ func (cache *Cache) GetPeers() (peers Peers) {
 		if k == "" || cachedPeer.IsZero() {
 			continue
 		}
-		peer := *cachedPeer
-		peers = append(peers, peer)
+		peers = append(peers, cachedPeer)
 	}
 
 	sort.Sort(peers)
