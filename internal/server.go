@@ -258,10 +258,22 @@ func (s *Server) setupMetrics() {
 		"Number of seconds for a feed cache cycle",
 	)
 
+	// feed cache convergence time
+	metrics.NewGauge(
+		"cache", "last_convergence_seconds",
+		"Number of seconds for cache convergence",
+	)
+
 	// feed cache limited fetch (feed exceeded MaxFetchLImit or unknown size)
 	metrics.NewCounter(
 		"cache", "limited",
 		"Number of feed cache fetches affected by MaxFetchLimit",
+	)
+
+	// no. of missing twts found in feed cache
+	metrics.NewCounter(
+		"cache", "missing_twts",
+		"Number of missing twts found in the feed cache",
 	)
 
 	// archive size

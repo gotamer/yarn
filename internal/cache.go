@@ -863,6 +863,16 @@ func RandomSubsetOfPeers(peers Peers, pct float64) Peers {
 
 // Converge ...
 func (cache *Cache) Converge(archive Archiver) {
+	stime := time.Now()
+	defer func() {
+		metrics.Gauge(
+			"cache",
+			"last_convergence_seconds",
+		).Set(
+			float64(time.Since(stime) / 1e9),
+		)
+	}()
+
 	// Missing Root Twts
 	// Missing Twt Hash -> List of Peer(s)
 	missingRootTwts := make(map[string][]*Peer)
@@ -884,6 +894,8 @@ func (cache *Cache) Converge(archive Archiver) {
 		missingRootTwts[hash] = peers
 	}
 	cache.mu.RUnlock()
+
+	metrics.Counter("cache", "missing_twts").Add(float64(len(missingRootTwts)))
 
 	for hash, peers := range missingRootTwts {
 		var missingTwt types.Twt
