@@ -879,7 +879,7 @@ func (cache *Cache) Converge(archive Archiver) {
 
 		peers := GetPeersForCached(cached, cache.Peers)
 		if len(peers) == 0 {
-			peers = RandomSubsetOfPeers(cache.GetPeers(), 0.6)
+			peers = RandomSubsetOfPeers(cache.getPeers(), 0.6)
 		}
 		missingRootTwts[hash] = peers
 	}
