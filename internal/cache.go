@@ -1006,22 +1006,25 @@ func (cache *Cache) UpdateFeed(url, lastmodified string, twts types.Twts) {
 	}
 }
 
-// GetPeers ...
-func (cache *Cache) GetPeers() (peers Peers) {
-	cache.mu.RLock()
-	cachedPeers := cache.Peers
-	cache.mu.RUnlock()
-
-	for k, cachedPeer := range cachedPeers {
-		if k == "" || cachedPeer.IsZero() {
+func (cache *Cache) getPeers() (peers Peers) {
+	for k, peer := range cache.Peers {
+		if k == "" || peer.IsZero() {
 			continue
 		}
-		peers = append(peers, cachedPeer)
+		peers = append(peers, peer)
 	}
 
 	sort.Sort(peers)
 
-	return peers
+	return
+}
+
+// GetPeers ...
+func (cache *Cache) GetPeers() (peers Peers) {
+	cache.mu.RLock()
+	defer cache.mu.RUnlock()
+
+	return cache.getPeers()
 }
 
 // GetAll ...
