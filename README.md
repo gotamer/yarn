@@ -7,7 +7,7 @@
 - `yarnd` is the [Yarn.social](https://yarn.social) pod backend server
 - `yarnc` is the command-line client to `yarnd` API and command-line Twtxt client
 
-See [Yarn.social] for more deatils
+See [Yarn.social](https://yarn.social) for more deatils
 
 ## Installation
 
@@ -165,53 +165,15 @@ __NOTE:__ Registrations are disabled by default so hence the `-R` flag above.
 
 Then visit: http://localhost:8000/
 
-You can configure other options by specifying them on the command-line:
+You can configure other options by specifying them on the command-line or via environment variables.
+
+To view the available options simply run:
 
 ```console
 $ ./yarnd --help
-Usage of ./yarnd:
-  -E, --admin-email string            default admin user email (default "support@yarn.social")
-  -N, --admin-name string             default admin user name (default "Administrator")
-  -A, --admin-user string             default admin user to use (default "admin")
-      --api-session-time duration     timeout for api tokens to expire (default 240h0m0s)
-      --api-signing-key string        secret to use for signing api tokens (default "INVALID CONFIG VALUE - PLEASE CHANGE THIS VALUE")
-  -u, --base-url string               base url to use (default "http://0.0.0.0:8000")
-  -b, --bind string                   [int]:<port> to bind to (default "0.0.0.0:8000")
-      --cookie-secret string          cookie secret to use secure sessions (default "INVALID CONFIG VALUE - PLEASE CHANGE THIS VALUE")
-  -d, --data string                   data directory (default "./data")
-  -D, --debug                         enable debug logging
-  -m, --description string            set the pod's description (default "🧶 Yarn.social is a Self-Hosted, Twitter™-like Decentralised microBlogging platform. No ads, no tracking, your content, your data!")
-      --enable-feature feature        enable the named feature
-      --feed-sources strings          external feed sources for discovery of other feeds (default [https://feeds.twtxt.net/we-are-feeds.txt])
-      --fetch-interval string         cache fetch interval (how often to update feeds) in cron syntax (https://pkg.go.dev/github.com/robfig/cron) (default "@every 5m")
-  -l, --lang string                   set the default language (default "auto")
-      --magiclink-secret string       magiclink secret to use for password reset tokens (default "INVALID CONFIG VALUE - PLEASE CHANGE THIS VALUE")
-  -I, --max-cache-items int           maximum cache items (per feed source) of cached twts in memory (default 150)
-  -C, --max-cache-ttl duration        maximum cache ttl (time-to-live) of cached twts in memory (default 240h0m0s)
-  -F, --max-fetch-limit int           maximum feed fetch limit in bytes (default 2097152)
-  -L, --max-twt-length int            maximum length of posts (default 288)
-  -U, --max-upload-size int           maximum upload size of media (default 16777216)
-  -n, --name string                   set the pod's name (default "twtxt.net")
-  -O, --open-profiles                 whether or not to have open user profiles
-  -R, --open-registrations            whether or not to have open user registgration
-  -P, --parser string                 set active parsing engine (default "lextwt")
-      --pop3-bind string              POP3 interface and port to bind to (default "0.0.0.0:8110")
-      --session-cache-ttl duration    time-to-live for cached sessions (default 1h0m0s)
-      --session-expiry duration       timeout for sessions to expire (default 240h0m0s)
-      --smtp-bind string              SMTP interface and port to bind to (default "0.0.0.0:8025")
-      --smtp-from string              SMTP From to use for email sending (default "INVALID CONFIG VALUE - PLEASE CHANGE THIS VALUE")
-      --smtp-host string              SMTP Host to use for email sending (default "smtp.gmail.com")
-      --smtp-pass string              SMTP Pass to use for email sending (default "INVALID CONFIG VALUE - PLEASE CHANGE THIS VALUE")
-      --smtp-port int                 SMTP Port to use for email sending (default 587)
-      --smtp-user string              SMTP User to use for email sending (default "INVALID CONFIG VALUE - PLEASE CHANGE THIS VALUE")
-  -s, --store string                  store to use (default "bitcask://twtxt.db")
-  -t, --theme string                  set the default theme (default "auto")
-      --transcoder-timeout duration   timeout for the video transcoder (default 10m0s)
-  -T, --twts-per-page int             maximum twts per page to display (default 50)
-  -v, --version                       display version information
-      --whitelist-domain strings      whitelist of external domains to permit for display of inline images (default [imgur\.com,giphy\.com,imgs\.xkcd\.com,tube\.mills\.io,reactiongifs\.com,githubusercontent\.com])
-pflag: help requested
 ```
+
+Valid environment value names are the long-option version of a flag in all uppercase with dashes repalced by an underscore `_`.
 
 ## Configuring your Pod
 
@@ -219,6 +181,8 @@ At a bare minimum you should set the following options:
 
 - `-d /path/to/data`
 - `-s bitcask:///path/to/data/twtxt.db` (_we will likely simplify/default this_)
+- `-n <name>` to give your pod a unique name.
+- `-u <url>` the base url (_public facing_) of how your pod will be reahced on the web.
 - `-R` to enable open registrations.
 - `-O` to enable open profiles.
 
@@ -246,6 +210,8 @@ to generate secrets for your pod for the above values:
 ```console
 $ cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 64 | head -n 1
 ```
+
+There is a shell script in `./tools/gen-secrets.sh` you can use to conveniently generate the required secrets for a production pod. The output is designed to by copy/pasted into a `docker-compose.yml` file with the right indentation.
 
 **DO NOT** publish or share these values. **BE SURE** to only set them as env vars.
 
@@ -290,8 +256,8 @@ You can find an [AUTHORS](/AUTHORS) file where we keep a list of contributors to
 
 - [Yarn.social](https://git.mills.io/yarnsocial/yarn.social) -- [Yarn.social](https://yarn.social) landing page
 - [Yarns](https://git.mills.io/yarnsocial/yarns) -- The [Yarn.social](https://yarn.social) search engine hosted at [search.twtxt.net](https://search.twtxt.net)
-- [Goryon](https://git.mills.io/yarnsocial/goryon) -- Our Flutter iOS and Android Mobile App
-- [rss2twtxt](https://git.mills.io/yarnsocial/rss2twtxt) -- RSS/Atom/Twitter to [Twtxt](https://twtxt.readthedocs.org) aggregator service hosted at [feeds.twtxt.net](https://feeds.twtxt.net)
+- [App](https://git.mills.io/yarnsocial/app) -- Our Flutter iOS and Android Mobile App
+- [Feeds](https://git.mills.io/yarnsocial/feeds) -- RSS/Atom/Twitter to [Twtxt](https://twtxt.readthedocs.org) aggregator service hosted at [feeds.twtxt.net](https://feeds.twtxt.net)
 
 ## License
 
