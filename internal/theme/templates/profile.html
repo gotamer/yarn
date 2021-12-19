@@ -23,7 +23,7 @@
     {{ else }}
     {{ $splitFollow := split "(" (tr . "ProfileDoesNotFollowYou")}}
     <div class="profile-popular">
-      <a href="{{ .Profile.URL }}">@{{ .Profile.Username }}</a> {{ ((index $splitFollow "_0") | trimSuffix ")") | html }}&nbsp;(<span class="last-seen">Last seen: {{ .Profile.LastSeenAt | time }}</span>)
+      <a href="{{ .Profile.URL }}">@{{ .Profile.Username }}</a> {{ ((index $splitFollow "_0") | trimSuffix ")") | html }}&nbsp;(<span class="last-seen">Last seen: {{ .Profile.LastSeenAt | lastseen }}</span>)
     </div>
     <div class="profile-nofollow">
       {{ ((index $splitFollow "_1") | trimSuffix ")") | html }}
