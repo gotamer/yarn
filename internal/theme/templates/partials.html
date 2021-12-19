@@ -10,35 +10,29 @@
     <li class="toolbar-form-button"><a id="lnkBtn" href="#" title="Link"><i class="ti ti-link"></i></a></li>
     <li class="toolbar-form-button"><a id="imgBtn" href="#" title="Image"><i class="ti ti-photo"></i></a></li>
     {{ if not $.Ctx.DisableMedia }}
-      <li class="toolbar-form-button-media">
-        <form id="imageUploadForm" action="/upload" enctype="multipart/form-data" method="POST" title="Upload image">
-          <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
-          <label for="uploadImage">
-            <i id="uploadImageButton" class="ti ti-camera"></i>
-          </label>
-          <input id="uploadImage" class="invisible width-none" type="file" accept="image/*" name="media_file" />
-        </form>
-      </li>
-      {{ if not $.Ctx.DisableFfmpeg }}
-        <li class="toolbar-form-button-media">
-          <form id="audioUploadForm" action="/upload" enctype="multipart/form-data" method="POST" title="Upload audio">
-            <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
-            <label for="uploadAudio">
-              <i id="uploadAudioButton" class="ti ti-microphone"></i>
-            </label>
-            <input id="uploadAudio" class="invisible width-none" type="file" accept="audio/*" name="media_file" />
-          </form>
-        </li>
-        <li class="toolbar-form-button-media">
-          <form id="videoUploadForm" action="/upload" enctype="multipart/form-data" method="POST" title="Upload video">
-            <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
-            <label for="uploadVideo">
-              <i id="uploadVideoButton" class="ti ti-video"></i>
-            </label>
-            <input id="uploadVideo" class="invisible width-none" type="file" accept="video/*" name="media_file" />
-          </form>
-        </li>
-      {{ end }}
+    <li class="toolbar-form-button-media">
+      <form id="imageUploadForm" action="/upload" enctype="multipart/form-data" method="POST" title="Upload image">
+        <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
+        <label for="uploadImage"><i id="uploadImageButton" class="ti ti-camera"></i></label>
+        <input id="uploadImage" class="invisible width-none" type="file" accept="image/*" name="media_file" />
+      </form>
+    </li>
+    {{ if not $.Ctx.DisableFfmpeg }}
+    <li class="toolbar-form-button-media">
+      <form id="audioUploadForm" action="/upload" enctype="multipart/form-data" method="POST" title="Upload audio">
+        <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
+        <label for="uploadAudio"><i id="uploadAudioButton" class="ti ti-microphone"></i></label>
+        <input id="uploadAudio" class="invisible width-none" type="file" accept="audio/*" name="media_file" />
+      </form>
+    </li>
+    <li class="toolbar-form-button-media">
+      <form id="videoUploadForm" action="/upload" enctype="multipart/form-data" method="POST" title="Upload video">
+        <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
+        <label for="uploadVideo"><i id="uploadVideoButton" class="ti ti-video"></i></label>
+        <input id="uploadVideo" class="invisible width-none" type="file" accept="video/*" name="media_file" />
+      </form>
+    </li>
+    {{ end }}
     {{ end }}
   </ul>
 </nav>
@@ -98,18 +92,16 @@
       {{ end }}
     </div>
     <div class="author">
+      <div class="p-name">
       {{ if isLocalURL $.Twt.Twter.URL }}
-      <a href="{{ $.Twt.Twter.URL | trimSuffix "/twtxt.txt" }}">
-        <span class="p-name">{{ $.Twt.Twter.Nick }}</span>
-      </a>
+        <a href="{{ $.Twt.Twter.URL | trimSuffix "/twtxt.txt" }}">{{ $.Twt.Twter.Nick }}</a>
       {{ else }}
-      <a href="/external?uri={{ $.Twt.Twter.URL }}&nick={{ $.Twt.Twter.Nick }}">
-        <span class="p-name">{{ $.Twt.Twter.Nick }}</span>
-      </a>
+        <a href="/external?uri={{ $.Twt.Twter.URL }}&nick={{ $.Twt.Twter.Nick }}">{{ $.Twt.Twter.Nick }}</a>
       {{ end }}
-      <a target="_blank" href="{{ $.Twt.Twter.URL | baseFromURL }}">
-        <span class="p-org">{{ $.Twt.Twter.URL | hostnameFromURL }}</span>
-      </a>
+      </div>
+      <div class="p-org">
+        <a target="_blank" href="{{ $.Twt.Twter.URL | baseFromURL }}">{{ $.Twt.Twter.URL | hostnameFromURL }}</a>
+      </div>
       <div class="publish-time">
         <a class="u-url" href="/twt/{{ $.Twt.Hash }}">
           <time class="dt-published" datetime="{{ $.Twt.Created | date "2006-01-02T15:04:05Z07:00" }}">
@@ -182,24 +174,28 @@
 {{ end }}
 
 {{ define "feed" }}
-<div class="grid h-feed">
-  <div>
-    {{ template "pager" (dict "Pager" $.Pager "Ctx" $.Ctx)}}
-    {{ range $idx, $twt := $.Twts }}
-    {{ template "twt" (dict "Authenticated" $.Authenticated "User" $.User "Profile" $.Profile "LastTwt" $.LastTwt "Twt" $twt "Ctx" $.Ctx "view" $.view) }}
-    {{ else }}
-      {{ if eq $.view "timeline" }}
-        <p>{{tr $.Ctx "NoTwts"}}</p>
-        <p>Try checking out the <a href="/discover">{{tr $.Ctx "NavDiscover"}}</a>
-        timeline to see what's happenning on the {{ $.Ctx.InstanceName }} pod or
-        <a href="/follow">{{tr $.Ctx "NavFollow" }}</a> a feed</p>
+  {{ if gt (len $.Twts) 0 }}
+  <div class="grid h-feed">
+    <div>
+      {{ template "pager" (dict "Pager" $.Pager "Ctx" $.Ctx)}}
+      {{ range $idx, $twt := $.Twts }}
+      {{ template "twt" (dict "Authenticated" $.Authenticated "User" $.User "Profile" $.Profile "LastTwt" $.LastTwt "Twt" $twt "Ctx" $.Ctx "view" $.view) }}
       {{ else }}
-        <p>{{ .Profile.Username }} last posted {{ .Profile.LastPostedAt | time }}</p>
+        {{ if eq $.view "timeline" }}
+          <p>{{tr $.Ctx "NoTwts"}}</p>
+          <p>Try checking out the <a href="/discover">{{tr $.Ctx "NavDiscover"}}</a>
+          timeline to see what's happenning on the {{ $.Ctx.InstanceName }} pod or
+          <a href="/follow">{{tr $.Ctx "NavFollow" }}</a> a feed</p>
+        {{ else }}
+          <p>{{ .Profile.Username }} last posted {{ .Profile.LastPostedAt | time }}</p>
+        {{ end }}
       {{ end }}
-    {{ end }}
-    {{ template "pager" (dict "Pager" $.Pager "Ctx" $.Ctx)}}
+      {{ template "pager" (dict "Pager" $.Pager "Ctx" $.Ctx)}}
+    </div>
   </div>
-</div>
+  {{ else }}
+  <div class="h-feed-empty"></div>
+  {{ end }}
 {{ end }}
 
 {{ define "pager" }}

@@ -66,6 +66,10 @@
   content: "\ea69";
 }
 
+.ti-clock:before {
+  content: "\ea70"
+}
+
 .ti-code:before {
   content: "\ea77";
 }

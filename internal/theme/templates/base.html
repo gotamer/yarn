@@ -40,58 +40,57 @@
   </head>
 <body class="preload">
   <nav id="mainNav">
-    <ul>
+    <ul id="podLogo">
       <li class="mobile-menu">
-        <a id="burgerMenu" href="javascript:void(0);">
-          <i class="ti ti-menu-2"></i>
+        <a id="burgerMenu" href="javascript:void(0);"><i class="ti ti-menu-2"></i></a>
+      </li>
+      <li class="podLogo">
+        <a href="/">{{ $.Logo }}</a>
+      </li>
+    </ul>
+    <ul id="podMenu">
+      {{ if .Authenticated }}
+      <li class="timelineBtn">
+        <a href="/" title="Last updated {{ .TimelineUpdatedAt | time }}">
+          <i class="ti ti-message-circle"></i> {{ tr . "NavTimeline" }}
         </a>
       </li>
-      <li><a class="podLogo" href="/">{{ $.Logo }}</a></li> {{ if .Authenticated }}
-        <li>
-          <a class="timelineBtn" href="/" title="Last updated {{ .TimelineUpdatedAt | time }}">
-            <i class="ti ti-message-circle"></i> {{ tr . "NavTimeline" }}
-          </a>
-        </li>
-        <li>
-          <a class="discoverBtn" href="/discover" title="Last updated {{ .DiscoverUpdatedAt | time }}">
-            <i class="ti ti-compass"></i> {{ tr . "NavDiscover" }}
-          </a>
-        </li>
-        <li>
-          <a class="mentionsBtn" href="/mentions" title="Last mentioned {{ .LastMentionedAt | time }}">
-            <i class="ti ti-bell-ringing"></i> {{ tr . "NavMentions" }}
-          </a>
-        </li>
-        <li>
-          <a class="feedsBtn" href="/feeds"><i class="ti ti-rss-nav"></i> {{ tr . "NavFeeds" }}</a>
-        </li>
-      {{ end }}
-    </ul>
-    <ul>
-      {{ if .Authenticated }}
-        <li>
-          <a class="settingsBtn" class="secondary" href="/settings">
-            <i class="ti ti-settings-nav"></i> {{ tr . "NavSettings" }}
-          </a>
-        </li>
-        <li>
-          <a class="logoutBtn" class="secondary" href="/logout" onclick="return confirm('Are you sure you want logout?')">
-            <i class="ti ti-door-exit"></i> {{ tr . "NavLogout" }}
-          </a>
-        </li>
+      <li class="discoverBtn">
+        <a href="/discover" title="Last updated {{ .DiscoverUpdatedAt | time }}">
+          <i class="ti ti-compass"></i> {{ tr . "NavDiscover" }}
+        </a>
+      </li>
+      <li class="mentionsBtn">
+        <a href="/mentions" title="Last mentioned {{ .LastMentionedAt | time }}">
+          <i class="ti ti-bell-ringing"></i> {{ tr . "NavMentions" }}
+        </a>
+      </li>
+      <li class="feedsBtn">
+        <a href="/feeds"><i class="ti ti-rss-nav"></i> {{ tr . "NavFeeds" }}</a>
+      </li>
+      <li class="settingsBtn" >
+        <a class="secondary" href="/settings">
+          <i class="ti ti-settings-nav"></i> {{ tr . "NavSettings" }}
+        </a>
+      </li>
+      <li class="logoutBtn">
+        <a class="secondary" href="/logout" onclick="return confirm('Are you sure you want logout?')">
+          <i class="ti ti-door-exit"></i> {{ tr . "NavLogout" }}
+        </a>
+      </li>
       {{ else }}
-        <li>
-          <a class="loginBtn" href="/login">
-            <i class="ti ti-door-enter"></i> {{ tr . "NavLogin" }}
-          </a>
-        </li>
-        {{ if not .RegisterDisabled }}
-          <li>
-            <a class="registerBtn" href="/register">
-              <i class="ti ti-user-plus"></i> {{ tr . "NavRegister" }}
-            </a>
-          </li>
-        {{ end }}
+      <li class="loginBtn">
+        <a href="/login">
+          <i class="ti ti-door-enter"></i> {{ tr . "NavLogin" }}
+        </a>
+      </li>
+      {{ if not .RegisterDisabled }}
+      <li class="registerBtn">
+        <a href="/register">
+          <i class="ti ti-user-plus"></i> {{ tr . "NavRegister" }}
+        </a>
+      </li>
+      {{ end }}
       {{ end }}
     </ul>
   </nav>
@@ -99,11 +98,6 @@
     {{ template "content" . }}
   </main>
   <footer class="container">
-    <div class="footer-copyright">
-      Running <a href="https://git.mills.io/yarnsocial/yarn" target="_blank">yarnd</a>
-      <a href="/info">{{ .SoftwareVersion.FullVersion }}</a> &mdash;
-      a <a href="https://yarn.social" target="_blank">Yarn.social</a> pod.
-    </div>
     <div class="footer-menu">
       <a href="/about" class="menu-item">{{tr . "MenuAbout"}}</a>
       <a href="/privacy" class="menu-item">{{tr . "MenuPrivacy"}}</a>
@@ -114,6 +108,11 @@
       {{ if .IsAdmin }}
       <a href="/manage/pod" class="menu-item"><i class="ti ti-device-analytics"></i></a>
       {{ end }}
+    </div>
+    <div class="footer-copyright">
+      Running <a href="https://git.mills.io/yarnsocial/yarn" target="_blank">yarnd</a>
+      <a href="/info">{{ .SoftwareVersion.FullVersion }}</a> &mdash;
+      a <a href="https://yarn.social" target="_blank">Yarn.social</a> pod.
     </div>
   </footer>
   {{ if $.Debug }}
