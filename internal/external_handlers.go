@@ -131,6 +131,7 @@ func (s *Server) ExternalHandler() httprouter.Handle {
 
 		if len(twts) > 0 {
 			ctx.Profile.LastPostedAt = twts[0].Created()
+			ctx.Profile.LastSeenAt = twts[0].Created()
 		}
 
 		trdata := map[string]interface{}{}
