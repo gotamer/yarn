@@ -17,6 +17,9 @@ RUN make deps
 COPY go.mod .
 COPY go.sum .
 
+# Copy default logo
+COPY  ./internal/logo.svg ./internal/
+
 # Copy static assets
 COPY ./internal/theme/static/css/* ./internal/theme/static/css/
 COPY ./internal/theme/static/img/* ./internal/theme/static/img/
