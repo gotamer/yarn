@@ -247,25 +247,8 @@ nav.pagination-nav a {
 }
 
 .icon-rotate {
-  width: 1rem;
-  margin-top: -0.2rem;
-  margin-left: 0.45rem;
-  cursor: pointer;
-  color: var(--text) !important;
-  position: absolute;
+  display: inline-block;
   animation: 2s linear infinite rotate;
-}
-
-#post i:not(.icon-rotate){
-  margin: 0 0 0 -1.3rem !important;
-}
-
-#post .icon-rotate::before {
-  cursor: pointer;
-  color: var(--text);
-  position: absolute;
-  margin: 0.75rem 0 0 -0.75rem !important;
-  animation: 1.5s linear infinite rotate;
 }
 
 .manage-users {
@@ -734,10 +717,7 @@ footer .footer-menu a{
 }
 
 @keyframes rotate {
-  0% {
-    transform: translate3d(-50%, -50%, 0) rotate(0deg);
-  }
   100% {
-    transform: translate3d(-50%, -50%, 0) rotate(360deg);
+    transform: rotate(360deg);
   }
 }
