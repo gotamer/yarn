@@ -1,6 +1,50 @@
 
+<a name="0.10.0"></a>
+## [0.10.0](https://git.mills.io/yarnsocial/yarn/compare/0.9.0...0.10.0) (2021-12-20)
+
+### Bug Fixes
+
+* Fix rotate on submit button (#612)
+* Fix Dockerfile
+* Fix deadlock proper in Converge() and use getPeers() to avoid recursive locks :/
+* Fix deadlock between cache.Converge() and cache.GetPeers()
+* Fix case where there are no suitable peers from the twts and ask a random subset (60%) of peers for the missing root twt
+* Fix search by tags because we normalize the case of tags when indexing in the cache
+* Fix posting performance by moving the Cache Convergence to the UpdateFeeds job
+* Fix noise from DetectPodFromResponse() for Twtxt responses that are non-yarnd pods with an empty/non-existent Powered-By header
+* Fix Follow/Unfollow AJAX
+* Fix error message in BaseFromURL()
+* Fix settings template
+* Fix bad merge
+* Fix bad typo
+* Fix Cache.Store() and Cache.Load() to take advantage of gob streams and reduce memory allocations on startup
+* Fix peer caching for stale peers with lastUpdated > podInfoUpdateTTL
+* Fix a bunch issues found withchanges in the UI/UX mostly to do with Follow/Unfollow and refactor profile views
+* Fix a bunch of missing UI elements on profile view
+
+### Features
+
+* Add gen-secrets.sh script to provide a convenience way to generate required pod secrets
+* Add LastSeen and LastPosted support
+* Add metrics for convergence processing time and missing twts
+* Add support for cache congerence (missing root twts) (#610)
+* Add support for detecting outgoing peers
+* Add link to the Twter.URL's baseURL(or Yarn.social pod) (#607)
+* Add a Manage Jobs Poderator interface for manually triggering jobs and display background job status
+* Add docs for FromOldCache()
+* Add support for loading up a previous cache version (n-1) and migrating to current version
+* Add MemoryUsage() to help optimize some parts of the codebase's memory allocations
+
+### Updates
+
+* Update 'README.md'
+* Update logo
+* Update managePeers template to display no. of peers at the top header
+* Update Manage Jobs icon
+
+
 <a name="0.9.0"></a>
-## [0.9.0](https://git.mills.io/yarnsocial/yarn/compare/0.8.0...0.9.0) (2021-12-04)
+## [0.9.0](https://git.mills.io/yarnsocial/yarn/compare/0.8.0...0.9.0) (2021-12-06)
 
 ### Bug Fixes
 
@@ -25,6 +69,7 @@
 
 ### Updates
 
+* Update CHANGELOG for 0.9.0
 * Update External Avatar for injected Twts
 * Update to tabler-icons v1.45.0
 * Update 'internal/theme/static/css/99-yarn.css'
