@@ -172,12 +172,13 @@ nav.pagination-nav a {
   color: var(--text);
 }
 
-.profile-info,
 .profile-tagline {
+  margin: 1rem 0 1rem 0;
   color: var(--text);
 }
 
 .profile-info {
+  color: var(--text);
   border-top: 1px solid var(--muted-border);
   margin-top: -0.5rem;
 }
