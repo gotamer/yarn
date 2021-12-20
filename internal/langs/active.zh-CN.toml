@@ -20,7 +20,7 @@ other = "<b>警告：</b>&nbsp; 这是个永久性操作，无法撤消且没有
 
 [BlogCommentJoinSummary]
 hash = "sha1-26e6951ad535fa0ab3c9db8a80f113ee4aa1d2bd"
-other = "要发表评论，请先 <a href=\"/login\">登录</a>"
+other = "要发表评论，请先 <a href=\"/login\" referrerpolicy=\"same-origin\">登录</a>"
 
 [BlogCommentPostSummary]
 hash = "sha1-78f1b7a5d6dd8e9fce43c7dfd651c994b41ca867"

@@ -3,7 +3,7 @@ ArchiveFeedFormConfirm = "Are you sure you want to archive this feed? This canno
 ArchiveFeedSummary = "Here you may archive your custom feed"
 ArchiveFeedTitle = "Archive feed"
 ArchiveFeedWarning = "<b>WARNING:</b>&nbsp;This is permanent and cannot be undone! (<i>There is no confirmation!</i>)"
-BlogCommentJoinSummary = "You must be <a href=\"/login\">Logged in</a> to comment."
+BlogCommentJoinSummary = "You must be <a href=\"/login\" referrerpolicy=\"same-origin\">Logged in</a> to comment."
 BlogCommentPostSummary = "Post your twt here and add to the discussion!"
 BlogCommentPostTitle = "Have your say!"
 BlogCommentsSummary = "Recent twts in reply to this post."

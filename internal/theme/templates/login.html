@@ -1,5 +1,7 @@
 {{ define "content" }}
   <article class="grid bump-up">
+  	<!-- ensure that we return to the page from where we clicked login -->
+  	<script>window.history.replaceState(null, '', document.referrer)</script>
     <div>
       <hgroup>
         <h2>{{ tr . "LoginTitle" }}</h2>
