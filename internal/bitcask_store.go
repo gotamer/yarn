@@ -48,6 +48,15 @@ func newBitcaskStore(path string) (*BitcaskStore, error) {
 	return &BitcaskStore{db: db}, nil
 }
 
+func (bs *BitcaskStore) scanKeys(prefix string) (keys [][]byte, err error) {
+	err = bs.db.Scan([]byte(prefix), func(key []byte) error {
+		keys = append(keys, key)
+		return nil
+	})
+
+	return
+}
+
 // Sync ...
 func (bs *BitcaskStore) Sync() error {
 	return bs.db.Sync()
@@ -144,21 +153,22 @@ func (bs *BitcaskStore) SearchFeeds(prefix string) []string {
 func (bs *BitcaskStore) GetAllFeeds() ([]*Feed, error) {
 	var feeds []*Feed
 
-	err := bs.db.Scan([]byte(feedsKeyPrefix), func(key []byte) error {
+	keys, err := bs.scanKeys(feedsKeyPrefix)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, key := range keys {
 		data, err := bs.db.Get(key)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		feed, err := LoadFeed(data)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		feeds = append(feeds, feed)
-		return nil
-	})
-	if err != nil {
-		return nil, err
 	}
 
 	return feeds, nil
@@ -227,21 +237,22 @@ func (bs *BitcaskStore) SearchUsers(prefix string) []string {
 func (bs *BitcaskStore) GetAllUsers() ([]*User, error) {
 	var users []*User
 
-	err := bs.db.Scan([]byte(usersKeyPrefix), func(key []byte) error {
+	keys, err := bs.scanKeys(usersKeyPrefix)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, key := range keys {
 		data, err := bs.db.Get(key)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		user, err := LoadUser(data)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		users = append(users, user)
-		return nil
-	})
-	if err != nil {
-		return nil, err
 	}
 
 	return users, nil
@@ -310,21 +321,22 @@ func (bs *BitcaskStore) LenSessions() int64 {
 func (bs *BitcaskStore) GetAllSessions() ([]*session.Session, error) {
 	var sessions []*session.Session
 
-	err := bs.db.Scan([]byte(sessionsKeyPrefix), func(key []byte) error {
+	keys, err := bs.scanKeys(sessionsKeyPrefix)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, key := range keys {
 		data, err := bs.db.Get(key)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		sess := session.NewSession(bs)
 		if err := session.LoadSession(data, sess); err != nil {
-			return err
+			return nil, err
 		}
 		sessions = append(sessions, sess)
-		return nil
-	})
-	if err != nil {
-		return nil, err
 	}
 
 	return sessions, nil
