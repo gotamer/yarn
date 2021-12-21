@@ -7,10 +7,13 @@ import (
 	"mime"
 	"net/http"
 	"os"
+	"sort"
+	"strings"
+	"sync"
 	"time"
 )
 
-var pods = []string{
+var knownPods = []string{
 	"twtxt.net",
 	"twtxt.cc",
 	"txt.sour.is",
@@ -117,17 +120,49 @@ func getPodVersion(url string) (string, error) {
 	return info.SoftwareVersion, nil
 }
 
+type Pod struct {
+	Name    string
+	Version string
+}
+
+type Pods []Pod
+
+func (pods Pods) Len() int           { return len(pods) }
+func (pods Pods) Less(i, j int) bool { return strings.Compare(pods[i].Version, pods[j].Version) < 0 }
+func (pods Pods) Swap(i, j int)      { pods[i], pods[j] = pods[j], pods[i] }
+
 func main() {
+	results := make(chan Pod, len(knownPods))
+	wg := sync.WaitGroup{}
+	wg.Add(len(knownPods))
+	for _, domain := range knownPods {
+		url := fmt.Sprintf("https://%s", domain)
+		go func(domain, url string) {
+			defer wg.Done()
+			pod := Pod{Name: domain}
+			version, err := getPodVersion(url)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "error getting pod version for %s: %s\n", pod.Name, err)
+				pod.Version = "???"
+			} else {
+				pod.Version = version
+			}
+			results <- pod
+		}(domain, url)
+	}
+
+	wg.Wait()
+	close(results)
+
+	var pods Pods
+
+	for result := range results {
+		pods = append(pods, result)
+	}
+	sort.Sort(pods)
+
 	fmt.Println("Pod Version\n")
 	for _, pod := range pods {
-		fmt.Printf("%s ", pod)
-		url := fmt.Sprintf("https://%s", pod)
-		version, err := getPodVersion(url)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "error getting pod version for %s: %s\n", pod, err)
-			fmt.Println("???")
-		} else {
-			fmt.Println(version)
-		}
+		fmt.Printf("%s %s\n", pod.Name, pod.Version)
 	}
 }
