@@ -1046,15 +1046,6 @@ func (a *API) ProfileEndpoint() httprouter.Handle {
 				return
 			}
 			profile = user.Profile(a.config.BaseURL, loggedInUser)
-
-			if loggedInUser == nil {
-				if !user.IsFollowersPubliclyVisible {
-					profile.Followers = map[string]string{}
-				}
-				if !user.IsFollowingPubliclyVisible {
-					profile.Following = map[string]string{}
-				}
-			}
 		} else if a.db.HasFeed(username) {
 			feed, err := a.db.GetFeed(username)
 			if err != nil {
@@ -1083,6 +1074,10 @@ func (a *API) ProfileEndpoint() httprouter.Handle {
 		} else {
 			twter = types.Twter{Nick: profile.Username, URL: profile.URL}
 		}
+
+		followers := a.cache.GetFollowers(profile)
+		profile.Followers = followers
+		profile.NFollowers = len(followers)
 
 		profileResponse := types.ProfileResponse{
 			Profile: profile,

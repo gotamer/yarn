@@ -1,6 +1,27 @@
 package types
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
+
+type Follower struct {
+	URL           string
+	Nick          string
+	LastFetchedAt time.Time
+}
+
+func (f *Follower) String() string {
+	return fmt.Sprintf("@<%s %s>", f.Nick, f.URL)
+}
+
+type Followers []*Follower
+
+func (followers Followers) Len() int { return len(followers) }
+func (followers Followers) Less(i, j int) bool {
+	return followers[i].LastFetchedAt.Before(followers[i].LastFetchedAt)
+}
+func (followers Followers) Swap(i, j int) { followers[i], followers[j] = followers[j], followers[i] }
 
 // Profile represents a user/feed profile
 type Profile struct {
@@ -34,11 +55,12 @@ type Profile struct {
 	LastSeenAt time.Time
 
 	Bookmarks map[string]string
-	Followers map[string]string
-	Following map[string]string
+
+	NFollowing int
+	Following  map[string]string
 
 	NFollowers int
-	NFollowing int
+	Followers  Followers
 
 	// `true` if the User viewing the Profile has permissions to show the
 	// bookmarks/followers/followings of this user/feed

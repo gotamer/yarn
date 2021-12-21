@@ -44,10 +44,6 @@ const defaultPreambleTemplate = `# Twtxt is an open, distributed microblogging p
 // TwtxtHandler ...
 func (s *Server) TwtxtHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		s.tasks.DispatchFunc(func() error {
-			return s.cache.DetectPodFromRequest(r)
-		})
-
 		ctx := NewContext(s, r)
 
 		nick := NormalizeUsername(p.ByName("nick"))
@@ -73,58 +69,6 @@ func (s *Server) TwtxtHandler() httprouter.Handle {
 			return
 		}
 
-		twtxtUA, _ := ParseUserAgent(r.UserAgent())
-		if ua, ok := twtxtUA.(*SingleUserAgent); ok {
-			var (
-				user       *User
-				feed       *Feed
-				err        error
-				followedBy bool
-			)
-
-			if user, err = s.db.GetUser(nick); err == nil {
-				followedBy = user.FollowedBy(ua.URL)
-			} else if feed, err = s.db.GetFeed(nick); err == nil {
-				followedBy = feed.FollowedBy(ua.URL)
-			} else {
-				log.WithError(err).Warnf("unable to load user or feed object for %s", nick)
-			}
-
-			if (user != nil) || (feed != nil) {
-				if (s.config.Debug || ua.IsPublicURL()) && !followedBy {
-					if _, err := AppendSpecial(
-						s.config, s.db,
-						twtxtBot,
-						fmt.Sprintf(
-							"FOLLOW: @<%s %s> from @<%s %s> using %s",
-							nick, URLForUser(s.config.BaseURL, nick),
-							ua.Nick, ua.URL, ua.Client,
-						),
-					); err != nil {
-						log.WithError(err).Warnf("error appending special FOLLOW post")
-					}
-
-					if user != nil {
-						user.AddFollower(ua.Nick, ua.URL)
-						if err := s.db.SetUser(nick, user); err != nil {
-							log.WithError(err).Warnf("error updating user object for %s", nick)
-						}
-					} else if feed != nil {
-						feed.AddFollower(ua.Nick, ua.URL)
-						if err := s.db.SetFeed(nick, feed); err != nil {
-							log.WithError(err).Warnf("error updating feed object for %s", nick)
-						}
-					} else {
-						panic("should not be reached")
-						// Should not be reached
-					}
-				}
-			}
-		}
-
-		// XXX: This is stupid doing this twice
-		// TODO: Refactor all of this :/
-
 		if user, err := s.db.GetUser(nick); err == nil {
 			ctx.Profile = user.Profile(s.config.BaseURL, ctx.User)
 		} else if feed, err := s.db.GetFeed(nick); err == nil {
@@ -132,6 +76,10 @@ func (s *Server) TwtxtHandler() httprouter.Handle {
 		} else {
 			log.WithError(err).Warnf("unable to load user or feed profile for %s", nick)
 		}
+
+		s.tasks.DispatchFunc(func() error {
+			return s.cache.DetectClientFromRequest(r, ctx.Profile)
+		})
 
 		f, err := os.Open(fn)
 		if err != nil {

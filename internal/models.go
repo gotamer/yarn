@@ -295,9 +295,6 @@ func (f *Feed) Profile(baseURL string, viewer *User) types.Profile {
 		FollowedBy: followedBy,
 		Muted:      muted,
 
-		Followers:  f.Followers,
-		NFollowers: len(f.Followers),
-
 		ShowBookmarks: false, // feeds don't have bookmarks
 		ShowFollowers: true,  // feeds can't control this
 		ShowFollowing: false, // feeds can't follow others
@@ -518,11 +515,9 @@ func (u *User) Profile(baseURL string, viewer *User) types.Profile {
 		Muted:      muted,
 		Feeds:      feeds,
 
-		Followers: u.Followers,
-		Following: u.Following,
 		Bookmarks: u.Bookmarks,
 
-		NFollowers: len(u.Followers),
+		Following:  u.Following,
 		NFollowing: len(u.Following),
 
 		ShowBookmarks: showBookmarks,

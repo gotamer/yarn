@@ -165,6 +165,10 @@ func (s *Server) ProfileHandler() httprouter.Handle {
 			return
 		}
 
+		followers := s.cache.GetFollowers(profile)
+		profile.Followers = followers
+		profile.NFollowers = len(followers)
+
 		ctx.Profile = profile
 
 		ctx.Links = append(ctx.Links, Link{
@@ -506,6 +510,8 @@ func (s *Server) FollowersHandler() httprouter.Handle {
 
 		nick := NormalizeUsername(p.ByName("nick"))
 
+		var profile types.Profile
+
 		if s.db.HasUser(nick) {
 			user, err := s.db.GetUser(nick)
 			if err != nil {
@@ -520,7 +526,7 @@ func (s *Server) FollowersHandler() httprouter.Handle {
 				s.render("401", w, ctx)
 				return
 			}
-			ctx.Profile = user.Profile(s.config.BaseURL, ctx.User)
+			profile = user.Profile(s.config.BaseURL, ctx.User)
 		} else if s.db.HasFeed(nick) {
 			feed, err := s.db.GetFeed(nick)
 			if err != nil {
@@ -530,13 +536,19 @@ func (s *Server) FollowersHandler() httprouter.Handle {
 				s.render("error", w, ctx)
 				return
 			}
-			ctx.Profile = feed.Profile(s.config.BaseURL, ctx.User)
+			profile = feed.Profile(s.config.BaseURL, ctx.User)
 		} else {
 			ctx.Error = true
 			ctx.Message = s.tr(ctx, "ErrorUserOrFeedNotFound")
 			s.render("404", w, ctx)
 			return
 		}
+
+		followers := s.cache.GetFollowers(profile)
+		profile.Followers = followers
+		profile.NFollowers = len(followers)
+
+		ctx.Profile = profile
 
 		if r.Header.Get("Accept") == "application/json" {
 			w.Header().Set("Content-Type", "application/json")

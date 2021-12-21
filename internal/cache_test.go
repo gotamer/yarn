@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"git.mills.io/yarnsocial/yarn/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -66,6 +67,12 @@ func randomPort(t *testing.T) int {
 	return listener.Addr().(*net.TCPAddr).Port
 }
 
+func newUserProfile(username string) types.Profile {
+	return types.Profile{
+		Type:     "user",
+		Username: username,
+	}
+}
 func newRequestWithUA(ua string) *http.Request {
 	req, err := http.NewRequest("GET", "http://localhost/user/foo/twtxt.txt", nil)
 	if err != nil {
@@ -143,9 +150,10 @@ func TestCache_DetectPodFromRequest_whenNonTwtxtUserAgent_thenDoNothing(t *testi
 	defer server.Close()
 
 	cache := NewCache(peerCfg)
+	profile := newUserProfile("bob")
 	req := newRequestWithUA("Linguee Bot (http://www.linguee.com/bot; bot@linguee.com)")
 
-	assert.NoError(t, cache.DetectPodFromRequest(req), "detecting pod failed")
+	assert.NoError(t, cache.DetectClientFromRequest(req, profile), "detecting pod failed")
 	assertPodInfoNotInserted(t, cache)
 }
 
@@ -154,9 +162,10 @@ func TestCache_DetectPodFromRequest_whenNonYarnTwtxtUserAgent_thenDoNothing(t *t
 	defer server.Close()
 
 	cache := NewCache(peerCfg)
+	profile := newUserProfile("bob")
 	req := newRequestWithUA("twtxt/1.2.3 (+https://example.com/twtxt.txt; @foo)")
 
-	assert.NoError(t, cache.DetectPodFromRequest(req), "detecting pod failed")
+	assert.NoError(t, cache.DetectClientFromRequest(req, profile), "detecting pod failed")
 	assertPodInfoNotInserted(t, cache)
 }
 
@@ -166,10 +175,11 @@ func TestCache_DetectPodFromRequest_whenPodAlreadySeenWithinConfiguredTTL_thenDo
 
 	lastSeenAndUpdated := time.Now().Add(-3 * time.Minute)
 	cache := newCacheWithPodInfo(server.URL, lastSeenAndUpdated)
+	profile := newUserProfile("bob")
 	req := newRequestWithUA(fmt.Sprintf("yarnd/0.42.0@1234567 (+%s/user/bar/twtxt.txt; @bar)", server.URL))
 	now := time.Now()
 
-	assert.NoError(t, cache.DetectPodFromRequest(req), "detecting pod failed")
+	assert.NoError(t, cache.DetectClientFromRequest(req, profile), "detecting pod failed")
 	assertPodInfoNotUpdatedExceptLastSeen(t, cache, server.URL, now, lastSeenAndUpdated)
 }
 
@@ -178,10 +188,11 @@ func TestCache_DetectPodFromRequest_whenPodNeverSeen_thenCallbackAndPopulateCach
 	defer cleanup()
 
 	cache := NewCache(peerCfg)
+	profile := newUserProfile("bob")
 	req := newRequestWithUA(fmt.Sprintf("yarnd/0.9001.23@7654321 (+%s/user/bar/twtxt.txt; @bar)", server.URL))
 	now := time.Now()
 
-	assert.NoError(t, cache.DetectPodFromRequest(req), "detecting pod failed")
+	assert.NoError(t, cache.DetectClientFromRequest(req, profile), "detecting pod failed")
 	assertPodInfoUpdated(t, cache, server.URL, now)
 }
 
@@ -191,19 +202,21 @@ func TestCache_DetectPodFromRequest_whenPodAlreadySeenOutsideConfiguredTTL_thenC
 
 	lastSeenAndUpdated := time.Now().Add(-25 * time.Hour)
 	cache := newCacheWithPodInfo(server.URL, lastSeenAndUpdated)
+	profile := newUserProfile("bob")
 	req := newRequestWithUA(fmt.Sprintf("yarnd/0.9001.23@7654321 (+%s/user/bar/twtxt.txt; @bar)", server.URL))
 	now := time.Now()
 
-	assert.NoError(t, cache.DetectPodFromRequest(req), "detecting pod failed")
+	assert.NoError(t, cache.DetectClientFromRequest(req, profile), "detecting pod failed")
 	assertPodInfoUpdated(t, cache, server.URL, now)
 }
 
 func TestCache_DetectPodFromRequest_whenPodNeverSeenAndCallbackNotReplying_thenReturnErrorAndDoNothing(t *testing.T) {
 	cache := NewCache(peerCfg)
 	serverURL := fmt.Sprintf("http://localhost:%d", randomPort(t))
+	profile := newUserProfile("bob")
 	req := newRequestWithUA(fmt.Sprintf("yarnd/0.9001.23@7654321 (+%s/user/bar/twtxt.txt; @bar)", serverURL))
 
-	err := cache.DetectPodFromRequest(req)
+	err := cache.DetectClientFromRequest(req, profile)
 	assert.Error(t, err, "detecting pod should have failed")
 	assert.Contains(t, err.Error(), serverURL+"/info", "error message should contain callback URL")
 	assertPodInfoNotInserted(t, cache)
@@ -213,10 +226,11 @@ func TestCache_DetectPodFromRequest_whenPodAlreadySeenAndCallbackNotReplying_the
 	serverURL := fmt.Sprintf("http://localhost:%d", randomPort(t))
 	lastSeenAndUpdated := time.Now().Add(-25 * time.Hour)
 	cache := newCacheWithPodInfo(serverURL, lastSeenAndUpdated)
+	profile := newUserProfile("bob")
 	req := newRequestWithUA(fmt.Sprintf("yarnd/0.9001.23@7654321 (+%s/user/bar/twtxt.txt; @bar)", serverURL))
 	now := time.Now()
 
-	err := cache.DetectPodFromRequest(req)
+	err := cache.DetectClientFromRequest(req, profile)
 	assert.Error(t, err, "detecting pod should have failed")
 	assert.Contains(t, err.Error(), serverURL+"/info", "error message should contain callback URL")
 	assertPodInfoNotUpdatedExceptLastSeen(t, cache, serverURL, now, lastSeenAndUpdated)
@@ -230,9 +244,10 @@ func TestCache_DetectPodFromRequest_whenPodNeverSeenAndCallbackReplyingWithHTTPN
 	defer cleanup()
 
 	cache := NewCache(peerCfg)
+	profile := newUserProfile("bob")
 	req := newRequestWithUA(fmt.Sprintf("yarnd/0.9001.23@7654321 (+%s/user/bar/twtxt.txt; @bar)", server.URL))
 
-	err := cache.DetectPodFromRequest(req)
+	err := cache.DetectClientFromRequest(req, profile)
 	assert.EqualError(t, err, fmt.Sprintf("non-success HTTP 404 Not Found response for %s/info", server.URL),
 		"detecting pod should have failed")
 	assertPodInfoNotInserted(t, cache)
@@ -247,10 +262,11 @@ func TestCache_DetectPodFromRequest_whenPodAlreadySeenAndCallbackReplyingWithHTT
 
 	lastSeenAndUpdated := time.Now().Add(-25 * time.Hour)
 	cache := newCacheWithPodInfo(server.URL, lastSeenAndUpdated)
+	profile := newUserProfile("bob")
 	req := newRequestWithUA(fmt.Sprintf("yarnd/0.9001.23@7654321 (+%s/user/bar/twtxt.txt; @bar)", server.URL))
 	now := time.Now()
 
-	err := cache.DetectPodFromRequest(req)
+	err := cache.DetectClientFromRequest(req, profile)
 	assert.EqualError(t, err, fmt.Sprintf("non-success HTTP 404 Not Found response for %s/info", server.URL),
 		"detecting pod should have failed")
 	assertPodInfoNotUpdatedExceptLastSeen(t, cache, server.URL, now, lastSeenAndUpdated)
@@ -265,9 +281,10 @@ func TestCache_DetectPodFromRequest_whenPodNeverSeenAndCallbackReplyingWithInval
 	defer cleanup()
 
 	cache := NewCache(peerCfg)
+	profile := newUserProfile("bob")
 	req := newRequestWithUA(fmt.Sprintf("yarnd/0.9001.23@7654321 (+%s/user/bar/twtxt.txt; @bar)", server.URL))
 
-	err := cache.DetectPodFromRequest(req)
+	err := cache.DetectClientFromRequest(req, profile)
 	assert.EqualError(t, err, "mime: expected slash after first token", "detecting pod should have failed")
 	assertPodInfoNotInserted(t, cache)
 }
@@ -282,10 +299,11 @@ func TestCache_DetectPodFromRequest_whenPodAlreadySeenAndCallbackReplyingWithInv
 
 	lastSeenAndUpdated := time.Now().Add(-25 * time.Hour)
 	cache := newCacheWithPodInfo(server.URL, lastSeenAndUpdated)
+	profile := newUserProfile("bob")
 	req := newRequestWithUA(fmt.Sprintf("yarnd/0.9001.23@7654321 (+%s/user/bar/twtxt.txt; @bar)", server.URL))
 	now := time.Now()
 
-	err := cache.DetectPodFromRequest(req)
+	err := cache.DetectClientFromRequest(req, profile)
 	assert.EqualError(t, err, "mime: expected slash after first token", "detecting pod should have failed")
 	assertPodInfoNotUpdatedExceptLastSeen(t, cache, server.URL, now, lastSeenAndUpdated)
 }
@@ -299,9 +317,10 @@ func TestCache_DetectPodFromRequest_whenPodNeverSeenAndCallbackReplyingWithNonJS
 	defer cleanup()
 
 	cache := NewCache(peerCfg)
+	profile := newUserProfile("bob")
 	req := newRequestWithUA(fmt.Sprintf("yarnd/0.9001.23@7654321 (+%s/user/bar/twtxt.txt; @bar)", server.URL))
 
-	err := cache.DetectPodFromRequest(req)
+	err := cache.DetectClientFromRequest(req, profile)
 	assert.EqualError(t, err, fmt.Sprintf("non-JSON response content type 'text/plain; charset=UTF-8' for %s/info", server.URL),
 		"detecting pod should have failed")
 	assertPodInfoNotInserted(t, cache)
@@ -317,10 +336,11 @@ func TestCache_DetectPodFromRequest_whenPodAlreadySeenAndCallbackReplyingWithNon
 
 	lastSeenAndUpdated := time.Now().Add(-25 * time.Hour)
 	cache := newCacheWithPodInfo(server.URL, lastSeenAndUpdated)
+	profile := newUserProfile("bob")
 	req := newRequestWithUA(fmt.Sprintf("yarnd/0.9001.23@7654321 (+%s/user/bar/twtxt.txt; @bar)", server.URL))
 	now := time.Now()
 
-	err := cache.DetectPodFromRequest(req)
+	err := cache.DetectClientFromRequest(req, profile)
 	assert.EqualError(t, err, fmt.Sprintf("non-JSON response content type 'text/plain; charset=UTF-8' for %s/info", server.URL),
 		"detecting pod should have failed")
 	assertPodInfoNotUpdatedExceptLastSeen(t, cache, server.URL, now, lastSeenAndUpdated)
@@ -335,9 +355,10 @@ func TestCache_DetectPodFromRequest_whenPodNeverSeenAndCallbackReplyingWithJSONG
 	defer cleanup()
 
 	cache := NewCache(peerCfg)
+	profile := newUserProfile("bob")
 	req := newRequestWithUA(fmt.Sprintf("yarnd/0.9001.23@7654321 (+%s/user/bar/twtxt.txt; @bar)", server.URL))
 
-	err := cache.DetectPodFromRequest(req)
+	err := cache.DetectClientFromRequest(req, profile)
 	assert.Error(t, err, "detecting pod should have failed")
 	assert.Contains(t, err.Error(), "invalid character", "error message should say something about decoding error")
 	assertPodInfoNotInserted(t, cache)
@@ -353,10 +374,11 @@ func TestCache_DetectPodFromRequest_whenPodAlreadySeenAndCallbackReplyingWithJSO
 
 	lastSeenAndUpdated := time.Now().Add(-25 * time.Hour)
 	cache := newCacheWithPodInfo(server.URL, lastSeenAndUpdated)
+	profile := newUserProfile("bob")
 	req := newRequestWithUA(fmt.Sprintf("yarnd/0.9001.23@7654321 (+%s/user/bar/twtxt.txt; @bar)", server.URL))
 	now := time.Now()
 
-	err := cache.DetectPodFromRequest(req)
+	err := cache.DetectClientFromRequest(req, profile)
 	assert.Error(t, err, "detecting pod should have failed")
 	assert.Contains(t, err.Error(), "invalid character", "error message should say something about decoding error")
 	assertPodInfoNotUpdatedExceptLastSeen(t, cache, server.URL, now, lastSeenAndUpdated)

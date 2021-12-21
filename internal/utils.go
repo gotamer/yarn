@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base32"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"html/template"
@@ -12,6 +13,7 @@ import (
 	"io"
 	"io/ioutil"
 	"math"
+	"mime"
 	"net"
 	"net/http"
 	"net/url"
@@ -1047,6 +1049,12 @@ type TwtxtUserAgent interface {
 
 	// IsPublicURL returns true if the Twtxt client's User-Agent is from what appears to be the public internet.
 	IsPublicURL() bool
+
+	// Followers returns a list of followers for this client follows, in the case of a
+	// single user agent, it is simply a list of itself, with a multi-user agent the
+	// client (i.e: a `yarnd` pod) is aksed who followers the user/feed by requesting
+	// the whoFollows resource
+	Followers(conf *Config) types.Followers
 }
 
 // TwtxtUserAgent interface guards
@@ -1137,6 +1145,16 @@ func (ua *SingleUserAgent) IsPublicURL() bool {
 	return ua.isPublicURL(ua.URL, ua.String())
 }
 
+func (ua *SingleUserAgent) Followers(conf *Config) types.Followers {
+	return types.Followers{
+		&types.Follower{
+			Nick:          ua.Nick,
+			URL:           ua.URL,
+			LastFetchedAt: time.Now(),
+		},
+	}
+}
+
 // MultiUserAgent is a multi-user Twtxt client, currently only `yarnd` is such a client.
 type MultiUserAgent struct {
 	twtxtUserAgent
@@ -1158,6 +1176,56 @@ func (ua *MultiUserAgent) IsPublicURL() bool {
 	return ua.isPublicURL(ua.WhoFollowsURL, ua.String())
 }
 
+func (ua *MultiUserAgent) Followers(conf *Config) types.Followers {
+	var followers types.Followers
+
+	headers := make(http.Header)
+	headers.Set("Accept", "application/json")
+
+	res, err := Request(conf, http.MethodGet, ua.WhoFollowsURL, headers)
+	if err != nil {
+		log.WithError(err).Error("error fetching whoFollows from %s", ua)
+		return nil
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode/100 != 2 {
+		log.Errorf("HTTP %s response for whoFollows resource from %s", res.Status, ua)
+		return nil
+	}
+
+	if ctype := res.Header.Get("Content-Type"); ctype != "" {
+		mediaType, _, err := mime.ParseMediaType(ctype)
+		if err != nil {
+			log.WithError(err).Errorf("error parsing content type header '%s' for whoFollows resoruce from %s", ctype, ua)
+			return nil
+		}
+		if mediaType != "application/json" {
+			log.Errorf("non-JSON response '%s' for whoFollows resource from %s", ctype, ua)
+			return nil
+		}
+	}
+
+	data, err := io.ReadAll(res.Body)
+	if err != nil {
+		log.WithError(err).Errorf("error reading response body for whoFollows resource from %s", ua)
+		return nil
+	}
+
+	if err := json.Unmarshal(data, &followers); err != nil {
+		oldFollowers := make(map[string]string)
+		if err := json.Unmarshal(data, &oldFollowers); err != nil {
+			log.WithError(err).Errorf("error deserializing whoFollows response from %s", ua)
+			return nil
+		}
+		for k, v := range oldFollowers {
+			followers = append(followers, &types.Follower{Nick: k, URL: v})
+		}
+	}
+
+	return followers
+}
+
 // YarndUserAgent is a generic `yarnd` client.
 type YarndUserAgent struct {
 	twtxtUserAgent
@@ -1177,6 +1245,10 @@ func (ua *YarndUserAgent) PodBaseURL() string {
 
 func (ua *YarndUserAgent) IsPublicURL() bool {
 	return ua.isPublicURL(ua.SupportURL, ua.String())
+}
+
+func (ua *YarndUserAgent) Followers(conf *Config) types.Followers {
+	return nil
 }
 
 func ParseUserAgent(ua string) (TwtxtUserAgent, error) {

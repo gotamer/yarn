@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"git.mills.io/yarnsocial/yarn/types"
 	"github.com/julienschmidt/httprouter"
@@ -45,8 +46,6 @@ func (s *Server) WhoFollowsHandler() httprouter.Handle {
 		}
 		tokenCache.Del(token)
 
-		followers := make(map[string]string)
-
 		users, err := s.db.GetAllUsers()
 		if err != nil {
 			log.WithError(err).Error("unable to get all users from database")
@@ -60,14 +59,22 @@ func (s *Server) WhoFollowsHandler() httprouter.Handle {
 			return
 		}
 
-		nick := ""
+		var (
+			nick      string
+			followers types.Followers
+		)
+
 		for _, user := range users {
 			if !user.IsFollowingPubliclyVisible && !ctx.User.Is(user.URL) {
 				continue
 			}
 
 			if user.Follows(uri) {
-				followers[user.Username] = user.URL
+				followers = append(followers, &types.Follower{
+					Nick:          user.Username,
+					URL:           user.URL,
+					LastFetchedAt: time.Now(),
+				})
 				if nick == "" {
 					nick = user.sources[uri]
 				}
@@ -88,7 +95,8 @@ func (s *Server) WhoFollowsHandler() httprouter.Handle {
 			FollowedBy: true,
 			Muted:      false,
 
-			Followers: followers,
+			Followers:  followers,
+			NFollowers: len(followers),
 		}
 
 		if ctype == "json" {

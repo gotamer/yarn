@@ -260,6 +260,8 @@ type Cache struct {
 	Peers map[string]*Peer
 	Feeds map[string]*Cached
 	Views map[string]*Cached
+
+	Followers map[string]types.Followers
 }
 
 func NewCache(conf *Config) *Cache {
@@ -269,6 +271,8 @@ func NewCache(conf *Config) *Cache {
 		Peers: make(map[string]*Peer),
 		Feeds: make(map[string]*Cached),
 		Views: make(map[string]*Cached),
+
+		Followers: make(map[string]types.Followers),
 	}
 }
 
@@ -364,6 +368,11 @@ func LoadCache(conf *Config) (*Cache, error) {
 		return cleanupCorruptCache()
 	}
 
+	if err := dec.Decode(&cache.Followers); err != nil {
+		log.WithError(err).Error("error decoding cache.Followers, removing corrupt file")
+		return cleanupCorruptCache()
+	}
+
 	log.Infof("Cache version %d", cache.Version)
 	if cache.Version != feedCacheVersion {
 		log.Errorf("Cache version mismatch. Expect = %d, Got = %d. Removing old cache.", feedCacheVersion, cache.Version)
@@ -407,22 +416,60 @@ func (cache *Cache) Store(conf *Config) error {
 		return err
 	}
 
+	if err := enc.Encode(cache.Followers); err != nil {
+		log.WithError(err).Error("error encoding cache.Followers")
+		return err
+	}
+
 	return nil
 }
 
-// DetectPodFromRequest ...
-func (cache *Cache) DetectPodFromRequest(req *http.Request) error {
+func MergeFollowers(old, new types.Followers) types.Followers {
+	var res types.Followers
+
+	oldSet := make(map[string]*types.Follower)
+	for _, o := range old {
+		oldSet[o.URL] = o
+		res = append(res, o)
+	}
+
+	for _, n := range new {
+		if o, ok := oldSet[n.URL]; ok {
+			o.LastFetchedAt = n.LastFetchedAt
+		} else {
+			res = append(res, n)
+		}
+	}
+
+	return res
+}
+
+// DetectClientFromRequest ...
+func (cache *Cache) DetectClientFromRequest(req *http.Request, profile types.Profile) error {
 	ua, err := ParseUserAgent(req.UserAgent())
 	if err != nil {
-		log.WithError(err).Warnf("error parsing User-Agent '%s'", req.UserAgent())
 		return nil
 	}
 
-	return cache.DetectPodFromUserAgent(ua)
+	if err := cache.DetectPodFromUserAgent(ua); err != nil {
+		log.WithError(err).Error("error detecting pod")
+	}
+
+	// Update Followers cache
+
+	newFollowers := ua.Followers(cache.conf)
+	currentFollowers := cache.GetFollowers(profile)
+	mergedFollowers := MergeFollowers(currentFollowers, newFollowers)
+
+	cache.mu.Lock()
+	cache.Followers[profile.Username] = mergedFollowers
+	cache.mu.Unlock()
+
+	return nil
 }
 
-// DetectPodFromResponse ...
-func (cache *Cache) DetectPodFromResponse(res *http.Response) error {
+// DetectClientFromResponse ...
+func (cache *Cache) DetectClientFromResponse(res *http.Response) error {
 	poweredBy := res.Header.Get("Powered-By")
 	if poweredBy == "" {
 		return nil
@@ -434,7 +481,11 @@ func (cache *Cache) DetectPodFromResponse(res *http.Response) error {
 		return nil
 	}
 
-	return cache.DetectPodFromUserAgent(ua)
+	if err := cache.DetectPodFromUserAgent(ua); err != nil {
+		log.WithError(err).Error("error detecting pod")
+	}
+
+	return nil
 }
 
 // DetectPodFromUserAgent ...
@@ -444,7 +495,6 @@ func (cache *Cache) DetectPodFromUserAgent(ua TwtxtUserAgent) error {
 	}
 
 	if !cache.conf.Debug && !ua.IsPublicURL() {
-		log.Warnf("ignoring non-public peering pod %s", ua)
 		return nil
 	}
 
@@ -728,7 +778,7 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 				return
 			}
 
-			cache.DetectPodFromResponse(res)
+			cache.DetectClientFromResponse(res)
 
 			var twts types.Twts
 
@@ -1016,6 +1066,20 @@ func (cache *Cache) UpdateFeed(url, lastmodified string, twts types.Twts) {
 	} else {
 		cached.Update(url, lastmodified, twts)
 	}
+}
+
+func (cache *Cache) getFollowers(profile types.Profile) types.Followers {
+	followers := cache.Followers[profile.Username]
+	sort.Sort(followers)
+	return followers
+}
+
+// GetFollowers ...
+func (cache *Cache) GetFollowers(profile types.Profile) types.Followers {
+	cache.mu.RLock()
+	defer cache.mu.RUnlock()
+
+	return cache.getFollowers(profile)
 }
 
 func (cache *Cache) getPeers() (peers Peers) {

@@ -13,24 +13,24 @@
       </hgroup>
       {{ if .Profile.Followers }}
         <ol>
-          {{ $ctx:=. }}
-          {{ range $Nick, $URL := .Profile.Followers }}
+          {{ $ctx := . }}
+          {{ range $Follower := .Profile.Followers }}
             <li>
-              {{ if $.User.Is $URL }}
-                <a href="{{ $URL }}">{{ tr $ctx "MeLinkTitle" }}</a>
+              {{ if $.User.Is $Follower.URL }}
+                <a href="{{ $Follower.URL }}">{{ tr $ctx "MeLinkTitle" }}</a>
               {{ else }}
-                {{ if isLocalURL $URL }}
-                  <a href="{{ $URL | trimSuffix "/twtxt.txt" }}">{{ $Nick }}</a>
+                {{ if isLocalURL $Follower.URL }}
+                  <a href="{{ $Follower.URL | trimSuffix "/twtxt.txt" }}">{{ $Follower.Nick }}</a>
                 {{ else }}
-                  <a href="/external?uri={{ $URL }}&nick={{ $Nick }}">{{ $Nick }}</a>
+                  <a href="/external?uri={{ $Follower.URL }}&nick={{ $Follower.Nick }}">{{ $Follower.Nick }}</a>
                 {{ end }}
-                (<a href="{{ $URL }}">{{ $URL }}</a>)
+                (<a href="{{ $Follower.URL }}">{{ $Follower.URL }}</a>)
                 {{ if $.Authenticated }}
-                  <a class="followBtn" style="display: {{ if not ($.User.Follows $URL) }}inline{{ else }}none{{ end }};" href="/follow?nick={{ $Nick  }}&url={{ $URL }}">
+                  <a class="followBtn" style="display: {{ if not ($.User.Follows $Follower.URL) }}inline{{ else }}none{{ end }};" href="/follow?nick={{ $Follower.Nick }}&url={{ $Follower.URL }}">
                     <i class="ti ti-circle-plus"></i>
                     {{ tr $ctx "FollowLinkTitle" }}
                   </a>
-                  <a class="unfollowBtn" style="display: {{ if $.User.Follows $URL }}inline{{ else }}none{{ end }};" href="/unfollow?nick={{ $Nick  }}">
+                  <a class="unfollowBtn" style="display: {{ if $.User.Follows $Follower.URL }}inline{{ else }}none{{ end }};" href="/unfollow?nick={{ $Follower.Nick }}">
                     <i class="ti ti-circle-minus"></i>
                     {{ tr $ctx "UnfollowLinkTitle" }}
                   </a>
