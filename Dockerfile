@@ -76,6 +76,7 @@ WORKDIR /
 ENV GODEBUG=netdns=cgo
 
 COPY --from=build /src/yarnd /usr/local/bin/yarnd
+COPY --from=build /src/internal/theme /theme
 
 COPY .dockerfiles/entrypoint.sh /init
 
