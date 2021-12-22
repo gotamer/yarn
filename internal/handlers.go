@@ -702,10 +702,12 @@ func (s *Server) SyndicationHandler() httprouter.Handle {
 
 		if r.Method == http.MethodHead {
 			defer r.Body.Close()
-			w.Header().Set(
-				"Last-Modified",
-				twts[len(twts)].Created().Format(http.TimeFormat),
-			)
+			if len(twts) > 0 {
+				w.Header().Set(
+					"Last-Modified",
+					twts[(len(twts)-1)].Created().Format(http.TimeFormat),
+				)
+			}
 			return
 		}
 
