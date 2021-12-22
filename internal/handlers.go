@@ -166,8 +166,11 @@ func (s *Server) ProfileHandler() httprouter.Handle {
 		}
 
 		followers := s.cache.GetFollowers(profile)
+
 		profile.Followers = followers
 		profile.NFollowers = len(followers)
+
+		profile.FollowedBy = s.cache.FollowedBy(ctx.User, profile.URL)
 
 		ctx.Profile = profile
 

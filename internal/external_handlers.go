@@ -125,7 +125,7 @@ func (s *Server) ExternalHandler() httprouter.Handle {
 			ShowFollowers: true,
 
 			Follows:    ctx.User.Follows(uri),
-			FollowedBy: ctx.User.FollowedBy(uri),
+			FollowedBy: s.cache.FollowedBy(ctx.User, uri),
 			Muted:      ctx.User.HasMuted(uri),
 		}
 

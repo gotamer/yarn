@@ -1091,6 +1091,19 @@ func (cache *Cache) GetFollowers(profile types.Profile) map[string]string {
 	return followers
 }
 
+func (cache *Cache) FollowedBy(user *User, uri string) bool {
+	cache.mu.RLock()
+	followers := cache.Followers[user.Username]
+	cache.mu.RUnlock()
+
+	followersByURL := make(map[string]bool)
+	for _, follower := range followers {
+		followersByURL[follower.URL] = true
+	}
+
+	return followersByURL[uri]
+}
+
 func (cache *Cache) getPeers() (peers Peers) {
 	for k, peer := range cache.Peers {
 		if k == "" || peer.IsZero() {
