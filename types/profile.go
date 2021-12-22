@@ -60,7 +60,9 @@ type Profile struct {
 	Following  map[string]string
 
 	NFollowers int
-	Followers  Followers
+	// TODO: Maybe migrate to use `Followers` type
+	// XXX: But be aware doing so breaks API compat
+	Followers map[string]string
 
 	// `true` if the User viewing the Profile has permissions to show the
 	// bookmarks/followers/followings of this user/feed

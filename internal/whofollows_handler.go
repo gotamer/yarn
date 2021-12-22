@@ -84,6 +84,11 @@ func (s *Server) WhoFollowsHandler() httprouter.Handle {
 			nick = "unknown"
 		}
 
+		followersSet := make(map[string]string)
+		for _, follower := range followers {
+			followersSet[follower.Nick] = follower.URL
+		}
+
 		ctx.Profile = types.Profile{
 			Type: "External",
 
@@ -95,7 +100,7 @@ func (s *Server) WhoFollowsHandler() httprouter.Handle {
 			FollowedBy: true,
 			Muted:      false,
 
-			Followers:  followers,
+			Followers:  followersSet,
 			NFollowers: len(followers),
 		}
 
@@ -103,7 +108,7 @@ func (s *Server) WhoFollowsHandler() httprouter.Handle {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
 
-			if err := json.NewEncoder(w).Encode(ctx.Profile.Followers); err != nil {
+			if err := json.NewEncoder(w).Encode(followers); err != nil {
 				log.WithError(err).Error("error encoding user for display")
 				http.Error(w, "Bad Request", http.StatusBadRequest)
 			}

@@ -458,7 +458,9 @@ func (cache *Cache) DetectClientFromRequest(req *http.Request, profile types.Pro
 	// Update Followers cache
 
 	newFollowers := ua.Followers(cache.conf)
-	currentFollowers := cache.GetFollowers(profile)
+	cache.mu.RLock()
+	currentFollowers := cache.getFollowers(profile)
+	cache.mu.RUnlock()
 	mergedFollowers := MergeFollowers(currentFollowers, newFollowers)
 
 	cache.mu.Lock()
@@ -1075,11 +1077,18 @@ func (cache *Cache) getFollowers(profile types.Profile) types.Followers {
 }
 
 // GetFollowers ...
-func (cache *Cache) GetFollowers(profile types.Profile) types.Followers {
+// XXX: Returns a map[string]string of nick -> url for API compat
+func (cache *Cache) GetFollowers(profile types.Profile) map[string]string {
+	followers := make(map[string]string)
+
 	cache.mu.RLock()
 	defer cache.mu.RUnlock()
 
-	return cache.getFollowers(profile)
+	for _, follower := range cache.getFollowers(profile) {
+		followers[follower.Nick] = follower.URL
+	}
+
+	return followers
 }
 
 func (cache *Cache) getPeers() (peers Peers) {
