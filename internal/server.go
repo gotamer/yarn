@@ -44,7 +44,7 @@ var (
 )
 
 func init() {
-	metrics = observe.NewMetrics("twtd")
+	metrics = observe.NewMetrics("yarnd")
 }
 
 // Server ...
@@ -209,6 +209,12 @@ func (s *Server) setupMetrics() {
 		func() float64 {
 			return float64(s.sc.Count())
 		},
+	)
+
+	// dau (daily active users)
+	metrics.NewGauge(
+		"server", "dau",
+		"Number of daily active users",
 	)
 
 	// database keys

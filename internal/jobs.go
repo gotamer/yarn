@@ -38,6 +38,7 @@ func InitJobs(conf *Config) {
 		"UpdateFeeds":       NewJobSpec(conf.FetchInterval, NewUpdateFeedsJob),
 		"UpdateFeedSources": NewJobSpec("@every 15m", NewUpdateFeedSourcesJob),
 
+		"ActiveUsers":       NewJobSpec("@hourly", NewActiveUsersJob),
 		"DeleteOldSessions": NewJobSpec("@hourly", NewDeleteOldSessionsJob),
 
 		"Stats":          NewJobSpec("@daily", NewStatsJob),
@@ -322,6 +323,38 @@ func (job *CreateAutomatedFeedsJob) Run() {
 			}
 		}
 	}
+}
+
+type ActiveUsersJob struct {
+	conf    *Config
+	cache   *Cache
+	archive Archiver
+	db      Store
+}
+
+func NewActiveUsersJob(conf *Config, cache *Cache, archive Archiver, db Store) Job {
+	return &ActiveUsersJob{conf: conf, cache: cache, archive: archive, db: db}
+}
+
+func (job *ActiveUsersJob) String() string { return "ActiveUsers" }
+
+func (job *ActiveUsersJob) Run() {
+	log.Info("updating dau stats")
+
+	users, err := job.db.GetAllUsers()
+	if err != nil {
+		log.WithError(err).Warn("unable to get all users from database")
+		return
+	}
+
+	activeToday := 0
+	for _, user := range users {
+		if time.Since(user.LastSeenAt) <= (24 * time.Hour) {
+			activeToday++
+		}
+	}
+
+	metrics.Gauge("server", "dau").Set(float64(activeToday))
 }
 
 type DeleteOldSessionsJob struct {
