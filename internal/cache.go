@@ -1271,3 +1271,20 @@ func (cache *Cache) DeleteFeeds(feeds types.Feeds) {
 	cache.mu.Unlock()
 	cache.Refresh()
 }
+
+// PruneFollowers ...
+func (cache *Cache) PruneFollowers(olderThan time.Duration) {
+	cache.mu.Lock()
+	defer cache.mu.Unlock()
+
+	for user, followers := range cache.Followers {
+		sort.Sort(followers)
+		for i, follower := range followers {
+			if time.Since(follower.LastFetchedAt) < olderThan {
+				followers = followers[i:]
+				cache.Followers[user] = followers
+				break
+			}
+		}
+	}
+}

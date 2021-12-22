@@ -40,9 +40,10 @@ func InitJobs(conf *Config) {
 
 		"DeleteOldSessions": NewJobSpec("@hourly", NewDeleteOldSessionsJob),
 
-		"Stats":       NewJobSpec("@daily", NewStatsJob),
-		"RotateFeeds": NewJobSpec("0 0 2 * * 0", NewRotateFeedsJob),
-		"PruneUsers":  NewJobSpec("0 0 3 * * 0", NewPruneUsersJob),
+		"Stats":          NewJobSpec("@daily", NewStatsJob),
+		"RotateFeeds":    NewJobSpec("0 0 1 * * 0", NewRotateFeedsJob),
+		"PruneFollowers": NewJobSpec("0 0 2 * * 0", NewPruneFollowersJob),
+		"PruneUsers":     NewJobSpec("0 0 3 * * 0", NewPruneUsersJob),
 
 		"CreateAdminFeeds":     NewJobSpec("", NewCreateAdminFeedsJob),
 		"CreateAutomatedFeeds": NewJobSpec("", NewCreateAutomatedFeedsJob),
@@ -393,6 +394,23 @@ func (job *RotateFeedsJob) Run() {
 			}
 		}
 	}
+}
+
+type PruneFollowersJob struct {
+	conf    *Config
+	cache   *Cache
+	archive Archiver
+	db      Store
+}
+
+func NewPruneFollowersJob(conf *Config, cache *Cache, archive Archiver, db Store) Job {
+	return &PruneFollowersJob{conf: conf, cache: cache, archive: archive, db: db}
+}
+
+func (job *PruneFollowersJob) String() string { return "PruneFollowers" }
+
+func (job *PruneFollowersJob) Run() {
+	job.cache.PruneFollowers(90 * 24 * time.Hour)
 }
 
 type PruneUsersJob struct {
