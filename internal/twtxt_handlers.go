@@ -30,8 +30,8 @@ const defaultPreambleTemplate = `# Twtxt is an open, distributed microblogging p
 # avatar      = {{ .Profile.Avatar }}
 # description = {{ .Profile.Tagline }}
 #
-# followers   = {{ if .Profile.ShowFollowers }}{{ len .Profile.Followers }}{{ end }}
-# following   = {{ if .Profile.ShowFollowing }}{{ len .Profile.Following }}{{ end }}
+# followers   = {{ if .Profile.ShowFollowers }}{{ .Profile.NFollowers }}{{ end }}
+# following   = {{ if .Profile.ShowFollowing }}{{ .Profile.NFollowing }}{{ end }}
 #
 {{- if .Profile.ShowFollowing }}
 {{ range $nick, $url := .Profile.Following -}}
@@ -71,8 +71,14 @@ func (s *Server) TwtxtHandler() httprouter.Handle {
 
 		if user, err := s.db.GetUser(nick); err == nil {
 			ctx.Profile = user.Profile(s.config.BaseURL, ctx.User)
+			followers := s.cache.GetFollowers(ctx.Profile)
+			ctx.Profile.Followers = followers
+			ctx.Profile.NFollowers = len(followers)
 		} else if feed, err := s.db.GetFeed(nick); err == nil {
 			ctx.Profile = feed.Profile(s.config.BaseURL, ctx.User)
+			followers := s.cache.GetFollowers(ctx.Profile)
+			ctx.Profile.Followers = followers
+			ctx.Profile.NFollowers = len(followers)
 		} else {
 			log.WithError(err).Warnf("unable to load user or feed profile for %s", nick)
 		}
