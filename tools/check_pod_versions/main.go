@@ -161,7 +161,7 @@ func main() {
 	}
 	sort.Sort(pods)
 
-	fmt.Println("Pod Version\n")
+	fmt.Println("Pod Version")
 	for _, pod := range pods {
 		fmt.Printf("%s %s\n", pod.Name, pod.Version)
 	}

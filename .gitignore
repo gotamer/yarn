@@ -14,7 +14,9 @@
 /yarnd
 /.envrc
 
-/tools/tools
+/tools/blake2b_base32/blake2b_base32
+/tools/check_pod_versions/check_pod_versions
+
 /tests/tests
 /cmd/yarnc/yarnc
 /cmd/yarnd/yarnd

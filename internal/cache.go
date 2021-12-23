@@ -451,8 +451,13 @@ func (cache *Cache) DetectClientFromRequest(req *http.Request, profile types.Pro
 		return nil
 	}
 
-	if err := cache.DetectPodFromUserAgent(ua); err != nil {
-		log.WithError(err).Error("error detecting pod")
+	// Detect Pod (if User-Agent is a pod) and update peering
+
+	if ua.IsPod() {
+		if err := cache.DetectPodFromUserAgent(ua); err != nil {
+			log.WithError(err).Error("error detecting pod")
+			return err
+		}
 	}
 
 	// Update Followers cache

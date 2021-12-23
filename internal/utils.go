@@ -1184,7 +1184,7 @@ func (ua *MultiUserAgent) Followers(conf *Config) types.Followers {
 
 	res, err := Request(conf, http.MethodGet, ua.WhoFollowsURL, headers)
 	if err != nil {
-		log.WithError(err).Error("error fetching whoFollows from %s", ua)
+		log.WithError(err).Errorf("error fetching whoFollows from %s", ua)
 		return nil
 	}
 	defer res.Body.Close()
