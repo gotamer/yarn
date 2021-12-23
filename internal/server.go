@@ -431,7 +431,7 @@ func (s *Server) setupWebMentions() {
 	webmentions.Mention = s.processWebMention
 }
 
-func (s *Server) setupCronJobs() error {
+func (s *Server) setupJobs() error {
 	InitJobs(s.config)
 	for name, jobSpec := range Jobs {
 		if jobSpec.Schedule == "" {
@@ -449,6 +449,8 @@ func (s *Server) setupCronJobs() error {
 }
 
 func (s *Server) runStartupJobs() {
+	Jobs["ActiveUsers"].Factory(s.config, s.cache, s.archive, s.db).Run()
+
 	time.Sleep(time.Second * 5)
 
 	log.Info("running startup jobs")
@@ -835,7 +837,7 @@ func NewServer(bind string, options ...Option) (*Server, error) {
 		translator: translator,
 	}
 
-	if err := server.setupCronJobs(); err != nil {
+	if err := server.setupJobs(); err != nil {
 		log.WithError(err).Error("error setting up background jobs")
 		return nil, err
 	}
