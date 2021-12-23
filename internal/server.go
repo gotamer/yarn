@@ -540,8 +540,8 @@ func (s *Server) initRoutes() {
 	s.router.HEAD("/twt/:hash", httproutermiddleware.Handler("twt", s.PermalinkHandler(), mdlw))
 	s.router.GET("/twt/:hash", httproutermiddleware.Handler("twt", s.PermalinkHandler(), mdlw))
 
-	s.router.GET("/bookmark/:hash", httproutermiddleware.Handler("bookmark", s.BookmarkHandler(), mdlw))
-	s.router.POST("/bookmark/:hash", httproutermiddleware.Handler("bookmark", s.BookmarkHandler(), mdlw))
+	s.router.GET("/bookmark/:hash", httproutermiddleware.Handler("bookmark", s.am.MustAuth(s.BookmarkHandler()), mdlw))
+	s.router.POST("/bookmark/:hash", httproutermiddleware.Handler("bookmark", s.am.MustAuth(s.BookmarkHandler()), mdlw))
 
 	s.router.HEAD("/conv/:hash", httproutermiddleware.Handler("conv", s.ConversationHandler(), mdlw))
 	s.router.GET("/conv/:hash", httproutermiddleware.Handler("conv", s.ConversationHandler(), mdlw))
@@ -630,10 +630,10 @@ func (s *Server) initRoutes() {
 	s.router.POST("/register", httproutermiddleware.Handler("register", s.RegisterHandler(), mdlw))
 
 	// Reset Password
-	s.router.GET("/resetPassword", httproutermiddleware.Handler("resetPassword", s.ResetPasswordHandler(), mdlw))
-	s.router.POST("/resetPassword", httproutermiddleware.Handler("resetPassword", s.ResetPasswordHandler(), mdlw))
-	s.router.GET("/newPassword", httproutermiddleware.Handler("resetPassword", s.ResetPasswordMagicLinkHandler(), mdlw))
-	s.router.POST("/newPassword", httproutermiddleware.Handler("newPassword", s.NewPasswordHandler(), mdlw))
+	s.router.GET("/resetPassword", httproutermiddleware.Handler("resetPassword", s.am.MustAuth(s.ResetPasswordHandler()), mdlw))
+	s.router.POST("/resetPassword", httproutermiddleware.Handler("resetPassword", s.am.MustAuth(s.ResetPasswordHandler()), mdlw))
+	s.router.GET("/newPassword", httproutermiddleware.Handler("resetPassword", s.am.MustAuth(s.ResetPasswordMagicLinkHandler()), mdlw))
+	s.router.POST("/newPassword", httproutermiddleware.Handler("newPassword", s.am.MustAuth(s.NewPasswordHandler()), mdlw))
 
 	// Media Handling
 	s.router.GET("/media/:name", httproutermiddleware.Handler("media", s.MediaHandler(), mdlw))
@@ -660,27 +660,27 @@ func (s *Server) initRoutes() {
 	s.router.GET("/unmute", httproutermiddleware.Handler("unmute", s.am.MustAuth(s.UnmuteHandler()), mdlw))
 	s.router.POST("/unmute", httproutermiddleware.Handler("unmute", s.am.MustAuth(s.UnmuteHandler()), mdlw))
 
-	s.router.GET("/transferFeed/:name", httproutermiddleware.Handler("transferFeed", s.TransferFeedHandler(), mdlw))
-	s.router.GET("/transferFeed/:name/:transferTo", httproutermiddleware.Handler("transferFeed", s.TransferFeedHandler(), mdlw))
+	s.router.GET("/transferFeed/:name", httproutermiddleware.Handler("transferFeed", s.am.MustAuth(s.TransferFeedHandler()), mdlw))
+	s.router.GET("/transferFeed/:name/:transferTo", httproutermiddleware.Handler("transferFeed", s.am.MustAuth(s.TransferFeedHandler()), mdlw))
 
 	s.router.GET("/settings", httproutermiddleware.Handler("settings", s.am.MustAuth(s.SettingsHandler()), mdlw))
 	s.router.POST("/settings", httproutermiddleware.Handler("settings", s.am.MustAuth(s.SettingsHandler()), mdlw))
 
 	s.router.GET("/info", httproutermiddleware.Handler("info", s.PodInfoHandler(), mdlw))
 	s.router.GET("/config", httproutermiddleware.Handler("config", s.am.MustAuth(s.PodConfigHandler()), mdlw))
-	s.router.GET("/manage/pod", httproutermiddleware.Handler("manage_pod", s.ManagePodHandler(), mdlw))
-	s.router.GET("/manage/jobs", httproutermiddleware.Handler("manage_jobs", s.ManageJobsHandler(), mdlw))
-	s.router.POST("/manage/jobs", httproutermiddleware.Handler("manage_jobs", s.ManageJobsHandler(), mdlw))
-	s.router.GET("/manage/peers", httproutermiddleware.Handler("manage_peers", s.ManagePeersHandler(), mdlw))
-	s.router.POST("/manage/pod", httproutermiddleware.Handler("manage_pod", s.ManagePodHandler(), mdlw))
-	s.router.GET("/manage/refreshcache", httproutermiddleware.Handler("manage_refreshcache", s.RefreshCacheHandler(), mdlw))
+	s.router.GET("/manage/pod", httproutermiddleware.Handler("manage_pod", s.am.MustAuth(s.ManagePodHandler()), mdlw))
+	s.router.GET("/manage/jobs", httproutermiddleware.Handler("manage_jobs", s.am.MustAuth(s.ManageJobsHandler()), mdlw))
+	s.router.POST("/manage/jobs", httproutermiddleware.Handler("manage_jobs", s.am.MustAuth(s.ManageJobsHandler()), mdlw))
+	s.router.GET("/manage/peers", httproutermiddleware.Handler("manage_peers", s.am.MustAuth(s.ManagePeersHandler()), mdlw))
+	s.router.POST("/manage/pod", httproutermiddleware.Handler("manage_pod", s.am.MustAuth(s.ManagePodHandler()), mdlw))
+	s.router.GET("/manage/refreshcache", httproutermiddleware.Handler("manage_refreshcache", s.am.MustAuth(s.RefreshCacheHandler()), mdlw))
 
-	s.router.GET("/manage/users", httproutermiddleware.Handler("manager_users", s.ManageUsersHandler(), mdlw))
-	s.router.POST("/manage/adduser", httproutermiddleware.Handler("adduser", s.AddUserHandler(), mdlw))
-	s.router.POST("/manage/deluser", httproutermiddleware.Handler("deluser", s.DelUserHandler(), mdlw))
-	s.router.POST("/manage/rstuser", httproutermiddleware.Handler("rstuser", s.RstUserHandler(), mdlw))
+	s.router.GET("/manage/users", httproutermiddleware.Handler("manager_users", s.am.MustAuth(s.ManageUsersHandler()), mdlw))
+	s.router.POST("/manage/adduser", httproutermiddleware.Handler("adduser", s.am.MustAuth(s.AddUserHandler()), mdlw))
+	s.router.POST("/manage/deluser", httproutermiddleware.Handler("deluser", s.am.MustAuth(s.DelUserHandler()), mdlw))
+	s.router.POST("/manage/rstuser", httproutermiddleware.Handler("rstuser", s.am.MustAuth(s.RstUserHandler()), mdlw))
 
-	s.router.GET("/deleteFeeds", httproutermiddleware.Handler("deleteFeeds", s.DeleteAccountHandler(), mdlw))
+	s.router.GET("/deleteFeeds", httproutermiddleware.Handler("deleteFeeds", s.am.MustAuth(s.DeleteAccountHandler()), mdlw))
 	s.router.POST("/delete", httproutermiddleware.Handler("delete", s.am.MustAuth(s.DeleteAllHandler()), mdlw))
 
 	// Support / Report Abuse handlers
