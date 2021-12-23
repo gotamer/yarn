@@ -8,7 +8,7 @@
     <a href="{{ $.User.URL | trimSuffix "/twtxt.txt" }}" class="u-url">
       <img class="avatar u-photo" src="/user/{{ $.User.Username }}/avatar" alt="" loading=lazy />
     </a>
-    {{ template "followStats" (dict "Profile" (.User.Profile .BaseURL .User) "Ctx" .) }}
+    {{ template "followStats" (dict "Profile" .Profile "Ctx" .) }}
   </div>
   <div class="profile-tagline">
     {{ if gt (len .User.Tagline) 0 }}

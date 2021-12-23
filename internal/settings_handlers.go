@@ -17,6 +17,17 @@ func (s *Server) SettingsHandler() httprouter.Handle {
 		ctx := NewContext(s, r)
 
 		if r.Method == "GET" {
+			profile := ctx.User.Profile(s.config.BaseURL, ctx.User)
+
+			followers := s.cache.GetFollowers(profile)
+
+			profile.Followers = followers
+			profile.NFollowers = len(followers)
+
+			profile.FollowedBy = s.cache.FollowedBy(ctx.User, profile.URL)
+
+			ctx.Profile = profile
+
 			ctx.Title = s.tr(ctx, "PageSettingsTitle")
 			ctx.Bookmarklet = url.QueryEscape(fmt.Sprintf(bookmarkletTemplate, s.config.BaseURL))
 			s.render("settings", w, ctx)
