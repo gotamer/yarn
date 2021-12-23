@@ -161,7 +161,7 @@
 
       {{ if eq $.view "rootconv" }}
         {{ with urlForRootConv $.Twt }}
-          <li><a class="convBtn" href="{{ urlForRootConv $.Twt }}"><i class="ti ti-message"></i> {{tr $.Ctx "TwtRootLinkTitle"}}</a></li>
+          <li><a class="convBtn" href="{{ urlForRootConv $.Twt }}"><i class="ti ti-message"></i> Root</a></li>
         {{ end }}
       {{ else if not (eq $.view "conv") }}
         {{ with urlForConv $.Twt }}
