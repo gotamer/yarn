@@ -53,7 +53,6 @@ func InitJobs(conf *Config) {
 	StartupJobs = map[string]JobSpec{
 		"RotateFeeds":          Jobs["RotateFeeds"],
 		"UpdateFeeds":          Jobs["UpdateFeeds"],
-		"ActiveUsers":          Jobs["ActiveUsers"],
 		"UpdateFeedSources":    Jobs["UpdateFeedSources"],
 		"CreateAdminFeeds":     Jobs["CreateAdminFeeds"],
 		"CreateAutomatedFeeds": Jobs["CreateAutomatedFeeds"],
