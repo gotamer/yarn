@@ -627,8 +627,6 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 	// max parallel http fetchers
 	var fetchers = make(chan struct{}, conf.MaxCacheFetchers)
 
-	metrics.Gauge("cache", "sources").Set(float64(len(feeds)))
-
 	seenFeeds := make(map[string]bool)
 	for feed := range feeds {
 		// Normalize URLs
@@ -868,8 +866,6 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 
 	// Bust and repopulate twts for GetAll()
 	cache.Refresh()
-	metrics.Gauge("cache", "feeds").Set(float64(cache.FeedCount()))
-	metrics.Gauge("cache", "twts").Set(float64(cache.TwtCount()))
 }
 
 // Lookup ...
