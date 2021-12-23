@@ -1,4 +1,8 @@
 {{ define "content" }}
   {{ template "post" (dict "Authenticated" $.Authenticated "User" $.User "TwtPrompt" $.TwtPrompt "MaxTwtLength" $.MaxTwtLength "Reply" $.Reply "AutoFocus" true "CSRFToken" $.CSRFToken "Ctx" .) }}
-  {{ template "twt" (dict "Authenticated" $.Authenticated "User" $.User "Profile" $.Profile "LastTwt" $.LastTwt "Twt" ( $.Twts | first) "Ctx" . "view" "permalink") }}
+  {{ if $.Twts }}
+    {{ template "twt" (dict "Authenticated" $.Authenticated "User" $.User "Profile" $.Profile "LastTwt" $.LastTwt "Twt" ( $.Twts | first) "Ctx" . "view" "permalink") }}
+  {{ else }}
+    <p>Nothing to see here. <a href="?unfiltered=1">View Unfiltered</a></p>
+  {{ end }}
 {{ end }}

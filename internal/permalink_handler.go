@@ -149,7 +149,12 @@ func (s *Server) PermalinkHandler() httprouter.Handle {
 			}...)
 		}
 
-		ctx.Twts = FilterTwts(ctx.User, types.Twts{twt})
+		if r.URL.Query().Get("unfiltered") == "1" {
+			ctx.Twts = types.Twts{twt}
+		} else {
+			ctx.Twts = FilterTwts(ctx.User, types.Twts{twt})
+		}
+
 		s.render("permalink", w, ctx)
 	}
 }
