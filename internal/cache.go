@@ -262,6 +262,7 @@ type Cache struct {
 	Views map[string]*Cached
 
 	Followers map[string]types.Followers
+	Twters    map[string]types.Twter
 }
 
 func NewCache(conf *Config) *Cache {
@@ -273,6 +274,7 @@ func NewCache(conf *Config) *Cache {
 		Views: make(map[string]*Cached),
 
 		Followers: make(map[string]types.Followers),
+		Twters:    make(map[string]types.Twter),
 	}
 }
 
@@ -369,8 +371,11 @@ func LoadCache(conf *Config) (*Cache, error) {
 	}
 
 	if err := dec.Decode(&cache.Followers); err != nil {
-		log.WithError(err).Error("error decoding cache.Followers, removing corrupt file")
-		return cleanupCorruptCache()
+		log.WithError(err).Warn("error decoding cache.Followers, removing corrupt file")
+	}
+
+	if err := dec.Decode(&cache.Twters); err != nil {
+		log.WithError(err).Warn("error decoding cache.Twters, removing corrupt file")
 	}
 
 	log.Infof("Cache version %d", cache.Version)
@@ -418,6 +423,11 @@ func (cache *Cache) Store(conf *Config) error {
 
 	if err := enc.Encode(cache.Followers); err != nil {
 		log.WithError(err).Error("error encoding cache.Followers")
+		return err
+	}
+
+	if err := enc.Encode(cache.Twters); err != nil {
+		log.WithError(err).Error("error encoding cache.Twters")
 		return err
 	}
 
@@ -655,12 +665,8 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 				wg.Done()
 			}()
 
-			var twter types.Twter
-
 			cache.mu.RLock()
-			if cached, ok := cache.Feeds[feed.URL]; ok && len(cached.Twts) > 0 {
-				twter = cached.Twts[0].Twter()
-			}
+			twter := cache.Twters[feed.URL]
 			cache.mu.RUnlock()
 
 			if twter.IsZero() {
@@ -695,10 +701,15 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 					twtsch <- nil
 					return
 				}
+
 				twter = tf.Twter()
 				if !isLocalURL(twter.Avatar) {
 					_ = GetExternalAvatar(conf, twter)
 				}
+				cache.mu.Lock()
+				cache.Twters[feed.URL] = twter
+				cache.mu.Unlock()
+
 				future, twts, old := types.SplitTwts(tf.Twts(), conf.MaxCacheTTL, conf.MaxCacheItems)
 				if len(future) > 0 {
 					log.Warnf("feed %s has %d posts in the future, possible bad client or misconfigured timezone", feed, len(future))
@@ -807,10 +818,15 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 					twtsch <- nil
 					return
 				}
+
 				twter = tf.Twter()
 				if !isLocalURL(twter.Avatar) {
 					_ = GetExternalAvatar(conf, twter)
 				}
+				cache.mu.Lock()
+				cache.Twters[feed.URL] = twter
+				cache.mu.Unlock()
+
 				future, twts, old := types.SplitTwts(tf.Twts(), conf.MaxCacheTTL, conf.MaxCacheItems)
 				if len(future) > 0 {
 					log.Warnf("feed %s has %d posts in the future, possible bad client or misconfigured timezone", feed, len(future))
