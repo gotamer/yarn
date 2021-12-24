@@ -157,7 +157,7 @@ func (s *Server) UnfollowHandler() httprouter.Handle {
 			return
 		}
 
-		delete(user.Following, nick)
+		ctx.User.Unfollow(nick)
 
 		if err := s.db.SetUser(ctx.Username, user); err != nil {
 			ctx.Error = true

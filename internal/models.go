@@ -452,6 +452,15 @@ func (u *User) FollowsAs(url string) string {
 	return ""
 }
 
+func (u *User) Unfollow(url string) {
+	url = NormalizeURL(url)
+	nick, ok := u.sources[url]
+	if ok {
+		delete(u.sources, url)
+		delete(u.Following, nick)
+	}
+}
+
 func (u *User) HasMuted(url string) bool {
 	_, ok := u.muted[NormalizeURL(url)]
 	return ok

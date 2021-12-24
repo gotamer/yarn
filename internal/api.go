@@ -638,7 +638,7 @@ func (a *API) UnfollowEndpoint() httprouter.Handle {
 			return
 		}
 
-		delete(user.Following, nick)
+		user.Unfollow(nick)
 
 		if err := a.db.SetUser(user.Username, user); err != nil {
 			log.WithError(err).Warnf("error updating user object for user  %s", user.Username)
