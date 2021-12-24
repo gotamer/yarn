@@ -655,28 +655,6 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 				wg.Done()
 			}()
 
-			var twter types.Twter
-
-			cache.mu.RLock()
-			if cached, ok := cache.Feeds[feed.URL]; ok && len(cached.Twts) > 0 {
-				twter = cached.Twts[0].Twter()
-			}
-			cache.mu.RUnlock()
-
-			if twter.IsZero() {
-				twter = types.Twter{Nick: feed.Nick}
-				if isLocalURL(feed.URL) {
-					twter.URL = URLForUser(conf.BaseURL, feed.Nick)
-					twter.Avatar = URLForAvatar(conf.BaseURL, feed.Nick, "")
-				} else {
-					twter.URL = feed.URL
-					avatar := GetExternalAvatar(conf, twter)
-					if avatar != "" {
-						twter.Avatar = URLForExternalAvatar(conf, feed.URL)
-					}
-				}
-			}
-
 			// Handle Gopher feeds
 			// TODO: Refactor this into some kind of sensible interface
 			if strings.HasPrefix(feed.URL, "gopher://") {
@@ -688,6 +666,18 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 				}
 
 				limitedReader := &io.LimitedReader{R: res.Body, N: conf.MaxFetchLimit}
+
+				twter := types.Twter{Nick: feed.Nick}
+				if isLocalURL(feed.URL) {
+					twter.URL = URLForUser(conf.BaseURL, feed.Nick)
+					twter.Avatar = URLForAvatar(conf.BaseURL, feed.Nick, "")
+				} else {
+					twter.URL = feed.URL
+					avatar := GetExternalAvatar(conf, twter)
+					if avatar != "" {
+						twter.Avatar = URLForExternalAvatar(conf, feed.URL)
+					}
+				}
 
 				tf, err := types.ParseFile(limitedReader, twter)
 				if err != nil {
@@ -801,6 +791,18 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 			case http.StatusOK: // 200
 				limitedReader := &io.LimitedReader{R: res.Body, N: conf.MaxFetchLimit}
 
+				twter := types.Twter{Nick: feed.Nick}
+				if isLocalURL(feed.URL) {
+					twter.URL = URLForUser(conf.BaseURL, feed.Nick)
+					twter.Avatar = URLForAvatar(conf.BaseURL, feed.Nick, "")
+				} else {
+					twter.URL = feed.URL
+					avatar := GetExternalAvatar(conf, twter)
+					if avatar != "" {
+						twter.Avatar = URLForExternalAvatar(conf, feed.URL)
+					}
+				}
+
 				tf, err := types.ParseFile(limitedReader, twter)
 				if err != nil {
 					log.WithError(err).Errorf("error parsing feed %s", feed)
@@ -843,8 +845,8 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 				cache.UpdateFeed(feed.URL, lastmodified, twts)
 			case http.StatusNotModified: // 304
 				cache.mu.RLock()
-				if cached, ok := cache.Feeds[feed.URL]; ok {
-					twts = cached.Twts
+				if _, ok := cache.Feeds[feed.URL]; ok {
+					twts = cache.Feeds[feed.URL].Twts
 				}
 				cache.mu.RUnlock()
 			}
