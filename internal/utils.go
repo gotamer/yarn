@@ -195,7 +195,7 @@ func ReplaceExt(fn, newExt string) string {
 }
 
 func HasExternalAvatarChanged(conf *Config, twter types.Twter) bool {
-	uri := twter.URL
+	uri := NormalizeURL(twter.URL)
 	slug := Slugify(uri)
 	fn := filepath.Join(conf.Data, externalDir, fmt.Sprintf("%s.cbf", slug))
 
@@ -228,7 +228,7 @@ func HasExternalAvatarChanged(conf *Config, twter types.Twter) bool {
 }
 
 func GetExternalAvatar(conf *Config, twter types.Twter) string {
-	uri := twter.URL
+	uri := NormalizeURL(twter.URL)
 	slug := Slugify(uri)
 	fn := filepath.Join(conf.Data, externalDir, fmt.Sprintf("%s.png", slug))
 
