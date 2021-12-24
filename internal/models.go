@@ -452,12 +452,10 @@ func (u *User) FollowsAs(url string) string {
 	return ""
 }
 
-func (u *User) Unfollow(url string) {
-	url = NormalizeURL(url)
-	nick, ok := u.sources[url]
-	if ok {
+func (u *User) Unfollow(alias string) {
+	if url, ok := u.Following[alias]; ok {
 		delete(u.sources, url)
-		delete(u.Following, nick)
+		delete(u.Following, alias)
 	}
 }
 
