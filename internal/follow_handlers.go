@@ -4,11 +4,9 @@ import (
 	"bufio"
 	"fmt"
 	"net/http"
-	"path/filepath"
 	"regexp"
 	"strings"
 
-	"git.mills.io/yarnsocial/yarn"
 	"github.com/julienschmidt/httprouter"
 	log "github.com/sirupsen/logrus"
 )
@@ -37,7 +35,6 @@ func (s *Server) FollowHandler() httprouter.Handle {
 		user := ctx.User
 		if user == nil {
 			log.Fatalf("user not found in context")
-			return
 		}
 		trdata := map[string]interface{}{}
 		trdata["Nick"] = nick
@@ -58,80 +55,7 @@ func (s *Server) FollowHandler() httprouter.Handle {
 			return
 		}
 
-		if strings.HasPrefix(url, s.config.BaseURL) {
-			url = UserURL(url)
-			nick := NormalizeUsername(filepath.Base(url))
-
-			if s.db.HasUser(nick) {
-				followee, err := s.db.GetUser(nick)
-				if err != nil {
-					log.WithError(err).Errorf("error loading user object for %s", nick)
-					ctx.Error = true
-					ctx.Message = s.tr(ctx, "ErrorFollowingUser")
-					s.render("error", w, ctx)
-					return
-				}
-
-				if followee.Followers == nil {
-					followee.Followers = make(map[string]string)
-				}
-
-				followee.Followers[user.Username] = user.URL
-
-				if err := s.db.SetUser(followee.Username, followee); err != nil {
-					log.WithError(err).Warnf("error updating user object for followee %s", followee.Username)
-					ctx.Error = true
-					ctx.Message = s.tr(ctx, "ErrorFollowingUser")
-					s.render("error", w, ctx)
-					return
-				}
-
-				if _, err := AppendSpecial(
-					s.config, s.db,
-					twtxtBot,
-					fmt.Sprintf(
-						"FOLLOW: @<%s %s> from @<%s %s> using %s/%s",
-						followee.Username, URLForUser(s.config.BaseURL, followee.Username),
-						user.Username, URLForUser(s.config.BaseURL, user.Username),
-						"yarnd", yarn.FullVersion(),
-					),
-				); err != nil {
-					log.WithError(err).Warnf("error appending special FOLLOW post")
-				}
-			} else if s.db.HasFeed(nick) {
-				feed, err := s.db.GetFeed(nick)
-				if err != nil {
-					log.WithError(err).Errorf("error loading feed object for %s", nick)
-					ctx.Error = true
-					ctx.Message = s.tr(ctx, "ErrorFollowingUser")
-					s.render("error", w, ctx)
-					return
-				}
-
-				feed.Followers[user.Username] = user.URL
-
-				if err := s.db.SetFeed(feed.Name, feed); err != nil {
-					log.WithError(err).Warnf("error updating user object for followee %s", feed.Name)
-					ctx.Error = true
-					ctx.Message = s.tr(ctx, "ErrorFollowingUser")
-					s.render("error", w, ctx)
-					return
-				}
-
-				if _, err := AppendSpecial(
-					s.config, s.db,
-					twtxtBot,
-					fmt.Sprintf(
-						"FOLLOW: @<%s %s> from @<%s %s> using %s/%s",
-						feed.Name, URLForUser(s.config.BaseURL, feed.Name),
-						user.Username, URLForUser(s.config.BaseURL, user.Username),
-						"yarnd", yarn.FullVersion(),
-					),
-				); err != nil {
-					log.WithError(err).Warnf("error appending special FOLLOW post")
-				}
-			}
-		}
+		s.cache.DeleteUserViews(ctx.User)
 
 		ctx.Error = false
 		ctx.Message = s.tr(ctx, "MsgFollowUserSuccess", trdata)
@@ -195,6 +119,8 @@ func (s *Server) ImportHandler() httprouter.Handle {
 			return
 		}
 
+		s.cache.DeleteUserViews(ctx.User)
+
 		ctx.Error = false
 		ctx.Message = fmt.Sprintf("Successfully imported %d feeds", imported)
 		s.render("error", w, ctx)
@@ -240,25 +166,10 @@ func (s *Server) UnfollowHandler() httprouter.Handle {
 			return
 		}
 
-		if strings.HasPrefix(url, s.config.BaseURL) {
-			url = UserURL(url)
-			nick := NormalizeUsername(filepath.Base(url))
-			followee, err := s.db.GetUser(nick)
-			if err != nil {
-				log.WithError(err).Warnf("error loading user object for followee %s", nick)
-			} else {
-				if followee.Followers != nil {
-					delete(followee.Followers, user.Username)
-					if err := s.db.SetUser(followee.Username, followee); err != nil {
-						log.WithError(err).Warnf("error updating user object for followee %s", followee.Username)
-					}
-				}
-			}
-		}
+		s.cache.DeleteUserViews(ctx.User)
 
 		ctx.Error = false
 		ctx.Message = s.tr(ctx, "MsgUnfollowSuccess", trdata)
 		s.render("error", w, ctx)
-
 	}
 }

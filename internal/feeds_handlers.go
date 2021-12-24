@@ -42,23 +42,12 @@ func (s *Server) FeedHandler() httprouter.Handle {
 			return
 		}
 
-		if _, err := AppendSpecial(
-			s.config, s.db,
-			twtxtBot,
-			fmt.Sprintf(
-				"FEED: @<%s %s> from @<%s %s>",
-				name, URLForUser(s.config.BaseURL, name),
-				ctx.User.Username, URLForUser(s.config.BaseURL, ctx.User.Username),
-			),
-		); err != nil {
-			log.WithError(err).Warnf("error appending special FOLLOW post")
-		}
+		s.cache.DeleteUserViews(ctx.User)
 
 		ctx.Error = false
 		trdata["Feed"] = name
 		ctx.Message = s.tr(ctx, "MsgCreateFeedSuccess", trdata)
 		s.render("error", w, ctx)
-
 	}
 }
 

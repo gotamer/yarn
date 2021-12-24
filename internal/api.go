@@ -20,7 +20,6 @@ import (
 	"github.com/vcraescu/go-paginator"
 	"github.com/vcraescu/go-paginator/adapter"
 
-	"git.mills.io/yarnsocial/yarn"
 	"git.mills.io/yarnsocial/yarn/internal/passwords"
 	"git.mills.io/yarnsocial/yarn/types"
 )
@@ -602,72 +601,7 @@ func (a *API) FollowEndpoint() httprouter.Handle {
 			return
 		}
 
-		if strings.HasPrefix(url, a.config.BaseURL) {
-			url = UserURL(url)
-			nick := NormalizeUsername(filepath.Base(url))
-
-			if a.db.HasUser(nick) {
-				followee, err := a.db.GetUser(nick)
-				if err != nil {
-					log.WithError(err).Errorf("error loading user object for %s", nick)
-					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-					return
-				}
-
-				if followee.Followers == nil {
-					followee.Followers = make(map[string]string)
-				}
-
-				followee.Followers[user.Username] = user.URL
-
-				if err := a.db.SetUser(followee.Username, followee); err != nil {
-					log.WithError(err).Warnf("error updating user object for followee %s", followee.Username)
-					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-					return
-				}
-
-				if _, err := AppendSpecial(
-					a.config, a.db,
-					twtxtBot,
-					fmt.Sprintf(
-						"FOLLOW: @<%s %s> from @<%s %s> using %s/%s",
-						followee.Username, URLForUser(a.config.BaseURL, followee.Username),
-						user.Username, URLForUser(a.config.BaseURL, user.Username),
-						"yarnd", yarn.FullVersion(),
-					),
-				); err != nil {
-					log.WithError(err).Warnf("error appending special FOLLOW post")
-				}
-			} else if a.db.HasFeed(nick) {
-				feed, err := a.db.GetFeed(nick)
-				if err != nil {
-					log.WithError(err).Errorf("error loading feed object for %s", nick)
-					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-					return
-				}
-
-				feed.Followers[user.Username] = user.URL
-
-				if err := a.db.SetFeed(feed.Name, feed); err != nil {
-					log.WithError(err).Warnf("error updating user object for followee %s", feed.Name)
-					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-					return
-				}
-
-				if _, err := AppendSpecial(
-					a.config, a.db,
-					twtxtBot,
-					fmt.Sprintf(
-						"FOLLOW: @<%s %s> from @<%s %s> using %s/%s",
-						feed.Name, URLForUser(a.config.BaseURL, feed.Name),
-						user.Username, URLForUser(a.config.BaseURL, user.Username),
-						"yarnd", yarn.FullVersion(),
-					),
-				); err != nil {
-					log.WithError(err).Warnf("error appending special FOLLOW post")
-				}
-			}
-		}
+		a.cache.DeleteUserViews(user)
 
 		// No real response
 		w.Header().Set("Content-Type", "application/json")
@@ -699,8 +633,7 @@ func (a *API) UnfollowEndpoint() httprouter.Handle {
 			log.Fatalf("user not found in context")
 		}
 
-		url, ok := user.Following[nick]
-		if !ok {
+		if _, ok := user.Following[nick]; !ok {
 			http.Error(w, "Bad Request", http.StatusBadRequest)
 			return
 		}
@@ -713,21 +646,7 @@ func (a *API) UnfollowEndpoint() httprouter.Handle {
 			return
 		}
 
-		if strings.HasPrefix(url, a.config.BaseURL) {
-			url = UserURL(url)
-			nick := NormalizeUsername(filepath.Base(url))
-			followee, err := a.db.GetUser(nick)
-			if err != nil {
-				log.WithError(err).Warnf("error loading user object for followee %s", nick)
-			} else {
-				if followee.Followers != nil {
-					delete(followee.Followers, user.Username)
-					if err := a.db.SetUser(followee.Username, followee); err != nil {
-						log.WithError(err).Warnf("error updating user object for followee %s", followee.Username)
-					}
-				}
-			}
-		}
+		a.cache.DeleteUserViews(user)
 
 		// No real response
 		w.Header().Set("Content-Type", "application/json")
