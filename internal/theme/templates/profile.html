@@ -7,8 +7,9 @@
 
   <div class="profile-stats">
     <a {{ if not (eq $.Profile.Type "External") }}href="{{ $.Profile.URL | trimSuffix "/twtxt.txt" }}"{{ else }}href="/external?uri={{ $.Profile.URL}}&nick={{ $.Profile.Username }}"{{ end }} class="u-url">
+      {{ if .Profile.Muted }}<i class="ti ti-ismuted"></i>{{ end }}
       {{ if .Profile.Avatar }}
-      <img class="avatar u-photo" {{ if not (eq $.Profile.Type "External") }}src="/user/{{ $.Profile.Username }}/avatar"{{ else }}src="/externalAvatar?uri={{ $.Profile.URL }}"{{ end }} alt="" loading=lazy />
+      <img class="avatar u-photo{{ if .Profile.Muted }} ismuted{{ end }}" {{ if not (eq $.Profile.Type "External") }}src="/user/{{ $.Profile.Username }}/avatar"{{ else }}src="/externalAvatar?uri={{ $.Profile.URL }}"{{ end }} alt="" loading=lazy />
       {{ else }}
       <i class="ti ti-rss-nav"></i>
       {{ end }}
@@ -18,7 +19,8 @@
 
   <div class="profile-info">
     {{ if .Authenticated }}
-    <span class="profile-last-seen"><i class="ti ti-clock"></i> Last Seen: {{ .Profile.LastSeenAt | lastseen }}</span>
+    {{ if .Profile.Muted }}<span class="profile-muted"><i class="ti ti-volume-3"></i> User currently muted</span>{{ end }}
+    {{ if not $.Profile.Muted }}<span class="profile-last-seen"><i class="ti ti-clock"></i> Last Seen: {{ .Profile.LastSeenAt | lastseen }}</span>{{ end }}
     {{ if .Profile.FollowedBy }}
     <div class="profile-popular">
       <a href="{{ .Profile.URL }}">{{ .Profile.Username }}</a> {{ tr . "ProfileFollowsYou" }}

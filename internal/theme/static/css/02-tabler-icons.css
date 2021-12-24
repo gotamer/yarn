@@ -98,6 +98,10 @@
   content: '\ef92';
 }
 
+.ti-ismuted:before {
+  content: "\eb50";
+}
+
 .ti-italic:before {
   content: "\eb93";
 }

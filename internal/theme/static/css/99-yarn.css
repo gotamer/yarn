@@ -64,6 +64,19 @@ article:target {
   max-width: none !important;
 }
 
+.ismuted {
+  filter: grayscale(1) blur(0.1rem) brightness(0.3);
+}
+
+.ti-ismuted {
+  position: absolute;
+  color: red;
+  font-size: 3rem;
+  margin-top: 0.2rem;
+  margin-left: 0.25rem;
+  z-index: 200;
+}
+
 .invisible {
   visibility: hidden;
   width: 0;
@@ -164,7 +177,7 @@ nav.pagination-nav a {
   line-height: 1.75rem;
 }
 
-.profile-last-seen {
+.profile-last-seen, .profile-muted {
   display: block;
   padding-top: 0.35rem;
   padding-bottom: 0.35rem;
