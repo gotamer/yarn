@@ -55,7 +55,7 @@ func (s *Server) FollowHandler() httprouter.Handle {
 			return
 		}
 
-		s.cache.DeleteUserViews(ctx.User)
+		s.cache.GetByUser(ctx.User, true)
 
 		ctx.Error = false
 		ctx.Message = s.tr(ctx, "MsgFollowUserSuccess", trdata)
@@ -119,7 +119,7 @@ func (s *Server) ImportHandler() httprouter.Handle {
 			return
 		}
 
-		s.cache.DeleteUserViews(ctx.User)
+		s.cache.GetByUser(ctx.User, true)
 
 		ctx.Error = false
 		ctx.Message = fmt.Sprintf("Successfully imported %d feeds", imported)
@@ -166,7 +166,7 @@ func (s *Server) UnfollowHandler() httprouter.Handle {
 			return
 		}
 
-		s.cache.DeleteUserViews(ctx.User)
+		s.cache.GetByUser(ctx.User, true)
 
 		ctx.Error = false
 		ctx.Message = s.tr(ctx, "MsgUnfollowSuccess", trdata)

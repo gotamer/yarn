@@ -31,7 +31,8 @@ func (s *Server) MuteHandler() httprouter.Handle {
 		}
 
 		user.Mute(nick, url)
-		s.cache.DeleteUserViews(user)
+
+		s.cache.GetByUser(ctx.User, true)
 
 		if err := s.db.SetUser(ctx.Username, user); err != nil {
 			ctx.Error = true
@@ -66,7 +67,8 @@ func (s *Server) UnmuteHandler() httprouter.Handle {
 		}
 
 		user.Unmute(nick)
-		s.cache.DeleteUserViews(user)
+
+		s.cache.GetByUser(ctx.User, true)
 
 		if err := s.db.SetUser(ctx.Username, user); err != nil {
 			ctx.Error = true

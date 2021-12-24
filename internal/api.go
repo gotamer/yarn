@@ -601,7 +601,7 @@ func (a *API) FollowEndpoint() httprouter.Handle {
 			return
 		}
 
-		a.cache.DeleteUserViews(user)
+		a.cache.GetByUser(user, true)
 
 		// No real response
 		w.Header().Set("Content-Type", "application/json")
@@ -646,7 +646,7 @@ func (a *API) UnfollowEndpoint() httprouter.Handle {
 			return
 		}
 
-		a.cache.DeleteUserViews(user)
+		a.cache.GetByUser(user, true)
 
 		// No real response
 		w.Header().Set("Content-Type", "application/json")
@@ -1313,7 +1313,8 @@ func (a *API) MuteEndpoint() httprouter.Handle {
 		}
 
 		user.Mute(nick, url)
-		a.cache.DeleteUserViews(user)
+
+		a.cache.GetByUser(user, true)
 
 		if err := a.db.SetUser(user.Username, user); err != nil {
 			log.WithError(err).Error("error updating user object")
@@ -1348,7 +1349,8 @@ func (a *API) UnmuteEndpoint() httprouter.Handle {
 		}
 
 		user.Unmute(nick)
-		a.cache.DeleteUserViews(user)
+
+		a.cache.GetByUser(user, true)
 
 		if err := a.db.SetUser(user.Username, user); err != nil {
 			log.WithError(err).Error("error updating user object")
