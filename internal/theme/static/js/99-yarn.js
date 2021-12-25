@@ -401,7 +401,7 @@ u.prototype.replaceSelection = function() {
   );
 };
 
-function createMentionedUserNode(username) {
+function createMentionedUserNode(match) {
   return u("<div>")
     .addClass("user-list__user")
     .append(
@@ -409,13 +409,13 @@ function createMentionedUserNode(username) {
       .addClass("avatar")
       .attr(
         "style",
-        "background-image: url('/user/" + username + "/avatar.png')"
+        "background-image: url('" + match.Avatar + "')"
       )
     )
     .append(
       u("<div>")
       .addClass("info")
-      .append(u("<div>").addClass("nickname").text(username))
+      .append(u("<div>").addClass("nickname").text(match.Nick))
     );
 }
 
@@ -493,8 +493,8 @@ function getUsers(searchStr) {
       url: requestUrl,
       success: function(data) {
         u("#mentioned-list-content").empty();
-        data.map(function(name) {
-          u("#mentioned-list-content").append(createMentionedUserNode(name));
+        data.map(function(match) {
+          u("#mentioned-list-content").append(createMentionedUserNode(match));
         });
         if (data.length) {
           u(".user-list__user").first().classList.add("selected");
