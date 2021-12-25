@@ -3,7 +3,6 @@ package internal
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -12,6 +11,7 @@ import (
 	"time"
 
 	"git.mills.io/yarnsocial/yarn/types"
+	securejoin "github.com/cyphar/filepath-securejoin"
 	"github.com/julienschmidt/httprouter"
 	log "github.com/sirupsen/logrus"
 	"github.com/vcraescu/go-paginator"
@@ -265,16 +265,18 @@ func (s *Server) ExternalAvatarHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		w.Header().Set("Cache-Control", "public, no-cache, must-revalidate")
 
-		uri := r.URL.Query().Get("uri")
-
+		uri := NormalizeURL(r.URL.Query().Get("uri"))
 		if uri == "" {
 			http.Error(w, "Bad Request", http.StatusBadRequest)
 			return
 		}
-		slug := Slugify(uri)
 
-		fn := filepath.Join(s.config.Data, externalDir, fmt.Sprintf("%s.png", slug))
-		w.Header().Set("Content-Type", "image/png")
+		slug := Slugify(uri)
+		fn, err := securejoin.SecureJoin(filepath.Join(s.config.Data, externalDir), fmt.Sprintf("%s.png", slug))
+		if err != nil {
+			http.Error(w, "Bad Request", http.StatusBadRequest)
+			return
+		}
 
 		if !FileExists(fn) {
 			http.Error(w, "External avatar not found", http.StatusNotFound)
@@ -288,36 +290,9 @@ func (s *Server) ExternalAvatarHandler() httprouter.Handle {
 			return
 		}
 
-		etag := fmt.Sprintf("W/\"%s-%s\"", r.RequestURI, fileInfo.ModTime().Format(time.RFC3339))
+		w.Header().Set("Etag", fmt.Sprintf("W/\"%s-%s\"", slug, fileInfo.ModTime().Format(time.RFC3339)))
+		w.Header().Set("Last-Modified", fileInfo.ModTime().Format(http.TimeFormat))
 
-		if match := r.Header.Get("If-None-Match"); match != "" {
-			if strings.Contains(match, etag) {
-				w.WriteHeader(http.StatusNotModified)
-				return
-			}
-		}
-
-		w.Header().Set("Etag", etag)
-		if r.Method == http.MethodHead {
-			return
-		}
-
-		if r.Method == http.MethodHead {
-			return
-		}
-
-		f, err := os.Open(fn)
-		if err != nil {
-			log.WithError(err).Error("error opening avatar file")
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			return
-		}
-		defer f.Close()
-
-		if _, err := io.Copy(w, f); err != nil {
-			log.WithError(err).Error("error writing avatar response")
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			return
-		}
+		http.ServeFile(w, r, fn)
 	}
 }

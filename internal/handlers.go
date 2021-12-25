@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"image/png"
-	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -13,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	securejoin "github.com/cyphar/filepath-securejoin"
 	"github.com/gorilla/feeds"
 	"github.com/julienschmidt/httprouter"
 	log "github.com/sirupsen/logrus"
@@ -236,38 +236,16 @@ func (s *Server) AvatarHandler() httprouter.Handle {
 			return
 		}
 
-		fn := filepath.Join(s.config.Data, avatarsDir, fmt.Sprintf("%s.png", nick))
-		w.Header().Set("Content-Type", "image/png")
+		fn, err := securejoin.SecureJoin(filepath.Join(s.config.Data, avatarsDir), fmt.Sprintf("%s.png", nick))
+		if err != nil {
+			http.Error(w, "Bad Request", http.StatusBadRequest)
+			return
+		}
 
 		if fileInfo, err := os.Stat(fn); err == nil {
-			etag := fmt.Sprintf("W/\"%s-%s\"", r.RequestURI, fileInfo.ModTime().Format(time.RFC3339))
-
-			if match := r.Header.Get("If-None-Match"); match != "" {
-				if strings.Contains(match, etag) {
-					w.WriteHeader(http.StatusNotModified)
-					return
-				}
-			}
-
-			w.Header().Set("Etag", etag)
-			if r.Method == http.MethodHead {
-				return
-			}
-
-			f, err := os.Open(fn)
-			if err != nil {
-				log.WithError(err).Error("error opening avatar file")
-				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-				return
-			}
-			defer f.Close()
-
-			if _, err := io.Copy(w, f); err != nil {
-				log.WithError(err).Error("error writing avatar response")
-				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-				return
-			}
-
+			w.Header().Set("Etag", fmt.Sprintf("W/\"%s-%s\"", r.RequestURI, fileInfo.ModTime().Format(time.RFC3339)))
+			w.Header().Set("Last-Modified", fileInfo.ModTime().Format(http.TimeFormat))
+			http.ServeFile(w, r, fn)
 			return
 		}
 
@@ -296,8 +274,6 @@ func (s *Server) AvatarHandler() httprouter.Handle {
 			return
 		}
 
-		// Support older browsers like IE11 that don't support WebP :/
-		metrics.Counter("media", "old_avatar").Inc()
 		w.Header().Set("Content-Type", "image/png")
 		if err := png.Encode(w, img); err != nil {
 			log.WithError(err).Error("error encoding auto generated avatar")
