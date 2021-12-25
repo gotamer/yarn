@@ -133,7 +133,7 @@ func NewCached(twts types.Twts, lastModified string) *Cached {
 }
 
 // Inject ...
-func (cached *Cached) Inject(url, lastmodiied string, twt types.Twt) {
+func (cached *Cached) Inject(url string, twt types.Twt) {
 	cached.mu.Lock()
 	defer cached.mu.Unlock()
 
@@ -141,7 +141,6 @@ func (cached *Cached) Inject(url, lastmodiied string, twt types.Twt) {
 	sort.Sort(twts)
 
 	cached.Twts = twts
-	cached.LastModified = lastmodiied
 }
 
 // Update ...
@@ -1066,7 +1065,7 @@ func (cache *Cache) InjectFeed(url string, twt types.Twt) {
 		cache.Feeds[url] = NewCached(types.Twts{twt}, time.Now().Format(http.TimeFormat))
 		cache.mu.Unlock()
 	} else {
-		cached.Inject(url, time.Now().Format(http.TimeFormat), twt)
+		cached.Inject(url, twt)
 	}
 }
 
