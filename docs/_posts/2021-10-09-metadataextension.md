@@ -75,8 +75,19 @@ This section describes common fields and their purposes.
 ### `url`
 
 This specifies the URL(s) of the feed. There might be several `url` fields in a
-single feed. The first `url` field value will be used for [twt
-hashing](twthashextension.html).
+single feed. Feeds may be served over multiple protocols, e.g. HTTPS, HTTP and
+Gopher. Dedicated `url` fields advertise the available choices. The first `url`
+field value will be used for [twt hashing](twthashextension.html).
+
+#### Security Considerations
+
+Clients must not automatically change the URL to actually fetch the feed based
+on this field. However, they might ask the user for confirmation to update the
+feed URL if they detect that the fetch URL does not match any of the provided
+`url` field values.
+
+Automatically updating the feed URL could result in feed spoofing without the
+user noticing.
 
 ### `nick`
 
@@ -152,3 +163,4 @@ Extension](archivefeedsextension.html).
 
 * 2021-10-09: Initial version.
 * 2021-10-31: Clarify that metadata field values must not be empty.
+* 2021-12-26: Clarify that clients must not automatically change the feed URL to fetch the feed based on `url` metadata field values.
