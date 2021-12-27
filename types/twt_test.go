@@ -24,12 +24,12 @@ func BenchmarkAll(b *testing.B) {
 	defer f.Close()
 
 	wr := nilWriter{}
-	twter := types.Twter{Nick: "prologic", URL: "https://twtxt.net/user/prologic/twtxt.txt"}
+	twter := types.Twter{Nick: "prologic", URI: "https://twtxt.net/user/prologic/twtxt.txt"}
 	opts := mockFmtOpts{"https://twtxt.net"}
 
 	parsers := []struct {
 		name string
-		fn   func(r io.Reader, twter types.Twter) (types.TwtFile, error)
+		fn   func(r io.Reader, twter *types.Twter) (types.TwtFile, error)
 	}{
 		{"lextwt", lextwt.ParseFile},
 	}
@@ -38,7 +38,7 @@ func BenchmarkAll(b *testing.B) {
 		b.Run(parser.name, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
 				_, _ = f.Seek(0, 0)
-				twts, err := parser.fn(f, twter)
+				twts, err := parser.fn(f, &twter)
 				if err != nil {
 					fmt.Println(err)
 					b.FailNow()
@@ -61,11 +61,11 @@ func BenchmarkParse(b *testing.B) {
 	}
 	defer f.Close()
 
-	twter := types.Twter{Nick: "prologic", URL: "https://twtxt.net/user/prologic/twtxt.txt"}
+	twter := types.Twter{Nick: "prologic", URI: "https://twtxt.net/user/prologic/twtxt.txt"}
 
 	parsers := []struct {
 		name string
-		fn   func(r io.Reader, twter types.Twter) (types.TwtFile, error)
+		fn   func(r io.Reader, twter *types.Twter) (types.TwtFile, error)
 	}{
 		{"lextwt", lextwt.ParseFile},
 	}
@@ -74,7 +74,7 @@ func BenchmarkParse(b *testing.B) {
 		b.Run(parser.name, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
 				_, _ = f.Seek(0, 0)
-				_, err := parser.fn(f, twter)
+				_, err := parser.fn(f, &twter)
 				if err != nil {
 					fmt.Println(err)
 					b.FailNow()
@@ -93,12 +93,12 @@ func BenchmarkOutput(b *testing.B) {
 	defer f.Close()
 
 	wr := nilWriter{}
-	twter := types.Twter{Nick: "prologic", URL: "https://twtxt.net/user/prologic/twtxt.txt"}
+	twter := types.Twter{Nick: "prologic", URI: "https://twtxt.net/user/prologic/twtxt.txt"}
 	opts := mockFmtOpts{"https://twtxt.net"}
 
 	parsers := []struct {
 		name string
-		fn   func(r io.Reader, twter types.Twter) (types.TwtFile, error)
+		fn   func(r io.Reader, twter *types.Twter) (types.TwtFile, error)
 	}{
 		{"lextwt", lextwt.ParseFile},
 	}
@@ -106,7 +106,7 @@ func BenchmarkOutput(b *testing.B) {
 	for _, parser := range parsers {
 		b.Run(parser.name+"-html", func(b *testing.B) {
 			_, _ = f.Seek(0, 0)
-			twts, err := parser.fn(f, twter)
+			twts, err := parser.fn(f, &twter)
 			if err != nil {
 				fmt.Println(err)
 				b.FailNow()
@@ -122,7 +122,7 @@ func BenchmarkOutput(b *testing.B) {
 
 		b.Run(parser.name+"-markdown", func(b *testing.B) {
 			_, _ = f.Seek(0, 0)
-			twts, err := parser.fn(f, twter)
+			twts, err := parser.fn(f, &twter)
 			if err != nil {
 				fmt.Println(err)
 				b.FailNow()
@@ -138,7 +138,7 @@ func BenchmarkOutput(b *testing.B) {
 
 		b.Run(parser.name+"-text", func(b *testing.B) {
 			_, _ = f.Seek(0, 0)
-			twts, err := parser.fn(f, twter)
+			twts, err := parser.fn(f, &twter)
 			if err != nil {
 				fmt.Println(err)
 				b.FailNow()
@@ -154,7 +154,7 @@ func BenchmarkOutput(b *testing.B) {
 
 		b.Run(parser.name+"-literal", func(b *testing.B) {
 			_, _ = f.Seek(0, 0)
-			twts, err := parser.fn(f, twter)
+			twts, err := parser.fn(f, &twter)
 			if err != nil {
 				fmt.Println(err)
 				b.FailNow()
@@ -211,7 +211,7 @@ func (m mockFmtOpts) URLForUser(username string) string {
 	)
 }
 func (m mockFmtOpts) FeedLookup(s string) *types.Twter {
-	return &types.Twter{Nick: s, URL: fmt.Sprintf("https://example.com/users/%s/twtxt.txt", s)}
+	return &types.Twter{Nick: s, URI: fmt.Sprintf("https://example.com/users/%s/twtxt.txt", s)}
 }
 
 type preambleTestCase struct {

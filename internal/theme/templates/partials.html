@@ -71,19 +71,19 @@
 <article id="{{ $.Twt.Hash }}" class="h-entry">
   <div class="u-author h-card">
     <div>
-      {{ if $.User.Is $.Twt.Twter.URL }}
+      {{ if $.User.Is $.Twt.Twter.URI }}
       <a href="{{ $.User.URL | trimSuffix "/twtxt.txt" }}" class="u-url">
         <img class="avatar u-photo" src="/user/{{ $.User.Username }}/avatar" alt="" loading=lazy />
       </a>
       {{ else }}
-        {{ if isLocalURL $.Twt.Twter.URL }}
-          <a href="{{ $.Twt.Twter.URL | trimSuffix "/twtxt.txt" }}" class="u-url">
+        {{ if isLocalURL $.Twt.Twter.URI }}
+          <a href="{{ $.Twt.Twter.URI | trimSuffix "/twtxt.txt" }}" class="u-url">
             <img class="avatar u-photo" src="/user/{{ $.Twt.Twter.Nick }}/avatar" alt="" loading=lazy />
           </a>
         {{ else }}
-          <a href="/external?uri={{ $.Twt.Twter.URL }}&nick={{ $.Twt.Twter.Nick }}" class="u-url">
+          <a href="/external?uri={{ $.Twt.Twter.URI }}&nick={{ $.Twt.Twter.Nick }}" class="u-url">
             {{ if $.Twt.Twter.Avatar }}
-              <img class="avatar u-photo" src="/externalAvatar?uri={{ $.Twt.Twter.URL }}" alt="" loading=lazy />
+              <img class="avatar u-photo" src="/externalAvatar?uri={{ $.Twt.Twter.URI }}" alt="" loading=lazy />
             {{ else }}
               <i class="ti ti-rss" style="font-size:3em"></i>
             {{ end }}
@@ -93,14 +93,14 @@
     </div>
     <div class="author">
       <div class="p-name">
-      {{ if isLocalURL $.Twt.Twter.URL }}
-        <a href="{{ $.Twt.Twter.URL | trimSuffix "/twtxt.txt" }}">{{ $.Twt.Twter.Nick }}</a>
+      {{ if isLocalURL $.Twt.Twter.URI }}
+        <a href="{{ $.Twt.Twter.URI | trimSuffix "/twtxt.txt" }}">{{ $.Twt.Twter.Nick }}</a>
       {{ else }}
-        <a href="/external?uri={{ $.Twt.Twter.URL }}&nick={{ $.Twt.Twter.Nick }}">{{ $.Twt.Twter.Nick }}</a>
+        <a href="/external?uri={{ $.Twt.Twter.URI }}&nick={{ $.Twt.Twter.Nick }}">{{ $.Twt.Twter.Nick }}</a>
       {{ end }}
       </div>
       <div class="p-org">
-        <a target="_blank" href="{{ $.Twt.Twter.URL | baseFromURL }}">{{ $.Twt.Twter.URL | hostnameFromURL }}</a>
+        <a target="_blank" href="{{ $.Twt.Twter.URI | baseFromURL }}">{{ $.Twt.Twter.URI | hostnameFromURL }}</a>
       </div>
       <div class="publish-time">
         <a class="u-url" href="/twt/{{ $.Twt.Hash }}">
@@ -204,11 +204,11 @@
   <ul>
     <li>
       {{ if $.Pager.HasPrev }}
-        {{ with $.Ctx.Twter.URL }}
-          {{ if isLocalURL $.Ctx.Twter.URL }}
+        {{ with $.Ctx.Twter.URI }}
+          {{ if isLocalURL $.Ctx.Twter.URI }}
             <a href="?p={{ $.Pager.PrevPage }}"><i class="ti ti-caret-left"></i>&nbsp;{{tr $.Ctx "PagerPrevLinkTitle"}}</a>
           {{ else }}
-            <a href="/external?uri={{ $.Ctx.Twter.URL }}&nick={{ $.Ctx.Twter.Nick }}&p={{ $.Pager.PrevPage }}"><i class="ti ti-caret-left"></i>&nbsp;{{tr $.Ctx "PagerPrevLinkTitle"}}</a>
+            <a href="/external?uri={{ $.Ctx.Twter.URI }}&nick={{ $.Ctx.Twter.Nick }}&p={{ $.Pager.PrevPage }}"><i class="ti ti-caret-left"></i>&nbsp;{{tr $.Ctx "PagerPrevLinkTitle"}}</a>
           {{ end }}
         {{ else }}
           <a href="?p={{ $.Pager.PrevPage }}"><i class="ti ti-caret-left"></i>&nbsp;{{tr $.Ctx "PagerPrevLinkTitle"}}</a>
@@ -223,11 +223,11 @@
   <ul>
     <li>
       {{ if $.Pager.HasNext }}
-        {{ with $.Ctx.Twter.URL }}
-          {{ if isLocalURL $.Ctx.Twter.URL }}
+        {{ with $.Ctx.Twter.URI }}
+          {{ if isLocalURL $.Ctx.Twter.URI }}
             <a href="?p={{ $.Pager.NextPage }}">{{tr $.Ctx "PagerNextLinkTitle"}}&nbsp;<i class="ti ti-caret-right"></i></a>
           {{ else }}
-            <a href="/external?uri={{ $.Ctx.Twter.URL }}&nick={{ $.Ctx.Twter.Nick }}&p={{ $.Pager.NextPage }}">{{tr $.Ctx "PagerNextLinkTitle"}}&nbsp;<i class="ti ti-caret-right"></i></a>
+            <a href="/external?uri={{ $.Ctx.Twter.URI }}&nick={{ $.Ctx.Twter.Nick }}&p={{ $.Pager.NextPage }}">{{tr $.Ctx "PagerNextLinkTitle"}}&nbsp;<i class="ti ti-caret-right"></i></a>
           {{ end }}
         {{ else }}
           <a href="?p={{ $.Pager.NextPage }}">{{tr $.Ctx "PagerNextLinkTitle"}}&nbsp;<i class="ti ti-caret-right"></i></a>

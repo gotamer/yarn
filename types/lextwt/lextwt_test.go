@@ -479,7 +479,7 @@ type twtTestCase struct {
 }
 
 func TestParseTwt(t *testing.T) {
-	twter := types.Twter{Nick: "example", URL: "http://example.com/example.txt"}
+	twter := types.Twter{Nick: "example", URI: "http://example.com/example.txt"}
 	tests := []twtTestCase{
 		{
 			lit: "2016-02-03T23:03:00+00:00	@<example http://example.org/twtxt.txt>\u2028welcome to twtxt!\n",
@@ -644,9 +644,9 @@ func TestParseTwt(t *testing.T) {
 
 		{
 			lit: `2021-02-04T12:54:21Z	@<other http://example.com/other.txt>	example`,
-			twter: &types.Twter{Nick: "other", URL: "http://example.com/other.txt"},
+			twter: &types.Twter{Nick: "other", URI: "http://example.com/other.txt"},
 			twt: lextwt.NewTwt(
-				types.Twter{Nick: "other", URL: "http://example.com/other.txt"},
+				types.Twter{Nick: "other", URI: "http://example.com/other.txt"},
 				lextwt.NewDateTime(parseTime("2021-02-04T12:54:21Z"), "2021-02-04T12:54:21Z"),
 				lextwt.NewMention("other", "http://example.com/other.txt"),
 				lextwt.NewText("\texample"),
@@ -748,7 +748,7 @@ func TestParseTwt(t *testing.T) {
 			}
 			if tt.twter != nil {
 				is.Equal(twt.Twter().Nick, tt.twter.Nick)
-				is.Equal(twt.Twter().URL, tt.twter.URL)
+				is.Equal(twt.Twter().URI, tt.twter.URI)
 			}
 		})
 	}
@@ -931,7 +931,7 @@ func TestParseText(t *testing.T) {
 
 type fileTestCase struct {
 	in       io.Reader
-	twter    types.Twter
+	twter    *types.Twter
 	override *types.Twter
 	out      types.TwtFile
 	err      error
@@ -940,17 +940,18 @@ type fileTestCase struct {
 func TestParseFile(t *testing.T) {
 	is := is.New(t)
 
-	twter := types.Twter{Nick: "example", URL: "https://example.com/twtxt.txt"}
+	twter := types.Twter{Nick: "example", URI: "https://example.com/twtxt.txt"}
 	override := types.Twter{
-		Nick:      "override",
-		URL:       "https://example.com/twtxt.txt",
-		Following: 1,
-		Follow:    map[string]types.Twter{"xuu@txt.sour.is": {Nick: "xuu@txt.sour.is", URL: "https://txt.sour.is/users/xuu.txt"}},
+		Nick:       "override",
+		URI:        "https://example.com/twtxt.txt",
+		HashingURI: "https://example.com/twtxt.txt",
+		Following:  1,
+		Follow:     map[string]types.Twter{"xuu@txt.sour.is": {Nick: "xuu@txt.sour.is", URI: "https://txt.sour.is/users/xuu.txt"}},
 	}
 
 	tests := []fileTestCase{
 		{
-			twter:    twter,
+			twter:    &twter,
 			override: &override,
 			in: strings.NewReader(`# My Twtxt!
 # nick = override
@@ -1006,7 +1007,7 @@ func TestParseFile(t *testing.T) {
 			),
 		},
 		{
-			twter: twter,
+			twter: &twter,
 			in:    strings.NewReader(`2016-02-03`),
 			out: lextwt.NewTwtFile(
 				twter,
@@ -1030,7 +1031,7 @@ func TestParseFile(t *testing.T) {
 		is.True(f != nil)
 
 		if tt.override != nil {
-			is.Equal(*tt.override, f.Twter())
+			is.Equal(tt.override, f.Twter())
 		}
 
 		{
@@ -1074,7 +1075,7 @@ type testExpandLinksCase struct {
 }
 
 func TestExpandLinks(t *testing.T) {
-	twter := types.Twter{Nick: "example", URL: "http://example.com/example.txt"}
+	twter := types.Twter{Nick: "example", URI: "http://example.com/example.txt"}
 	conf := mockFmtOpts{
 		localURL: "http://example.com",
 	}
@@ -1086,7 +1087,7 @@ func TestExpandLinks(t *testing.T) {
 				lextwt.NewDateTime(parseTime("2021-01-24T02:19:54Z"), "2021-01-24T02:19:54Z"),
 				lextwt.NewMention("@asdf", ""),
 			),
-			target: &types.Twter{Nick: "asdf", URL: "http://example.com/asdf.txt"},
+			target: &types.Twter{Nick: "asdf", URI: "http://example.com/asdf.txt"},
 		},
 	}
 
@@ -1096,7 +1097,7 @@ func TestExpandLinks(t *testing.T) {
 		lookup := types.FeedLookupFn(func(s string) *types.Twter { return tt.target })
 		tt.twt.ExpandMentions(conf, lookup)
 		is.Equal(tt.twt.Mentions()[0].Twter().Nick, tt.target.Nick)
-		is.Equal(tt.twt.Mentions()[0].Twter().URL, tt.target.URL)
+		is.Equal(tt.twt.Mentions()[0].Twter().URI, tt.target.URI)
 	}
 }
 
@@ -1138,7 +1139,7 @@ func (m mockFmtOpts) URLForUser(username string) string {
 
 // func TestSomethingWeird(t *testing.T) {
 // 	is := is.New(t)
-// 	twter := types.Twter{Nick: "prologic", URL: "https://twtxt.net/user/prologic/twtxt.txt"}
+// 	twter := types.Twter{Nick: "prologic", RequestURI: "https://twtxt.net/user/prologic/twtxt.txt"}
 // 	res, err := http.Get("https://twtxt.net/user/prologic/twtxt.txt")
 
 // 	is.NoErr(err)

@@ -118,7 +118,8 @@ func GetLastTwt(conf *Config, user *User) (twt types.Twt, offset int, err error)
 		return
 	}
 
-	twt, err = types.ParseLine(string(data), user.Twter())
+	twter := user.Twter()
+	twt, err = types.ParseLine(string(data), &twter)
 
 	return
 }
@@ -179,7 +180,7 @@ func GetAllTwts(conf *Config, name string) (types.Twts, error) {
 
 	twter := types.Twter{
 		Nick: name,
-		URL:  URLForUser(conf.BaseURL, name),
+		URI:  URLForUser(conf.BaseURL, name),
 	}
 	fn := filepath.Join(p, name)
 	f, err := os.Open(fn)
@@ -188,7 +189,7 @@ func GetAllTwts(conf *Config, name string) (types.Twts, error) {
 		return nil, err
 	}
 	defer f.Close()
-	t, err := types.ParseFile(f, twter)
+	t, err := types.ParseFile(f, &twter)
 	if err != nil {
 		log.WithError(err).Errorf("error processing feed %s", fn)
 		return nil, err

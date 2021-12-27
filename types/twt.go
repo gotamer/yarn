@@ -18,22 +18,34 @@ const (
 
 // Twter ...
 type Twter struct {
-	Nick      string
-	URL       string
-	Avatar    string
-	Tagline   string
+	Nick       string
+	URI        string
+	HashingURI string
+
+	// URL Deprecated field repalced by URI
+	// Remove post Cache v20
+	URL string
+
+	Avatar  string
+	Tagline string
+
 	Following int
 	Followers int
-	Follow    map[string]Twter
+
+	Follow map[string]Twter
 }
 
 func (twter Twter) IsZero() bool {
-	return twter.Nick == "" && twter.URL == ""
+	return twter.Nick == "" && twter.URI == ""
 }
 
 func (twter Twter) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
-		Nick      string           `json:"nick"`
+		Nick       string `json:"nick"`
+		URI        string `json:"uri"`
+		HashingURI string `json:"hashing_uri"`
+		// URL Deprecated and maintained for backwards compatibility with APIv1
+		// Remove in APIv2
 		URL       string           `json:"url"`
 		Avatar    string           `json:"avatar"`
 		Tagline   string           `json:"tagline"`
@@ -41,22 +53,25 @@ func (twter Twter) MarshalJSON() ([]byte, error) {
 		Followers int              `json:"followers"`
 		Follow    map[string]Twter `json:"follow"`
 	}{
-		Nick:      twter.Nick,
-		URL:       twter.URL,
-		Avatar:    twter.Avatar,
-		Tagline:   twter.Tagline,
-		Following: twter.Following,
-		Followers: twter.Followers,
-		Follow:    twter.Follow,
+		Nick:       twter.Nick,
+		URI:        twter.URI,
+		HashingURI: twter.HashingURI,
+		URL:        twter.URI,
+		Avatar:     twter.Avatar,
+		Tagline:    twter.Tagline,
+		Following:  twter.Following,
+		Followers:  twter.Followers,
+		Follow:     twter.Follow,
 	})
 }
-func (twter Twter) String() string { return fmt.Sprintf("%v\t%v", twter.Nick, twter.URL) }
+
+func (twter Twter) String() string { return fmt.Sprintf("%v\t%v", twter.Nick, twter.URI) }
 
 func (twter Twter) Domain() string {
 	if sp := strings.SplitN(twter.Nick, "@", 2); len(sp) == 2 {
 		return sp[1]
 	}
-	if url, err := url.Parse(twter.URL); err == nil {
+	if url, err := url.Parse(twter.URI); err == nil {
 		return url.Hostname()
 	}
 	return ""
@@ -66,7 +81,7 @@ func (twter Twter) DomainNick() string {
 		return twter.Nick
 	}
 
-	if url, err := url.Parse(twter.URL); err == nil {
+	if url, err := url.Parse(twter.URI); err == nil {
 		return twter.Nick + "@" + url.Hostname()
 	}
 
@@ -103,7 +118,7 @@ type MentionList []TwtMention
 
 func (ml MentionList) IsMentioned(twter Twter) bool {
 	for _, m := range ml {
-		if m.Twter().URL == twter.URL {
+		if m.Twter().URI == twter.URI {
 			return true
 		}
 	}
@@ -344,8 +359,8 @@ func init() {
 
 type TwtManager interface {
 	DecodeJSON([]byte) (Twt, error)
-	ParseLine(string, Twter) (Twt, error)
-	ParseFile(io.Reader, Twter) (TwtFile, error)
+	ParseLine(string, *Twter) (Twt, error)
+	ParseFile(io.Reader, *Twter) (TwtFile, error)
 	MakeTwt(twter Twter, ts time.Time, text string) Twt
 }
 
@@ -354,10 +369,10 @@ type nilManager struct{}
 var _ TwtManager = nilManager{}
 
 func (nilManager) DecodeJSON([]byte) (Twt, error) { panic("twt managernot configured") }
-func (nilManager) ParseLine(line string, twter Twter) (twt Twt, err error) {
+func (nilManager) ParseLine(line string, twter *Twter) (twt Twt, err error) {
 	panic("twt managernot configured")
 }
-func (nilManager) ParseFile(r io.Reader, twter Twter) (TwtFile, error) {
+func (nilManager) ParseFile(r io.Reader, twter *Twter) (TwtFile, error) {
 	panic("twt managernot configured")
 }
 func (nilManager) MakeTwt(twter Twter, ts time.Time, text string) Twt {
@@ -372,10 +387,10 @@ var (
 var twtManager TwtManager = &nilManager{}
 
 func DecodeJSON(b []byte) (Twt, error) { return twtManager.DecodeJSON(b) }
-func ParseLine(line string, twter Twter) (twt Twt, err error) {
+func ParseLine(line string, twter *Twter) (twt Twt, err error) {
 	return twtManager.ParseLine(line, twter)
 }
-func ParseFile(r io.Reader, twter Twter) (TwtFile, error) {
+func ParseFile(r io.Reader, twter *Twter) (TwtFile, error) {
 	return twtManager.ParseFile(r, twter)
 }
 func MakeTwt(twter Twter, ts time.Time, text string) Twt {
@@ -387,7 +402,7 @@ func SetTwtManager(m TwtManager) {
 }
 
 type TwtFile interface {
-	Twter() Twter
+	Twter() *Twter
 	Info() Info
 	Twts() Twts
 }

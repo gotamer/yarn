@@ -72,7 +72,8 @@ func runStats(args []string) {
 }
 
 func doStats(r io.Reader) {
-	tf, err := lextwt.ParseFile(r, types.NilTwt.Twter())
+	twter := types.NilTwt.Twter()
+	tf, err := lextwt.ParseFile(r, &twter)
 	if err != nil {
 		log.WithError(err).Error("error parsing feed")
 		os.Exit(2)
@@ -80,10 +81,9 @@ func doStats(r io.Reader) {
 
 	fmt.Println(tf.Info())
 
-	twter := tf.Twter()
 	fmt.Printf("twter: %s\n", twter.DomainNick())
 	fmt.Printf("nick: %s\n", twter.Nick)
-	fmt.Printf("url: %s\n", twter.URL)
+	fmt.Printf("url: %s\n", twter.URI)
 	fmt.Printf("avatar: %s\n", twter.Avatar)
 	fmt.Printf("tagline: %s\n", twter.Tagline)
 
@@ -94,7 +94,7 @@ func doStats(r io.Reader) {
 
 	fmt.Println("following:")
 	for _, c := range tf.Info().Following() {
-		fmt.Printf("  % -30s = %s\n", c.Nick, c.URL)
+		fmt.Printf("  % -30s = %s\n", c.Nick, c.URI)
 	}
 
 	fmt.Println("twts: ", len(tf.Twts()))
@@ -143,7 +143,7 @@ func getMentions(twts types.Twts, follows []types.Twter) stats {
 	counts := make(map[string]int)
 	for _, m := range twts.Mentions() {
 		t := m.Twter()
-		counts[fmt.Sprint(t.Nick, "\t", t.URL)]++
+		counts[fmt.Sprint(t.Nick, "\t", t.URI)]++
 	}
 
 	lis := make(stats, 0, len(counts))

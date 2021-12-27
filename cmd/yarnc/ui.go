@@ -9,9 +9,12 @@ import (
 	"github.com/russross/blackfriday"
 )
 
+/* red Currently unused
 func red(s string) string {
 	return fmt.Sprintf("\033[31m%s\033[0m", s)
 }
+*/
+
 func green(s string) string {
 	return fmt.Sprintf("\033[32m%s\033[0m", s)
 }
@@ -65,7 +68,7 @@ func PrintTwt(twt types.Twt, now time.Time, me types.Twter) {
 func PrintTwtRaw(twt types.Twt) {
 	fmt.Printf(
 		"%s\t%s\t%t\n",
-		twt.Twter().URL,
+		twt.Twter().URI,
 		twt.Created().Format(time.RFC3339),
 		twt,
 	)

@@ -404,7 +404,7 @@ func (u *User) FollowAndValidate(conf *Config, alias, uri string) error {
 		return err
 	}
 
-	if u.Follows(twter.URL) {
+	if u.Follows(twter.URI) {
 		return ErrAlreadyFollows
 	}
 
@@ -437,7 +437,7 @@ func (u *User) FollowAndValidate(conf *Config, alias, uri string) error {
 		}
 	}
 
-	return u.Follow(alias, twter.URL)
+	return u.Follow(alias, twter.URI)
 }
 
 func (u *User) Follows(url string) bool {
@@ -536,7 +536,7 @@ func (u *User) Profile(baseURL string, viewer *User) types.Profile {
 }
 
 func (u *User) Twter() types.Twter {
-	return types.Twter{Nick: u.Username, URL: u.URL}
+	return types.Twter{Nick: u.Username, URI: u.URL}
 }
 
 func (u *User) Filter(twts []types.Twt) (filtered []types.Twt) {
@@ -547,7 +547,7 @@ func (u *User) Filter(twts []types.Twt) (filtered []types.Twt) {
 
 	filtered = make([]types.Twt, 0)
 	for _, twt := range twts {
-		if u.HasMuted(twt.Twter().URL) {
+		if u.HasMuted(twt.Twter().URI) {
 			continue
 		}
 		filtered = append(filtered, twt)
@@ -561,8 +561,8 @@ func (u *User) Reply(twt types.Twt) string {
 
 	// If we follow the original twt's Twter, add them as the first mention
 	// only if the original twter isn't ourselves!
-	if u.Follows(twt.Twter().URL) && !u.Is(twt.Twter().URL) {
-		tokens = append(tokens, fmt.Sprintf("@%s", u.FollowsAs(twt.Twter().URL)))
+	if u.Follows(twt.Twter().URI) && !u.Is(twt.Twter().URI) {
+		tokens = append(tokens, fmt.Sprintf("@%s", u.FollowsAs(twt.Twter().URI)))
 	}
 
 	return fmt.Sprintf("%s ", strings.Join(tokens, " "))
@@ -574,7 +574,7 @@ func (u *User) Fork(twt types.Twt) string {
 
 	// If we follow the original twt's Twter, add them as the first mention
 	// only if the original twter isn't ourselves!
-	if u.Follows(twt.Twter().URL) && !u.Is(twt.Twter().URL) {
+	if u.Follows(twt.Twter().URI) && !u.Is(twt.Twter().URI) {
 		tokens = append(tokens, fmt.Sprintf("@%s", twt.Twter().Nick))
 	}
 

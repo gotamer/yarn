@@ -934,7 +934,7 @@ func (a *API) InjectEndpoint() httprouter.Handle {
 
 		GetExternalAvatar(a.config, twt.Twter())
 
-		a.cache.InjectFeed(twt.Twter().URL, twt)
+		a.cache.InjectFeed(twt.Twter().URI, twt)
 		if err := a.archive.Archive(twt); err != nil {
 			log.WithError(err).Warnf("error archiving injected twt %s", twt.Hash())
 		}
@@ -991,7 +991,7 @@ func (a *API) ProfileEndpoint() httprouter.Handle {
 		if len(twts) > 0 {
 			twter = twts[0].Twter()
 		} else {
-			twter = types.Twter{Nick: profile.Username, URL: profile.URL}
+			twter = types.Twter{Nick: profile.Username, URI: profile.URL}
 		}
 
 		followers := a.cache.GetFollowers(profile)
@@ -1209,7 +1209,7 @@ func (a *API) ExternalProfileEndpoint() httprouter.Handle {
 		if len(twts) > 0 {
 			twter = twts[0].Twter()
 		} else {
-			twter = types.Twter{Nick: nick, URL: uri}
+			twter = types.Twter{Nick: nick, URI: uri}
 		}
 
 		if twter.Avatar == "" {
@@ -1253,7 +1253,7 @@ func (a *API) ExternalProfileEndpoint() httprouter.Handle {
 
 		following := make(map[string]string)
 		for followingNick, followingTwter := range twter.Follow {
-			following[followingNick] = followingTwter.URL
+			following[followingNick] = followingTwter.URI
 		}
 
 		profile := types.Profile{

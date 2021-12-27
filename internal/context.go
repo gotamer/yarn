@@ -205,7 +205,7 @@ func NewContext(s *Server, req *http.Request) *Context {
 			} else {
 				ctx.Twter = types.Twter{
 					Nick: user.Username,
-					URL:  URLForUser(conf.BaseURL, user.Username),
+					URI:  URLForUser(conf.BaseURL, user.Username),
 				}
 				ctx.User = user
 				ctx.IsAdmin = strings.EqualFold(username, conf.AdminUser)

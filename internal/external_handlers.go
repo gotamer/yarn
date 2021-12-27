@@ -65,7 +65,7 @@ func (s *Server) ExternalHandler() httprouter.Handle {
 		if len(ctx.Twts) > 0 {
 			ctx.Twter = ctx.Twts[0].Twter()
 		} else {
-			ctx.Twter = types.Twter{Nick: nick, URL: uri}
+			ctx.Twter = types.Twter{Nick: nick, URI: uri}
 		}
 
 		if ctx.Twter.Avatar == "" {
@@ -106,7 +106,7 @@ func (s *Server) ExternalHandler() httprouter.Handle {
 
 		following := make(map[string]string)
 		for followingNick, followingTwter := range ctx.Twter.Follow {
-			following[followingNick] = followingTwter.URL
+			following[followingNick] = followingTwter.URI
 		}
 
 		ctx.Profile = types.Profile{
@@ -172,7 +172,7 @@ func (s *Server) ExternalFollowingHandler() httprouter.Handle {
 		if len(twts) > 0 {
 			ctx.Twter = twts[0].Twter()
 		} else {
-			ctx.Twter = types.Twter{Nick: nick, URL: uri}
+			ctx.Twter = types.Twter{Nick: nick, URI: uri}
 		}
 
 		if ctx.Twter.Avatar == "" {
@@ -213,7 +213,7 @@ func (s *Server) ExternalFollowingHandler() httprouter.Handle {
 
 		following := make(map[string]string)
 		for followingNick, followingTwter := range ctx.Twter.Follow {
-			following[followingNick] = followingTwter.URL
+			following[followingNick] = followingTwter.URI
 		}
 
 		ctx.Profile = types.Profile{

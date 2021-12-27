@@ -416,9 +416,9 @@ func (s *Server) PostHandler() httprouter.Handle {
 			if _, err := s.tasks.Dispatch(NewFuncTask(func() error {
 				for _, m := range twt.Mentions() {
 					twter := m.Twter()
-					if !isLocalURL(twter.URL) {
-						if err := WebMention(twter.URL, URLForTwt(s.config.BaseURL, twt.Hash())); err != nil {
-							log.WithError(err).Warnf("error sending webmention to %s", twter.URL)
+					if !isLocalURL(twter.RequestURI) {
+						if err := WebMention(twter.RequestURI, URLForTwt(s.config.BaseURL, twt.Hash())); err != nil {
+							log.WithError(err).Warnf("error sending webmention to %s", twter.RequestURI)
 						}
 					}
 				}

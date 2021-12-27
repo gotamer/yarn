@@ -149,7 +149,7 @@ func (c *Client) GetAndSetTwter() error {
 		log.WithError(err).Error("error retrieving user profile")
 		return err
 	}
-	c.Twter = types.Twter{Nick: "me", URL: res.Profile.URL}
+	c.Twter = types.Twter{Nick: "me", URI: res.Profile.URL}
 	return nil
 }
 

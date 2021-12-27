@@ -17,20 +17,20 @@ func init() {
 }
 
 // ParseFile and return time & count limited twts + comments
-func ParseFile(r io.Reader, twter types.Twter) (types.TwtFile, error) {
-	twterURI, err := url.Parse(twter.URL)
+func ParseFile(r io.Reader, twter *types.Twter) (types.TwtFile, error) {
+	twterURI, err := url.Parse(twter.URI)
 	if err != nil {
-		log.WithError(err).Errorf("error bad twter url %s", twter.URL)
+		log.WithError(err).Errorf("error bad twter url %s", twter.URI)
 		return nil, types.ErrInvalidFeed
 	}
 
-	f := &lextwtFile{twter: &twter}
+	f := &lextwtFile{twter: twter}
 
 	nTwts, nErrors := 0, 0
 
 	lexer := NewLexer(r)
 	parser := NewParser(lexer)
-	parser.SetTwter(&twter)
+	parser.SetTwter(twter)
 
 	for !parser.IsEOF() {
 		line := parser.ParseLine()
@@ -40,7 +40,7 @@ func ParseFile(r io.Reader, twter types.Twter) (types.TwtFile, error) {
 			f.comments = append(f.comments, e)
 		case *Twt:
 			if e.IsNil() {
-				log.Errorf("invalid feed or bad line parsing %#v", twter.URL)
+				log.Errorf("invalid feed or bad line parsing %#v", twter.URI)
 				nErrors++
 				continue
 			}
@@ -49,10 +49,10 @@ func ParseFile(r io.Reader, twter types.Twter) (types.TwtFile, error) {
 			f.twts = append(f.twts, e)
 
 			// If the twt has an override twter add to authors.
-			if e.twter.URL != f.twter.URL {
+			if e.twter.URI != f.twter.URI {
 				found := false
 				for i := range f.twters {
-					if f.twters[i].URL == e.twter.URL {
+					if f.twters[i].URI == e.twter.URI {
 						found = true
 						// de-dup the elements twter with the file one.
 						e.twter = f.twters[i]
@@ -81,7 +81,7 @@ func ParseFile(r io.Reader, twter types.Twter) (types.TwtFile, error) {
 			if u.Scheme == "" {
 				u.Scheme = twterURI.Scheme
 			}
-			f.twter.URL = u.String()
+			f.twter.HashingURI = u.String()
 		}
 	}
 
@@ -116,7 +116,7 @@ func ParseFile(r io.Reader, twter types.Twter) (types.TwtFile, error) {
 
 	return f, nil
 }
-func ParseLine(line string, twter types.Twter) (twt types.Twt, err error) {
+func ParseLine(line string, twter *types.Twter) (twt types.Twt, err error) {
 	if line == "" {
 		return types.NilTwt, nil
 	}
@@ -124,7 +124,7 @@ func ParseLine(line string, twter types.Twter) (twt types.Twt, err error) {
 	r := strings.NewReader(line)
 	lexer := NewLexer(r)
 	parser := NewParser(lexer)
-	parser.SetTwter(&twter)
+	parser.SetTwter(twter)
 
 	twt = parser.ParseTwt()
 
@@ -138,10 +138,10 @@ func ParseLine(line string, twter types.Twter) (twt types.Twt, err error) {
 type lextwtManager struct{}
 
 func (*lextwtManager) DecodeJSON(b []byte) (types.Twt, error) { return DecodeJSON(b) }
-func (*lextwtManager) ParseLine(line string, twter types.Twter) (twt types.Twt, err error) {
+func (*lextwtManager) ParseLine(line string, twter *types.Twter) (twt types.Twt, err error) {
 	return ParseLine(line, twter)
 }
-func (*lextwtManager) ParseFile(r io.Reader, twter types.Twter) (types.TwtFile, error) {
+func (*lextwtManager) ParseFile(r io.Reader, twter *types.Twter) (types.TwtFile, error) {
 	return ParseFile(r, twter)
 }
 func (*lextwtManager) MakeTwt(twter types.Twter, ts time.Time, text string) types.Twt {
@@ -171,7 +171,7 @@ var _ types.TwtFile = (*lextwtFile)(nil)
 func NewTwtFile(twter types.Twter, comments Comments, twts types.Twts) *lextwtFile {
 	return &lextwtFile{&twter, []*types.Twter{&twter}, twts, comments}
 }
-func (r *lextwtFile) Twter() types.Twter      { return *r.twter }
+func (r *lextwtFile) Twter() *types.Twter     { return r.twter }
 func (r *lextwtFile) Authors() []*types.Twter { return r.twters }
 func (r *lextwtFile) Info() types.Info        { return r.comments }
 func (r *lextwtFile) Twts() types.Twts        { return r.twts }

@@ -235,7 +235,7 @@ func TestFormatTwtFactory(t *testing.T) {
 	factory := FormatTwtFactory(cfg, NewCache(cfg), &NullArchiver{})
 	twter := types.Twter{
 		Nick: "test",
-		URL:  "https://example.com/twtxt.txt",
+		URI:  "https://example.com/twtxt.txt",
 	}
 	txt := factory(lextwt.NewTwt(twter,
 		lextwt.NewDateTime(parseTime("2021-01-24T02:19:54Z"), "2021-01-24T02:19:54Z"),

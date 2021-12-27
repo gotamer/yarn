@@ -195,7 +195,7 @@ func ReplaceExt(fn, newExt string) string {
 }
 
 func HasExternalAvatarChanged(conf *Config, twter types.Twter) bool {
-	uri := NormalizeURL(twter.URL)
+	uri := NormalizeURL(twter.URI)
 	slug := Slugify(uri)
 	fn := filepath.Join(conf.Data, externalDir, fmt.Sprintf("%s.cbf", slug))
 
@@ -228,7 +228,7 @@ func HasExternalAvatarChanged(conf *Config, twter types.Twter) bool {
 }
 
 func GetExternalAvatar(conf *Config, twter types.Twter) string {
-	uri := NormalizeURL(twter.URL)
+	uri := NormalizeURL(twter.URI)
 	slug := Slugify(uri)
 	fn := filepath.Join(conf.Data, externalDir, fmt.Sprintf("%s.png", slug))
 
@@ -979,24 +979,24 @@ func NormalizeFeedName(name string) string {
 	return name
 }
 
-func ValidateFeed(conf *Config, nick, url string) (types.Twter, error) {
+func ValidateFeed(conf *Config, nick, url string) (*types.Twter, error) {
 	var body io.ReadCloser
 
 	if strings.HasPrefix(url, "gopher://") {
 		res, err := RequestGopher(conf, url)
 		if err != nil {
 			log.WithError(err).Errorf("error fetching feed %s", url)
-			return types.Twter{}, err
+			return nil, err
 		}
 		body = res.Body
 	} else {
 		res, err := Request(conf, http.MethodGet, url, nil)
 		if err != nil {
 			log.WithError(err).Errorf("error fetching feed %s", url)
-			return types.Twter{}, err
+			return nil, err
 		}
 		if res.StatusCode != 200 {
-			return types.Twter{}, ErrBadRequest
+			return nil, ErrBadRequest
 		}
 		body = res.Body
 	}
@@ -1004,10 +1004,10 @@ func ValidateFeed(conf *Config, nick, url string) (types.Twter, error) {
 	defer body.Close()
 
 	limitedReader := &io.LimitedReader{R: body, N: conf.MaxFetchLimit}
-	twter := types.Twter{Nick: nick, URL: url}
-	tf, err := types.ParseFile(limitedReader, twter)
+	twter := types.Twter{Nick: nick, URI: url}
+	tf, err := types.ParseFile(limitedReader, &twter)
 	if err != nil {
-		return types.Twter{}, err
+		return nil, err
 	}
 
 	return tf.Twter(), nil
@@ -1884,7 +1884,7 @@ func GetRootTwtFactory(conf *Config, cache *Cache, archive Archiver) func(twt ty
 			return types.NilTwt
 		}
 
-		if u.HasMuted(rootTwt.Twter().URL) {
+		if u.HasMuted(rootTwt.Twter().URI) {
 			return types.NilTwt
 		}
 
@@ -2117,16 +2117,16 @@ func NewFeedLookup(conf *Config, db Store, user *User) types.FeedLookup {
 				parts := strings.SplitN(followedAs, "@", 2)
 
 				if len(parts) == 2 && u.Hostname() == parts[1] {
-					return &types.Twter{Nick: parts[0], URL: followedURL}
+					return &types.Twter{Nick: parts[0], URI: followedURL}
 				}
 
-				return &types.Twter{Nick: followedAs, URL: followedURL}
+				return &types.Twter{Nick: followedAs, URI: followedURL}
 			}
 		}
 
 		username := NormalizeUsername(alias)
 		if db.HasUser(username) || db.HasFeed(username) {
-			return &types.Twter{Nick: username, URL: URLForUser(conf.BaseURL, username)}
+			return &types.Twter{Nick: username, URI: URLForUser(conf.BaseURL, username)}
 		}
 
 		return &types.Twter{}

@@ -114,7 +114,7 @@ func (lis Comments) FollowMap() map[string]types.Twter {
 		if len(sp) < 2 {
 			continue
 		}
-		nmap[sp[0]] = types.Twter{Nick: sp[0], URL: sp[1]}
+		nmap[sp[0]] = types.Twter{Nick: sp[0], URI: sp[1]}
 	}
 
 	return nmap
@@ -129,7 +129,7 @@ func (lis Comments) Following() []types.Twter {
 		if len(sp) < 2 {
 			continue
 		}
-		nlis = append(nlis, types.Twter{Nick: sp[0], URL: sp[1]})
+		nlis = append(nlis, types.Twter{Nick: sp[0], URI: sp[1]})
 	}
 
 	return nlis
@@ -215,7 +215,7 @@ func (n *Mention) Clone() Elem {
 	}
 }
 func (n *Mention) IsNil() bool        { return n == nil }
-func (n *Mention) Twter() types.Twter { return types.Twter{Nick: n.name, URL: n.target} }
+func (n *Mention) Twter() types.Twter { return types.Twter{Nick: n.name, URI: n.target} }
 func (n *Mention) Literal() string    { return n.lit }
 func (n *Mention) String() string     { return n.lit }
 func (n *Mention) Name() string       { return n.name }
@@ -733,7 +733,7 @@ func (twt *Twt) append(elem Elem) {
 		if m, ok := twt.msg[0].(*Mention); ok {
 			text.lit = text.lit[1:]
 			twt.msg = twt.msg[1:]
-			twt.twter = &types.Twter{Nick: m.Name(), URL: m.Target()}
+			twt.twter = &types.Twter{Nick: m.Name(), URI: m.Target()}
 			twt.isProxy = true
 		}
 	}
@@ -782,7 +782,7 @@ func (twt *Twt) GobEncode() ([]byte, error) {
 	s := fmt.Sprintf(
 		"%s\t%s\t%s\t%s\t%s",
 		twter.Nick,
-		twter.URL,
+		twter.URI,
 		twter.Avatar,
 		twt.Hash(),
 		twt.Literal(),
@@ -794,9 +794,9 @@ func (twt *Twt) GobDecode(data []byte) error {
 	if len(sp) != 5 {
 		return fmt.Errorf("unable to decode twt: %s ", data)
 	}
-	twter := types.Twter{Nick: sp[0], URL: sp[1], Avatar: sp[2]}
+	twter := types.Twter{Nick: sp[0], URI: sp[1], Avatar: sp[2]}
 	twt.hash = sp[3]
-	t, err := ParseLine(sp[4], twter)
+	t, err := ParseLine(sp[4], &twter)
 	if err != nil {
 		return err
 	}
@@ -874,7 +874,7 @@ func (twt Twt) Format(state fmt.State, c rune) {
 		state.Write([]byte("\t"))
 	}
 	if state.Flag('#') || twt.isProxy {
-		fmt.Fprint(state, NewMention(twt.twter.Nick, twt.twter.URL))
+		fmt.Fprint(state, NewMention(twt.twter.Nick, twt.twter.URI))
 		state.Write([]byte("\t"))
 	}
 
@@ -957,7 +957,7 @@ func (twt *Twt) ExpandMentions(opts types.FmtOpts, lookup types.FeedLookup) {
 				} else {
 					m.name = twter.Nick
 				}
-				m.target = twter.URL
+				m.target = twter.URI
 			}
 		}
 
@@ -998,9 +998,14 @@ func (twt Twt) Hash() string {
 		return twt.hash
 	}
 
+	hashingURI := twt.Twter().HashingURI
+	if hashingURI == "" {
+		hashingURI = twt.Twter().URI
+	}
+
 	payload := fmt.Sprintf(
 		"%s\n%s\n%s",
-		twt.Twter().URL,
+		hashingURI,
 		twt.Created().Format(time.RFC3339),
 		twt.LiteralText(),
 	)

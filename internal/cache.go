@@ -24,7 +24,7 @@ import (
 
 const (
 	feedCacheFile    = "cache"
-	feedCacheVersion = 19 // increase this if breaking changes occur to cache file.
+	feedCacheVersion = 20 // increase this if breaking changes occur to cache file.
 
 	localViewKey    = "local"
 	discoverViewKey = "discover"
@@ -42,13 +42,13 @@ func FilterOutFeedsAndBotsFactory(conf *Config) FilterFunc {
 	isLocal := IsLocalURLFactory(conf)
 	return func(twt types.Twt) bool {
 		twter := twt.Twter()
-		if strings.HasPrefix(twter.URL, "https://feeds.twtxt.net") {
+		if strings.HasPrefix(twter.URI, "https://feeds.twtxt.net") {
 			return false
 		}
-		if strings.HasPrefix(twter.URL, "https://search.twtxt.net") {
+		if strings.HasPrefix(twter.URI, "https://search.twtxt.net") {
 			return false
 		}
-		if isLocal(twter.URL) && HasString(automatedFeeds, twter.Nick) {
+		if isLocal(twter.URI) && HasString(automatedFeeds, twter.Nick) {
 			return false
 		}
 		return true
@@ -58,7 +58,7 @@ func FilterOutFeedsAndBotsFactory(conf *Config) FilterFunc {
 func FilterByMentionFactory(u *User) FilterFunc {
 	return func(twt types.Twt) bool {
 		for _, mention := range twt.Mentions() {
-			if u.Is(mention.Twter().URL) {
+			if u.Is(mention.Twter().URI) {
 				return true
 			}
 		}
@@ -261,24 +261,27 @@ type Cache struct {
 	Views map[string]*Cached
 
 	Followers map[string]types.Followers
-	Twters    map[string]types.Twter
+	Twters    map[string]*types.Twter
 }
 
 func NewCache(conf *Config) *Cache {
 	return &Cache{
-		conf:  conf,
+		conf: conf,
+
+		Version: feedCacheVersion,
+
 		Map:   make(map[string]types.Twt),
 		Peers: make(map[string]*Peer),
 		Feeds: make(map[string]*Cached),
 		Views: make(map[string]*Cached),
 
 		Followers: make(map[string]types.Followers),
-		Twters:    make(map[string]types.Twter),
+		Twters:    make(map[string]*types.Twter),
 	}
 }
 
 // FromOldCache attempts to load an oldver version of the on-disk cache stored
-// at /path/to/data/cache -- If you change the way the `*Cache` is tored on disk
+// at /path/to/data/cache -- If you change the way the `*Cache` is stored on disk
 // by modifying `Cache.Store()` or any of the data structures, please modfy this
 // function to support loading the previous version of the on-disk cache.
 func FromOldCache(conf *Config) (*Cache, error) {
@@ -291,31 +294,83 @@ func FromOldCache(conf *Config) (*Cache, error) {
 			log.WithError(err).Error("error loading cache, cache file found but unreadable")
 			return nil, err
 		}
-		cache.Version = feedCacheVersion
-		cache.Feeds = make(map[string]*Cached)
-		return cache, nil
+		return NewCache(conf), nil
 	}
 	defer f.Close()
 
 	cleanupCorruptCache := func() (*Cache, error) {
 		// Remove invalid cache file.
 		os.Remove(fn)
-		cache.Version = feedCacheVersion
-		cache.Feeds = make(map[string]*Cached)
-		return cache, nil
+		return NewCache(conf), nil
 	}
 
 	dec := gob.NewDecoder(f)
-	err = dec.Decode(&cache)
-	if err != nil {
-		if strings.Contains(err.Error(), "wrong type") {
-			log.WithError(err).Error("error decoding cache. removing corrupt file.")
-			return cleanupCorruptCache()
-		}
+
+	if err := dec.Decode(&cache.Version); err != nil {
+		log.WithError(err).Error("error decoding cache.Version, removing corrupt file")
+		return cleanupCorruptCache()
 	}
+
+	if err := dec.Decode(&cache.Peers); err != nil {
+		log.WithError(err).Error("error decoding cache.Peers, removing corrupt file")
+		return cleanupCorruptCache()
+	}
+
+	if err := dec.Decode(&cache.Feeds); err != nil {
+		log.WithError(err).Error("error decoding cache.Feeds, removing corrupt file")
+		return cleanupCorruptCache()
+	}
+
+	if err := dec.Decode(&cache.Followers); err != nil {
+		log.WithError(err).Warn("error decoding cache.Followers, removing corrupt file")
+		return cleanupCorruptCache()
+	}
+
+	if err := dec.Decode(&cache.Twters); err != nil {
+		log.WithError(err).Warn("error decoding cache.Twters, removing corrupt file")
+		return cleanupCorruptCache()
+	}
+
 	log.Infof("Loaded old Cache v%d", cache.Version)
 
+	// Migrate old Cache ...
+
+	getLiteralTextFromTwt := func(twt types.Twt) string {
+		var obj struct{ Text string }
+		data, _ := json.Marshal(twt)
+		json.Unmarshal(data, &obj)
+		return obj.Text
+	}
+
 	cache.Version = feedCacheVersion
+
+	for uri, twter := range cache.Twters {
+		if twter.URI == "" {
+			twter.URI = twter.URL
+			twter.URL = ""
+		}
+		cache.Twters[uri] = twter
+	}
+
+	for uri, cached := range cache.Feeds {
+		twts := make(types.Twts, len(cached.Twts))
+		for i, twt := range cached.Twts {
+			twter := types.Twter{
+				Nick:      twt.Twter().Nick,
+				URI:       twt.Twter().URL,
+				Avatar:    twt.Twter().Avatar,
+				Tagline:   twt.Twter().Tagline,
+				Following: twt.Twter().Following,
+				Followers: twt.Twter().Followers,
+				Follow:    twt.Twter().Follow,
+			}
+			twts[i] = types.MakeTwt(twter, twt.Created(), getLiteralTextFromTwt(twt))
+		}
+		cache.Feeds[uri] = cached
+	}
+
+	cache.Refresh()
+
 	if err := cache.Store(conf); err != nil {
 		log.WithError(err).Errorf("error migrating old cache")
 		return cleanupCorruptCache()
@@ -336,8 +391,7 @@ func LoadCache(conf *Config) (*Cache, error) {
 			log.WithError(err).Error("error loading cache, cache file found but unreadable")
 			return nil, err
 		}
-		cache.Version = feedCacheVersion
-		return cache, nil
+		return NewCache(conf), nil
 	}
 	defer f.Close()
 
@@ -346,17 +400,25 @@ func LoadCache(conf *Config) (*Cache, error) {
 	cleanupCorruptCache := func() (*Cache, error) {
 		// Remove invalid cache file.
 		os.Remove(fn)
-		cache.Version = feedCacheVersion
-		cache.Feeds = make(map[string]*Cached)
-		return cache, nil
+		return NewCache(conf), nil
 	}
 
 	if err := dec.Decode(&cache.Version); err != nil {
+		log.WithError(err).Error("error decoding cache.Version, removing corrupt file")
+		return cleanupCorruptCache()
+	}
+
+	if cache.Version != feedCacheVersion {
 		log.Warnf(
-			"error decoding cache v%d, will try to load old cache v%d instead...",
-			feedCacheVersion, (feedCacheVersion - 1),
+			"cache.Version %d does not match %d, will try to load old cache v%d instead...",
+			cache.Version, feedCacheVersion, (feedCacheVersion - 1),
 		)
-		return FromOldCache(conf)
+		cache, err := FromOldCache(conf)
+		if err != nil {
+			log.WithError(err).Error("error loading old cache, removing corrupt file")
+			return cleanupCorruptCache()
+		}
+		return cache, nil
 	}
 
 	if err := dec.Decode(&cache.Peers); err != nil {
@@ -371,21 +433,15 @@ func LoadCache(conf *Config) (*Cache, error) {
 
 	if err := dec.Decode(&cache.Followers); err != nil {
 		log.WithError(err).Warn("error decoding cache.Followers, removing corrupt file")
+		return cleanupCorruptCache()
 	}
 
 	if err := dec.Decode(&cache.Twters); err != nil {
 		log.WithError(err).Warn("error decoding cache.Twters, removing corrupt file")
+		return cleanupCorruptCache()
 	}
 
 	log.Infof("Cache version %d", cache.Version)
-	if cache.Version != feedCacheVersion {
-		log.Errorf("Cache version mismatch. Expect = %d, Got = %d. Removing old cache.", feedCacheVersion, cache.Version)
-		os.Remove(fn)
-		cache.Version = feedCacheVersion
-		cache.Feeds = make(map[string]*Cached)
-	}
-
-	cache.Refresh()
 
 	return cache, nil
 }
@@ -668,18 +724,21 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 			twter := cache.Twters[feed.URL]
 			cache.mu.RUnlock()
 
-			if twter.IsZero() {
-				twter = types.Twter{Nick: feed.Nick}
+			if twter == nil {
+				twter = &types.Twter{Nick: feed.Nick}
 				if isLocalURL(feed.URL) {
-					twter.URL = URLForUser(conf.BaseURL, feed.Nick)
+					twter.URI = URLForUser(conf.BaseURL, feed.Nick)
 					twter.Avatar = URLForAvatar(conf.BaseURL, feed.Nick, "")
 				} else {
-					twter.URL = feed.URL
-					avatar := GetExternalAvatar(conf, twter)
+					twter.URI = feed.URL
+					avatar := GetExternalAvatar(conf, *twter)
 					if avatar != "" {
 						twter.Avatar = URLForExternalAvatar(conf, feed.URL)
 					}
 				}
+				cache.mu.Lock()
+				cache.Twters[feed.URL] = twter
+				cache.mu.Unlock()
 			}
 
 			// Handle Gopher feeds
@@ -700,14 +759,9 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 					twtsch <- nil
 					return
 				}
-
-				twter = tf.Twter()
 				if !isLocalURL(twter.Avatar) {
-					_ = GetExternalAvatar(conf, twter)
+					_ = GetExternalAvatar(conf, *twter)
 				}
-				cache.mu.Lock()
-				cache.Twters[feed.URL] = twter
-				cache.mu.Unlock()
 
 				future, twts, old := types.SplitTwts(tf.Twts(), conf.MaxCacheTTL, conf.MaxCacheItems)
 				if len(future) > 0 {
@@ -817,14 +871,9 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 					twtsch <- nil
 					return
 				}
-
-				twter = tf.Twter()
 				if !isLocalURL(twter.Avatar) {
-					_ = GetExternalAvatar(conf, twter)
+					_ = GetExternalAvatar(conf, *twter)
 				}
-				cache.mu.Lock()
-				cache.Twters[feed.URL] = twter
-				cache.mu.Unlock()
 
 				future, twts, old := types.SplitTwts(tf.Twts(), conf.MaxCacheTTL, conf.MaxCacheItems)
 				if len(future) > 0 {
@@ -910,7 +959,7 @@ func GetPeersForCached(cached *Cached, peers map[string]*Peer) Peers {
 	var matches Peers
 
 	for _, twt := range cached.Twts {
-		twterURL := NormalizeURL(twt.Twter().URL)
+		twterURL := NormalizeURL(twt.Twter().URI)
 		for uri, peer := range peers {
 			if strings.HasPrefix(twterURL, NormalizeURL(uri)) {
 				matches = append(matches, peer)
@@ -972,7 +1021,7 @@ func (cache *Cache) Converge(archive Archiver) {
 			}
 		}
 		if missingTwt != nil {
-			cache.InjectFeed(missingTwt.Twter().URL, missingTwt)
+			cache.InjectFeed(missingTwt.Twter().URI, missingTwt)
 			GetExternalAvatar(cache.conf, missingTwt.Twter())
 		}
 	}
@@ -1009,7 +1058,7 @@ func (cache *Cache) Refresh() {
 	for _, twt := range allTwts {
 		twtMap[twt.Hash()] = twt
 
-		if isLocalURL(twt.Twter().URL) {
+		if isLocalURL(twt.Twter().URI) {
 			localTwts = append(localTwts, twt)
 		}
 
