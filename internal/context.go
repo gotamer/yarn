@@ -123,6 +123,9 @@ type Context struct {
 
 	// CSRF Token
 	CSRFToken string
+
+	// Login Referer
+	Referer string
 }
 
 func NewContext(s *Server, req *http.Request) *Context {

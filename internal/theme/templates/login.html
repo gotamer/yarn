@@ -9,6 +9,7 @@
       </hgroup>
       <form action="/login" method="POST">
         <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
+        <input type="hidden" name="referer" value="{{ $.Referer }}">
         <input type="text" name="username" placeholder="{{ tr . "LoginFormUsername" }}" aria-label="Username" autocomplete="nickname" autofocus required>
         <input type="password" name="password" placeholder="{{ tr . "LoginFormPassword" }}" aria-label="Password" autocomplete="current-password" required>
         <fieldset>

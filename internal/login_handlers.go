@@ -28,6 +28,7 @@ func (s *Server) LoginHandler() httprouter.Handle {
 
 		if r.Method == "GET" {
 			ctx.Title = s.tr(ctx, "LoginTitle")
+			ctx.Referer = r.Referer()
 			s.render("login", w, ctx)
 			return
 		}
@@ -90,7 +91,7 @@ func (s *Server) LoginHandler() httprouter.Handle {
 			_ = sess.(*session.Session).Set("persist", "1")
 		}
 
-		http.Redirect(w, r, RedirectRefererURL(r, s.config, "/"), http.StatusFound)
+		http.Redirect(w, r, r.FormValue("referer"), http.StatusFound)
 	}
 }
 
