@@ -72,6 +72,8 @@ func ParseFile(r io.Reader, twter *types.Twter) (types.TwtFile, error) {
 		return nil, types.ErrInvalidFeed
 	}
 
+	twter.Metadata = f.Info().Values()
+
 	if v, ok := f.Info().GetN("nick", 0); ok {
 		f.twter.Nick = v.Value()
 	}

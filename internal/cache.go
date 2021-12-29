@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -122,10 +123,17 @@ type Cached struct {
 	mu sync.RWMutex
 
 	Twts         types.Twts
+	Errors       int
+	LastError    string
+	LastFetched  time.Time
 	LastModified string
 }
 
-func NewCached(twts types.Twts, lastModified string) *Cached {
+func NewCached() *Cached {
+	return &Cached{}
+}
+
+func NewCachedTwts(twts types.Twts, lastModified string) *Cached {
 	return &Cached{
 		Twts:         twts,
 		LastModified: lastModified,
@@ -155,6 +163,31 @@ func (cached *Cached) Update(url, lastmodiied string, twts types.Twts) {
 
 	cached.Twts = twts
 	cached.LastModified = lastmodiied
+}
+
+// GetLastModified ...
+func (cached *Cached) GetLastModified() string {
+	cached.mu.RLock()
+	defer cached.mu.RUnlock()
+
+	return cached.LastModified
+}
+
+// SetError ...
+func (cached *Cached) SetError(err error) {
+	cached.mu.Lock()
+	defer cached.mu.Unlock()
+
+	cached.Errors += 1
+	cached.LastError = err.Error()
+}
+
+// SetLastFetched ...
+func (cached *Cached) SetLastFetched() {
+	cached.mu.Lock()
+	defer cached.mu.Unlock()
+
+	cached.LastFetched = time.Now()
 }
 
 type Peer struct {
@@ -720,9 +753,8 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 				wg.Done()
 			}()
 
-			cache.mu.RLock()
-			twter := cache.Twters[feed.URL]
-			cache.mu.RUnlock()
+			twter := cache.GetTwter(feed.URL)
+			cachedFeed := cache.GetOrSetCachedFeed(feed.URL)
 
 			if twter == nil {
 				twter = &types.Twter{Nick: feed.Nick}
@@ -736,16 +768,28 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 						twter.Avatar = URLForExternalAvatar(conf, feed.URL)
 					}
 				}
-				cache.mu.Lock()
-				cache.Twters[feed.URL] = twter
-				cache.mu.Unlock()
+				cache.SetTwter(feed.URL, twter)
 			}
+
+			// Handle Feed Refresh
+			// Supports two methods of refresh:
+			// 1) A refresh interval (suggested refresh interval by feed author), e.g:
+			//    # refresh = 1h
+			// 2) An exponential back-off based on a weighted moving average of a feed's update frequency (TBD)
+			if !cache.ShouldRefreshFeed(feed.URL) {
+				twtsch <- nil
+				return
+			}
+
+			// Update LastFetched time
+			cachedFeed.SetLastFetched()
 
 			// Handle Gopher feeds
 			// TODO: Refactor this into some kind of sensible interface
 			if strings.HasPrefix(feed.URL, "gopher://") {
 				res, err := RequestGopher(conf, feed.URL)
 				if err != nil {
+					cachedFeed.SetError(err)
 					log.WithError(err).Errorf("error fetching feed %s", feed)
 					twtsch <- nil
 					return
@@ -755,6 +799,7 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 
 				tf, err := types.ParseFile(limitedReader, twter)
 				if err != nil {
+					cachedFeed.SetError(err)
 					log.WithError(err).Errorf("error parsing feed %s", feed)
 					twtsch <- nil
 					return
@@ -824,37 +869,32 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 				}
 			}
 
-			cache.mu.RLock()
-			if cached, ok := cache.Feeds[feed.URL]; ok {
-				if cached.LastModified != "" {
-					headers.Set("If-Modified-Since", cached.LastModified)
-				}
+			if cachedFeed.GetLastModified() != "" {
+				headers.Set("If-Modified-Since", cachedFeed.GetLastModified())
 			}
-			cache.mu.RUnlock()
 
 			res, err := Request(conf, http.MethodGet, feed.URL, headers)
 			if err != nil {
+				cachedFeed.SetError(err)
 				log.WithError(err).Errorf("error fetching feed %s", feed)
 				twtsch <- nil
 				return
 			}
 			defer res.Body.Close()
 
-			actualurl := res.Request.URL.String()
-			if actualurl != feed.URL {
-				log.WithError(err).Warnf("feed for %s changed from %s to %s", feed.Nick, feed.URL, actualurl)
-				cache.mu.Lock()
-				if cached, ok := cache.Feeds[feed.URL]; ok {
-					cache.Feeds[actualurl] = cached
-				}
-				cache.mu.Unlock()
-				feed.URL = actualurl
-			}
-
-			if feed.URL == "" {
-				log.WithField("feed", feed).Warn("empty url")
+			actualURL := res.Request.URL.String()
+			if actualURL == "" {
+				log.WithField("feed", feed).Warnf("%s trying to redirect to an empty url", feed)
 				twtsch <- nil
 				return
+			}
+
+			if actualURL != feed.URL {
+				log.WithError(err).Warnf("feed %s has moved to %s", feed, actualURL)
+				cache.mu.Lock()
+				cache.Feeds[actualURL] = cachedFeed
+				cache.mu.Unlock()
+				feed.URL = actualURL
 			}
 
 			cache.DetectClientFromResponse(res)
@@ -867,6 +907,7 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 
 				tf, err := types.ParseFile(limitedReader, twter)
 				if err != nil {
+					cachedFeed.SetError(err)
 					log.WithError(err).Errorf("error parsing feed %s", feed)
 					twtsch <- nil
 					return
@@ -906,11 +947,10 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 				lastmodified := res.Header.Get("Last-Modified")
 				cache.UpdateFeed(feed.URL, lastmodified, twts)
 			case http.StatusNotModified: // 304
-				cache.mu.RLock()
-				if cached, ok := cache.Feeds[feed.URL]; ok {
-					twts = cached.Twts
-				}
-				cache.mu.RUnlock()
+				twts = cachedFeed.Twts
+			case 401, 402, 403, 404, 407, 410, 451:
+				// These are permanent 4xx errors and considered a dead feed
+				cachedFeed.SetError(types.ErrDeadFeed{Reason: res.Status})
 			}
 
 			twtsch <- twts
@@ -1083,17 +1123,17 @@ func (cache *Cache) Refresh() {
 	}
 
 	cache.mu.Lock()
-	cache.List = NewCached(allTwts, "")
+	cache.List = NewCachedTwts(allTwts, "")
 	cache.Map = twtMap
 	cache.Views = map[string]*Cached{
-		localViewKey:    NewCached(localTwts, ""),
-		discoverViewKey: NewCached(discoverTwts, ""),
+		localViewKey:    NewCachedTwts(localTwts, ""),
+		discoverViewKey: NewCachedTwts(discoverTwts, ""),
 	}
 	for k, v := range tags {
-		cache.Views["tag:"+k] = NewCached(v, "")
+		cache.Views["tag:"+k] = NewCachedTwts(v, "")
 	}
 	for k, v := range subjects {
-		cache.Views["subject:"+k] = NewCached(v, "")
+		cache.Views["subject:"+k] = NewCachedTwts(v, "")
 	}
 	for k, peer := range cache.Peers {
 		if (peer.LastSeen.Sub(peer.LastUpdated)) > (podInfoUpdateTTL/2) || time.Since(peer.LastUpdated) > podInfoUpdateTTL {
@@ -1111,11 +1151,40 @@ func (cache *Cache) InjectFeed(url string, twt types.Twt) {
 
 	if !ok {
 		cache.mu.Lock()
-		cache.Feeds[url] = NewCached(types.Twts{twt}, time.Now().Format(http.TimeFormat))
+		cache.Feeds[url] = NewCachedTwts(types.Twts{twt}, time.Now().Format(http.TimeFormat))
 		cache.mu.Unlock()
 	} else {
 		cached.Inject(url, twt)
 	}
+}
+
+// ShouldRefreshFeed ...
+func (cache *Cache) ShouldRefreshFeed(url string) bool {
+	cache.mu.RLock()
+	cachedFeed, isCachedFeed := cache.Feeds[url]
+	cache.mu.RUnlock()
+
+	if !isCachedFeed {
+		return true
+	}
+
+	twter := cache.GetTwter(url)
+	if twter == nil {
+		return true
+	}
+
+	refresh := twter.Metadata.Get("refresh")
+	if refresh == "" {
+		return true
+	}
+
+	if n, err := strconv.Atoi(refresh); err == nil {
+		return int(time.Since(cachedFeed.LastFetched).Seconds()) >= n
+	}
+
+	// TODO: Implement exponential back-off using weighted moving average of a feed's update frequency
+
+	return true
 }
 
 // UpdateFeed ...
@@ -1126,7 +1195,7 @@ func (cache *Cache) UpdateFeed(url, lastmodified string, twts types.Twts) {
 
 	if !ok {
 		cache.mu.Lock()
-		cache.Feeds[url] = NewCached(twts, lastmodified)
+		cache.Feeds[url] = NewCachedTwts(twts, lastmodified)
 		cache.mu.Unlock()
 	} else {
 		cached.Update(url, lastmodified, twts)
@@ -1225,7 +1294,7 @@ func (cache *Cache) GetMentions(u *User, refresh bool) types.Twts {
 	twts := cache.FilterBy(FilterByMentionFactory(u))
 
 	cache.mu.Lock()
-	cache.Views[key] = NewCached(twts, "")
+	cache.Views[key] = NewCachedTwts(twts, "")
 	cache.mu.Unlock()
 
 	return twts
@@ -1238,6 +1307,23 @@ func (cache *Cache) IsCached(url string) bool {
 
 	_, ok := cache.Feeds[url]
 	return ok
+}
+
+// GetOrSetCachedFeed ...
+func (cache *Cache) GetOrSetCachedFeed(url string) *Cached {
+	cache.mu.RLock()
+	cached, ok := cache.Feeds[url]
+	cache.mu.RUnlock()
+
+	if !ok {
+		cached = NewCached()
+
+		cache.mu.Lock()
+		cache.Feeds[url] = cached
+		cache.mu.Unlock()
+	}
+
+	return cached
 }
 
 // GetByView ...
@@ -1273,7 +1359,7 @@ func (cache *Cache) GetByUser(u *User, refresh bool) types.Twts {
 	sort.Sort(twts)
 
 	cache.mu.Lock()
-	cache.Views[key] = NewCached(twts, "")
+	cache.Views[key] = NewCachedTwts(twts, "")
 	cache.mu.Unlock()
 
 	return twts
@@ -1299,7 +1385,7 @@ func (cache *Cache) GetByUserView(u *User, view string, refresh bool) types.Twts
 	sort.Sort(twts)
 
 	cache.mu.Lock()
-	cache.Views[key] = NewCached(twts, "")
+	cache.Views[key] = NewCachedTwts(twts, "")
 	cache.mu.Unlock()
 
 	return twts
@@ -1314,6 +1400,20 @@ func (cache *Cache) GetByURL(url string) types.Twts {
 		return cached.Twts
 	}
 	return types.Twts{}
+}
+
+// GetTwter ...
+func (cache *Cache) GetTwter(uri string) *types.Twter {
+	cache.mu.RLock()
+	defer cache.mu.RUnlock()
+	return cache.Twters[uri]
+}
+
+// SetTwter ...
+func (cache *Cache) SetTwter(uri string, twter *types.Twter) {
+	cache.mu.Lock()
+	defer cache.mu.Unlock()
+	cache.Twters[uri] = twter
 }
 
 // DeleteUserViews ...

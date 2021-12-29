@@ -9,9 +9,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
+
 	"git.mills.io/yarnsocial/yarn/types"
 	"git.mills.io/yarnsocial/yarn/types/lextwt"
-	"github.com/matryer/is"
 )
 
 type Lexer interface {
@@ -32,17 +33,17 @@ func TestLexerRunes(t *testing.T) {
 func testLexerRunes(t *testing.T, lexer Lexer, values []rune) {
 	t.Helper()
 
-	is := is.New(t)
+	assert := assert.New(t)
 
 	for i, r := range values {
 		t.Logf("%d of %d - %v %v", i, len(values), string(lexer.Rune()), string(r))
-		is.Equal(lexer.Rune(), r) // parsed == value
+		assert.Equal(lexer.Rune(), r) // parsed == value
 		if i < len(values)-1 {
-			is.True(lexer.NextRune())
+			assert.True(lexer.NextRune())
 		}
 	}
-	is.True(!lexer.NextRune())
-	is.Equal(lexer.Rune(), lextwt.EOF)
+	assert.True(!lexer.NextRune())
+	assert.Equal(lexer.Rune(), lextwt.EOF)
 }
 
 func TestLexerTokens(t *testing.T) {
@@ -169,16 +170,16 @@ func TestLexerEdgecases(t *testing.T) {
 func testLexerTokens(t *testing.T, lexer Lexer, values []lextwt.Token) {
 	t.Helper()
 
-	is := is.New(t)
+	assert := assert.New(t)
 
 	for i, tt := range values {
 		_ = i
 		t.Logf("%d - %v %v", i, tt.Type, string(tt.Literal))
 		lexer.NextTok()
-		is.Equal(lexer.GetTok(), tt) // parsed == value
+		assert.Equal(lexer.GetTok(), tt) // parsed == value
 	}
 	lexer.NextTok()
-	is.Equal(lexer.GetTok(), lextwt.Token{Type: lextwt.TokEOF, Literal: []rune{-1}})
+	assert.Equal(lexer.GetTok(), lextwt.Token{Type: lextwt.TokEOF, Literal: []rune{-1}})
 }
 
 func TestLexerBuffer(t *testing.T) {
@@ -187,13 +188,13 @@ func TestLexerBuffer(t *testing.T) {
 	space := lextwt.Token{lextwt.TokSPACE, []rune(strings.Repeat(" ", 4094))}
 	think := lextwt.Token{lextwt.TokSTRING, []rune("🤔")}
 
-	is := is.New(t)
+	assert := assert.New(t)
 
 	lexer.NextTok()
-	is.Equal(lexer.GetTok(), space) // parsed == value
+	assert.Equal(lexer.GetTok(), space) // parsed == value
 
 	lexer.NextTok()
-	is.Equal(lexer.GetTok(), think) // parsed == value
+	assert.Equal(lexer.GetTok(), think) // parsed == value
 }
 
 type dateTestCase struct {
@@ -203,7 +204,7 @@ type dateTestCase struct {
 }
 
 func TestParseDateTime(t *testing.T) {
-	is := is.New(t)
+	assert := assert.New(t)
 
 	tests := []dateTestCase{
 		{lit: "2016-02-03T23:05:00Z", dt: time.Date(2016, 2, 3, 23, 5, 0, 0, time.UTC)},
@@ -223,13 +224,13 @@ func TestParseDateTime(t *testing.T) {
 		t.Logf("TestParseDateTime %d - %v", i, tt.lit)
 
 		if tt.errs == nil {
-			is.True(dt != nil)
-			is.Equal(tt.lit, dt.Literal()) // src value == parsed value
-			is.Equal(tt.dt, dt.DateTime()) // src value == parsed value
+			assert.True(dt != nil)
+			assert.Equal(tt.lit, dt.Literal()) // src value == parsed value
+			assert.Equal(tt.dt, dt.DateTime()) // src value == parsed value
 		} else {
-			is.True(dt == nil)
+			assert.True(dt == nil)
 			for i, e := range parser.Errs() {
-				is.True(errors.Is(e, tt.errs[i]))
+				assert.True(errors.Is(e, tt.errs[i]))
 			}
 		}
 	}
@@ -242,7 +243,8 @@ type mentionTestCase struct {
 }
 
 func TestParseMention(t *testing.T) {
-	is := is.New(t)
+	assert := assert.New(t)
+
 	tests := []mentionTestCase{
 		{
 			lit:  "@<xuu https://sour.is/xuu/twtxt.txt>",
@@ -274,7 +276,7 @@ func TestParseMention(t *testing.T) {
 		parser := lextwt.NewParser(lexer)
 		elem := parser.ParseMention()
 
-		is.True(parser.IsEOF())
+		assert.True(parser.IsEOF())
 		if len(tt.errs) == 0 {
 			testParseMention(t, tt.elem, elem)
 		}
@@ -284,13 +286,13 @@ func TestParseMention(t *testing.T) {
 func testParseMention(t *testing.T, expect, elem *lextwt.Mention) {
 	t.Helper()
 
-	is := is.New(t)
+	assert := assert.New(t)
 
-	is.True(elem != nil)
-	is.Equal(elem.Literal(), expect.Literal())
-	is.Equal(expect.Name(), elem.Name())
-	is.Equal(expect.Domain(), elem.Domain())
-	is.Equal(expect.Target(), elem.Target())
+	assert.True(elem != nil)
+	assert.Equal(elem.Literal(), expect.Literal())
+	assert.Equal(expect.Name(), elem.Name())
+	assert.Equal(expect.Domain(), elem.Domain())
+	assert.Equal(expect.Target(), elem.Target())
 }
 
 type tagTestCase struct {
@@ -300,7 +302,8 @@ type tagTestCase struct {
 }
 
 func TestParseTag(t *testing.T) {
-	is := is.New(t)
+	assert := assert.New(t)
+
 	tests := []tagTestCase{
 		{
 			lit:  "#<asdfasdf https://sour.is/search?tag=asdfasdf>",
@@ -327,7 +330,7 @@ func TestParseTag(t *testing.T) {
 		parser := lextwt.NewParser(lexer)
 		elem := parser.ParseTag()
 
-		is.True(parser.IsEOF())
+		assert.True(parser.IsEOF())
 		if len(tt.errs) == 0 {
 			testParseTag(t, tt.elem, elem)
 		}
@@ -336,17 +339,18 @@ func TestParseTag(t *testing.T) {
 
 func testParseTag(t *testing.T, expect, elem *lextwt.Tag) {
 	t.Helper()
-	is := is.New(t)
 
-	is.True(elem != nil)
-	is.Equal(expect.Literal(), elem.Literal())
-	is.Equal(expect.Text(), elem.Text())
-	is.Equal(expect.Target(), elem.Target())
+	assert := assert.New(t)
+
+	assert.True(elem != nil)
+	assert.Equal(expect.Literal(), elem.Literal())
+	assert.Equal(expect.Text(), elem.Text())
+	assert.Equal(expect.Target(), elem.Target())
 
 	url, err := url.Parse(expect.Target())
 	eURL, eErr := elem.URL()
-	is.Equal(err, eErr)
-	is.Equal(url, eURL)
+	assert.Equal(err, eErr)
+	assert.Equal(url, eURL)
 }
 
 type subjectTestCase struct {
@@ -356,7 +360,7 @@ type subjectTestCase struct {
 }
 
 func TestParseSubject(t *testing.T) {
-	is := is.New(t)
+	assert := assert.New(t)
 
 	tests := []subjectTestCase{
 		{
@@ -390,7 +394,7 @@ func TestParseSubject(t *testing.T) {
 
 		elem := parser.ParseSubject()
 
-		is.True(parser.IsEOF())
+		assert.True(parser.IsEOF())
 		if len(tt.errs) == 0 {
 			testParseSubject(t, tt.elem, elem)
 		}
@@ -398,10 +402,10 @@ func TestParseSubject(t *testing.T) {
 }
 
 func testParseSubject(t *testing.T, expect, elem *lextwt.Subject) {
-	is := is.New(t)
+	assert := assert.New(t)
 
-	is.Equal(elem.Literal(), expect.Literal())
-	is.Equal(expect.Text(), elem.Text())
+	assert.Equal(elem.Literal(), expect.Literal())
+	assert.Equal(expect.Text(), elem.Text())
 	if tag, ok := expect.Tag().(*lextwt.Tag); ok && tag != nil {
 		testParseTag(t, tag, elem.Tag().(*lextwt.Tag))
 	}
@@ -414,7 +418,7 @@ type linkTestCase struct {
 }
 
 func TestParseLink(t *testing.T) {
-	is := is.New(t)
+	assert := assert.New(t)
 
 	tests := []linkTestCase{
 		{
@@ -452,7 +456,7 @@ func TestParseLink(t *testing.T) {
 		parser := lextwt.NewParser(lexer)
 		elem := parser.ParseLink()
 
-		is.True(parser.IsEOF())
+		assert.True(parser.IsEOF())
 		if len(tt.errs) == 0 {
 			testParseLink(t, tt.elem, elem)
 		}
@@ -460,12 +464,13 @@ func TestParseLink(t *testing.T) {
 }
 func testParseLink(t *testing.T, expect, elem *lextwt.Link) {
 	t.Helper()
-	is := is.New(t)
 
-	is.True(elem != nil)
-	is.Equal(expect.Literal(), elem.Literal())
-	is.Equal(expect.Text(), elem.Text())
-	is.Equal(expect.Target(), elem.Target())
+	assert := assert.New(t)
+
+	assert.True(elem != nil)
+	assert.Equal(expect.Literal(), elem.Literal())
+	assert.Equal(expect.Text(), elem.Text())
+	assert.Equal(expect.Target(), elem.Target())
 }
 
 type twtTestCase struct {
@@ -721,7 +726,8 @@ func TestParseTwt(t *testing.T) {
 	fmtOpts := mockFmtOpts{"http://example.org"}
 	for i, tt := range tests {
 		t.Run(fmt.Sprintf("TestParseTwt %d", i), func(t *testing.T) {
-			is := is.New(t)
+			assert := assert.New(t)
+
 			t.Log("\n", tt.twt)
 
 			r := strings.NewReader(tt.lit)
@@ -730,34 +736,34 @@ func TestParseTwt(t *testing.T) {
 			parser.SetTwter(&twter)
 			twt := parser.ParseTwt()
 
-			is.True(twt != nil)
+			assert.True(twt != nil)
 			if twt != nil {
 				testParseTwt(t, tt.twt, twt)
 			}
 			if tt.text != "" {
-				is.Equal(twt.FormatText(types.TextFmt, fmtOpts), tt.text)
+				assert.Equal(twt.FormatText(types.TextFmt, fmtOpts), tt.text)
 			}
 			if tt.md != "" {
-				is.Equal(twt.FormatText(types.MarkdownFmt, fmtOpts), tt.md)
+				assert.Equal(twt.FormatText(types.MarkdownFmt, fmtOpts), tt.md)
 			}
 			if tt.html != "" {
-				is.Equal(twt.FormatText(types.HTMLFmt, fmtOpts), tt.html)
+				assert.Equal(twt.FormatText(types.HTMLFmt, fmtOpts), tt.html)
 			}
 			if tt.subject != "" {
-				is.Equal(fmt.Sprintf("%c", twt.Subject()), tt.subject)
+				assert.Equal(fmt.Sprintf("%c", twt.Subject()), tt.subject)
 			}
 			if tt.twter != nil {
-				is.Equal(twt.Twter().Nick, tt.twter.Nick)
-				is.Equal(twt.Twter().URI, tt.twter.URI)
+				assert.Equal(twt.Twter().Nick, tt.twter.Nick)
+				assert.Equal(twt.Twter().URI, tt.twter.URI)
 			}
 		})
 	}
 }
 
 func testParseTwt(t *testing.T, expect, elem types.Twt) {
-	is := is.New(t)
+	assert := assert.New(t)
 
-	is.Equal(expect.Twter(), elem.Twter())
+	assert.Equal(expect.Twter(), elem.Twter())
 
 	{
 		m := elem.Subject()
@@ -768,18 +774,18 @@ func testParseTwt(t *testing.T, expect, elem types.Twt) {
 	{
 		m := elem.Mentions()
 		n := expect.Mentions()
-		is.Equal(len(n), len(m))
+		assert.Equal(len(n), len(m))
 		for i := range m {
 			testParseMention(t, m[i].(*lextwt.Mention), n[i].(*lextwt.Mention))
 		}
-		is.Equal(n, m)
+		assert.Equal(n, m)
 	}
 
 	{
 		m := elem.Tags()
 		n := expect.Tags()
 
-		is.Equal(len(n), len(m))
+		assert.Equal(len(n), len(m))
 		for i := range m {
 			testParseTag(t, m[i].(*lextwt.Tag), n[i].(*lextwt.Tag))
 		}
@@ -789,7 +795,7 @@ func testParseTwt(t *testing.T, expect, elem types.Twt) {
 		m := elem.Links()
 		n := expect.Links()
 
-		is.Equal(len(n), len(m))
+		assert.Equal(len(n), len(m))
 		for i := range m {
 			testParseLink(t, m[i].(*lextwt.Link), n[i].(*lextwt.Link))
 		}
@@ -806,29 +812,29 @@ func testParseTwt(t *testing.T, expect, elem types.Twt) {
 			switch elem := e.(type) {
 			case *lextwt.Mention:
 				expect, ok := n[i].(*lextwt.Mention)
-				is.True(ok)
+				assert.True(ok)
 				testParseMention(t, elem, expect)
 			case *lextwt.Tag:
 				expect, ok := n[i].(*lextwt.Tag)
-				is.True(ok)
+				assert.True(ok)
 				testParseTag(t, elem, expect)
 			case *lextwt.Link:
 				expect, ok := n[i].(*lextwt.Link)
-				is.True(ok)
+				assert.True(ok)
 				testParseLink(t, elem, expect)
 			case *lextwt.Subject:
 				expect, ok := n[i].(*lextwt.Subject)
-				is.True(ok)
+				assert.True(ok)
 				testParseSubject(t, elem, expect)
 
 			default:
-				is.Equal(e, n[i])
+				assert.Equal(e, n[i])
 			}
 		}
-		is.Equal(len(m), len(n)) // len(elem) == len(expect)
+		assert.Equal(len(m), len(n)) // len(elem) == len(expect)
 	}
 
-	is.Equal(fmt.Sprintf("%+l", expect), fmt.Sprintf("%+l", elem))
+	assert.Equal(fmt.Sprintf("%+l", expect), fmt.Sprintf("%+l", elem))
 }
 
 type commentTestCase struct {
@@ -838,7 +844,7 @@ type commentTestCase struct {
 }
 
 func TestParseComment(t *testing.T) {
-	is := is.New(t)
+	assert := assert.New(t)
 
 	tests := []commentTestCase{
 		{lit: "# comment\n"},
@@ -884,11 +890,11 @@ func TestParseComment(t *testing.T) {
 
 		elem := parser.ParseComment()
 
-		is.True(elem != nil) // not nil
+		assert.True(elem != nil) // not nil
 		if elem != nil {
-			is.Equal([]byte(tt.lit), []byte(elem.Literal())) // literal mismatch
-			is.Equal(tt.key, elem.Key())                     // key mismatch
-			is.Equal(tt.value, elem.Value())                 // value mismatch
+			assert.Equal([]byte(tt.lit), []byte(elem.Literal())) // literal mismatch
+			assert.Equal(tt.key, elem.Key())                     // key mismatch
+			assert.Equal(tt.value, elem.Value())                 // value mismatch
 		}
 	}
 }
@@ -899,7 +905,7 @@ type textTestCase struct {
 }
 
 func TestParseText(t *testing.T) {
-	is := is.New(t)
+	assert := assert.New(t)
 
 	tests := []textTestCase{
 		{
@@ -921,10 +927,10 @@ func TestParseText(t *testing.T) {
 			lis = append(lis, elem)
 		}
 
-		is.Equal(len(tt.elems), len(lis))
+		assert.Equal(len(tt.elems), len(lis))
 		for i, expect := range tt.elems {
 			t.Logf("'%s' = '%s'", expect, lis[i])
-			is.Equal(expect, lis[i])
+			assert.Equal(expect, lis[i])
 		}
 	}
 }
@@ -938,7 +944,7 @@ type fileTestCase struct {
 }
 
 func TestParseFile(t *testing.T) {
-	is := is.New(t)
+	assert := assert.New(t)
 
 	twter := types.Twter{Nick: "example", URI: "https://example.com/twtxt.txt"}
 	override := types.Twter{
@@ -947,6 +953,11 @@ func TestParseFile(t *testing.T) {
 		HashingURI: "https://example.com/twtxt.txt",
 		Following:  1,
 		Follow:     map[string]types.Twter{"xuu@txt.sour.is": {Nick: "xuu@txt.sour.is", URI: "https://txt.sour.is/users/xuu.txt"}},
+		Metadata: url.Values{
+			"url":     []string{"https://example.com/twtxt.txt"},
+			"nick":    []string{"override"},
+			"follows": []string{"xuu@txt.sour.is https://txt.sour.is/users/xuu.txt"},
+		},
 	}
 
 	tests := []fileTestCase{
@@ -1022,29 +1033,29 @@ func TestParseFile(t *testing.T) {
 
 		f, err := lextwt.ParseFile(tt.in, tt.twter)
 		if tt.err != nil {
-			is.True(err == tt.err)
-			is.True(f == nil)
+			assert.True(err == tt.err)
+			assert.True(f == nil)
 			continue
 		}
 
-		is.True(err == nil)
-		is.True(f != nil)
+		assert.True(err == nil)
+		assert.True(f != nil)
 
 		if tt.override != nil {
-			is.Equal(tt.override, f.Twter())
+			assert.Equal(tt.override, f.Twter())
 		}
 
 		{
 			lis := f.Info().GetAll("")
 			expect := tt.out.Info().GetAll("")
-			is.Equal(len(expect), len(lis))
+			assert.Equal(len(expect), len(lis))
 
 			for i := range expect {
-				is.Equal(expect[i].Key(), lis[i].Key())
-				is.Equal(expect[i].Value(), lis[i].Value())
+				assert.Equal(expect[i].Key(), lis[i].Key())
+				assert.Equal(expect[i].Value(), lis[i].Value())
 			}
 
-			is.Equal(f.Info().String(), tt.out.Info().String())
+			assert.Equal(f.Info().String(), tt.out.Info().String())
 		}
 
 		t.Log(f.Info().Following())
@@ -1053,7 +1064,7 @@ func TestParseFile(t *testing.T) {
 		{
 			lis := f.Twts()
 			expect := tt.out.Twts()
-			is.Equal(len(expect), len(lis))
+			assert.Equal(len(expect), len(lis))
 			for i := range expect {
 				testParseTwt(t, expect[i], lis[i])
 			}
@@ -1091,13 +1102,13 @@ func TestExpandLinks(t *testing.T) {
 		},
 	}
 
-	is := is.New(t)
+	assert := assert.New(t)
 
 	for _, tt := range tests {
 		lookup := types.FeedLookupFn(func(s string) *types.Twter { return tt.target })
 		tt.twt.ExpandMentions(conf, lookup)
-		is.Equal(tt.twt.Mentions()[0].Twter().Nick, tt.target.Nick)
-		is.Equal(tt.twt.Mentions()[0].Twter().URI, tt.target.URI)
+		assert.Equal(tt.twt.Mentions()[0].Twter().Nick, tt.target.Nick)
+		assert.Equal(tt.twt.Mentions()[0].Twter().URI, tt.target.URI)
 	}
 }
 
@@ -1138,17 +1149,17 @@ func (m mockFmtOpts) URLForUser(username string) string {
 }
 
 // func TestSomethingWeird(t *testing.T) {
-// 	is := is.New(t)
+// 	assert := assert.New(t)
 // 	twter := types.Twter{Nick: "prologic", RequestURI: "https://twtxt.net/user/prologic/twtxt.txt"}
 // 	res, err := http.Get("https://twtxt.net/user/prologic/twtxt.txt")
 
-// 	is.NoErr(err)
+// 	assert.NoErr(err)
 // 	defer res.Body.Close()
 
 // 	b, _ := ioutil.ReadAll(res.Body)
 
 // 	letwt, err := lextwt.ParseFile(bytes.NewReader(b), twter)
-// 	is.NoErr(err)
+// 	assert.NoErr(err)
 
 // 	Ltwts := letwt.Twts()
 
@@ -1156,8 +1167,8 @@ func (m mockFmtOpts) URLForUser(username string) string {
 
 // 	for i := range Rtwts {
 // 		t.Log(i)
-// 		is.Equal(fmt.Sprint(Rtwts[i]), fmt.Sprint(Ltwts[i]))
+// 		assert.Equal(fmt.Sprint(Rtwts[i]), fmt.Sprint(Ltwts[i]))
 // 	}
 
-// 	is.True(false)
+// 	assert.True(false)
 // }

@@ -159,8 +159,19 @@ whitespace.
 This field is used by the [Archive Feeds
 Extension](archivefeedsextension.html).
 
+
+### `refresh`
+
+This optional field is used by feed authors as a hint to clients to control how often they should fetch or update this feed.
+
+The value of this field is seconds represented by an integer.
+
+**NOTE:** An empty, bad, or unparsable value is ignored.
+
+
 ## Changelog
 
 * 2021-10-09: Initial version.
 * 2021-10-31: Clarify that metadata field values must not be empty.
 * 2021-12-26: Clarify that clients must not automatically change the feed URL to fetch the feed based on `url` metadata field values.
+* 2021-12-29: Add new `refresh` metadata field to hint to clients how often a feed can or should be fetched.

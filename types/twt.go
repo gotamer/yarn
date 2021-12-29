@@ -16,6 +16,19 @@ const (
 	TwtHashLength = 7
 )
 
+var (
+	ErrNotImplemented = errors.New("not implemented")
+	ErrInvalidFeed    = errors.New("erroneous feed detected")
+)
+
+type ErrDeadFeed struct {
+	Reason string
+}
+
+func (e ErrDeadFeed) Error() string {
+	return fmt.Sprintf("dead feed: %s", e.Reason)
+}
+
 // Twter ...
 type Twter struct {
 	Nick       string
@@ -33,6 +46,10 @@ type Twter struct {
 	Followers int
 
 	Follow map[string]Twter
+
+	// Metadata holds additinoal KV pairs (properties) of the feed
+	// See: [Metadata Extension](https://dev.twtxt.net/doc/metadataextension.html)
+	Metadata url.Values
 }
 
 func (twter Twter) IsZero() bool {
@@ -379,11 +396,6 @@ func (nilManager) MakeTwt(twter Twter, ts time.Time, text string) Twt {
 	panic("twt managernot configured")
 }
 
-var (
-	ErrNotImplemented = errors.New("not implemented")
-	ErrInvalidFeed    = errors.New("error: erroneous feed detected")
-)
-
 var twtManager TwtManager = &nilManager{}
 
 func DecodeJSON(b []byte) (Twt, error) { return twtManager.DecodeJSON(b) }
@@ -414,6 +426,7 @@ type Info interface {
 	KV
 }
 type KV interface {
+	Values() url.Values
 	GetN(string, int) (Value, bool)
 	GetAll(string) []Value
 	fmt.Stringer

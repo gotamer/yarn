@@ -89,6 +89,16 @@ func (lis Comments) GetN(key string, n int) (types.Value, bool) {
 	return nil, false
 }
 
+func (lis Comments) Values() url.Values {
+	v := make(url.Values)
+	for _, c := range lis {
+		if c.key != "" {
+			v.Add(c.key, c.value)
+		}
+	}
+	return v
+}
+
 func (lis Comments) GetAll(prefix string) []types.Value {
 	nlis := make([]types.Value, 0, len(lis))
 
