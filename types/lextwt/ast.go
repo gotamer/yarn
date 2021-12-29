@@ -859,6 +859,13 @@ func DecodeJSON(data []byte) (types.Twt, error) {
 		return types.NilTwt, err
 	}
 
+	// XXX: Support backwards compatibility for older Twts archived
+	// before the chnage from `Twter.URL` to `Twter.URI` in commit 8c7badb
+	// TODO: Migrate Archived Twts and rewrite `Twter.URL` -> `Twter.URI`
+	if enc.Twter.URI == "" {
+		enc.Twter.URI = enc.Twter.URL
+	}
+
 	twt := NewTwt(enc.Twter, dt, elems...)
 	if err != nil {
 		return types.NilTwt, err
