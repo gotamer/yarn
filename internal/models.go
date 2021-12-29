@@ -52,7 +52,7 @@ type User struct {
 	Theme                      string `default:"auto"`
 	Lang                       string `default:""`
 	Recovery                   string `default:""`
-	AvatarHash                 string `defaulf:""`
+	AvatarHash                 string `default:""`
 	DisplayDatesInTimezone     string `default:"UTC"`
 	DisplayTimePreference      string `default:"24h"`
 	OpenLinksInPreference      string `default:"newwindow"`
