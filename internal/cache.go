@@ -1174,12 +1174,10 @@ func (cache *Cache) ShouldRefreshFeed(url string) bool {
 	}
 
 	refresh := twter.Metadata.Get("refresh")
-	if refresh == "" {
-		return true
-	}
-
-	if n, err := strconv.Atoi(refresh); err == nil {
-		return int(time.Since(cachedFeed.LastFetched).Seconds()) >= n
+	if refresh != "" {
+		if n, err := strconv.Atoi(refresh); err == nil {
+			return int(time.Since(cachedFeed.LastFetched).Seconds()) >= n
+		}
 	}
 
 	// TODO: Implement exponential back-off using weighted moving average of a feed's update frequency
