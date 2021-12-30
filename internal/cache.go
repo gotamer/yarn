@@ -194,22 +194,18 @@ func (cached *Cached) Update(url, lastmodiied string, twts types.Twts) {
 	cached.LastModified = lastmodiied
 
 	// Calculate the moving average of a feed
-	if cached.MovingAverage == 0.0 {
-		cached.MovingAverage = 1.0
-	} else {
-		n := 0.0
-		sum := 0.0
-		for _, chunk := range ChunkTwts(FirstNTwts(twts, 6), 2) {
-			if len(chunk) == 2 {
-				dt := chunk[0].Created().Sub(chunk[1].Created())
-				sum += dt.Seconds()
-				n += 1
-			}
+	n := 0.0
+	sum := 0.0
+	for _, chunk := range ChunkTwts(FirstNTwts(twts, 6), 2) {
+		if len(chunk) == 2 {
+			dt := chunk[0].Created().Sub(chunk[1].Created())
+			sum += dt.Seconds()
+			n += 1
 		}
-		avg := sum / n
-
-		cached.MovingAverage = (cached.MovingAverage + avg) / 2
 	}
+	avg := sum / n
+
+	cached.MovingAverage = (cached.MovingAverage + avg) / 2
 }
 
 // IsDead ...
@@ -259,6 +255,10 @@ func (cached *Cached) UpdateMovingAverage() {
 
 	if len(cached.Twts) > 0 {
 		cached.MovingAverage = (cached.MovingAverage + time.Since(cached.Twts[0].Created()).Seconds()) / 2
+	} else {
+		if cached.MovingAverage == 0 {
+			cached.MovingAverage = maximumFeedRefresh
+		}
 	}
 }
 
