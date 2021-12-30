@@ -1085,8 +1085,14 @@ func (cache *Cache) FeedCount() int {
 
 func (cache *Cache) TwtCount() int {
 	cache.mu.RLock()
-	defer cache.mu.RUnlock()
-	return len(cache.List.GetTwts())
+	cached := cache.List
+	cache.mu.RUnlock()
+
+	if cached != nil {
+		return len(cached.GetTwts())
+	}
+
+	return 0
 }
 
 func GetPeersForCached(cached *Cached, peers map[string]*Peer) Peers {
@@ -1382,7 +1388,10 @@ func (cache *Cache) GetAll(refresh bool) types.Twts {
 	cached = cache.List
 	cache.mu.RUnlock()
 
-	return cached.GetTwts()
+	if cached != nil {
+		return cached.GetTwts()
+	}
+	return nil
 }
 
 func (cache *Cache) FilterBy(f FilterFunc) types.Twts {
