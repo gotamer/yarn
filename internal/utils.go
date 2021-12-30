@@ -609,9 +609,6 @@ func DownloadImage(conf *Config, url string, resource, name string, opts *ImageO
 	defer res.Body.Close()
 
 	tf, err := receiveFile(res.Body, "rss2twtxt-*")
-	if tf != nil {
-		defer tf.Close()
-	}
 	if err != nil {
 		return "", err
 	}
@@ -688,6 +685,8 @@ func receiveFile(r io.Reader, filePattern string) (*os.File, error) {
 }
 
 func TranscodeAudio(conf *Config, ifn string, resource, name string, opts *AudioOptions) (string, error) {
+	defer os.Remove(ifn)
+
 	p := filepath.Join(conf.Data, resource)
 	if err := os.MkdirAll(p, 0755); err != nil {
 		log.WithError(err).Errorf("error creating %s directory", resource)
@@ -781,6 +780,8 @@ func TranscodeAudio(conf *Config, ifn string, resource, name string, opts *Audio
 }
 
 func ProcessImage(conf *Config, ifn string, resource, name string, opts *ImageOptions) (string, error) {
+	defer os.Remove(ifn)
+
 	p := filepath.Join(conf.Data, resource)
 	if err := os.MkdirAll(p, 0755); err != nil {
 		log.WithError(err).Error("error creating avatars directory")
@@ -843,6 +844,8 @@ func ProcessImage(conf *Config, ifn string, resource, name string, opts *ImageOp
 }
 
 func TranscodeVideo(conf *Config, ifn string, resource, name string, opts *VideoOptions) (string, error) {
+	defer os.Remove(ifn)
+
 	p := filepath.Join(conf.Data, resource)
 	if err := os.MkdirAll(p, 0755); err != nil {
 		log.WithError(err).Errorf("error creating %s directory", resource)
