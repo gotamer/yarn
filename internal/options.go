@@ -126,6 +126,11 @@ const (
 
 	// DefaultAPISigningKey is the default API JWT signing key for tokens
 	DefaultAPISigningKey = InvalidConfigValue
+
+	// MinimumCacheFetchInterval is the smallest allowable cache fetch interval for
+	// production pods, an attempt to configure a pod with a smaller value than this
+	// results in a configuration validation error.
+	MinimumCacheFetchInterval = 59 * time.Second
 )
 
 var (
