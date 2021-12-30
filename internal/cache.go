@@ -1222,6 +1222,11 @@ func (cache *Cache) InjectFeed(url string, twt types.Twt) {
 
 // ShouldRefreshFeed ...
 func (cache *Cache) ShouldRefreshFeed(url string) bool {
+	// Always refresh feeds on the same pod.
+	if IsLocalURLFactory(cache.conf)(url) {
+		return true
+	}
+
 	cache.mu.RLock()
 	cachedFeed, isCachedFeed := cache.Feeds[url]
 	cache.mu.RUnlock()
