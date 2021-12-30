@@ -302,6 +302,10 @@ type Peer struct {
 	LastUpdated time.Time `json:"-"`
 }
 
+func (p *Peer) String() string {
+	return fmt.Sprintf("Peer{Name: %s URI: %s}", p.Name, p.URI)
+}
+
 // XXX: Type aliases for backwards compatibility with Cache v19
 type PodInfo Peer
 
@@ -1149,16 +1153,24 @@ func (cache *Cache) Converge(archive Archiver) {
 	metrics.Counter("cache", "missing_twts").Add(float64(len(missingRootTwts)))
 
 	for hash, peers := range missingRootTwts {
-		var missingTwt types.Twt
-		for _, peer := range peers {
-			if twt, err := peer.GetTwt(cache.conf, hash); err == nil {
+		var (
+			peer       *Peer
+			missingTwt types.Twt
+		)
+		for _, possiblePeer := range peers {
+			if twt, err := possiblePeer.GetTwt(cache.conf, hash); err == nil {
 				missingTwt = twt
+				peer = possiblePeer
 				break
 			}
 		}
 		if missingTwt != nil {
-			cache.InjectFeed(missingTwt.Twter().URI, missingTwt)
-			GetExternalAvatar(cache.conf, missingTwt.Twter())
+			if IsTwtAuthentic(cache.conf, missingTwt) {
+				cache.InjectFeed(missingTwt.Twter().URI, missingTwt)
+				GetExternalAvatar(cache.conf, missingTwt.Twter())
+			} else {
+				log.Warnf("peer %s has possible forged twt %s", peer, missingTwt.Hash())
+			}
 		}
 	}
 

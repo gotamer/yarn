@@ -199,6 +199,8 @@ func HasExternalAvatarChanged(conf *Config, twter types.Twter) bool {
 	slug := Slugify(uri)
 	fn := filepath.Join(conf.Data, externalDir, fmt.Sprintf("%s.cbf", slug))
 
+	log := log.WithField("uri", uri)
+
 	// If the %s.cbf doesn't yet exist, then assume the external avatar has changed
 	if !FileExists(fn) {
 		return true
@@ -952,7 +954,23 @@ func NormalizeFeedName(name string) string {
 	return name
 }
 
-func ValidateFeed(conf *Config, nick, url string) (*types.Twter, error) {
+func IsTwtAuthentic(conf *Config, twt types.Twt) bool {
+	hash := twt.Hash()
+	twter := twt.Twter()
+	tf, err := ValidateFeed(conf, twter.Nick, twter.URI)
+	if err != nil {
+		log.WithError(err).Errorf("error validating feed %s to authenticate twt %s", twter, hash)
+		return false
+	}
+	for _, tfTwt := range tf.Twts() {
+		if tfTwt.Hash() == twt.Hash() {
+			return true
+		}
+	}
+	return false
+}
+
+func ValidateFeed(conf *Config, nick, url string) (types.TwtFile, error) {
 	var body io.ReadCloser
 
 	if strings.HasPrefix(url, "gopher://") {
@@ -983,7 +1001,7 @@ func ValidateFeed(conf *Config, nick, url string) (*types.Twter, error) {
 		return nil, err
 	}
 
-	return tf.Twter(), nil
+	return tf, nil
 }
 
 func ValidateFeedName(path string, name string) error {

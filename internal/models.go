@@ -399,10 +399,11 @@ func (u *User) Follow(alias, uri string) error {
 }
 
 func (u *User) FollowAndValidate(conf *Config, alias, uri string) error {
-	twter, err := ValidateFeed(conf, alias, uri)
+	tf, err := ValidateFeed(conf, alias, uri)
 	if err != nil {
 		return err
 	}
+	twter := tf.Twter()
 
 	if u.Follows(twter.URI) {
 		return ErrAlreadyFollows
