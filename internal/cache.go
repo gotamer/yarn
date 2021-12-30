@@ -853,13 +853,9 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 				twter = &types.Twter{Nick: feed.Nick}
 				if isLocalURL(feed.URL) {
 					twter.URI = URLForUser(conf.BaseURL, feed.Nick)
-					twter.Avatar = URLForAvatar(conf.BaseURL, feed.Nick, "")
 				} else {
 					twter.URI = feed.URL
-					avatar := GetExternalAvatar(conf, *twter)
-					if avatar != "" {
-						twter.Avatar = URLForExternalAvatar(conf, feed.URL)
-					}
+					GetExternalAvatar(conf, *twter)
 				}
 				cache.SetTwter(feed.URL, twter)
 			}
@@ -898,7 +894,7 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 					return
 				}
 				if !isLocalURL(twter.Avatar) {
-					_ = GetExternalAvatar(conf, *twter)
+					GetExternalAvatar(conf, *twter)
 				}
 
 				future, twts, old := types.SplitTwts(tf.Twts(), conf.MaxCacheTTL, conf.MaxCacheItems)
@@ -1006,7 +1002,7 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 					return
 				}
 				if !isLocalURL(twter.Avatar) {
-					_ = GetExternalAvatar(conf, *twter)
+					GetExternalAvatar(conf, *twter)
 				}
 
 				future, twts, old := types.SplitTwts(tf.Twts(), conf.MaxCacheTTL, conf.MaxCacheItems)

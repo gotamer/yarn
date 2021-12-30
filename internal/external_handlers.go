@@ -3,6 +3,7 @@ package internal
 import (
 	"encoding/json"
 	"fmt"
+	"image/png"
 	"net/http"
 	"net/url"
 	"os"
@@ -43,6 +44,12 @@ func (s *Server) ExternalHandler() httprouter.Handle {
 			})
 		}
 
+		if twter := s.cache.GetTwter(uri); twter != nil {
+			ctx.Twter = *twter
+		} else {
+			ctx.Twter = types.Twter{Nick: nick, URI: uri}
+		}
+
 		twts := FilterTwts(ctx.User, s.cache.GetByURL(uri))
 
 		var pagedTwts types.Twts
@@ -61,19 +68,6 @@ func (s *Server) ExternalHandler() httprouter.Handle {
 
 		ctx.Twts = pagedTwts
 		ctx.Pager = &pager
-
-		if len(ctx.Twts) > 0 {
-			ctx.Twter = ctx.Twts[0].Twter()
-		} else {
-			ctx.Twter = types.Twter{Nick: nick, URI: uri}
-		}
-
-		if ctx.Twter.Avatar == "" {
-			avatar := GetExternalAvatar(s.config, ctx.Twter)
-			if avatar != "" {
-				ctx.Twter.Avatar = URLForExternalAvatar(s.config, uri)
-			}
-		}
 
 		// If no &nick= provided try to guess a suitable nick
 		// from the feed or some heuristics from the feed's URI
@@ -112,10 +106,10 @@ func (s *Server) ExternalHandler() httprouter.Handle {
 		ctx.Profile = types.Profile{
 			Type: "External",
 
-			Username: nick,
+			Username: ctx.Twter.Nick,
 			Tagline:  ctx.Twter.Tagline,
-			Avatar:   URLForExternalAvatar(s.config, uri),
-			URL:      uri,
+			Avatar:   ctx.Twter.Avatar,
+			URL:      ctx.Twter.URI,
 
 			Following:  following,
 			NFollowing: ctx.Twter.Following,
@@ -167,19 +161,10 @@ func (s *Server) ExternalFollowingHandler() httprouter.Handle {
 			})
 		}
 
-		twts := s.cache.GetByURL(uri)
-
-		if len(twts) > 0 {
-			ctx.Twter = twts[0].Twter()
+		if twter := s.cache.GetTwter(uri); twter != nil {
+			ctx.Twter = *twter
 		} else {
 			ctx.Twter = types.Twter{Nick: nick, URI: uri}
-		}
-
-		if ctx.Twter.Avatar == "" {
-			avatar := GetExternalAvatar(s.config, ctx.Twter)
-			if avatar != "" {
-				ctx.Twter.Avatar = URLForExternalAvatar(s.config, uri)
-			}
 		}
 
 		// If no &nick= provided try to guess a suitable nick
@@ -236,6 +221,8 @@ func (s *Server) ExternalFollowingHandler() httprouter.Handle {
 			Muted:      ctx.User.HasMuted(uri),
 		}
 
+		twts := s.cache.GetByURL(uri)
+
 		if len(twts) > 0 {
 			ctx.Profile.LastPostedAt = twts[0].Created()
 		}
@@ -279,7 +266,29 @@ func (s *Server) ExternalAvatarHandler() httprouter.Handle {
 		}
 
 		if !FileExists(fn) {
-			http.Error(w, "External avatar not found", http.StatusNotFound)
+			domainNick := slug
+
+			if twter := s.cache.GetTwter(uri); twter != nil {
+				domainNick = twter.DomainNick()
+			}
+
+			img, err := GenerateAvatar(s.config.Name, domainNick)
+			if err != nil {
+				log.WithError(err).Errorf("error generating external avatar for %s", uri)
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
+
+			if r.Method == http.MethodHead {
+				return
+			}
+
+			w.Header().Set("Content-Type", "image/png")
+			if err := png.Encode(w, img); err != nil {
+				log.WithError(err).Error("error encoding auto generated avatar")
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
 			return
 		}
 

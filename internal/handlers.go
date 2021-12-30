@@ -263,7 +263,7 @@ func (s *Server) AvatarHandler() httprouter.Handle {
 			return
 		}
 
-		img, err := GenerateAvatar(s.config, nick)
+		img, err := GenerateAvatar(s.config.Name, nick)
 		if err != nil {
 			log.WithError(err).Errorf("error generating avatar for %s", nick)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)

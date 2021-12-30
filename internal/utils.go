@@ -173,16 +173,16 @@ func Slugify(uri string) string {
 	return slug.Make(fmt.Sprintf("%s/%s", u.Hostname(), u.Path))
 }
 
-func GenerateAvatar(conf *Config, username string) (image.Image, error) {
-	ig, err := identicon.New(conf.Name, 7, 4)
+func GenerateAvatar(podName, domainNick string) (image.Image, error) {
+	ig, err := identicon.New(podName, 7, 4)
 	if err != nil {
 		log.WithError(err).Error("error creating identicon generator")
 		return nil, err
 	}
 
-	ii, err := ig.Draw(username)
+	ii, err := ig.Draw(domainNick)
 	if err != nil {
-		log.WithError(err).Errorf("error generating avatar for %s", username)
+		log.WithError(err).Errorf("error generating external avatar for %s", domainNick)
 		return nil, err
 	}
 
@@ -227,17 +227,19 @@ func HasExternalAvatarChanged(conf *Config, twter types.Twter) bool {
 	return string(data) != FastHashString(u.String())
 }
 
-func GetExternalAvatar(conf *Config, twter types.Twter) string {
+func GetExternalAvatar(conf *Config, twter types.Twter) {
 	uri := NormalizeURL(twter.URI)
 	slug := Slugify(uri)
 	fn := filepath.Join(conf.Data, externalDir, fmt.Sprintf("%s.png", slug))
+
+	log := log.WithField("uri", uri)
 
 	//
 	// Use an already cached Avatar (unless there's a new one!)
 	//
 
 	if FileExists(fn) && !HasExternalAvatarChanged(conf, twter) {
-		return URLForExternalAvatar(conf, uri)
+		return
 	}
 
 	// Use the Avatar advertised in the feed
@@ -245,51 +247,19 @@ func GetExternalAvatar(conf *Config, twter types.Twter) string {
 		u, err := url.Parse(twter.Avatar)
 		if err != nil {
 			log.WithError(err).Errorf("error parsing avatar url %s", twter.Avatar)
-			return ""
+			return
 		}
 
 		opts := &ImageOptions{Resize: true, Width: AvatarResolution, Height: AvatarResolution}
 		if _, err := DownloadImage(conf, u.String(), externalDir, slug, opts); err != nil {
 			log.WithError(err).Errorf("error downloading external avatar: %s", u)
-			return ""
+			return
 		}
 		if err := os.WriteFile(ReplaceExt(fn, ".cbf"), []byte(FastHashString(u.String())), 0644); err != nil {
 			log.WithError(err).Warnf("error writing avatar cbf for %s", slug)
 		}
-		return URLForExternalAvatar(conf, uri)
+		return
 	}
-
-	//
-	// Auto-generate one
-	//
-
-	img, err := GenerateAvatar(conf, twter.DomainNick())
-	if err != nil {
-		log.WithError(err).Errorf("error generating avatar for %s", twter)
-		return ""
-	}
-
-	of, err := os.OpenFile(fn, os.O_WRONLY|os.O_CREATE, 0644)
-	if err != nil {
-		log.WithError(err).Error("error opening output file")
-		return ""
-	}
-	defer of.Close()
-
-	if err := png.Encode(of, img); err != nil {
-		log.WithError(err).Error("error encoding image")
-		return ""
-	}
-
-	if avatarHash, err := FastHashFile(fn); err == nil {
-		if err := os.WriteFile(ReplaceExt(fn, ".cbf"), []byte(avatarHash), 0644); err != nil {
-			log.WithError(err).Warnf("error writing avatar cbf for %s", slug)
-		}
-	} else {
-		log.WithError(err).Warnf("error computing avatar cbf for %s", fn)
-	}
-
-	return URLForExternalAvatar(conf, uri)
 }
 
 func RequestGopher(conf *Config, uri string) (*gopher.Response, error) {

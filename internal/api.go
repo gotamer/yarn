@@ -984,12 +984,10 @@ func (a *API) ProfileEndpoint() httprouter.Handle {
 			a.cache.FetchTwts(a.config, a.archive, sources, nil)
 		}
 
-		twts := FilterTwts(loggedInUser, a.cache.GetByURL(profile.URL))
-
 		var twter types.Twter
 
-		if len(twts) > 0 {
-			twter = twts[0].Twter()
+		if cachedTwter := a.cache.GetTwter(profile.URL); cachedTwter != nil {
+			twter = *cachedTwter
 		} else {
 			twter = types.Twter{Nick: profile.Username, URI: profile.URL}
 		}
@@ -1202,21 +1200,12 @@ func (a *API) ExternalProfileEndpoint() httprouter.Handle {
 			})
 		}
 
-		twts := FilterTwts(loggedInUser, a.cache.GetByURL(uri))
-
 		var twter types.Twter
 
-		if len(twts) > 0 {
-			twter = twts[0].Twter()
+		if cachedTwter := a.cache.GetTwter(uri); cachedTwter != nil {
+			twter = *cachedTwter
 		} else {
 			twter = types.Twter{Nick: nick, URI: uri}
-		}
-
-		if twter.Avatar == "" {
-			avatar := GetExternalAvatar(a.config, twter)
-			if avatar != "" {
-				twter.Avatar = URLForExternalAvatar(a.config, uri)
-			}
 		}
 
 		// Set nick to what the user follows as (if any)
