@@ -190,20 +190,31 @@ func (cached *Cached) Update(url, lastmodiied string, twts types.Twts) {
 	cached.mu.Lock()
 	defer cached.mu.Unlock()
 
+	oldTwts := cached.Twts[:]
+
 	cached.Twts = twts
 	cached.LastModified = lastmodiied
 
+	//
 	// Calculate the moving average of a feed
-	n := 0.0
-	sum := 0.0
-	for _, chunk := range ChunkTwts(FirstNTwts(twts, 6), 2) {
-		if len(chunk) == 2 {
-			dt := chunk[0].Created().Sub(chunk[1].Created())
-			sum += dt.Seconds()
-			n += 1
+	//
+
+	subsetOfTwts := FirstNTwts(append(oldTwts, twts...), 6)
+
+	var deltas []time.Duration
+	for i := 0; i < len(subsetOfTwts); i++ {
+		if (i + 1) < len(subsetOfTwts) {
+			deltas = append(deltas, subsetOfTwts[i].Created().Sub(subsetOfTwts[(i+1)].Created()))
+		} else {
+			deltas = append(deltas, time.Since(subsetOfTwts[i].Created()))
 		}
 	}
-	avg := sum / n
+
+	var sum float64
+	for _, delta := range deltas {
+		sum += delta.Seconds()
+	}
+	avg := sum / float64(len(deltas))
 
 	cached.MovingAverage = (cached.MovingAverage + avg) / 2
 }
