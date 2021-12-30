@@ -1309,7 +1309,7 @@ func (cache *Cache) ShouldRefreshFeed(url string) bool {
 			WithField("movingAverage", movingAverage).
 			WithField("boundedMovingAverage", boundedMovingAverage).
 			Infof("Applying moving average refresh for feed %s (Last Fetched: %s)", url, lastFetched)
-		return lastFetched.Seconds() > boundedMovingAverage
+		return math.IsNaN(boundedMovingAverage) || lastFetched.Seconds() > boundedMovingAverage
 	}
 
 	return true
