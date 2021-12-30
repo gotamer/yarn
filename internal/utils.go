@@ -11,7 +11,6 @@ import (
 	"html/template"
 	"image"
 	"io"
-	"io/ioutil"
 	"math"
 	"mime"
 	"net"
@@ -608,10 +607,7 @@ func DownloadImage(conf *Config, url string, resource, name string, opts *ImageO
 	}
 	defer res.Body.Close()
 
-	tf, err := receiveFile(res.Body, "rss2twtxt-*")
-	if tf != nil {
-		defer tf.Close()
-	}
+	tf, err := receiveFile(res.Body, "image-*")
 	if err != nil {
 		return "", err
 	}
@@ -668,11 +664,12 @@ func ReceiveVideo(r io.Reader) (string, error) {
 }
 
 func receiveFile(r io.Reader, filePattern string) (*os.File, error) {
-	tf, err := ioutil.TempFile("", filePattern)
+	tf, err := os.CreateTemp("", filePattern)
 	if err != nil {
 		log.WithError(err).Error("error creating temporary file")
 		return nil, err
 	}
+	defer tf.Close()
 
 	if _, err := io.Copy(tf, r); err != nil {
 		log.WithError(err).Error("error writing temporary file")
@@ -802,6 +799,7 @@ func ProcessImage(conf *Config, ifn string, resource, name string, opts *ImageOp
 		return "", err
 	}
 	defer f.Close()
+	defer os.Remove(f.Name())
 
 	img, _, err := imageorient.Decode(f)
 	if err != nil {
