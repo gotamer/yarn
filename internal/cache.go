@@ -1246,7 +1246,7 @@ func (cache *Cache) ShouldRefreshFeed(url string) bool {
 	if cache.conf.Features.IsEnabled(FeatureMovingAverageFeedRefresh) {
 		movingAverage := cachedFeed.GetMovingAverage()
 		log.Infof("Applying moving average refresh for feed %s: %0.2f", url)
-		boundedMovingAverage := math.Max(1800, math.Min(movingAverage, 60))
+		boundedMovingAverage := math.Max(60, math.Min(1800, movingAverage))
 		return time.Since(cachedFeed.LastFetched).Seconds() >= boundedMovingAverage
 	}
 
