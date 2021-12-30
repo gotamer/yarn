@@ -118,15 +118,40 @@ func UniqTwts(twts types.Twts) (res types.Twts) {
 	return
 }
 
+func ChunkTwts(twts types.Twts, chunkSize int) []types.Twts {
+	var chunks []types.Twts
+	for i := 0; i < len(twts); i += chunkSize {
+		end := i + chunkSize
+
+		// necessary check to avoid slicing beyond
+		// slice capacity
+		if end > len(twts) {
+			end = len(twts)
+		}
+
+		chunks = append(chunks, twts[i:end])
+	}
+
+	return chunks
+}
+
+func FirstNTwts(twts types.Twts, n int) types.Twts {
+	if n > len(twts) {
+		return twts
+	}
+	return twts[:n]
+}
+
 // Cached ...
 type Cached struct {
 	mu sync.RWMutex
 
-	Twts         types.Twts
-	Errors       int
-	LastError    string
-	LastFetched  time.Time
-	LastModified string
+	Twts          types.Twts
+	Errors        int
+	LastError     string
+	LastFetched   time.Time
+	LastModified  string
+	MovingAverage float64
 }
 
 func NewCached() *Cached {
@@ -163,6 +188,24 @@ func (cached *Cached) Update(url, lastmodiied string, twts types.Twts) {
 
 	cached.Twts = twts
 	cached.LastModified = lastmodiied
+
+	// Calculate the moving average of a feed
+	if cached.MovingAverage == 0.0 {
+		cached.MovingAverage = 1.0
+	} else {
+		n := 0.0
+		sum := 0.0
+		for _, chunk := range ChunkTwts(FirstNTwts(twts, 6), 2) {
+			if len(chunk) == 2 {
+				dt := chunk[0].Created().Sub(chunk[1].Created())
+				sum += dt.Seconds()
+				n += 1
+			}
+		}
+		avg := sum / n
+
+		cached.MovingAverage = (cached.MovingAverage + avg) / 2
+	}
 }
 
 // GetLastModified ...
@@ -171,6 +214,24 @@ func (cached *Cached) GetLastModified() string {
 	defer cached.mu.RUnlock()
 
 	return cached.LastModified
+}
+
+// GetMovingAverage ...
+func (cached *Cached) GetMovingAverage() float64 {
+	cached.mu.RLock()
+	defer cached.mu.RUnlock()
+
+	return cached.MovingAverage
+}
+
+// UpdateMovingAverage ...
+func (cached *Cached) UpdateMovingAverage() {
+	cached.mu.Lock()
+	defer cached.mu.Unlock()
+
+	if len(cached.Twts) > 0 {
+		cached.MovingAverage = (cached.MovingAverage + time.Since(cached.Twts[0].Created()).Seconds()) / 2
+	}
 }
 
 // SetError ...
@@ -948,6 +1009,7 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 				cache.UpdateFeed(feed.URL, lastmodified, twts)
 			case http.StatusNotModified: // 304
 				twts = cachedFeed.Twts
+				cachedFeed.UpdateMovingAverage()
 			case 401, 402, 403, 404, 407, 410, 451:
 				// These are permanent 4xx errors and considered a dead feed
 				cachedFeed.SetError(types.ErrDeadFeed{Reason: res.Status})
@@ -1181,6 +1243,12 @@ func (cache *Cache) ShouldRefreshFeed(url string) bool {
 	}
 
 	// TODO: Implement exponential back-off using weighted moving average of a feed's update frequency
+	if cache.conf.Features.IsEnabled(FeatureMovingAverageFeedRefresh) {
+		movingAverage := cachedFeed.GetMovingAverage()
+		log.Infof("Applying moving average refresh for feed %s: %0.2f", url)
+		boundedMovingAverage := math.Max(1800, math.Min(movingAverage, 60))
+		return time.Since(cachedFeed.LastFetched).Seconds() >= boundedMovingAverage
+	}
 
 	return true
 }
