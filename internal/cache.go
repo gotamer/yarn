@@ -1303,11 +1303,12 @@ func (cache *Cache) ShouldRefreshFeed(url string) bool {
 		movingAverage := cachedFeed.GetMovingAverage()
 		boundedMovingAverage := math.Max(minimumFeedRefresh, math.Min(maximumFeedRefresh, movingAverage))
 		lastFetched := time.Since(cachedFeed.GetLastFetched())
-		log.Infof(
-			"Applying moving average refresh for feed %s: %ds <= %0.2fs <= %ds = %0.2f (Last Fetched: %s)",
-			url, minimumFeedRefresh, movingAverage, maximumFeedRefresh,
-			boundedMovingAverage, lastFetched,
-		)
+		log.
+			WithField("minimumFeedRefresh", minimumFeedRefresh).
+			WithField("maximumFeedRefresh", maximumFeedRefresh).
+			WithField("movingAverage", movingAverage).
+			WithField("boundedMovingAverage", boundedMovingAverage).
+			Infof("Applying moving average refresh for feed %s (Last Fetched: %s)", url, lastFetched)
 		return lastFetched.Seconds() > boundedMovingAverage
 	}
 
