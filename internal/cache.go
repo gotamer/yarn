@@ -31,6 +31,9 @@ const (
 	discoverViewKey = "discover"
 
 	podInfoUpdateTTL = time.Hour * 24
+
+	minimumFeedRefresh = 60.0   // 1m
+	maximumFeedRefresh = 1800.0 // 30m
 )
 
 // FilterFunc ...
@@ -1284,9 +1287,10 @@ func (cache *Cache) ShouldRefreshFeed(url string) bool {
 	// TODO: Implement exponential back-off using weighted moving average of a feed's update frequency
 	if cache.conf.Features.IsEnabled(FeatureMovingAverageFeedRefresh) {
 		movingAverage := cachedFeed.GetMovingAverage()
-		log.Infof("Applying moving average refresh for feed %s: %0.2f", url)
-		boundedMovingAverage := math.Max(60, math.Min(1800, movingAverage))
-		return time.Since(cachedFeed.GetLastFetched()).Seconds() >= boundedMovingAverage
+		boundedMovingAverage := math.Max(minimumFeedRefresh, math.Min(maximumFeedRefresh, movingAverage))
+		lastFetched := time.Since(cachedFeed.GetLastFetched())
+		log.Infof("Applying moving average refresh for feed %s: %ss <= %0.2fs <= %ss (Last Fetched: %s)", url, minimumFeedRefresh, maximumFeedRefresh, lastFetched)
+		return lastFetched.Seconds() > boundedMovingAverage
 	}
 
 	return true
