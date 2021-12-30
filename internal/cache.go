@@ -32,8 +32,9 @@ const (
 
 	podInfoUpdateTTL = time.Hour * 24
 
-	minimumFeedRefresh = 60.0   // 1m
-	maximumFeedRefresh = 1800.0 // 30m
+	minimumFeedRefresh  = 60.0  // 1m
+	maximumFeedRefresh  = 600.0 // 10m
+	movingAverageWindow = 7     // no. of most recent twts in moving avg calc
 )
 
 // FilterFunc ...
@@ -199,7 +200,7 @@ func (cached *Cached) Update(url, lastmodiied string, twts types.Twts) {
 	// Calculate the moving average of a feed
 	//
 
-	subsetOfTwts := FirstNTwts(append(oldTwts, twts...), 6)
+	subsetOfTwts := FirstNTwts(append(oldTwts, twts...), movingAverageWindow)
 
 	var deltas []time.Duration
 	for i := 0; i < len(subsetOfTwts); i++ {
