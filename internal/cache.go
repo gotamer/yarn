@@ -1299,7 +1299,7 @@ func (cache *Cache) ShouldRefreshFeed(uri string) bool {
 	// TODO: Add some kind of mechanisms for Poderators to deal with these
 	// potentialyl reviving dead feeds and/or alerting Pod users.
 	if cachedFeed.IsDead() {
-		return false
+		log.Warnf("%s may be a dead feed", uri)
 	}
 
 	// Always refresh feeds that match `alwaysRefreshDomains` list of domains.
