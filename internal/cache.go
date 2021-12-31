@@ -9,6 +9,7 @@ import (
 	"math/rand"
 	"mime"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"sort"
@@ -35,6 +36,12 @@ const (
 	minimumFeedRefresh  = 60.0  // 1m
 	maximumFeedRefresh  = 600.0 // 10m
 	movingAverageWindow = 7     // no. of most recent twts in moving avg calc
+)
+
+var (
+	alwaysRefreshDomains = []string{
+		"feeds.twtxt.net",
+	}
 )
 
 // FilterFunc ...
@@ -1279,9 +1286,9 @@ func (cache *Cache) InjectFeed(url string, twt types.Twt) {
 }
 
 // ShouldRefreshFeed ...
-func (cache *Cache) ShouldRefreshFeed(url string) bool {
+func (cache *Cache) ShouldRefreshFeed(uri string) bool {
 	cache.mu.RLock()
-	cachedFeed, isCachedFeed := cache.Feeds[url]
+	cachedFeed, isCachedFeed := cache.Feeds[uri]
 	cache.mu.RUnlock()
 
 	if !isCachedFeed {
@@ -1289,16 +1296,25 @@ func (cache *Cache) ShouldRefreshFeed(url string) bool {
 	}
 
 	// Skip feeds considered to be dead.
+	// TODO: Add some kind of mechanisms for Poderators to deal with these
+	// potentialyl reviving dead feeds and/or alerting Pod users.
 	if cachedFeed.IsDead() {
 		return false
 	}
 
+	// Always refresh feeds that match `alwaysRefreshDomains` list of domains.
+	if u, err := url.Parse(uri); err == nil {
+		if HasString(alwaysRefreshDomains, u.Hostname()) {
+			return true
+		}
+	}
+
 	// Always refresh feeds on the same pod.
-	if IsLocalURLFactory(cache.conf)(url) {
+	if IsLocalURLFactory(cache.conf)(uri) {
 		return true
 	}
 
-	twter := cache.GetTwter(url)
+	twter := cache.GetTwter(uri)
 	if twter == nil {
 		return true
 	}
@@ -1310,7 +1326,6 @@ func (cache *Cache) ShouldRefreshFeed(url string) bool {
 		}
 	}
 
-	// TODO: Implement exponential back-off using weighted moving average of a feed's update frequency
 	if cache.conf.Features.IsEnabled(FeatureMovingAverageFeedRefresh) {
 		movingAverage := cachedFeed.GetMovingAverage()
 		boundedMovingAverage := math.Max(minimumFeedRefresh, math.Min(maximumFeedRefresh, movingAverage))
@@ -1320,7 +1335,7 @@ func (cache *Cache) ShouldRefreshFeed(url string) bool {
 			WithField("maximumFeedRefresh", maximumFeedRefresh).
 			WithField("movingAverage", movingAverage).
 			WithField("boundedMovingAverage", boundedMovingAverage).
-			Infof("Applying moving average refresh for feed %s (Last Fetched: %s)", url, lastFetched)
+			Infof("Applying moving average refresh for feed %s (Last Fetched: %s)", uri, lastFetched)
 		return math.IsNaN(boundedMovingAverage) || lastFetched.Seconds() > boundedMovingAverage
 	}
 
