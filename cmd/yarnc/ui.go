@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"git.mills.io/yarnsocial/yarn/types"
@@ -67,9 +68,9 @@ func PrintTwt(twt types.Twt, now time.Time, me types.Twter) {
 
 func PrintTwtRaw(twt types.Twt) {
 	fmt.Printf(
-		"%s\t%s\t%t\n",
+		"%s\t%s\t%s\n",
 		twt.Twter().URI,
 		twt.Created().Format(time.RFC3339),
-		twt,
+		strings.ReplaceAll(fmt.Sprintf("%t", twt), "\n", "\u2028"),
 	)
 }
