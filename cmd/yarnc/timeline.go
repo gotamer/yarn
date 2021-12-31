@@ -58,7 +58,13 @@ Yarn.social account.`,
 			os.Exit(1)
 		}
 
-		timeline(cli, outputJSON, outputRAW, reverseOrder, nTwts, args)
+		page, err := cmd.Flags().GetInt("page")
+		if err != nil {
+			log.WithError(err).Error("error getting page flag")
+			os.Exit(1)
+		}
+
+		timeline(cli, outputJSON, outputRAW, reverseOrder, nTwts, page, args)
 	},
 }
 
@@ -68,6 +74,11 @@ func init() {
 	timelineCmd.Flags().IntP(
 		"twts", "n", -1,
 		"Number of Twts to display (default all)",
+	)
+
+	timelineCmd.Flags().IntP(
+		"page", "p", 0,
+		"Page number of Twts to retrieve",
 	)
 
 	timelineCmd.Flags().BoolP(
@@ -86,9 +97,8 @@ func init() {
 	)
 }
 
-func timeline(cli *client.Client, outputJSON, outputRAW, reverseOrder bool, nTwts int, args []string) {
-	// TODO: How do we get more pages?
-	res, err := cli.Timeline(0)
+func timeline(cli *client.Client, outputJSON, outputRAW, reverseOrder bool, nTwts, page int, args []string) {
+	res, err := cli.Timeline(page)
 	if err != nil {
 		log.WithError(err).Error("error retrieving timeline")
 		os.Exit(1)
