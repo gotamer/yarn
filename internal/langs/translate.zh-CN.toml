@@ -1,3 +1,3 @@
-[ErrorDeletingAccount]
-hash = "sha1-7281529051bbb2b1c2c140a1a023da8975659444"
-other = "删除账号出错"
+[SettingsToolsShareLinkTitle]
+hash = "sha1-2f32378fe42c2a6698ea998a3e0289abd1a0c371"
+other = "通过 {{ .InstanceName }} 分享"

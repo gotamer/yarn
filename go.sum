@@ -54,8 +54,9 @@ git.mills.io/prologic/observe v0.0.0-20210712230028-fc31c7aa2bd1 h1:e6ZyAOFGLZJZ
 git.mills.io/prologic/observe v0.0.0-20210712230028-fc31c7aa2bd1/go.mod h1:/rNXqsTHGrilgNJYH/8wsIRDScyxXUhpbSdNbBatAKY=
 git.mills.io/prologic/read-file-last-line v0.0.0-20210710073401-af293d63a6d0 h1:7sCaYq21VNVj7VWPyFrm9uoGrUEQ0lC3uJfswWt7W1o=
 git.mills.io/prologic/read-file-last-line v0.0.0-20210710073401-af293d63a6d0/go.mod h1:TJx1NvLO37zXX+X22rwv6P8ZErGSsjWB4Ekyi14Qx8Y=
-github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
+github.com/BurntSushi/toml v0.4.1 h1:GaI7EiDXDRfa8VshkTj7Fym7ha+y8/XxIgD2okUIjLw=
+github.com/BurntSushi/toml v0.4.1/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802 h1:1BDTz0u9nC3//pOCMdNH+CiXJVYJh5UQNCOBG7jbELc=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/BurntSushi/xgbutil v0.0.0-20160919175755-f7c97cef3b4e h1:4ZrkT/RzpnROylmoQL57iVUL57wGKTR5O6KpVnbm2tA=

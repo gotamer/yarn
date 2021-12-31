@@ -19,8 +19,8 @@ hash = "sha1-1fdf4e2632b57ead37eb8d434231c69174c80d9e"
 other = "<b>警告：</b>&nbsp; 這是個永久性操作，無法撤消且沒有確認操作！"
 
 [BlogCommentJoinSummary]
-hash = "sha1-26e6951ad535fa0ab3c9db8a80f113ee4aa1d2bd"
-other = "要發表評論论，請先 <a href=\"/login\" referrerpolicy=\"same-origin\">登錄</a>"
+hash = "sha1-a9f494cea249198e7e7e25947a7ce7a6d94a06ba"
+other = "You must be <a href=\"/login\" referrerpolicy=\"same-origin\">Logged in</a> to comment."
 
 [BlogCommentPostSummary]
 hash = "sha1-78f1b7a5d6dd8e9fce43c7dfd651c994b41ca867"
@@ -31,8 +31,8 @@ hash = "sha1-58a6da790f3ba0fff150eaed33c8d34d60e139a8"
 other = "想說點什麼么？"
 
 [BlogCommentsSummary]
-hash = "sha1-5e502d25a78198f0f0596c27c6ef4a0b4d377c11"
-other = "最近的評論"
+hash = "sha1-28fa7623aebf4bf99d794bf3beaa91cb506b2be2"
+other = "Recent twts in reply to this post."
 
 [BlogCommentsTitle]
 hash = "sha1-e4ed7f96515dbdbe5f5d0ecace105efe68e6c3ec"
@@ -143,16 +143,16 @@ hash = "sha1-7649c59ec35a7b5d82785e247c60b73c803b20eb"
 other = "編寫訊息"
 
 [ConversationJoinSummary]
-hash = "sha1-014203a6918312802a958cefc865abf84a73dd45"
-other = "要加入對話话，請先 <a href=\"/login\">登錄</a> "
+hash = "sha1-6943767c6276aeac0ca21fe8b9e8a6cc23913c79"
+other = "<a href=\"/login\">Login</a> to participate in this yarn."
 
 [ConversationSummary]
-hash = "sha1-b3159edf1a6dcde8b522b27a28af84c17ef6646f"
-other = "最近回復"
+hash = "sha1-aaa1126215232f08674eddb9c92731973e67b83d"
+other = "Recent twts in reply to"
 
 [ConversationTitle]
-hash = "sha1-2a20c75033890ef64222cf0bae1c4564bbdce951"
-other = "對話"
+hash = "sha1-4de67a4d313139fb2f1d0ad9d2c13d0921ddb131"
+other = "Yarn"
 
 [Copyright]
 hash = "sha1-ed6768b21eb5e05d75dd18c9cb9ed38e56de94d6"
@@ -185,6 +185,10 @@ other = "您的賬號將被永久刪除！"
 [DeleteAccountTitle]
 hash = "sha1-ee1b9a9f2347505649f78cec43af6e1e86231474"
 other = "刪除賬號"
+
+[EmailAddress]
+hash = "sha1-c94d3175a6560565410511df2cebab9cda96027e"
+other = "電子郵件"
 
 [ErrorArchivingFeed]
 hash = "sha1-265e11d3ae2f17ae0711f20540f860031e2fcc96"
@@ -347,8 +351,8 @@ hash = "sha1-7f2f6a15cf8da2b27e5a4af47b58e7ad71c0b3d9"
 other = "錯誤"
 
 [ErrorTokenExpired]
-hash = "sha1-a0682dcb983fc2fb1fc7d119a8fb933c18e0cca0"
-other = "Token 已過期"
+hash = "sha1-498985f21872ea50ace30f4f2e3c0f95392ba812"
+other = "Token has expired"
 
 [ErrorUnfollowingFeed]
 hash = "sha1-430f3f412e0802c05e45dc4f23d83059d08079e9"
@@ -383,12 +387,24 @@ hash = "sha1-bf58d17e561b1b858e35f9202f811297dac2e9db"
 other = "管理"
 
 [FeedsExternalFeedsSummary]
-hash = "sha1-55c8dba827a4c56d82c9f2076cc2b31d5a99e726"
-other = "來自新聞和外部用戶的 Feeds"
+hash = "sha1-aad07f929e52d01b7f4abed7c0d4a30337354f7f"
+other = "External feeds from news sources and external users"
 
 [FeedsExternalFeedsTitle]
 hash = "sha1-eda4203f0af0ea39a3ff084baeb36a5dcee840c0"
 other = "外部 Feeds"
+
+[FeedsFollowFeedHowToContent]
+hash = "sha1-12dfc07272e3870bb9f3e5c88d85ced4cc1def48"
+other = "Enter the URL of an existing twtxt.txt feed to start following directly."
+
+[FeedsFollowFeedSummary]
+hash = "sha1-ecce221c6cde53b8be7564bad3b791409cb1f769"
+other = "Follow an existing twtxt feed"
+
+[FeedsFollowFeedTitle]
+hash = "sha1-995e678b7186b5562df9360c8d85f912b52c7bdf"
+other = "Follow Feed"
 
 [FeedsFormCreate]
 hash = "sha1-6e157c5da4410b7e9de85f5c93026b9176e69064"
@@ -399,8 +415,8 @@ hash = "sha1-3a903f81683ea9faa415ebef0a716d930a6483c5"
 other = "Feed名稱"
 
 [FeedsHowToContent]
-hash = "sha1-f3db21eef88dacccf97a983642144d982a90cc3e"
-other = "創建您自己的Feed或您想要與他人分享的主題。這樣您就可以以此Feed作為“發布者”創建相關的推文。"
+hash = "sha1-05f39bdc4e264926370abde35c1eedd2e9af4128"
+other = "Create your own feed or topic of interest you want to share with others. This allows you to \"post as\" this new feed and create a series of twts (<i>posts</i>) about a \"thing\"."
 
 [FeedsLocalFeedsContent]
 hash = "sha1-bb7ef9ae3dba4dfeb18a7534df1c6becf5086077"
@@ -495,8 +511,8 @@ hash = "sha1-5a97124f8ccf9c1a9c45a2ba262842bc995881c8"
 other = "還沒有跟隨"
 
 [FollowingNoFollowingSummary]
-hash = "sha1-27f9e5536a24088d91b836b3173f51e6982eac0d"
-other = "您還沒有關注任何用戶或Feed！ 在{{ .InstanceName }}上<a href=\"/follow\">跟隨</a>某人或在<a href=\"/discover\">發現</a> 頁找到感興趣的用戶或Feed。"
+hash = "sha1-e7126442e3aec24310ca86baad67a4e36697b077"
+other = "You are not following any users or feeds! <a href=\"/follow\">Follow</a> someone or <a href=\"/discover\">discover</a> new users or interesting <a href=\"/feeds\">feeds</a> on {{ .InstanceName }}."
 
 [FollowingTitle]
 hash = "sha1-90eeb100838048513e8d2290a6892e18077c24f6"
@@ -509,6 +525,18 @@ other = "如果您忘記了密碼, 只要您記住註冊時使用的的用戶名
 [Instead]
 hash = "sha1-6568964b0e39083c6acb94093d9e6cd117dbe508"
 other = "."
+
+[LoginEmailSummary]
+hash = "sha1-2bce21acb11f01b2536b13986afd8fa4fe49846f"
+other = "Login to your Yarn.social account on {{ .InstanceName }} via your Email Address"
+
+[LoginEmailTitle]
+hash = "sha1-aa4329dbd7315c0dc06b6373a96545ea5787fc12"
+other = "Sign in via Email"
+
+[LoginFormEmailLogin]
+hash = "sha1-15bfa4e76b3774215b32e0778675ad18c23f71df"
+other = "Login via Email"
 
 [LoginFormLogin]
 hash = "sha1-4e5a2893bdcc7d239c1db72e4c4ffbe4bea73174"
@@ -527,8 +555,8 @@ hash = "sha1-84c29015de33e5d22422382a372caba5c58f8c01"
 other = "用戶名"
 
 [LoginHowToContent]
-hash = "sha1-9afcf1df91de941735d380b6b91b01a0de6e771b"
-other = "<p>\n填寫在創建賬號時使用的用戶名和密碼，登錄 {{.InstanceName}}.\n </p><p>\n 如果您不想每隔幾個小時就登錄一次，請選中“記住我”復選框。</p><p>\n還沒有賬號？\n您可以點擊 <a href=\"/register\">註冊</a> 馬上創建一個。</p>\n"
+hash = "sha1-6d1c8dfbc3dcf62d3b80879688f8d1df81f414c2"
+other = "      <p>\n        Login to your Yarn.social account on {{ .InstanceName }} by filling in\n        the Username and Password you used when you created your account.\n      </p>\n      <p>\n        Check the \"Remember Me\" box if you don't want to have to keep logging in\n        every few hours.\n      </p>\n      <p>\n        Don't have an account?\n        You can create a new account on the <a href=\"/register\">/register</a> form.\n      </p>\n"
 
 [LoginHowToTitle]
 hash = "sha1-097f2ed883de33056433137a3d1ddc53da9931df"
@@ -543,12 +571,24 @@ hash = "sha1-f838dc11db151df79ee689f598453d38bbac6fe9"
 other = "還沒有賬號"
 
 [LoginSummary]
-hash = "sha1-bab7c351f3af43d5f4c56baf11d65b4384a1ba86"
-other = "在 {{ .InstanceName }} 登錄您的社交賬號"
+hash = "sha1-2a0ca9329bc030eb18c50ceb59d0743b6b325713"
+other = "Login to your Yarn.social account on {{ .InstanceName }}"
 
 [LoginTitle]
 hash = "sha1-ada2e9e96fa9ce85430225b412068b5b62b79800"
 other = "登錄"
+
+[LoginViaEmailAddress]
+hash = "sha1-ad29de09e95e0c8380a3679bc7773e4080905345"
+other = "Login with your Email Address"
+
+[LoginViaEmailAddressHowToContent]
+hash = "sha1-2933b5f9b01cfaeabb05d3fc2b4c3cd3d09bc555"
+other = "<p> You may also login via your Email account by simply supplying your Username and Email Address.</p><p> If the Username and Email Address match a valid account, an email will be sent to you with a link that you can click on to automatically log you in without requiring a password."
+
+[LoginViaUsernamePassword]
+hash = "sha1-44d1e821e75d13e05d7122c05a0af3a06a0dbdf9"
+other = "Login with your Username and Password"
 
 [ManageFeedFormChangeAvatarTitle]
 hash = "sha1-60f2e98ebe1b8c0c354734b807e898fd56146b83"
@@ -574,9 +614,17 @@ other = "管理 <b>{{ .Username}}</b> "
 hash = "sha1-9c0a564e987c4e336259158190de22d7fa2085af"
 other = "Feed 管理"
 
+[ManagePeersLinkTitle]
+hash = "sha1-db6cc34650aebce8c32e73a2caa4165fb376002a"
+other = "Manage Peers"
+
 [ManagePodLinkTitle]
 hash = "sha1-0cf5b0b8b7f4dc729cd3230988a0a5bb3834e01e"
 other = "管理 Pod"
+
+[ManageRefreshCacheTitle]
+hash = "sha1-820f6b0deff7fdc081825ab624ce289175235630"
+other = "Refresh Cache"
 
 [ManageUsersLinkTitle]
 hash = "sha1-751f7d627ad7fe72372b355b1cd24895dc08b8f3"
@@ -670,6 +718,10 @@ other = "刪除令牌成功"
 hash = "sha1-4633defa720997f5a179070ffe8ebc6264424ecc"
 other = "{{.Nick}}: {{.URL}} 跟隨成功"
 
+[MsgMagicLinkAuthEmailSent]
+hash = "sha1-829053641637a3b55c93d950e8105d7862a6fc87"
+other = "Successfully sent magic-link-auth email"
+
 [MsgMessagesSuccessfullySent]
 hash = "sha1-03a2ed9b9721a9755729b829c7623cfa4a9c0586"
 other = "已成功發送訊息"
@@ -750,6 +802,10 @@ other = "還沒有推文... 稍候再來！"
 hash = "sha1-4827ea22716a74aaf8bbe499fc314bb93f73c65e"
 other = "發現"
 
+[PageExternalFollowingTitle]
+hash = "sha1-88e71a5e3d7dc4362e87f92a2cdcfa4905d395a5"
+other = "{{ .DomainNick }} is following"
+
 [PageExternalProfileTitle]
 hash = "sha1-3b7d3a2f266ef12cc74e125fd87a67d6a082898f"
 other = "外部配置 @<{{.Nick}} {{.URL}}>"
@@ -811,8 +867,8 @@ hash = "sha1-8f95f4e7fb12ac3a084936579ea6af9c06e8b692"
 other = "{{.Username}} 的跟隨"
 
 [PageUserTimelineTitle]
-hash = "sha1-16c00449a9a3f15a32149863cc14f591ad497ff2"
-other = "動態"
+hash = "sha1-018514a3d58aa08353dd5e387ee29de45981c409"
+other = "Timeline"
 
 [PagerNextLinkTitle]
 hash = "sha1-bc981983e7f547dc62e19a1e383acfe00782a6d5"
@@ -898,13 +954,9 @@ other = "來自 {{ .Username }} 的最新推文"
 hash = "sha1-5471aee8e78958c108a802ab9385f2a13f184d2b"
 other = "最新推文"
 
-[EmailAddress]
-hash = "sha1-c94d3175a6560565410511df2cebab9cda96027e"
-other = "電子郵件"
-
 [RegisterFormEmailSummary]
-hash = "sha1-a002997d17e931c8aa6c7b45ff19550706a116b5"
-other = "注意：我們實際上並不存儲些信息！如果您忘記或丟失電子郵件賬戶信息，我們將無法恢復您的賬戶！"
+hash = "sha1-cd5431c494d8e58807cc9e6bddb0503dd71f857f"
+other = "NOTE: We DO NOT actually store this! If you forget or lose access to your Email account provided here, it will be impossible to recover your account!"
 
 [RegisterFormLogin]
 hash = "sha1-8cc61755932c795b961af3625f92b8a3a9d7e5c3"
@@ -927,8 +979,8 @@ hash = "sha1-09f2d7efb99d67b64c2193d184c5bc760bc8c412"
 other = "我同意遵守 <a href='/abuse'>社區準則及相關政策</a>。"
 
 [RegisterHowToContent]
-hash = "sha1-0d58603b0b6a7a7d38c0ea9d73a9c54f68f76535"
-other = "<p>\n您將在{{ .InstanceName }}創建一個新的<a href='https://yarn.social' target='_blank'>Yarn.social</a>\n\n</p>\n<p>\n在 {{ .InstanceName }} 註冊一個賬號, 遵守<a href='/abuse'>政策</a>中的社區準則。\n</p>\n<p>\n<ul>\n<li>選擇一個用戶名</li>\n<li>創建一個安全的密碼</li>\n<li>提供電子郵件用於找回您的密碼</li>\n</ul>\n</p>\n<p>\n選擇任何你喜歡的用戶名 (<i>只要在 {{ .InstanceName }} 可用</i>)。\n</p>\n<p>\n請注意: 我們 <b>不儲存</b> 電子郵件地址，請牢記您的電子郵件地址, 如果電子郵件地址丟失或忘記， 我們將不能恢復您的賬號或幫您找回密碼\n</p>"
+hash = "sha1-4c6889a9c3b69cb27a47c0510514937eee14b936"
+other = "<p>\nYou are about to create a new <a href='https://yarn.social' target='_blank'>Yarn.social</a>\naccount on {{ .InstanceName }}\n</p>\n<p>\nBy registering an account on {{ .InstanceName }} you agree to abide\nby the Community Guidelines set out in the <a href='/abuse'>Abuse Policy</a>.\n</p>\n<p>\n<ul>\n<li>Pick a username</li>\n<li>Create a unique and secure password</li>\n<li>Enter your email address in case you forget your password</li>\n</ul>\n</p>\n<p>\nPick any username you like (<i>as long as it is available on {{ .InstanceName }}</i>).\n</p>\n<p>\nPlease note we <b>DO NOT</b> actually store your email address at all!\nIf you forget your email address or lose access to your email we are\nreally sorry but you will be unable to recover your account if you\nforget your password.\n</p>"
 
 [RegisterHowToTitle]
 hash = "sha1-61b07a27c8f9b25d9065b26390b2884fb025586e"
@@ -939,8 +991,8 @@ hash = "sha1-5b402e3dfa8bfeaa6620b1ee5bf38fb965bcbe3c"
 other = "註冊"
 
 [RegisterSummary]
-hash = "sha1-87d65ce0904f254e39fbb671ccd7a58f79cfa18b"
-other = "在{{.InstanceName}} 上創建並註冊一個新的社交賬號"
+hash = "sha1-3776e729bcd9ac3844df66c792d7311a92b3456f"
+other = "Create and register a new Yarn.social account on {{ .InstanceName }}"
 
 [RegisterTitle]
 hash = "sha1-0b81497c8589af2714a1ddbeb62b3a4be679c318"
@@ -959,8 +1011,8 @@ hash = "sha1-84c29015de33e5d22422382a372caba5c58f8c01"
 other = "用戶名"
 
 [ResetPasswordHowToContent]
-hash = "sha1-76cf47fef180d4e68557d75ef348e2569c5d4b7d"
-other = "\n<p>\n使用左郵件裏的表單來恢復您的賬號並重置密碼。\n只需要填寫用於創建賬號的用戶名和電子郵件即可。</p>\n<p>\n請注意，您必須 在此處提供與最初創建賬號時相同的電子郵件地址。我們<b>不會</b>實際存儲您的電子郵件地址，所以如果您沒有訪問或已經忘記了自己的電子郵件地址，那麽您將無法恢復賬號。\n</p>"
+hash = "sha1-45d5213488cd6a327e101b5b57d2f2d9660660c9"
+other = " \n<p>\nUse the form on the left to recover your account and reset your\npassword. Simply fill in the username and email address you used\nto create your account.\n</p>\n<p>\nBe aware however that you must supply the same email address\nhere that you used to create your account in the first place.\nWe <b>DO NOT</b> actually store your email address on file so\nif you do not have access to or have forgotten your email address\nthen you will be unable to recover your account.\n</p>"
 
 [ResetPasswordHowToTitle]
 hash = "sha1-8b19f439204c9f765b9d0ddc81459d9dff6e5a1b"
@@ -999,8 +1051,8 @@ hash = "sha1-dbc7f1cb535bc000b0f2b463b6b1552763dcf66a"
 other = "更新電子郵件"
 
 [SettingsFormChangeEmailSummary]
-hash = "sha1-2b2a92b2a28c580effa22db980e7748472873fb6"
-other = "<b>注意:</b>我們實際上並不存儲此信息！如果您忘記或丟失電子郵件的訪問權限，您將無法恢復Yarn.social賬號！"
+hash = "sha1-510eb375ae95419b27876203e98b03ccc8f5c9e3"
+other = "<b>NOTE:</b>We DO NOT actually store this! If you forget\nor lose access to your Email account provided here, it will\nbe impossible to recover your Yarn.social account!"
 
 [SettingsFormChangeEmailTitle]
 hash = "sha1-03e8c409bff190a9756ced3e3af8f175885d2bd3"
@@ -1022,17 +1074,29 @@ other = "關於您的簡短描述，標語或口號"
 hash = "sha1-3547a41d0344427489dfcd825bfb6578a88672b3"
 other = "標語"
 
+[SettingsFormOpenLinksInPreferenceNewWindow]
+hash = "sha1-7eecda05e76aae1ed5a63efd76922671016394ea"
+other = "New Window (default)"
+
+[SettingsFormOpenLinksInPreferenceSameWindow]
+hash = "sha1-47fe42805e5b5f60cbf932f83344ccbf07ef8753"
+other = "Same Window"
+
+[SettingsFormOpenLinksInPreferenceTitle]
+hash = "sha1-dd45efe84cbbcd4cd578759db58e58ed8e459ec0"
+other = "Open links in:"
+
 [SettingsFormPrivacySettingsShowBookmarks]
-hash = "sha1-16c928b369bea36feddb8047b9b25595f181976d"
-other = "公開顯示我的書籤"
+hash = "sha1-85f2f3c4327bfaba4df1a06109ba94535d647f91"
+other = "Bookmarks are public"
 
 [SettingsFormPrivacySettingsShowFollowers]
-hash = "sha1-18e55eea6d17428454501e7b1c9a694cfb28742c"
-other = "公開顯示我的粉絲"
+hash = "sha1-473c3d2fe3b52ccf0c666649386ad4d7b678cb26"
+other = "Followers are public"
 
 [SettingsFormPrivacySettingsShowFollowings]
-hash = "sha1-1199a6b85274b60b8477a6a171958923fd46230a"
-other = "公開顯示我的跟隨"
+hash = "sha1-ede3207e5e77027a6c6276678af39f9a9c8f409f"
+other = "Followings are public"
 
 [SettingsFormPrivacySettingsTitle]
 hash = "sha1-f41f1bc7002fffee32655b2ca02e0019efa27671"
@@ -1041,6 +1105,10 @@ other = "隱私設置"
 [SettingsFormThemeTitle]
 hash = "sha1-0485a026596091082310d7d66c39c579a9ab6566"
 other = "主題"
+
+[SettingsFormTimePreferenceTitle]
+hash = "sha1-60943c74c5d7bee85b570834fed90fd6d303ac9b"
+other = "Display time in:"
 
 [SettingsFormTimezoneTitle]
 hash = "sha1-cc6b7d5a9e6ad370824bc702023b0d2e44d5eb2b"
@@ -1065,6 +1133,18 @@ other = "在此處更新您的賬號設置和密碼"
 [SettingsTitle]
 hash = "sha1-82cf8a5fc7ac9479f022ea7797d2fc24455ab4ee"
 other = "賬號設置"
+
+[SettingsToolsShareLinkTitle]
+hash = "sha1-2f32378fe42c2a6698ea998a3e0289abd1a0c371"
+other = "Share via {{ .InstanceName }}"
+
+[SettingsToolsSummary]
+hash = "sha1-3a4cf32e61bfacef5a524e53c2c5a824f3e997d9"
+other = "<strong>Bookmarklet:</strong> You can share links to websites you are on in your browser\nby adding the following bookmarklet to your browsers bookmark bar. The next\ntime you want to share a link, just click on the \"Share via {{ .InstanceName }}\"\nbutton. Simply drag and drop the button below on to your browsers bookmarks bar!\n"
+
+[SettingsToolsTitle]
+hash = "sha1-4fa8cc860c52b268dc6a3adcde7305e9415db5bb"
+other = "Tools"
 
 [SuccessTitle]
 hash = "sha1-42a8f651d79fd005eeac0612df6442b983a01184"
@@ -1143,8 +1223,8 @@ hash = "sha1-82a625ec39852607779e48c250bbc3b9a1afa838"
 other = "改變 <b>{{ .Username }}</b> 所有者"
 
 [TwtConversationLinkTitle]
-hash = "sha1-2a20c75033890ef64222cf0bae1c4564bbdce951"
-other = "對話"
+hash = "sha1-4de67a4d313139fb2f1d0ad9d2c13d0921ddb131"
+other = "Yarn"
 
 [TwtDeleteLinkTitle]
 hash = "sha1-f6fdbe48dc54dd86f63097a03bd24094dedd713a"
@@ -1153,6 +1233,10 @@ other = "刪除"
 [TwtEditLinkTitle]
 hash = "sha1-5301648dcf6b53cefc9ed52999aaa92d4603cae0"
 other = "編輯"
+
+[TwtForkLinkTitle]
+hash = "sha1-471121e27a3e0f2a208ec3e9a0b109102268a22f"
+other = "Fork"
 
 [TwtFormPost]
 hash = "sha1-7858ac3ff63354f37161bd349efe11edd13b89cb"

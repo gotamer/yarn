@@ -2,10 +2,10 @@
 
   <article id="followFeed">
     <hgroup>
-      <h2>Follow Feed</h2>
-      <h3>Follow an existing twtxt feed</h3>
+        <h2>{{ tr . "FeedsFollowFeedTitle" }}</h2>
+        <h3>{{ tr . "FeedsFollowFeedSummary" }}</h3>
     </hgroup>
-    <p>Enter the URL of an existing twtxt.txt feed to start following directly.</p>
+    <p>{{ (tr . "FeedsFollowFeedHowToContent") | html }}</p>
     <form id="follow" action="/follow" method="POST">
       <fieldset>
         <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">

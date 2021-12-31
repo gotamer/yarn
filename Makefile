@@ -1,5 +1,5 @@
 -include environ.inc
-.PHONY: deps dev build install image release test clean
+.PHONY: deps dev build install image release test clean tr tr-merge
 
 export CGO_ENABLED=0
 VERSION=$(shell git describe --abbrev=0 --tags 2>/dev/null || echo "$VERSION")
@@ -80,3 +80,9 @@ bench-yarn.txt:
 
 clean:
 	@git clean -f -d -X
+
+tr:
+	@goi18n merge -outdir ./internal/langs ./internal/langs/active.*.toml
+
+tr-merge:
+	@goi18n merge -outdir ./internal/langs ./internal/langs/active.*.toml ./internal/langs/translate.*.toml 

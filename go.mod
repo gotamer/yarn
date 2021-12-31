@@ -7,6 +7,7 @@ require (
 	git.mills.io/prologic/go-gopher v0.0.0-20210723054659-c5e856b800b8
 	git.mills.io/prologic/observe v0.0.0-20210712230028-fc31c7aa2bd1
 	git.mills.io/prologic/read-file-last-line v0.0.0-20210710073401-af293d63a6d0
+	github.com/BurntSushi/toml v0.4.1 // indirect
 	github.com/Masterminds/sprig/v3 v3.2.2
 	github.com/NYTimes/gziphandler v1.1.1
 	github.com/PuerkitoBio/goquery v1.8.0
