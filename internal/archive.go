@@ -1,14 +1,12 @@
 package internal
 
 import (
-	"encoding/base32"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strings"
 
 	log "github.com/sirupsen/logrus"
 
@@ -66,8 +64,7 @@ func NewDiskArchiver(p string) (Archiver, error) {
 }
 
 func (a *DiskArchiver) makePath(hash string) (string, error) {
-	encoding := base32.StdEncoding.WithPadding(base32.NoPadding)
-	bs, err := encoding.DecodeString(strings.ToUpper(hash))
+	bs, err := DecodeHash(hash)
 	if err != nil {
 		log.WithError(err).Warnf("error decoding hash %s", hash)
 		return "", err

@@ -33,7 +33,12 @@ func (s *Server) PermalinkHandler() httprouter.Handle {
 			return
 		}
 
-		var err error
+		_, err := DecodeHash(hash)
+		if err != nil {
+			http.Error(w, "Bad Request", http.StatusBadRequest)
+			return
+
+		}
 
 		twt, inCache := s.cache.Lookup(hash)
 		if !inCache {

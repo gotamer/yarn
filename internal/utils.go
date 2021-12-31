@@ -137,6 +137,11 @@ func GenerateRandomToken() string {
 	return fmt.Sprintf("%x", b)
 }
 
+func DecodeHash(hash string) ([]byte, error) {
+	encoding := base32.StdEncoding.WithPadding(base32.NoPadding)
+	return encoding.DecodeString(strings.ToUpper(hash))
+}
+
 func FastHash(data []byte) string {
 	sum := blake2b.Sum256(data)
 
