@@ -339,7 +339,7 @@ func NewActiveUsersJob(conf *Config, cache *Cache, archive Archiver, db Store) J
 func (job *ActiveUsersJob) String() string { return "ActiveUsers" }
 
 func (job *ActiveUsersJob) Run() {
-	log.Info("updating dau stats")
+	log.Info("updating active user stats")
 
 	users, err := job.db.GetAllUsers()
 	if err != nil {
@@ -347,14 +347,19 @@ func (job *ActiveUsersJob) Run() {
 		return
 	}
 
-	activeToday := 0
+	dau := 0
+	mau := 0
 	for _, user := range users {
 		if time.Since(user.LastSeenAt) <= (24 * time.Hour) {
-			activeToday++
+			dau++
+		}
+		if time.Since(user.LastSeenAt) <= (28 * 24 * time.Hour) {
+			mau++
 		}
 	}
 
-	metrics.Gauge("server", "dau").Set(float64(activeToday))
+	metrics.Gauge("server", "dau").Set(float64(dau))
+	metrics.Gauge("server", "mau").Set(float64(mau))
 }
 
 type DeleteOldSessionsJob struct {

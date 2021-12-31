@@ -217,6 +217,12 @@ func (s *Server) setupMetrics() {
 		"Number of daily active users",
 	)
 
+	// mau (monthly active users)
+	metrics.NewGauge(
+		"server", "mau",
+		"Number of monthly active users",
+	)
+
 	// database keys
 	metrics.NewGaugeFunc(
 		"db", "feeds",
