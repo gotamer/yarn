@@ -303,7 +303,7 @@ func (s *Server) PostHandler() httprouter.Handle {
 			s.cache.DeleteFeeds(ctx.User.Source())
 
 			// Update user's own timeline with their own new post.
-			s.cache.FetchTwts(s.config, s.archive, ctx.User.Source(), nil)
+			s.cache.FetchFeeds(s.config, s.archive, ctx.User.Source(), nil)
 
 			// Re-populate/Warm cache for User
 			s.cache.GetByUser(ctx.User, true)
@@ -402,7 +402,7 @@ func (s *Server) PostHandler() httprouter.Handle {
 		}
 
 		// Update user's own timeline with their own new post.
-		s.cache.FetchTwts(s.config, s.archive, sources, nil)
+		s.cache.FetchFeeds(s.config, s.archive, sources, nil)
 
 		// Re-populate/Warm cache for User
 		s.cache.GetByUser(ctx.User, true)

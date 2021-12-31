@@ -216,7 +216,7 @@ func (job *UpdateFeedsJob) Run() {
 	}
 
 	log.Infof("updating %d sources", len(sources))
-	job.cache.FetchTwts(job.conf, job.archive, sources, publicFollowers)
+	job.cache.FetchFeeds(job.conf, job.archive, sources, publicFollowers)
 
 	log.Infof("converging cache with %d potential peers", len(job.cache.GetPeers()))
 	job.cache.Converge(job.archive)

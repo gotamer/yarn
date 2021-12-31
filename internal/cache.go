@@ -819,8 +819,8 @@ func (cache *Cache) DetectPodFromUserAgent(ua TwtxtUserAgent) error {
 	return nil
 }
 
-// FetchTwts ...
-func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds, publicFollowers map[types.Feed][]string) {
+// FetchFeeds ...
+func (cache *Cache) FetchFeeds(conf *Config, archive Archiver, feeds types.Feeds, publicFollowers map[types.Feed][]string) {
 	stime := time.Now()
 	defer func() {
 		metrics.Gauge(
@@ -902,7 +902,6 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 				res, err := RequestGopher(conf, feed.URL)
 				if err != nil {
 					cachedFeed.SetError(err)
-					log.WithError(err).Errorf("error fetching feed %s", feed)
 					twtsch <- nil
 					return
 				}
@@ -912,7 +911,6 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 				tf, err := types.ParseFile(limitedReader, twter)
 				if err != nil {
 					cachedFeed.SetError(err)
-					log.WithError(err).Errorf("error parsing feed %s", feed)
 					twtsch <- nil
 					return
 				}
@@ -988,7 +986,6 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 			res, err := Request(conf, http.MethodGet, feed.URL, headers)
 			if err != nil {
 				cachedFeed.SetError(err)
-				log.WithError(err).Errorf("error fetching feed %s", feed)
 				twtsch <- nil
 				return
 			}
@@ -1020,7 +1017,6 @@ func (cache *Cache) FetchTwts(conf *Config, archive Archiver, feeds types.Feeds,
 				tf, err := types.ParseFile(limitedReader, twter)
 				if err != nil {
 					cachedFeed.SetError(err)
-					log.WithError(err).Errorf("error parsing feed %s", feed)
 					twtsch <- nil
 					return
 				}

@@ -419,7 +419,7 @@ func (a *API) PostEndpoint() httprouter.Handle {
 		}
 
 		// Update user's own timeline with their own new post.
-		a.cache.FetchTwts(a.config, a.archive, sources, nil)
+		a.cache.FetchFeeds(a.config, a.archive, sources, nil)
 
 		// Re-populate/Warm cache for User
 		a.cache.GetByUser(user, true)
@@ -981,7 +981,7 @@ func (a *API) ProfileEndpoint() httprouter.Handle {
 		if !a.cache.IsCached(profile.URL) {
 			sources := make(types.Feeds)
 			sources[types.Feed{Nick: profile.Username, URL: profile.URL}] = true
-			a.cache.FetchTwts(a.config, a.archive, sources, nil)
+			a.cache.FetchFeeds(a.config, a.archive, sources, nil)
 		}
 
 		var twter types.Twter
@@ -1113,7 +1113,7 @@ func (a *API) FetchTwtsEndpoint() httprouter.Handle {
 			if !a.cache.IsCached(req.URL) {
 				sources := make(types.Feeds)
 				sources[types.Feed{Nick: nick, URL: req.URL}] = true
-				a.cache.FetchTwts(a.config, a.archive, sources, nil)
+				a.cache.FetchFeeds(a.config, a.archive, sources, nil)
 			}
 
 			twts = a.cache.GetByURL(req.URL)
@@ -1195,7 +1195,7 @@ func (a *API) ExternalProfileEndpoint() httprouter.Handle {
 			a.tasks.DispatchFunc(func() error {
 				sources := make(types.Feeds)
 				sources[types.Feed{Nick: nick, URL: uri}] = true
-				a.cache.FetchTwts(a.config, a.archive, sources, nil)
+				a.cache.FetchFeeds(a.config, a.archive, sources, nil)
 				return nil
 			})
 		}

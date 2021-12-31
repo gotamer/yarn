@@ -39,7 +39,7 @@ func (s *Server) ExternalHandler() httprouter.Handle {
 			s.tasks.DispatchFunc(func() error {
 				sources := make(types.Feeds)
 				sources[types.Feed{Nick: nick, URL: uri}] = true
-				s.cache.FetchTwts(s.config, s.archive, sources, nil)
+				s.cache.FetchFeeds(s.config, s.archive, sources, nil)
 				return nil
 			})
 		}
@@ -156,7 +156,7 @@ func (s *Server) ExternalFollowingHandler() httprouter.Handle {
 			s.tasks.DispatchFunc(func() error {
 				sources := make(types.Feeds)
 				sources[types.Feed{Nick: nick, URL: uri}] = true
-				s.cache.FetchTwts(s.config, s.archive, sources, nil)
+				s.cache.FetchFeeds(s.config, s.archive, sources, nil)
 				return nil
 			})
 		}
