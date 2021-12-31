@@ -46,26 +46,47 @@ Yarn.social account.`,
 			os.Exit(1)
 		}
 
-		timeline(cli, outputJSON, outputRAW, args)
+		reverseOrder, err := cmd.Flags().GetBool("reverse")
+		if err != nil {
+			log.WithError(err).Error("error getting reverse flag")
+			os.Exit(1)
+		}
+
+		nTwts, err := cmd.Flags().GetInt("twts")
+		if err != nil {
+			log.WithError(err).Error("error getting twts flag")
+			os.Exit(1)
+		}
+
+		timeline(cli, outputJSON, outputRAW, reverseOrder, nTwts, args)
 	},
 }
 
 func init() {
 	RootCmd.AddCommand(timelineCmd)
 
+	timelineCmd.Flags().IntP(
+		"twts", "n", -1,
+		"Number of Twts to display (default all)",
+	)
+
 	timelineCmd.Flags().BoolP(
-		"json", "j", false,
+		"reverse", "r", false,
+		"Reverse chronological order (newest first)",
+	)
+
+	timelineCmd.Flags().BoolP(
+		"json", "J", false,
 		"Output in JSON for processing with eg jq",
 	)
 
 	timelineCmd.Flags().BoolP(
-		"raw", "r", false,
+		"raw", "R", false,
 		"Output in raw text for processing with eg grep",
 	)
-
 }
 
-func timeline(cli *client.Client, outputJSON, outputRAW bool, args []string) {
+func timeline(cli *client.Client, outputJSON, outputRAW, reverseOrder bool, nTwts int, args []string) {
 	// TODO: How do we get more pages?
 	res, err := cli.Timeline(0)
 	if err != nil {
@@ -73,18 +94,27 @@ func timeline(cli *client.Client, outputJSON, outputRAW bool, args []string) {
 		os.Exit(1)
 	}
 
-	sort.Sort(res.Twts)
+	if reverseOrder {
+		sort.Sort(res.Twts)
+	} else {
+		sort.Sort(sort.Reverse(res.Twts))
+	}
+
+	twts := res.Twts[:]
+
+	if nTwts > 0 && nTwts < len(twts) {
+		twts = twts[(len(twts) - nTwts):]
+	}
 
 	if outputJSON {
-		data, err := json.Marshal(res)
+		data, err := json.Marshal(twts)
 		if err != nil {
 			log.WithError(err).Error("error marshalling json")
 			os.Exit(1)
 		}
 		fmt.Println(string(data))
 	} else {
-		sort.Sort(sort.Reverse(res.Twts))
-		for _, twt := range res.Twts {
+		for _, twt := range twts {
 			if outputRAW {
 				PrintTwtRaw(twt)
 			} else {
