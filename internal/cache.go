@@ -158,7 +158,6 @@ type Cached struct {
 	mu sync.RWMutex
 
 	Twts          types.Twts
-	Dead          bool
 	Errors        int
 	LastError     string
 	LastFetched   time.Time
@@ -227,14 +226,6 @@ func (cached *Cached) Update(url, lastmodiied string, twts types.Twts) {
 	cached.MovingAverage = (cached.MovingAverage + avg) / 2
 }
 
-// IsDead ...
-func (cached *Cached) IsDead() bool {
-	cached.mu.RLock()
-	defer cached.mu.RUnlock()
-
-	return cached.Dead
-}
-
 // GetTwts ...
 func (cached *Cached) GetTwts() types.Twts {
 	cached.mu.RLock()
@@ -285,10 +276,6 @@ func (cached *Cached) UpdateMovingAverage() {
 func (cached *Cached) SetError(err error) {
 	cached.mu.Lock()
 	defer cached.mu.Unlock()
-
-	if _, ok := err.(types.ErrDeadFeed); ok {
-		cached.Dead = true
-	}
 
 	cached.Errors++
 	cached.LastError = err.Error()
@@ -1289,13 +1276,6 @@ func (cache *Cache) ShouldRefreshFeed(uri string) bool {
 
 	if !isCachedFeed {
 		return true
-	}
-
-	// Skip feeds considered to be dead.
-	// TODO: Add some kind of mechanisms for Poderators to deal with these
-	// potentialyl reviving dead feeds and/or alerting Pod users.
-	if cachedFeed.IsDead() {
-		log.Warnf("%s may be a dead feed", uri)
 	}
 
 	// Always refresh feeds that match `alwaysRefreshDomains` list of domains.
