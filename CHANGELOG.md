@@ -1,4 +1,55 @@
 
+<a name="0.11.0"></a>
+## [0.11.0](https://git.mills.io/yarnsocial/yarn/compare/0.10.0...0.11.0) (2022-01-01)
+
+### Bug Fixes
+
+* Fix -R/--raw output of yarnc timeline command
+* Fix NaN bug
+* Fix logging for FeatureMovingAverageFeedRefresh
+* Fix nil pointer bug in Cache.TwtCount()
+* Fix leaking temporary files
+* Fix leaking temporary files and remove when done
+* Fix ShouldRefreshFeed() to always refresh feeds on the same pod
+* Fix boundedMovingAverage expression
+* Fix minor bug with non-existent/blank refresh interval
+* Fix compat for old Twters in archive
+* Fix LookupHandler() and associated Javascript to handle External Avatars and only pull up what the user follows
+* Fix data race in BaseTask
+* Fix an obscure bug with injected twts from peering pods (do not fuck with the LastModified time of the feed)
+* Fix User.Unfollow()
+* Fix Unfollow behaviour
+* Fix TwtxtHandler to display and use correct profile attribute for no. of followers/followings
+* Fix source of occassional 500 errors on /conv/:hash links caused by -TwtRootLinkTitle missing from other translations
+* Fix permalink template and view to handle muted feeds
+* Fix bug displaying Followers count in Settings
+* Fix some gaping security holes by adding missing MustAuth() middleware on protected resources requiring auth (#615)
+* Fix an IndexError bug in SyndicationHandler
+* Fix followers template
+* Fix APIv1 compat by partially reverting fb43196
+* Fix possible deadlocks in store
+* Fix #602: Referrer not remembered after login (#614)
+
+### Features
+
+* Add monthly active users metric (mau)
+* Add -p/--page support to yarnc timeline command
+* Add support for -n/--twts and --r/--reverse to yarnc timeline command
+* Add special case for alwaysRefreshDomains
+* Add FeatureMovingAverageFeedRefresh `moving_average_feed_refresh` feature
+* Add support for feed refresh intervals + spec + refactor to support handling bad feeds (#624)
+* Add ActiveUsers to startup jobs so dau isn't 0 on startup when it's not
+* Add ActiveUsers job
+* Add PruneFollowers job
+* Add the builtin theme to the Docker image at /theme
+* Add concurrency to check_pod_versions.go to make it go faster :D
+* Add a better tool (written in Go) for checking pod versions
+
+### Updates
+
+* Update .gitignore
+
+
 <a name="0.10.0"></a>
 ## [0.10.0](https://git.mills.io/yarnsocial/yarn/compare/0.9.0...0.10.0) (2021-12-20)
 
@@ -37,6 +88,7 @@
 
 ### Updates
 
+* Update CHANGELOG for 0.10.0
 * Update 'README.md'
 * Update logo
 * Update managePeers template to display no. of peers at the top header
