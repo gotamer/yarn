@@ -85,17 +85,9 @@ func post(cli *client.Client, postAs string, args []string) {
 		os.Exit(1)
 	}
 
-	if postAs == "" {
-		log.Info("posting twt...")
-	} else {
-		log.Infof("posting twt as %s...", postAs)
-	}
-
 	_, err := cli.Post(text, postAs)
 	if err != nil {
 		log.WithError(err).Error("error making post")
 		os.Exit(1)
 	}
-
-	log.Info("post successful")
 }
