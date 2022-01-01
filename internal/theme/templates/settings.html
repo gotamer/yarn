@@ -139,14 +139,14 @@
     <button type="submit" class="primary">{{ tr . "SettingsFormUpdate" }}</button>
   </form>
 </article>
-<article class="grid">
+<article class="grid no-tb">
   <details>
     <summary>{{ tr . "SettingsToolsTitle" }}</summary>
     <p>{{ (tr . "SettingsToolsSummary" (dict "InstanceName" .InstanceName)) | html }}</p>
     <a role="button" href="javascript:{{ .Bookmarklet }}">{{ tr . "SettingsToolsShareLinkTitle" (dict "InstanceName" .InstanceName) }}</a>
   </details>
 </article>
-<article class="grid">
+<article class="grid no-tb">
   <details>
     <summary>{{ tr . "SettingsDeleteAccountTitle" }}</summary>
     <p>{{ (tr . "SettingsDeleteAccountSummary") | html }}</p>

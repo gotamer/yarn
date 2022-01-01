@@ -5,6 +5,7 @@
     {{ if $.Debug }}
       <link href="/css/01-pico.css" rel="stylesheet" />
       <link href="/css/02-tabler-icons.css" rel="stylesheet" />
+      <link href="/css/03-colours.css" rel="stylesheet" />
       <link href="/css/98-custom-icons.css" rel="stylesheet" />
       <link href="/css/99-yarn.css" rel="stylesheet" />
       <link rel="icon" type="image/png" href="/img/favicon.png" />
@@ -41,11 +42,13 @@
 <body class="preload">
   <nav id="mainNav">
     <ul id="podLogo">
-      <li class="mobile-menu">
-        <a id="burgerMenu" href="javascript:void(0);"><i class="ti ti-menu-2"></i></a>
-      </li>
       <li class="podLogo">
         <a href="/">{{ $.Logo }}</a>
+      </li>
+    </ul>
+    <ul id="podMobile">
+      <li class="podMobile">
+        <a id="burgerMenu" href="javascript:void(0);"><i class="ti ti-menu-2"></i></a>
       </li>
     </ul>
     <ul id="podMenu">

@@ -819,11 +819,11 @@ u("#register #agree").on("change", function(e) {
 
 u("#burgerMenu").on("click", function(e) {
   e.preventDefault();
-
-  if (u("#mainNav").hasClass("responsive")) {
-    u("#mainNav").removeClass("responsive");
+  if (u("#podMenu").first().style.display === "none" ||
+  !(u("#podMenu").first().hasAttribute("style"))) {
+    u("#podMenu").first().style.display = "grid";
   } else {
-    u("#mainNav").addClass("responsive");
+    u("#podMenu").first().style.display = "none";
   }
 });
 
