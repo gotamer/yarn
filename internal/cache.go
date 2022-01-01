@@ -643,7 +643,7 @@ func MergeFollowers(old, new types.Followers) types.Followers {
 		if o, ok := oldSet[n.URI]; ok {
 			o.LastSeenAt = n.LastSeenAt
 		} else {
-			oldSet[o.URI] = n
+			oldSet[n.URI] = n
 			res = append(res, n)
 		}
 	}
