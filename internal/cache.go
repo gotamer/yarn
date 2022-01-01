@@ -628,20 +628,12 @@ func (cache *Cache) Store(conf *Config) error {
 func MergeFollowers(old, new types.Followers) types.Followers {
 	var res types.Followers
 
-	// XXX: Backwards compatibility with old `Followers` struct.
-	// TODO: Remove post v0.12.00
+	oldSet := make(map[string]*types.Follower)
 	for _, o := range old {
-		if o.URI == "" {
-			o.URI = o.URL
-		}
-	}
-
-	oldSet := make(map[string]types.Follower)
-	for _, o := range old {
-		// Skip over old Follower objects
+		// XXX: Backwards compatibility with old `Followers` struct.
 		// TODO: Remove post v0.12.x
 		if o.URI == "" {
-			continue
+			o.URI = o.URL
 		}
 		oldSet[o.URI] = o
 		res = append(res, o)

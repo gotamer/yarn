@@ -70,7 +70,7 @@ func (s *Server) WhoFollowsHandler() httprouter.Handle {
 			}
 
 			if user.Follows(uri) {
-				followers = append(followers, types.Follower{
+				followers = append(followers, &types.Follower{
 					Nick:       user.Username,
 					URI:        user.URL,
 					LastSeenAt: time.Now(),

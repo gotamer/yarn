@@ -1143,7 +1143,7 @@ func (ua *SingleUserAgent) IsPublicURL() bool {
 
 func (ua *SingleUserAgent) Followers(conf *Config) types.Followers {
 	return types.Followers{
-		types.Follower{
+		&types.Follower{
 			Nick:       ua.Nick,
 			URI:        ua.URI,
 			LastSeenAt: time.Now(),
@@ -1215,7 +1215,7 @@ func (ua *MultiUserAgent) Followers(conf *Config) types.Followers {
 			return nil
 		}
 		for k, v := range oldFollowers {
-			followers = append(followers, types.Follower{Nick: k, URI: v})
+			followers = append(followers, &types.Follower{Nick: k, URI: v, LastSeenAt: time.Now()})
 		}
 	}
 

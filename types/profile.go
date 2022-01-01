@@ -12,19 +12,17 @@ type Follower struct {
 	LastSeenAt time.Time
 }
 
-func (f Follower) String() string {
-	uri := f.URI
-
+func (f *Follower) String() string {
 	// XXX: Backwards compatibility with old `Followers` struct.
 	// TODO: Remove post v0.12.00
-	if uri == "" {
-		uri = f.URL
+	if f.URI == "" {
+		f.URI = f.URL
 	}
 
-	return fmt.Sprintf("@<%s %s>", f.Nick, uri)
+	return fmt.Sprintf("@<%s %s>", f.Nick, f.URI)
 }
 
-type Followers []Follower
+type Followers []*Follower
 
 func (fs Followers) Len() int { return len(fs) }
 func (fs Followers) Less(i, j int) bool {
