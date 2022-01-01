@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"mime"
@@ -13,18 +15,30 @@ import (
 	"time"
 )
 
-var knownPods = []string{
-	"twtxt.net",
-	"twtxt.cc",
-	"txt.sour.is",
-	"twt.nfld.uk",
-	"tt.vltra.plus",
-	"yarn.andrewjvpowell.com",
-	"we.loveprivacy.club",
-	"arrakis.netbros.com",
-	"tw.lohn.in",
-	"yarn.meff.me",
-	"txt.quisquiliae.com",
+func init() {
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Usage: %s <pods.txt>\n", os.Args[0])
+		flag.PrintDefaults()
+	}
+}
+
+func parsePods(fn string) ([]string, error) {
+	var pods []string
+
+	f, err := os.Open(fn)
+	if err != nil {
+		return nil, fmt.Errorf("error opening pods file %s: %w", fn, err)
+	}
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		pods = append(pods, strings.TrimSpace(scanner.Text()))
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, fmt.Errorf("error reading pods file %s: %w", fn, err)
+	}
+	return pods, nil
 }
 
 func request(method, url string, headers http.Header) (*http.Response, error) {
@@ -132,6 +146,19 @@ func (pods Pods) Less(i, j int) bool { return strings.Compare(pods[i].Version, p
 func (pods Pods) Swap(i, j int)      { pods[i], pods[j] = pods[j], pods[i] }
 
 func main() {
+	flag.Parse()
+
+	if flag.NArg() != 1 {
+		flag.Usage()
+		os.Exit(1)
+	}
+
+	knownPods, err := parsePods(flag.Arg(0))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error parsing pods.txt file %s: %s", flag.Arg(0), err)
+		os.Exit(2)
+	}
+
 	results := make(chan Pod, len(knownPods))
 	wg := sync.WaitGroup{}
 	wg.Add(len(knownPods))
