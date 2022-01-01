@@ -205,7 +205,7 @@ function deleteTwt(e) {
   }
 }
 
-u("#theme input").on("change", function(e) {
+u("#theme select").on("change", function(e) {
   var value = u(e.target).first().value;
 
   switch (value) {
@@ -214,6 +214,8 @@ u("#theme input").on("change", function(e) {
       break;
     case "light":
     case "dark":
+    case "light-classic":
+    case "dark-classic":
       u("html").data("theme", value);
       break;
     default:

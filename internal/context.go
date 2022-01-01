@@ -233,7 +233,7 @@ func NewContext(s *Server, req *http.Request) *Context {
 	switch theme {
 	case "auto":
 		ctx.Theme = ""
-	case "light", "dark":
+	case "light", "dark", "light-classic", "dark-classic":
 		ctx.Theme = theme
 	default:
 		// Default to the configured theme
