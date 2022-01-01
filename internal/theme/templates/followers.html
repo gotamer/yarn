@@ -23,8 +23,8 @@
                   <a href="{{ $f.URI | trimSuffix "/twtxt.txt" }}">{{ $f.Nick }}</a>
                 {{ else }}
                   <a href="/external?uri={{ $f.URI }}&nick={{ $f.Nick }}">{{ $f.Nick }}</a>
+                  (<a href="{{ $f.URI }}" title="{{ $f.LastSeenAt | time }}">{{ $f.URI }}</a>)
                 {{ end }}
-                (<a href="{{ $f.URI }}" title="{{ $f.LastSeenAt | time }}">{{ $f.URI }}</a>)
                 {{ if $.Authenticated }}
                   <a class="followBtn" style="display: {{ if not ($.User.Follows $f.URI) }}inline{{ else }}none{{ end }};" href="/follow?nick={{ $f.Nick }}&url={{ $f.URI }}">
                     <i class="ti ti-circle-plus"></i>
