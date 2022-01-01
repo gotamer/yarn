@@ -24,7 +24,7 @@ func (s *Server) SettingsHandler() httprouter.Handle {
 			profile.Followers = followers
 			profile.NFollowers = len(followers)
 
-			profile.FollowedBy = s.cache.FollowedBy(ctx.User, profile.URL)
+			profile.FollowedBy = s.cache.FollowedBy(ctx.User, profile.URI)
 
 			ctx.Profile = profile
 

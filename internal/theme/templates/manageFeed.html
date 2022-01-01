@@ -3,9 +3,9 @@
     <div>
       <hgroup>
         <h2>{{ tr . "ManageFeedTitle"}} </h2>
-        <h3>{{ (tr . "ManageFeedSummary" dict "Username" .Profile.Username) | html }}</h3>
+        <h3>{{ (tr . "ManageFeedSummary" dict "Username" .Profile.Nick) | html }}</h3>
       </hgroup>
-      <form action="/feed/{{  .Profile.Username }}/manage"  enctype="multipart/form-data" method="POST">
+      <form action="/feed/{{  .Profile.Nick }}/manage"  enctype="multipart/form-data" method="POST">
         <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
         <label for="avatar_upload">
           {{ tr . "ManageFeedFormChangeAvatarTitle" }}
@@ -13,11 +13,11 @@
         </label>
         <label for="description">
           {{ tr . "ManageFeedFormDescriptionTitle" }}
-          <input type="text" id="description" name="description" placeholder="{{ tr . "ManageFeedFormDescription" }}" required value="{{ .Profile.Tagline }}">
+          <input type="text" id="description" name="description" placeholder="{{ tr . "ManageFeedFormDescription" }}" required value="{{ .Profile.Description }}">
         </label>
         <button type="submit">{{ tr . "ManageFeedFormUpdate" }}</button>
       </form>
-      {{ if not (isSpecialFeed $.Profile.Username) }}
+      {{ if not (isSpecialFeed $.Profile.Nick) }}
         <hgroup>
           <h2>{{ tr . "ArchiveFeedTitle" }}</h2>
           <h3>{{ tr . "ArchiveFeedSummary" }}</h3>
@@ -25,7 +25,7 @@
         <p>
         {{ (tr . "ArchiveFeedWarning") | html }}
         </p>
-        <form action="/feed/{{  .Profile.Username }}/archive" method="POST" onsubmit="return confirm('{{ tr . "ArchiveFeedFormConfirm"}} ');">
+        <form action="/feed/{{  .Profile.Nick }}/archive" method="POST" onsubmit="return confirm('{{ tr . "ArchiveFeedFormConfirm"}} ');">
           <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
           <button type="submit" class="contrast">{{ tr . "ArchiveFeedFormArchive" }}</button>
         </form>
@@ -36,7 +36,7 @@
         <p>
         {{ (tr . "TransferFeedWarning") | html }}
         </p>
-        <form action="/transferFeed/{{  .Profile.Username }}" method="GET">
+        <form action="/transferFeed/{{  .Profile.Nick }}" method="GET">
           <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
           <button type="submit" class="contrast">{{ tr . "TransferFeedFormTransfer" }}</button>
         </form>

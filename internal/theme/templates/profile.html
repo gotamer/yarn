@@ -1,15 +1,15 @@
 {{ define "content" }}
 
   <div class="profile-name">
-    <span class="p-name p-name-profile">{{ .Profile.Username }}</span>
-    <span class="p-org p-org-profile">{{ .Profile.URL | hostnameFromURL }}</span>
+    <span class="p-name p-name-profile">{{ .Profile.Nick }}</span>
+    <span class="p-org p-org-profile">{{ .Profile.URI | hostnameFromURL }}</span>
   </div>
 
   <div class="profile-stats">
-    <a {{ if not (eq $.Profile.Type "External") }}href="{{ $.Profile.URL | trimSuffix "/twtxt.txt" }}"{{ else }}href="/external?uri={{ $.Profile.URL}}&nick={{ $.Profile.Username }}"{{ end }} class="u-url">
+    <a {{ if not (eq $.Profile.Type "External") }}href="{{ $.Profile.URI | trimSuffix "/twtxt.txt" }}"{{ else }}href="/external?uri={{ $.Profile.URI}}&nick={{ $.Profile.Nick }}"{{ end }} class="u-url">
       {{ if .Profile.Muted }}<i class="ti ti-ismuted"></i>{{ end }}
       {{ if .Profile.Avatar }}
-      <img class="avatar u-photo{{ if .Profile.Muted }} ismuted{{ end }}" {{ if not (eq $.Profile.Type "External") }}src="/user/{{ $.Profile.Username }}/avatar"{{ else }}src="/externalAvatar?uri={{ $.Profile.URL }}"{{ end }} alt="" loading=lazy />
+      <img class="avatar u-photo{{ if .Profile.Muted }} ismuted{{ end }}" {{ if not (eq $.Profile.Type "External") }}src="/user/{{ $.Profile.Nick }}/avatar"{{ else }}src="/externalAvatar?uri={{ $.Profile.URI }}"{{ end }} alt="" loading=lazy />
       {{ else }}
       <i class="ti ti-rss-nav"></i>
       {{ end }}
@@ -23,27 +23,27 @@
     {{ if not $.Profile.Muted }}<span class="profile-last-seen"><i class="ti ti-clock"></i> Last Seen: {{ .Profile.LastSeenAt | lastseen }}</span>{{ end }}
     {{ if .Profile.FollowedBy }}
     <div class="profile-popular">
-      <a href="{{ .Profile.URL }}">{{ .Profile.Username }}</a> {{ tr . "ProfileFollowsYou" }}
+      <a href="{{ .Profile.URI }}">{{ .Profile.Nick }}</a> {{ tr . "ProfileFollowsYou" }}
     </div>
     {{ else }}
     {{ $splitFollow := split "(" (tr . "ProfileDoesNotFollowYou")}}
     <div class="profile-popular">
-      <a href="{{ .Profile.URL }}">{{ .Profile.Username }}</a> {{ ((index $splitFollow "_0") | trimSuffix ")") | html }}
+      <a href="{{ .Profile.URI }}">{{ .Profile.Nick }}</a> {{ ((index $splitFollow "_0") | trimSuffix ")") | html }}
     </div>
     <div class="profile-nofollow">
       {{ ((index $splitFollow "_1") | trimSuffix ")") | html }}
     </div>
     {{ end }}
     {{ end }}
-    <p class="profile-tagline">{{ .Profile.Tagline }}</p>
+    <p class="profile-tagline">{{ .Profile.Description }}</p>
   </div>
 
   <div class="profile-links">
     {{ if .Authenticated }}
-    <a class="followBtn" style="display: {{ if not $.Profile.Follows }}inline{{ else }}none{{ end}};" href="/follow?nick={{ .Profile.Username  }}&url={{ .Profile.URL }}">
+    <a class="followBtn" style="display: {{ if not $.Profile.Follows }}inline{{ else }}none{{ end}};" href="/follow?nick={{ .Profile.Nick  }}&url={{ .Profile.URI }}">
       <i class="ti ti-circle-plus"></i> {{ tr . "FollowLinkTitle" }}
     </a>
-    <a class="unfollowBtn" style="display: {{ if $.Profile.Follows }}inline{{ else }}none{{ end}};" href="/unfollow?nick={{ .Profile.Username  }}">
+    <a class="unfollowBtn" style="display: {{ if $.Profile.Follows }}inline{{ else }}none{{ end}};" href="/unfollow?nick={{ .Profile.Nick  }}">
       <i class="ti ti-circle-minus"></i> {{ tr . "UnfollowLinkTitle" }}
     </a>
     {{ end }}
@@ -56,15 +56,15 @@
     {{ (tr . "ProfileBlockUserContent" (dict "InstanceName" .InstanceName)) | html }}
     <ul>
       <li>
-        <a class="muteBtn" style="display: {{ if not $.Profile.Muted }}inline{{ else }}none{{ end }};" href="/mute?nick={{ .Profile.Username }}&url={{ .Profile.URL }}">
+        <a class="muteBtn" style="display: {{ if not $.Profile.Muted }}inline{{ else }}none{{ end }};" href="/mute?nick={{ .Profile.Nick }}&url={{ .Profile.URI }}">
           <i class="ti ti-volume-3"></i> {{ tr . "ProfileMuteLinkTitle" }}
         </a>
-        <a class="unmuteBtn" style="display: {{ if .Profile.Muted }}inline{{ else }}none{{ end }};" href="/unmute?nick={{ .Profile.Username }}">
+        <a class="unmuteBtn" style="display: {{ if .Profile.Muted }}inline{{ else }}none{{ end }};" href="/unmute?nick={{ .Profile.Nick }}">
           <i class="ti ti-volume"></i> {{ tr . "ProfileUnmuteLinkTitle" }}
         </a>
       </li>
       <li>
-        <a href="/report?nick={{ .Profile.Username  }}&url={{ .Profile.URL }}" style="color:red;">
+        <a href="/report?nick={{ .Profile.Nick  }}&url={{ .Profile.URI }}" style="color:red;">
           <i class="ti ti-urgent" style="color:red;"></i> {{ tr . "ProfileReportLinkTitle" }}
         </a>
       </li>
@@ -73,7 +73,7 @@
   {{ end }}
 
   <div class="profile-recent">
-    <h2>{{ tr . "RecentTwtsSummary" (dict "Username" .Profile.Username) }}</h2>
+    <h2>{{ tr . "RecentTwtsSummary" (dict "Username" .Profile.Nick) }}</h2>
   </div>
   {{ template "feed" (dict "Authenticated" $.Authenticated "User" $.User "Profile" $.Profile "LastTwt" $.LastTwt "Pager" $.Pager "Twts" $.Twts "Ctx" . "view" "profile") }}
 {{ end }}

@@ -4,35 +4,35 @@
       <hgroup>
         <h2>{{ tr . "FollowingTitle" }}</h2>
         <h3>
-          {{ if $.User.Is .Profile.URL }}
+          {{ if $.User.Is .Profile.URI }}
             {{ tr . "FollowingFollowingYou" }}
           {{ else }}
-            {{ (tr . "FollowingFollowingUser" (dict "Username" .Profile.Username)) | html }}
+            {{ (tr . "FollowingFollowingUser" (dict "Username" .Profile.Nick)) | html }}
           {{ end }}
         </h3>
       </hgroup>
       {{ if .Profile.Following }}
         <ol>
           {{ $ctx:=. }}
-          {{ range $Nick, $URL := .Profile.Following }}
+          {{ range $f := .Profile.Following }}
             <li>
-              {{ if isLocalURL $URL }}
-                <a href="{{ $URL | trimSuffix "/twtxt.txt" }}">
+              {{ if isLocalURL $f.URI }}
+                <a href="{{ $f.URI | trimSuffix "/twtxt.txt" }}">
               {{ else }}
-                <a href="/external?uri={{ $URL }}&nick={{ $Nick  }}">
+                <a href="/external?uri={{ $f.URI }}&nick={{ $f.Nick  }}">
               {{ end }}
-              {{ if $.User.Is $URL }}
+              {{ if $.User.Is $f.URI }}
                 {{ tr $ctx "MeLinkTitle" }}
               {{ else }}
-                {{ $Nick }}
+                {{ $f.Nick }}
               {{ end }}
                 </a>
               {{ if $.Authenticated }}
-                <a class="followBtn" style="display: {{ if not ($.User.Follows $URL) }}inline{{ else }}none{{ end }};" href="/follow?nick={{ $Nick  }}&url={{ $URL }}">
+                <a class="followBtn" style="display: {{ if not ($.User.Follows $f.URI) }}inline{{ else }}none{{ end }};" href="/follow?nick={{ $f.Nick }}&url={{ $f.URI }}">
                   <i class="ti ti-circle-plus"></i>
                   {{ tr $ctx "FollowLinkTitle" }}
                 </a>
-                <a class="unfollowBtn" style="display: {{ if $.User.Follows $URL }}inline{{ else }}none{{ end }};" href="/unfollow?nick={{ $Nick  }}">
+                <a class="unfollowBtn" style="display: {{ if $.User.Follows $f.URI }}inline{{ else }}none{{ end }};" href="/unfollow?nick={{ $f.Nick }}">
                   <i class="ti ti-circle-minus"></i>
                   {{ tr $ctx "UnfollowLinkTitle" }}
                 </a>
@@ -42,10 +42,10 @@
         </ol>
       {{ else }}
         <small>
-          {{ if $.User.Is .Profile.URL }}
+          {{ if $.User.Is .Profile.URI }}
             {{ (tr . "FollowingNoFollowingSummary" (dict "InstanceName" .InstanceName)) | html }}
           {{ else }}
-            <b>{{ .Profile.Username }}</b> {{ tr . "FollowingNoFollowing" }}
+            <b>{{ .Profile.Nick }}</b> {{ tr . "FollowingNoFollowing" }}
           {{ end }}
         </small>
       {{ end }}

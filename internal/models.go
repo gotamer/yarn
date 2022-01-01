@@ -286,10 +286,10 @@ func (f *Feed) Profile(baseURL string, viewer *User) types.Profile {
 	return types.Profile{
 		Type: "Feed",
 
-		Username: f.Name,
-		Tagline:  f.Description,
-		URL:      f.URL,
-		Avatar:   URLForAvatar(baseURL, f.Name, f.AvatarHash),
+		Nick:        f.Name,
+		Description: f.Description,
+		URI:         f.URL,
+		Avatar:      URLForAvatar(baseURL, f.Name, f.AvatarHash),
 
 		Follows:    follows,
 		FollowedBy: followedBy,
@@ -482,26 +482,26 @@ func (u *User) Sources() types.Feeds {
 
 func (u *User) Profile(baseURL string, viewer *User) types.Profile {
 	var (
-		feeds         []string
-		follows       bool
-		followedBy    bool
-		muted         bool
-		showBookmarks bool
-		showFollowers bool
-		showFollowing bool
+		feeds            []string
+		viewerFollows    bool
+		followedByViewer bool
+		muted            bool
+		showBookmarks    bool
+		showFollowers    bool
+		showFollowing    bool
 	)
 
 	if viewer != nil {
 		if viewer.Is(u.URL) {
 			feeds = u.Feeds
-			follows = true
-			followedBy = true
+			viewerFollows = true
+			followedByViewer = true
 			showBookmarks = true
 			showFollowers = true
 			showFollowing = true
 		} else {
-			follows = viewer.Follows(u.URL)
-			followedBy = viewer.FollowedBy(u.URL)
+			viewerFollows = viewer.Follows(u.URL)
+			followedByViewer = viewer.FollowedBy(u.URL)
 			showBookmarks = u.IsBookmarksPubliclyVisible
 			showFollowers = u.IsFollowersPubliclyVisible
 			showFollowing = u.IsFollowingPubliclyVisible
@@ -510,23 +510,31 @@ func (u *User) Profile(baseURL string, viewer *User) types.Profile {
 		muted = viewer.HasMuted(u.URL)
 	}
 
+	var follows types.Follows
+
+	if showFollowing {
+		for nick, uri := range u.Following {
+			follows = append(follows, types.Follow{Nick: nick, URI: uri})
+		}
+	}
+
 	return types.Profile{
 		Type: "User",
 
-		Username: u.Username,
-		Tagline:  u.Tagline,
-		URL:      URLForUser(baseURL, u.Username),
-		Avatar:   URLForAvatar(baseURL, u.Username, u.AvatarHash),
+		Nick:        u.Username,
+		Description: u.Tagline,
+		URI:         URLForUser(baseURL, u.Username),
+		Avatar:      URLForAvatar(baseURL, u.Username, u.AvatarHash),
 
-		Follows:    follows,
-		FollowedBy: followedBy,
+		Follows:    viewerFollows,
+		FollowedBy: followedByViewer,
 		Muted:      muted,
 		Feeds:      feeds,
 
 		Bookmarks: u.Bookmarks,
 
-		Following:  u.Following,
-		NFollowing: len(u.Following),
+		Following:  follows,
+		NFollowing: len(follows),
 
 		ShowBookmarks: showBookmarks,
 		ShowFollowers: showFollowers,

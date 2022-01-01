@@ -69,8 +69,8 @@ func randomPort(t *testing.T) int {
 
 func newUserProfile(username string) types.Profile {
 	return types.Profile{
-		Type:     "user",
-		Username: username,
+		Type: "user",
+		Nick: username,
 	}
 }
 func newRequestWithUA(ua string) *http.Request {

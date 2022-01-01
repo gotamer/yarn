@@ -25,17 +25,17 @@ const defaultPreambleTemplate = `# Twtxt is an open, distributed microblogging p
 # This is hosted by a Yarn.social pod {{ .InstanceName }} running yarnd {{ .SoftwareVersion.FullVersion }}
 # Learn more about Yarn.social at https://yarn.social
 #
-# nick        = {{ .Profile.Username }}
-# url         = {{ .Profile.URL }}
+# nick        = {{ .Profile.Nick }}
+# url         = {{ .Profile.URI }}
 # avatar      = {{ .Profile.Avatar }}
-# description = {{ .Profile.Tagline }}
+# description = {{ .Profile.Description }}
 #
 # followers   = {{ if .Profile.ShowFollowers }}{{ .Profile.NFollowers }}{{ end }}
 # following   = {{ if .Profile.ShowFollowing }}{{ .Profile.NFollowing }}{{ end }}
 #
 {{- if .Profile.ShowFollowing }}
-{{ range $nick, $url := .Profile.Following -}}
-# follow = {{ $nick }} {{ $url }}
+{{ range $f := .Profile.Following -}}
+# follow = {{ $f.Nick }} {{ $f.URI }}
 {{ end -}}
 #
 {{ end }}

@@ -4,10 +4,10 @@
       <hgroup>
         <h2>{{ tr . "BookmarksTitle" }}</h2>
         <h3>
-          {{ if $.User.Is .Profile.URL }}
+          {{ if $.User.Is .Profile.URI }}
           {{ tr . "BookmarksYou" }}
           {{ else }}
-          {{ (tr . "BookmarksUser" (dict "Username" .Profile.Username)) | html }}
+          {{ (tr . "BookmarksUser" (dict "Username" .Profile.Nick)) | html }}
           {{ end }}
         </h3>
       </hgroup>
@@ -19,10 +19,10 @@
       </ol>
       {{ else }}
       <small>
-        {{ if $.User.Is .Profile.URL }}
+        {{ if $.User.Is .Profile.URI }}
         {{ tr . "BookmarksNoBookmarksSummary" }}
         {{ else }}
-        <b>{{ .Profile.Username }}</b> {{ tr . "BookmarksNoBookmarks" }}
+        <b>{{ .Profile.Nick }}</b> {{ tr . "BookmarksNoBookmarks" }}
         {{ end }}
       </small>
       {{ end }}

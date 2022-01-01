@@ -628,15 +628,28 @@ func (cache *Cache) Store(conf *Config) error {
 func MergeFollowers(old, new types.Followers) types.Followers {
 	var res types.Followers
 
-	oldSet := make(map[string]*types.Follower)
+	// XXX: Backwards compatibility with old `Followers` struct.
+	// TODO: Remove post v0.12.00
 	for _, o := range old {
-		oldSet[o.URL] = o
+		if o.URI == "" {
+			o.URI = o.URL
+		}
+	}
+
+	oldSet := make(map[string]types.Follower)
+	for _, o := range old {
+		// Skip over old Follower objects
+		// TODO: Remove post v0.12.x
+		if o.URI == "" {
+			continue
+		}
+		oldSet[o.URI] = o
 		res = append(res, o)
 	}
 
 	for _, n := range new {
-		if o, ok := oldSet[n.URL]; ok {
-			o.LastFetchedAt = n.LastFetchedAt
+		if o, ok := oldSet[n.URI]; ok {
+			o.LastSeenAt = n.LastSeenAt
 		} else {
 			res = append(res, n)
 		}
@@ -664,13 +677,11 @@ func (cache *Cache) DetectClientFromRequest(req *http.Request, profile types.Pro
 	// Update Followers cache
 
 	newFollowers := ua.Followers(cache.conf)
-	cache.mu.RLock()
-	currentFollowers := cache.getFollowers(profile)
-	cache.mu.RUnlock()
+	currentFollowers := cache.GetFollowers(profile)
 	mergedFollowers := MergeFollowers(currentFollowers, newFollowers)
 
 	cache.mu.Lock()
-	cache.Followers[profile.Username] = mergedFollowers
+	cache.Followers[profile.Nick] = mergedFollowers
 	cache.mu.Unlock()
 
 	return nil
@@ -1333,23 +1344,43 @@ func (cache *Cache) UpdateFeed(url, lastmodified string, twts types.Twts) {
 	}
 }
 
-func (cache *Cache) getFollowers(profile types.Profile) types.Followers {
-	followers := cache.Followers[profile.Username]
+func (cache *Cache) getFollowersv1(profile types.Profile) types.Followers {
+	followers := cache.Followers[profile.Nick]
 	sort.Sort(followers)
 	return followers
 }
 
-// GetFollowers ...
-// XXX: Returns a map[string]string of nick -> url for API compat
-func (cache *Cache) GetFollowers(profile types.Profile) map[string]string {
+// GetOldFollowers ...
+// XXX: Returns a map[string]string of nick -> url for APIv1 compat
+// TODO: Remove when Mobile App is upgraded
+func (cache *Cache) GetOldFollowers(profile types.Profile) map[string]string {
 	followers := make(map[string]string)
 
 	cache.mu.RLock()
 	defer cache.mu.RUnlock()
 
-	for _, follower := range cache.getFollowers(profile) {
-		followers[follower.Nick] = follower.URL
+	for _, follower := range cache.getFollowersv1(profile) {
+		followers[follower.Nick] = follower.URI
 	}
+
+	return followers
+}
+
+// GetFollowers ...
+func (cache *Cache) GetFollowers(profile types.Profile) types.Followers {
+	cache.mu.RLock()
+	followers := cache.Followers[profile.Nick]
+	defer cache.mu.RUnlock()
+
+	// XXX: Backwards compatibility with old `Followers` struct.
+	// TODO: Remove post v0.12.00
+	for _, f := range followers {
+		if f.URI == "" {
+			f.URI = f.URL
+		}
+	}
+
+	sort.Sort(followers)
 
 	return followers
 }
@@ -1359,9 +1390,11 @@ func (cache *Cache) FollowedBy(user *User, uri string) bool {
 	followers := cache.Followers[user.Username]
 	cache.mu.RUnlock()
 
+	// TODO: Optimize and cache this as `Cache.FollowersByURI`
+	// e.g: map of `Username` to map of `uri` -> `bool`
 	followersByURL := make(map[string]bool)
 	for _, follower := range followers {
-		followersByURL[follower.URL] = true
+		followersByURL[follower.URI] = true
 	}
 
 	return followersByURL[uri]
@@ -1582,7 +1615,7 @@ func (cache *Cache) PruneFollowers(olderThan time.Duration) {
 	for user, followers := range cache.Followers {
 		sort.Sort(followers)
 		for i, follower := range followers {
-			if time.Since(follower.LastFetchedAt) < olderThan {
+			if time.Since(follower.LastSeenAt) < olderThan {
 				followers = followers[i:]
 				cache.Followers[user] = followers
 				break

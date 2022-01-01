@@ -70,10 +70,10 @@ func (s *Server) WhoFollowsHandler() httprouter.Handle {
 			}
 
 			if user.Follows(uri) {
-				followers = append(followers, &types.Follower{
-					Nick:          user.Username,
-					URL:           user.URL,
-					LastFetchedAt: time.Now(),
+				followers = append(followers, types.Follower{
+					Nick:       user.Username,
+					URI:        user.URL,
+					LastSeenAt: time.Now(),
 				})
 				if nick == "" {
 					nick = user.sources[uri]
@@ -84,23 +84,18 @@ func (s *Server) WhoFollowsHandler() httprouter.Handle {
 			nick = "unknown"
 		}
 
-		followersSet := make(map[string]string)
-		for _, follower := range followers {
-			followersSet[follower.Nick] = follower.URL
-		}
-
 		ctx.Profile = types.Profile{
 			Type: "External",
 
-			Username: nick,
-			Tagline:  "",
-			URL:      uri,
+			Nick:        nick,
+			Description: "",
+			URI:         uri,
 
 			Follows:    true,
 			FollowedBy: true,
 			Muted:      false,
 
-			Followers:  followersSet,
+			Followers:  followers,
 			NFollowers: len(followers),
 		}
 

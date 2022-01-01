@@ -98,20 +98,20 @@ func (s *Server) ExternalHandler() httprouter.Handle {
 			}
 		}
 
-		following := make(map[string]string)
-		for followingNick, followingTwter := range ctx.Twter.Follow {
-			following[followingNick] = followingTwter.URI
+		var follows types.Follows
+		for nick, twter := range ctx.Twter.Follow {
+			follows = append(follows, types.Follow{Nick: nick, URI: twter.URI})
 		}
 
 		ctx.Profile = types.Profile{
 			Type: "External",
 
-			Username: ctx.Twter.Nick,
-			Tagline:  ctx.Twter.Tagline,
-			Avatar:   ctx.Twter.Avatar,
-			URL:      ctx.Twter.URI,
+			Nick:        ctx.Twter.Nick,
+			Description: ctx.Twter.Tagline,
+			Avatar:      ctx.Twter.Avatar,
+			URI:         ctx.Twter.URI,
 
-			Following:  following,
+			Following:  follows,
 			NFollowing: ctx.Twter.Following,
 			NFollowers: ctx.Twter.Followers,
 
@@ -196,20 +196,20 @@ func (s *Server) ExternalFollowingHandler() httprouter.Handle {
 			}
 		}
 
-		following := make(map[string]string)
-		for followingNick, followingTwter := range ctx.Twter.Follow {
-			following[followingNick] = followingTwter.URI
+		var follows types.Follows
+		for nick, twter := range ctx.Twter.Follow {
+			follows = append(follows, types.Follow{Nick: nick, URI: twter.URI})
 		}
 
 		ctx.Profile = types.Profile{
 			Type: "External",
 
-			Username: nick,
-			Tagline:  ctx.Twter.Tagline,
-			Avatar:   URLForExternalAvatar(s.config, uri),
-			URL:      uri,
+			Nick:        nick,
+			Description: ctx.Twter.Tagline,
+			Avatar:      URLForExternalAvatar(s.config, uri),
+			URI:         uri,
 
-			Following:  following,
+			Following:  follows,
 			NFollowing: ctx.Twter.Following,
 			NFollowers: ctx.Twter.Followers,
 

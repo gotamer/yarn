@@ -978,18 +978,18 @@ func (a *API) ProfileEndpoint() httprouter.Handle {
 			return
 		}
 
-		if !a.cache.IsCached(profile.URL) {
+		if !a.cache.IsCached(profile.URI) {
 			sources := make(types.Feeds)
-			sources[types.Feed{Nick: profile.Username, URL: profile.URL}] = true
+			sources[types.Feed{Nick: profile.Nick, URL: profile.URI}] = true
 			a.cache.FetchFeeds(a.config, a.archive, sources, nil)
 		}
 
 		var twter types.Twter
 
-		if cachedTwter := a.cache.GetTwter(profile.URL); cachedTwter != nil {
+		if cachedTwter := a.cache.GetTwter(profile.URI); cachedTwter != nil {
 			twter = *cachedTwter
 		} else {
-			twter = types.Twter{Nick: profile.Username, URI: profile.URL}
+			twter = types.Twter{Nick: profile.Nick, URI: profile.URI}
 		}
 
 		followers := a.cache.GetFollowers(profile)
@@ -997,7 +997,7 @@ func (a *API) ProfileEndpoint() httprouter.Handle {
 		profile.NFollowers = len(followers)
 
 		profileResponse := types.ProfileResponse{
-			Profile: profile,
+			Profile: profile.AsOldProfile(),
 			Twter:   twter,
 		}
 
@@ -1125,7 +1125,7 @@ func (a *API) FetchTwtsEndpoint() httprouter.Handle {
 				return
 			}
 			profile = user.Profile(a.config.BaseURL, loggedInUser)
-			twts = a.cache.GetByURL(profile.URL)
+			twts = a.cache.GetByURL(profile.URI)
 		} else if a.db.HasFeed(nick) {
 			feed, err := a.db.GetFeed(nick)
 			if err != nil {
@@ -1135,7 +1135,7 @@ func (a *API) FetchTwtsEndpoint() httprouter.Handle {
 			}
 			profile = feed.Profile(a.config.BaseURL, loggedInUser)
 
-			twts = a.cache.GetByURL(profile.URL)
+			twts = a.cache.GetByURL(profile.URI)
 		} else {
 			http.Error(w, "User/Feed not found", http.StatusNotFound)
 			return
@@ -1240,20 +1240,20 @@ func (a *API) ExternalProfileEndpoint() httprouter.Handle {
 			}
 		}
 
-		following := make(map[string]string)
-		for followingNick, followingTwter := range twter.Follow {
-			following[followingNick] = followingTwter.URI
+		var follows types.Follows
+		for nick, twter := range twter.Follow {
+			follows = append(follows, types.Follow{Nick: nick, URI: twter.URI})
 		}
 
 		profile := types.Profile{
 			Type: "External",
 
-			Username: nick,
-			Tagline:  twter.Tagline,
-			Avatar:   URLForExternalAvatar(a.config, uri),
-			URL:      uri,
+			Nick:        nick,
+			Description: twter.Tagline,
+			Avatar:      URLForExternalAvatar(a.config, uri),
+			URI:         uri,
 
-			Following:  following,
+			Following:  follows,
 			NFollowing: twter.Following,
 			NFollowers: twter.Followers,
 
@@ -1266,7 +1266,7 @@ func (a *API) ExternalProfileEndpoint() httprouter.Handle {
 		}
 
 		profileResponse := types.ProfileResponse{
-			Profile: profile,
+			Profile: profile.AsOldProfile(),
 			Twter:   twter,
 		}
 

@@ -187,7 +187,7 @@
           timeline to see what's happenning on the {{ $.Ctx.InstanceName }} pod or
           <a href="/follow">{{tr $.Ctx "NavFollow" }}</a> a feed</p>
         {{ else }}
-          <p>{{ .Profile.Username }} last posted {{ .Profile.LastPostedAt | time }}</p>
+          <p>{{ .Profile.Nick }} last posted {{ .Profile.LastPostedAt | time }}</p>
         {{ end }}
       {{ end }}
       {{ template "pager" (dict "Pager" $.Pager "Ctx" $.Ctx)}}
@@ -244,9 +244,9 @@
 {{ if $.Profile.ShowFollowing }}
 <div>
   {{ if eq $.Profile.Type "External" }}
-    <a href="/externalFollowing?uri={{ $.Profile.URL }}"><strong>{{ tr $.Ctx "ProfileFollowingLinkTitle" | trimSuffix ":" }}</strong><br/>{{ $.Profile.NFollowing }}</a>
+    <a href="/externalFollowing?uri={{ $.Profile.URI }}"><strong>{{ tr $.Ctx "ProfileFollowingLinkTitle" | trimSuffix ":" }}</strong><br/>{{ $.Profile.NFollowing }}</a>
   {{ else }}
-    <a href="/user/{{ $.Profile.Username }}/following"><strong>{{ tr $.Ctx "ProfileFollowingLinkTitle" | trimSuffix ":" }}</strong><br/>{{ $.Profile.NFollowing }}</a>
+    <a href="/user/{{ $.Profile.Nick }}/following"><strong>{{ tr $.Ctx "ProfileFollowingLinkTitle" | trimSuffix ":" }}</strong><br/>{{ $.Profile.NFollowing }}</a>
   {{ end }}
 </div>
 {{ end }}
@@ -255,15 +255,15 @@
   {{ if eq $.Profile.Type "External" }}
     <a href="#" title="Details on followers are not available on external feeds"><strong>{{ tr $.Ctx "ProfileFollowersLinkTitle" | trimSuffix ":" }}</strong><br/>{{ $.Profile.NFollowers }}</a>
   {{ else }}
-    <a href="/user/{{ $.Profile.Username }}/followers"><strong>{{ tr $.Ctx "ProfileFollowersLinkTitle" | trimSuffix ":" }}</strong><br/>{{ $.Profile.NFollowers }}</a>
+    <a href="/user/{{ $.Profile.Nick }}/followers"><strong>{{ tr $.Ctx "ProfileFollowersLinkTitle" | trimSuffix ":" }}</strong><br/>{{ $.Profile.NFollowers }}</a>
   {{ end }}
 </div>
 {{ end }}
 {{ end }}
 
 {{ define "profileLinks" }}
-<a target="_blank" href="{{ $.Profile.URL }}"><i class="ti ti-link-profile"></i> {{ tr $.Ctx "ProfileTwtxtLinkTitle" }}</a>
-<a target="_blank" href="{{ $.Profile.URL | trimSuffix "/twtxt.txt" }}/atom.xml"><i class="ti ti-rss-profile"></i> {{ tr $.Ctx "ProfileAtomLinkTitle" }}</a>
-<a href="{{ $.Profile.URL | trimSuffix "/twtxt.txt" }}/bookmarks"><i class="ti ti-bookmarks"></i> {{ tr $.Ctx "ProfileBookmarksLinkTitle" | trimSuffix ":" }}</a>
-<a target="_blank" href="{{ $.Profile.URL | trimSuffix "/twtxt.txt" }}/config.yaml"><i class="ti ti-settings"></i> {{ tr $.Ctx "ProfileConfigLinkTitle" }}</a>
+<a target="_blank" href="{{ $.Profile.URI }}"><i class="ti ti-link-profile"></i> {{ tr $.Ctx "ProfileTwtxtLinkTitle" }}</a>
+<a target="_blank" href="{{ $.Profile.URI | trimSuffix "/twtxt.txt" }}/atom.xml"><i class="ti ti-rss-profile"></i> {{ tr $.Ctx "ProfileAtomLinkTitle" }}</a>
+<a href="{{ $.Profile.URI | trimSuffix "/twtxt.txt" }}/bookmarks"><i class="ti ti-bookmarks"></i> {{ tr $.Ctx "ProfileBookmarksLinkTitle" | trimSuffix ":" }}</a>
+<a target="_blank" href="{{ $.Profile.URI | trimSuffix "/twtxt.txt" }}/config.yaml"><i class="ti ti-settings"></i> {{ tr $.Ctx "ProfileConfigLinkTitle" }}</a>
 {{ end }}

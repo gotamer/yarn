@@ -213,6 +213,12 @@ func NewContext(s *Server, req *http.Request) *Context {
 				ctx.User = user
 				ctx.IsAdmin = strings.EqualFold(username, conf.AdminUser)
 
+				// Every registered new user follows themselves
+				if user.Following == nil {
+					user.Following = make(map[string]string)
+				}
+				user.Following[user.Username] = user.URL
+
 				// TODO: Use event sourcing for this?
 				user.LastSeenAt = time.Now().Round(24 * time.Hour)
 				if err := db.SetUser(user.Username, user); err != nil {

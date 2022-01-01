@@ -31,7 +31,7 @@ func TestParseUserAgent(t *testing.T) {
 			expected: &SingleUserAgent{
 				twtxtUserAgent: twtxtUserAgent{Client: "twtxt/1.2.3"},
 				Nick:           "foo",
-				URL:            "https://foo.com/twtxt.txt",
+				URI:            "https://foo.com/twtxt.txt",
 			},
 		},
 		{
@@ -57,7 +57,7 @@ func TestParseUserAgent(t *testing.T) {
 				case *SingleUserAgent:
 					assert.Equal(t, testCase.expected.(*SingleUserAgent).Client, act.Client)
 					assert.Equal(t, testCase.expected.(*SingleUserAgent).Nick, act.Nick)
-					assert.Equal(t, testCase.expected.(*SingleUserAgent).URL, act.URL)
+					assert.Equal(t, testCase.expected.(*SingleUserAgent).URI, act.URI)
 				case *MultiUserAgent:
 					assert.Equal(t, testCase.expected.(*MultiUserAgent).Client, act.Client)
 					assert.Equal(t, testCase.expected.(*MultiUserAgent).WhoFollowsURL, act.WhoFollowsURL)

@@ -139,8 +139,9 @@ func NewUnfollowRequest(r io.Reader) (req UnfollowRequest, err error) {
 
 // ProfileResponse ...
 type ProfileResponse struct {
-	Profile Profile `json:"profile"`
-	Twter   Twter   `json:"twter"`
+	// TODO: Upgrade to `Profile` (v2) when Mobile App is upgraded
+	Profile OldProfile `json:"profile"`
+	Twter   Twter      `json:"twter"`
 }
 
 // InjectRequest ...

@@ -1124,29 +1124,29 @@ func (ua *twtxtUserAgent) isPublicURL(uri, userAgent string) bool {
 type SingleUserAgent struct {
 	twtxtUserAgent
 	Nick string
-	URL  string
+	URI  string
 }
 
 func (ua *SingleUserAgent) String() string {
 	// <client>/<version> (+<source.url>; @<source.nick>)
-	return fmt.Sprintf("%s (+%s; @%s)", ua.Client, ua.URL, ua.Nick)
+	return fmt.Sprintf("%s (+%s; @%s)", ua.Client, ua.URI, ua.Nick)
 }
 
 func (ua *SingleUserAgent) PodBaseURL() string {
 	// get rid of the trailing '/user/foo/twtxt.txt'
-	return ua.podBaseURL(ua.URL, "../..")
+	return ua.podBaseURL(ua.URI, "../..")
 }
 
 func (ua *SingleUserAgent) IsPublicURL() bool {
-	return ua.isPublicURL(ua.URL, ua.String())
+	return ua.isPublicURL(ua.URI, ua.String())
 }
 
 func (ua *SingleUserAgent) Followers(conf *Config) types.Followers {
 	return types.Followers{
-		&types.Follower{
-			Nick:          ua.Nick,
-			URL:           ua.URL,
-			LastFetchedAt: time.Now(),
+		types.Follower{
+			Nick:       ua.Nick,
+			URI:        ua.URI,
+			LastSeenAt: time.Now(),
 		},
 	}
 }
@@ -1215,7 +1215,7 @@ func (ua *MultiUserAgent) Followers(conf *Config) types.Followers {
 			return nil
 		}
 		for k, v := range oldFollowers {
-			followers = append(followers, &types.Follower{Nick: k, URL: v})
+			followers = append(followers, types.Follower{Nick: k, URI: v})
 		}
 	}
 
@@ -1251,7 +1251,7 @@ func ParseUserAgent(ua string) (TwtxtUserAgent, error) {
 	if match := singleUserUARegex.FindStringSubmatch(ua); match != nil {
 		return &SingleUserAgent{
 			twtxtUserAgent: twtxtUserAgent{Client: match[1]},
-			URL:            match[2],
+			URI:            match[2],
 			Nick:           match[3],
 		}, nil
 	}

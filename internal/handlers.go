@@ -170,29 +170,29 @@ func (s *Server) ProfileHandler() httprouter.Handle {
 		profile.Followers = followers
 		profile.NFollowers = len(followers)
 
-		profile.FollowedBy = s.cache.FollowedBy(ctx.User, profile.URL)
+		profile.FollowedBy = s.cache.FollowedBy(ctx.User, profile.URI)
 
 		ctx.Profile = profile
 
 		ctx.Links = append(ctx.Links, Link{
-			Href: fmt.Sprintf("%s/webmention", UserURL(profile.URL)),
+			Href: fmt.Sprintf("%s/webmention", UserURL(profile.URI)),
 			Rel:  "webmention",
 		})
 
 		ctx.Alternatives = append(ctx.Alternatives, Alternatives{
 			Alternative{
 				Type:  "text/plain",
-				Title: fmt.Sprintf("%s's Twtxt Feed", profile.Username),
-				URL:   profile.URL,
+				Title: fmt.Sprintf("%s's Twtxt Feed", profile.Nick),
+				URL:   profile.URI,
 			},
 			Alternative{
 				Type:  "application/atom+xml",
-				Title: fmt.Sprintf("%s's Atom Feed", profile.Username),
-				URL:   fmt.Sprintf("%s/atom.xml", UserURL(profile.URL)),
+				Title: fmt.Sprintf("%s's Atom Feed", profile.Nick),
+				URL:   fmt.Sprintf("%s/atom.xml", UserURL(profile.URI)),
 			},
 		}...)
 
-		twts := FilterTwts(ctx.User, s.cache.GetByURL(profile.URL))
+		twts := FilterTwts(ctx.User, s.cache.GetByURL(profile.URI))
 
 		if len(twts) > 0 {
 			profile.LastPostedAt = twts[0].Created()
@@ -212,7 +212,7 @@ func (s *Server) ProfileHandler() httprouter.Handle {
 			return
 		}
 
-		ctx.Title = fmt.Sprintf("%s's Profile: %s", profile.Username, profile.Tagline)
+		ctx.Title = fmt.Sprintf("%s's Profile: %s", profile.Nick, profile.Description)
 		ctx.Twts = pagedTwts
 		ctx.Pager = &pager
 
@@ -642,7 +642,7 @@ func (s *Server) SyndicationHandler() httprouter.Handle {
 			if s.db.HasUser(nick) {
 				if user, err := s.db.GetUser(nick); err == nil {
 					profile = user.Profile(s.config.BaseURL, nil)
-					twts = s.cache.GetByURL(profile.URL)
+					twts = s.cache.GetByURL(profile.URI)
 				} else {
 					log.WithError(err).Error("error loading user object")
 					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -651,7 +651,7 @@ func (s *Server) SyndicationHandler() httprouter.Handle {
 			} else if s.db.HasFeed(nick) {
 				if feed, err := s.db.GetFeed(nick); err == nil {
 					profile = feed.Profile(s.config.BaseURL, nil)
-					twts = s.cache.GetByURL(profile.URL)
+					twts = s.cache.GetByURL(profile.URI)
 				} else {
 					log.WithError(err).Error("error loading user object")
 					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -665,10 +665,10 @@ func (s *Server) SyndicationHandler() httprouter.Handle {
 			twts = s.cache.GetByView(localViewKey)
 
 			profile = types.Profile{
-				Type:     "Local",
-				Username: s.config.Name,
-				Tagline:  s.config.Description,
-				URL:      s.config.BaseURL,
+				Type:        "Local",
+				Nick:        s.config.Name,
+				Description: s.config.Description,
+				URI:         s.config.BaseURL,
 			}
 		}
 
@@ -697,10 +697,10 @@ func (s *Server) SyndicationHandler() httprouter.Handle {
 		}
 		// main feed
 		feed := &feeds.Feed{
-			Title:       fmt.Sprintf("%s Twtxt Atom Feed", profile.Username),
-			Link:        &feeds.Link{Href: profile.URL},
-			Description: profile.Tagline,
-			Author:      &feeds.Author{Name: profile.Username, Email: email},
+			Title:       fmt.Sprintf("%s Twtxt Atom Feed", profile.Nick),
+			Link:        &feeds.Link{Href: profile.URI},
+			Description: profile.Description,
+			Author:      &feeds.Author{Name: profile.Nick, Email: email},
 			Created:     now,
 		}
 		// feed items
