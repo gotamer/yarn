@@ -289,7 +289,7 @@ func (s *Server) PostHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		ctx := NewContext(s, r)
 
-		postas := strings.ToLower(strings.TrimSpace(r.FormValue("postas")))
+		postAs := strings.ToLower(strings.TrimSpace(r.FormValue("postas")))
 
 		// TODO: Support deleting/patching last feed (`postas`) twt too.
 		if r.Method == http.MethodDelete || r.Method == http.MethodPatch {
@@ -362,18 +362,18 @@ func (s *Server) PostHandler() httprouter.Handle {
 		var sources types.Feeds
 		//var twt types.Twt = types.NilTwt
 
-		switch postas {
+		switch postAs {
 		case "", user.Username:
 			sources = user.Source()
 
 			if hash != "" && lastTwt.Hash() == hash {
-				_, err = AppendTwt(s.config, s.db, user, text, lastTwt.Created())
+				_, err = AppendTwt(s.config, s.db, user, "", text, lastTwt.Created())
 			} else {
-				_, err = AppendTwt(s.config, s.db, user, text)
+				_, err = AppendTwt(s.config, s.db, user, "", text)
 			}
 		default:
-			if user.OwnsFeed(postas) {
-				if feed, err := s.db.GetFeed(postas); err == nil {
+			if user.OwnsFeed(postAs) {
+				if feed, err := s.db.GetFeed(postAs); err == nil {
 					sources = feed.Source()
 				} else {
 					log.WithError(err).Error("error loading feed object")
@@ -384,9 +384,9 @@ func (s *Server) PostHandler() httprouter.Handle {
 				}
 
 				if hash != "" && lastTwt.Hash() == hash {
-					_, err = AppendSpecial(s.config, s.db, postas, text, lastTwt.Created)
+					_, err = AppendTwt(s.config, s.db, user, postAs, text, lastTwt.Created)
 				} else {
-					_, err = AppendSpecial(s.config, s.db, postas, text)
+					_, err = AppendTwt(s.config, s.db, user, postAs, text)
 				}
 			} else {
 				err = ErrFeedImposter

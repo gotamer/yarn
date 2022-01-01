@@ -43,13 +43,7 @@ func DeleteLastTwt(conf *Config, user *User) error {
 	return f.Truncate(int64(n))
 }
 
-func AppendSpecial(conf *Config, db Store, specialUsername, text string, args ...interface{}) (types.Twt, error) {
-	user := &User{Username: specialUsername}
-	user.Following = make(map[string]string)
-	return AppendTwt(conf, db, user, text, args)
-}
-
-func AppendTwt(conf *Config, db Store, user *User, text string, args ...interface{}) (types.Twt, error) {
+func AppendTwt(conf *Config, db Store, user *User, feed, text string, args ...interface{}) (types.Twt, error) {
 	text = strings.TrimSpace(text)
 	if text == "" {
 		return types.NilTwt, fmt.Errorf("cowardly refusing to twt empty text, or only spaces")
@@ -61,7 +55,15 @@ func AppendTwt(conf *Config, db Store, user *User, text string, args ...interfac
 		return types.NilTwt, err
 	}
 
-	fn := filepath.Join(p, user.Username)
+	if feed != "" && !user.OwnsFeed(feed) {
+		log.Warnf("unauthorized attempt to post to feed %s from user %s", user, feed)
+		return types.NilTwt, fmt.Errorf("unauthorized attempt to post to feed %s from user %s", user, feed)
+	}
+	if feed == "" {
+		feed = user.Username
+	}
+
+	fn := filepath.Join(p, feed)
 
 	f, err := os.OpenFile(fn, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {

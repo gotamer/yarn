@@ -104,6 +104,12 @@ func (job *StatsJob) Run() {
 
 	log.Infof("updating stats")
 
+	adminUser, err := job.db.GetUser(job.conf.AdminUser)
+	if err != nil {
+		log.WithError(err).Warnf("error loading user object for AdminUser")
+		return
+	}
+
 	archiveSize, err := job.archive.Count()
 	if err != nil {
 		log.WithError(err).Warn("unable to get archive size")
@@ -155,7 +161,7 @@ func (job *StatsJob) Run() {
 		len(users), len(feeds), twts, archiveSize, job.cache.TwtCount(), len(followers), len(following),
 	)
 
-	if _, err := AppendSpecial(job.conf, job.db, "stats", text); err != nil {
+	if _, err := AppendTwt(job.conf, job.db, adminUser, statsBot, text); err != nil {
 		log.WithError(err).Warn("error updating stats feed")
 	}
 }

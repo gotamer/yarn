@@ -390,7 +390,7 @@ func (s *Server) processWebMention(source, target *url.URL, sourceData *microfor
 		return authorName, sourceFeed, nil
 	}
 
-	user, err := GetUserFromURL(s.config, s.db, target.String())
+	_, err := GetUserFromURL(s.config, s.db, target.String())
 	if err != nil {
 		log.WithError(err).WithField("target", target.String()).Warn("unable to get used from webmention target")
 		return err
@@ -401,32 +401,11 @@ func (s *Server) processWebMention(source, target *url.URL, sourceData *microfor
 		log.WithError(err).Warnf("error parsing mf2 source data from %s", source)
 	}
 
+	// TODO: Implement some kind of in-app notifications?
 	if authorName != "" && sourceFeed != "" {
-		if _, err := AppendSpecial(
-			s.config, s.db,
-			twtxtBot,
-			fmt.Sprintf(
-				"MENTION: @<%s %s> from @<%s %s> on %s",
-				user.Username, user.URL, authorName, sourceFeed,
-				source.String(),
-			),
-		); err != nil {
-			log.WithError(err).Warnf("error appending special MENTION post")
-			return err
-		}
+		// TODO: Do something with the @-mention
 	} else {
-		if _, err := AppendSpecial(
-			s.config, s.db,
-			twtxtBot,
-			fmt.Sprintf(
-				"WEBMENTION: @<%s %s> on %s",
-				user.Username, user.URL,
-				source.String(),
-			),
-		); err != nil {
-			log.WithError(err).Warnf("error appending special MENTION post")
-			return err
-		}
+		// TODO: Do something with the WebMention
 	}
 
 	return nil

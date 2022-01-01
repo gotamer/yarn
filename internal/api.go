@@ -391,7 +391,7 @@ func (a *API) PostEndpoint() httprouter.Handle {
 		switch req.PostAs {
 		case "", me:
 			sources = user.Source()
-			_, err = AppendTwt(a.config, a.db, user, text)
+			_, err = AppendTwt(a.config, a.db, user, "", text)
 		default:
 			if user.OwnsFeed(req.PostAs) {
 				if feed, err := a.db.GetFeed(req.PostAs); err == nil {
@@ -402,7 +402,7 @@ func (a *API) PostEndpoint() httprouter.Handle {
 					return
 				}
 
-				_, err = AppendSpecial(a.config, a.db, req.PostAs, text)
+				_, err = AppendTwt(a.config, a.db, user, req.PostAs, text)
 			} else {
 				err = ErrFeedImposter
 			}
