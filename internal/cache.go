@@ -628,22 +628,27 @@ func (cache *Cache) Store(conf *Config) error {
 func MergeFollowers(old, new types.Followers) types.Followers {
 	var res types.Followers
 
-	oldSet := make(map[string]*types.Follower)
+	seen := make(map[string]*types.Follower)
+
 	for _, o := range old {
 		// XXX: Backwards compatibility with old `Followers` struct.
 		// TODO: Remove post v0.12.x
 		if o.URI == "" {
 			o.URI = o.URL
 		}
-		oldSet[o.URI] = o
-		res = append(res, o)
+		if _, ok := seen[o.URI]; !ok {
+			seen[o.URI] = o
+			res = append(res, o)
+		}
 	}
 
 	for _, n := range new {
-		if o, ok := oldSet[n.URI]; ok {
+		if o, ok := seen[n.URI]; ok {
 			o.LastSeenAt = n.LastSeenAt
-		} else {
-			oldSet[n.URI] = n
+		}
+
+		if _, ok := seen[n.URI]; !ok {
+			seen[n.URI] = n
 			res = append(res, n)
 		}
 	}
