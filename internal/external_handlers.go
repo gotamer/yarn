@@ -125,6 +125,10 @@ func (s *Server) ExternalHandler() httprouter.Handle {
 
 		if len(twts) > 0 {
 			ctx.Profile.LastPostedAt = twts[0].Created()
+		}
+
+		follower := s.cache.GetFollowerByURI(ctx.User, uri)
+		if follower != nil {
 			ctx.Profile.LastSeenAt = twts[0].Created()
 		}
 

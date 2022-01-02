@@ -1383,6 +1383,22 @@ func (cache *Cache) GetFollowers(profile types.Profile) types.Followers {
 	return followers
 }
 
+// GetFollowerByURI ...
+func (cache *Cache) GetFollowerByURI(user *User, uri string) *types.Follower {
+	cache.mu.RLock()
+	followers := cache.Followers[user.Username]
+	defer cache.mu.RUnlock()
+
+	// TODO: Optimize this to be an O(1) lookup with a new Cached View?
+	for _, f := range followers {
+		if f.URI == uri {
+			return f
+		}
+	}
+
+	return nil
+}
+
 func (cache *Cache) FollowedBy(user *User, uri string) bool {
 	cache.mu.RLock()
 	followers := cache.Followers[user.Username]
