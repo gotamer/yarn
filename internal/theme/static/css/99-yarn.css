@@ -607,6 +607,12 @@ a[role=button] {
   display: block;
 }
 
+#user-theme-launch {
+  display: block;
+  margin-top: -1.6rem;
+  padding-bottom: 1rem !important;
+}
+
 /* Footer Style */
 body > footer{
   display: flex;

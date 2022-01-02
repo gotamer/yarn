@@ -44,6 +44,7 @@ func (s *Server) SettingsHandler() httprouter.Handle {
 		password := r.FormValue("password")
 
 		theme := r.FormValue("theme")
+		userTheme := r.FormValue("userTheme")
 		displayDatesInTimezone := r.FormValue("displayDatesInTimezone")
 		displayTimePreference := r.FormValue("displayTimePreference")
 		openLinksInPreference := r.FormValue("openLinksInPreference")
@@ -105,6 +106,7 @@ func (s *Server) SettingsHandler() httprouter.Handle {
 		user.Tagline = tagline
 
 		user.Theme = theme
+		user.userTheme = userTheme
 		user.DisplayDatesInTimezone = displayDatesInTimezone
 		user.DisplayTimePreference = displayTimePreference
 		user.OpenLinksInPreference = openLinksInPreference

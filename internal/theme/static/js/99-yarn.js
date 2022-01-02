@@ -819,6 +819,22 @@ u("#register #agree").on("change", function(e) {
   }
 });
 
+u("#themePicker").on("load", function(e) {
+  if (u(e.target).first().value === "user-theme") {
+    u("#user-theme-launch").first().style.display = "inherit";
+  } else {
+    u("#user-theme-launch").first().style.display = "none";
+  }
+});
+
+u("#themePicker").on("change", function(e) {
+  if (u(e.target).first().value === "user-theme") {
+    u("#user-theme-launch").first().style.display = "inherit";
+  } else {
+    u("#user-theme-launch").first().style.display = "none";
+  }
+});
+
 u("#burgerMenu").on("click", function(e) {
   e.preventDefault();
   if (u("#podMenu").first().style.display === "none" ||

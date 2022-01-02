@@ -118,14 +118,16 @@
       <div>
         <fieldset id="theme">
           <legend>{{ tr . "SettingsFormThemeTitle" }}</legend>
-          <select name="theme">
+          <select id="themePicker" name="theme">
             <option id="theme-auto" value="auto" {{ if eq .User.Theme "auto" }}selected{{ end }}>{{ tr . "ThemeAuto" }}</option>
+            <option id="theme-user" value="user-theme" {{ if eq .User.Theme "user-theme" }}selected{{ end }}>{{ tr . "ThemeUser" }}</option>
             <option id="theme-dark-classic" value="dark-classic" {{ if eq .User.Theme "dark-classic" }}selected{{ end }}>{{ tr . "ThemeDarkClassic" }}</option>
             <option id="theme-light-classic" value="light-classic" {{ if eq .User.Theme "light-classic" }}selected{{ end }}>{{ tr . "ThemeLightClassic" }}</option>
             <option id="theme-dark" value="dark" {{ if eq .User.Theme "dark" }}selected{{ end }}>{{ tr . "ThemeDark" }}</option>
             <option id="theme-light" value="light" {{ if eq .User.Theme "light" }}selected{{ end }}>{{ tr . "ThemeLight" }}</option>
           </select>
         </fieldset>
+        <a href="/user/{{ $.User.Username }}/theme" id="user-theme-launch">Edit Custom Theme CSS</a>
       </div>
     </div>
     <button type="submit" class="primary">{{ tr . "SettingsFormUpdate" }}</button>

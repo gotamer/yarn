@@ -653,6 +653,9 @@ func (s *Server) initRoutes() {
 	s.router.GET("/settings", httproutermiddleware.Handler("settings", s.am.MustAuth(s.SettingsHandler()), mdlw))
 	s.router.POST("/settings", httproutermiddleware.Handler("settings", s.am.MustAuth(s.SettingsHandler()), mdlw))
 
+	s.router.GET("/user/:nick/theme", httproutermiddleware.Handler("theme", s.am.MustAuth(s.ThemeHandler()), mdlw))
+	s.router.POST("/user/:nick/theme", httproutermiddleware.Handler("theme", s.am.MustAuth(s.ThemeHandler()), mdlw))
+
 	s.router.GET("/info", httproutermiddleware.Handler("info", s.PodInfoHandler(), mdlw))
 	s.router.GET("/config", httproutermiddleware.Handler("config", s.am.MustAuth(s.PodConfigHandler()), mdlw))
 	s.router.GET("/manage/pod", httproutermiddleware.Handler("manage_pod", s.am.MustAuth(s.ManagePodHandler()), mdlw))

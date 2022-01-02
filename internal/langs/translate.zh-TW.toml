@@ -17,3 +17,7 @@ other = "Pico Light"
 [ThemeLightClassic]
 hash = "sha1-0b89cf1bf3d43dd4a6b6338a196e0edfd3705933"
 other = "Yarn.Social Light"
+
+[ThemeUser]
+hash = "sha1-b37c3832e05fb5bf560b9517b62e753097c5a43d"
+other = "Custom Theme"
