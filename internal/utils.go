@@ -1208,15 +1208,13 @@ func (ua *MultiUserAgent) Followers(conf *Config) types.Followers {
 		return nil
 	}
 
-	if err := json.Unmarshal(data, &followers); err != nil {
-		oldFollowers := make(map[string]string)
-		if err := json.Unmarshal(data, &oldFollowers); err != nil {
-			log.WithError(err).Errorf("error deserializing whoFollows response from %s", ua)
-			return nil
-		}
-		for k, v := range oldFollowers {
-			followers = append(followers, &types.Follower{Nick: k, URI: v, LastSeenAt: time.Now()})
-		}
+	kv := make(map[string]string)
+	if err := json.Unmarshal(data, &kv); err != nil {
+		log.WithError(err).Errorf("error deserializing whoFollows response from %s", ua)
+		return nil
+	}
+	for k, v := range kv {
+		followers = append(followers, &types.Follower{Nick: k, URI: v, LastSeenAt: time.Now()})
 	}
 
 	return followers

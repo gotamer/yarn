@@ -32,6 +32,17 @@ func (fs Followers) Swap(i, j int) {
 	fs[i], fs[j] = fs[j], fs[i]
 }
 
+// AsMap returns the Followers as a map of `nick -> uri` for use by the /whoFollows resource
+// which implements the MultiUserAegent spec
+// See: https://dev.twtxt.net/doc/useragentextension.html
+func (fs Followers) AsMap() map[string]string {
+	kv := make(map[string]string)
+	for _, f := range fs {
+		kv[f.Nick] = f.URI
+	}
+	return kv
+}
+
 type Follow struct {
 	URI           string
 	Nick          string

@@ -105,7 +105,7 @@ func (s *Server) WhoFollowsHandler() httprouter.Handle {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
 
-			if err := json.NewEncoder(w).Encode(followers); err != nil {
+			if err := json.NewEncoder(w).Encode(followers.AsMap()); err != nil {
 				log.WithError(err).Error("error encoding user for display")
 				http.Error(w, "Bad Request", http.StatusBadRequest)
 			}

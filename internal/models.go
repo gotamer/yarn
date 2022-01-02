@@ -196,6 +196,9 @@ func NewUser() *User {
 	if err := defaults.Set(user); err != nil {
 		log.WithError(err).Error("error creating new user object")
 	}
+	user.muted = make(map[string]string)
+	user.remotes = make(map[string]string)
+	user.sources = make(map[string]string)
 	return user
 }
 
