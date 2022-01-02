@@ -11,7 +11,7 @@
       {{ if .Profile.Avatar }}
       <img class="avatar u-photo{{ if .Profile.Muted }} ismuted{{ end }}" {{ if not (eq $.Profile.Type "External") }}src="/user/{{ $.Profile.Nick }}/avatar"{{ else }}src="/externalAvatar?uri={{ $.Profile.URI }}"{{ end }} alt="" loading=lazy />
       {{ else }}
-      <i class="ti ti-rss-nav"></i>
+      <i class="ti ti-rss" style="font-size:3em"></i>
       {{ end }}
     </a>
     {{ template "followStats" (dict "Profile" .Profile "Ctx" .) }}
