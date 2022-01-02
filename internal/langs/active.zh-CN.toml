@@ -915,8 +915,8 @@ hash = "sha1-8851142da56fd885ce668a165b33fee7003e858d"
 other = "配置"
 
 [ProfileDoesNotFollowYou]
-hash = "sha1-39a192be045429f69662e113e83bbcc7b46f24dc"
-other = "还没有关注你 (<i>他可能没看到你的消息!</i>)"
+hash = "sha1-4c0c8a13e9d3be9b9493e9f970f6c1feb51bc509"
+other = "does not follow you (<i>your replies may go unnoticed.</i>)"
 
 [ProfileFollowersLinkTitle]
 hash = "sha1-60307d4b8f5c2d8eb88f9f031a041fe636c05f43"
@@ -1191,12 +1191,20 @@ hash = "sha1-c614ba7c453cdcd4d21b20e8286c6266c891e0c6"
 other = "自动"
 
 [ThemeDark]
-hash = "sha1-ae1ef01432946b8976b9b58575b3390ab7644db2"
-other = "深色"
+hash = "sha1-60c6abbfc36bba55c1e4edb03714191eaa82238d"
+other = "Pico Dark"
+
+[ThemeDarkClassic]
+hash = "sha1-63c444fda42d9dc96f92d0dc5c347b5a0666f44a"
+other = "Yarn.Social Dark"
 
 [ThemeLight]
-hash = "sha1-a36ef8aba22905e2d2efbf1ac1d6230d5761859d"
-other = "浅色"
+hash = "sha1-8e40c7069dd442c9c4e462b02bcb49bbafaec64f"
+other = "Pico Light"
+
+[ThemeLightClassic]
+hash = "sha1-0b89cf1bf3d43dd4a6b6338a196e0edfd3705933"
+other = "Yarn.Social Light"
 
 [TransferFeedFormConfirm]
 hash = "sha1-1d1a2a5ca176b94b13d6393b44db100201c5cd98"
