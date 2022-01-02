@@ -129,7 +129,7 @@ func (s *Server) ExternalHandler() httprouter.Handle {
 
 		follower := s.cache.GetFollowerByURI(ctx.User, uri)
 		if follower != nil {
-			ctx.Profile.LastSeenAt = twts[0].Created()
+			ctx.Profile.LastSeenAt = follower.LastSeenAt
 		}
 
 		trdata := map[string]interface{}{}

@@ -1385,6 +1385,10 @@ func (cache *Cache) GetFollowers(profile types.Profile) types.Followers {
 
 // GetFollowerByURI ...
 func (cache *Cache) GetFollowerByURI(user *User, uri string) *types.Follower {
+	if user == nil || user.IsZero() {
+		return nil
+	}
+
 	cache.mu.RLock()
 	followers := cache.Followers[user.Username]
 	defer cache.mu.RUnlock()
