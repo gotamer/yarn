@@ -557,7 +557,7 @@ func (s *Server) ManageJobsHandler() httprouter.Handle {
 			})
 
 			ctx.Error = false
-			ctx.Message = fmt.Sprintf("Job %s successfully for execution", name)
+			ctx.Message = fmt.Sprintf("Job %s successfully queued for execution", name)
 			s.render("error", w, ctx)
 
 			return
