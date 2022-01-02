@@ -1625,6 +1625,21 @@ func (cache *Cache) DeleteFeeds(feeds types.Feeds) {
 	cache.Refresh()
 }
 
+// Reset ...
+func (cache *Cache) Reset() {
+	cache.mu.Lock()
+
+	cache.Map = make(map[string]types.Twt)
+	cache.Peers = make(map[string]*Peer)
+	cache.Feeds = make(map[string]*Cached)
+	cache.Views = make(map[string]*Cached)
+
+	cache.Followers = make(map[string]types.Followers)
+	cache.Twters = make(map[string]*types.Twter)
+
+	cache.mu.Unlock()
+}
+
 // PruneFollowers ...
 func (cache *Cache) PruneFollowers(olderThan time.Duration) {
 	cache.mu.Lock()

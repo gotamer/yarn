@@ -482,6 +482,17 @@ func (s *Server) RstUserHandler() httprouter.Handle {
 func (s *Server) RefreshCacheHandler() httprouter.Handle {
 	isAdminUser := IsAdminUserFactory(s.config)
 
+	var UpdateFeeds Job
+	for _, entry := range s.cron.Entries() {
+		if entry.Job.(Job).String() == "UpdateFeeds" {
+			UpdateFeeds = entry.Job.(Job)
+			break
+		}
+	}
+	if UpdateFeeds == nil {
+		log.Fatal("UpdateFeeds job not found in cron")
+	}
+
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		ctx := NewContext(s, r)
 
@@ -492,10 +503,14 @@ func (s *Server) RefreshCacheHandler() httprouter.Handle {
 			return
 		}
 
-		s.cache.Refresh()
+		s.tasks.DispatchFunc(func() error {
+			s.cache.Reset()
+			UpdateFeeds.Run()
+			return nil
+		})
 
 		ctx.Error = false
-		ctx.Message = "Successfully refreshed cache"
+		ctx.Message = "Successfully deleted cache and started fetch cycle"
 		s.render("error", w, ctx)
 	}
 }
@@ -541,6 +556,7 @@ func (s *Server) ManageJobsHandler() httprouter.Handle {
 			for _, entry := range s.cron.Entries() {
 				if strings.EqualFold(name, entry.Job.(Job).String()) {
 					job = entry.Job.(Job)
+					break
 				}
 			}
 

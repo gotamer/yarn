@@ -9,7 +9,7 @@
         <a href="/manage/jobs"><i class="ti ti-heartbeat"></i> Manage Jobs</a><br /><br />
         <a href="/manage/peers"><i class="ti ti-affiliate"></i> Manage Peers</a><br /><br />
         <a href="/manage/users"><i class="ti ti-users"></i> Manage Users</a><br /><br />
-        <a href="/manage/refreshcache"><i class="ti ti-rotate-clockwise-2"></i> Refresh Cache</a>
+        <a href="/manage/refreshcache" onclick="return confirm('Are you sure you want to delete and refresh ths cache?')"><i class="ti ti-rotate-clockwise-2"></i> Refresh Cache</a>
       </div>
       <form action="/manage/pod" enctype="multipart/form-data" method="POST">
         <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
