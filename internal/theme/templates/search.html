@@ -1,8 +1,8 @@
 {{ define "content" }}
   <article class="container-fluid">
     <hgroup>
-      <h2>{{ tr . "SearchTitle" }}</h2>
-      <h3>{{ tr . "SearchSummary" }}</h3>
+      <h2>Search</h2>
+      <h3>Twts matching {{ .SearchQuery }}</h3>
     </hgroup>
   </article>
   {{ template "feed" (dict "Authenticated" $.Authenticated "User" $.User "Profile" $.Profile "LastTwt" $.LastTwt "Pager" $.Pager "Twts" $.Twts "Ctx" . "view" "search") }}

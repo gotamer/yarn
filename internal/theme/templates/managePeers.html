@@ -1,15 +1,15 @@
 {{ define "content" }}
   <article class="container-fluid">
     <hgroup>
-      <h2>{{ tr . "PeerPodTitle" }}</h2>
+      <h2>Discovered {{ $.Peers | len }} Peering Pods</h2>
     </hgroup>
     <table>
       <tr>
-        <th>{{ tr . "PeerPodName" }}</th>
-        <th>{{ tr . "PeerPodDescription" }}</th>
-        <th>{{ tr . "PeerPodVersion" }}</th>
-        <th><abbr title="{{ tr . "PeerPodLastSeenContent" }}">{{ tr . "PeerPodLastSeenTitle" }}<abbr></th>
-        <th><abbr title="{{ tr . "PeerPodLastUpdatedContent" }}">{{ tr . "PeerPodLastUpdatedTitle" }}</abbr></th>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Pod Version</th>
+        <th><abbr title="When this pod received the last feed fetch request from the peering pod">Last Seen<abbr></th>
+        <th><abbr title="When this pod fetched the peering pod's information the last time (once a day)">Last Updated</abbr></th>
       </tr>
       {{ range $peer := $.Peers }}
         <tr>

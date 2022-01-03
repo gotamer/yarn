@@ -3,6 +3,6 @@
   {{ if $.Twts }}
     {{ template "twt" (dict "Authenticated" $.Authenticated "User" $.User "Profile" $.Profile "LastTwt" $.LastTwt "Twt" ( $.Twts | first) "Ctx" . "view" "permalink") }}
   {{ else }}
-    <p>{{ tr . PermalinkNothing | html }}</p>
+    <p>Nothing to see here. <a href="?unfiltered=1">View Unfiltered</a></p>
   {{ end }}
 {{ end }}

@@ -177,15 +177,17 @@
   {{ if gt (len $.Twts) 0 }}
   <div class="grid h-feed">
     <div>
-      {{ template "pager" (dict "Pager" $.Pager "Ctx" $.Ctx) }}
+      {{ template "pager" (dict "Pager" $.Pager "Ctx" $.Ctx)}}
       {{ range $idx, $twt := $.Twts }}
       {{ template "twt" (dict "Authenticated" $.Authenticated "User" $.User "Profile" $.Profile "LastTwt" $.LastTwt "Twt" $twt "Ctx" $.Ctx "view" $.view) }}
       {{ else }}
         {{ if eq $.view "timeline" }}
-          <p>{{ tr $.Ctx "NoTwts" }}</p>
-          <p>{{ tr $.Ctx "FeedDiscoverySummary" }}</p>
+          <p>{{tr $.Ctx "NoTwts"}}</p>
+          <p>Try checking out the <a href="/discover">{{tr $.Ctx "NavDiscover"}}</a>
+          timeline to see what's happenning on the {{ $.Ctx.InstanceName }} pod or
+          <a href="/follow">{{tr $.Ctx "NavFollow" }}</a> a feed</p>
         {{ else }}
-          <p>{{ .Profile.Nick }} {{ tr $.Ctx "FeedLastPostedText" }} {{ .Profile.LastPostedAt | time }}</p>
+          <p>{{ .Profile.Nick }} last posted {{ .Profile.LastPostedAt | time }}</p>
         {{ end }}
       {{ end }}
       {{ template "pager" (dict "Pager" $.Pager "Ctx" $.Ctx)}}
@@ -204,31 +206,31 @@
       {{ if $.Pager.HasPrev }}
         {{ with $.Ctx.Twter.URI }}
           {{ if isLocalURL $.Ctx.Twter.URI }}
-            <a href="?p={{ $.Pager.PrevPage }}"><i class="ti ti-caret-left"></i> {{ tr $.Ctx "PagerPrevLinkTitle" }}</a>
+            <a href="?p={{ $.Pager.PrevPage }}"><i class="ti ti-caret-left"></i>&nbsp;{{tr $.Ctx "PagerPrevLinkTitle"}}</a>
           {{ else }}
-            <a href="/external?uri={{ $.Ctx.Twter.URI }}&nick={{ $.Ctx.Twter.Nick }}&p={{ $.Pager.PrevPage }}"><i class="ti ti-caret-left"></i> {{ tr $.Ctx "PagerPrevLinkTitle" }}</a>
+            <a href="/external?uri={{ $.Ctx.Twter.URI }}&nick={{ $.Ctx.Twter.Nick }}&p={{ $.Pager.PrevPage }}"><i class="ti ti-caret-left"></i>&nbsp;{{tr $.Ctx "PagerPrevLinkTitle"}}</a>
           {{ end }}
         {{ else }}
-          <a href="?p={{ $.Pager.PrevPage }}"><i class="ti ti-caret-left"></i> {{ tr $.Ctx "PagerPrevLinkTitle" }}</a>
+          <a href="?p={{ $.Pager.PrevPage }}"><i class="ti ti-caret-left"></i>&nbsp;{{tr $.Ctx "PagerPrevLinkTitle"}}</a>
         {{ end }}
       {{ else }}
       {{ end }}
     </li>
   </ul>
   <ul>
-    <li><small>{{ tr $.Ctx "PagerTwtsSummary" (dict "Page" $.Pager.Page "PageNums" $.Pager.PageNums "Nums" $.Pager.Nums) }}</small></li>
+      <li><small>{{tr $.Ctx "PagerTwtsSummary" (dict "Page" $.Pager.Page "PageNums" $.Pager.PageNums "Nums" $.Pager.Nums)}}</small></li>
   </ul>
   <ul>
     <li>
       {{ if $.Pager.HasNext }}
         {{ with $.Ctx.Twter.URI }}
           {{ if isLocalURL $.Ctx.Twter.URI }}
-            <a href="?p={{ $.Pager.NextPage }}">{{ tr $.Ctx "PagerNextLinkTitle" }} <i class="ti ti-caret-right"></i></a>
+            <a href="?p={{ $.Pager.NextPage }}">{{tr $.Ctx "PagerNextLinkTitle"}}&nbsp;<i class="ti ti-caret-right"></i></a>
           {{ else }}
-            <a href="/external?uri={{ $.Ctx.Twter.URI }}&nick={{ $.Ctx.Twter.Nick }}&p={{ $.Pager.NextPage }}">{{ tr $.Ctx "PagerNextLinkTitle" }} <i class="ti ti-caret-right"></i></a>
+            <a href="/external?uri={{ $.Ctx.Twter.URI }}&nick={{ $.Ctx.Twter.Nick }}&p={{ $.Pager.NextPage }}">{{tr $.Ctx "PagerNextLinkTitle"}}&nbsp;<i class="ti ti-caret-right"></i></a>
           {{ end }}
         {{ else }}
-          <a href="?p={{ $.Pager.NextPage }}">{{ tr $.Ctx "PagerNextLinkTitle" }} <i class="ti ti-caret-right"></i></a>
+          <a href="?p={{ $.Pager.NextPage }}">{{tr $.Ctx "PagerNextLinkTitle"}}&nbsp;<i class="ti ti-caret-right"></i></a>
         {{ end }}
       {{ else }}
       {{ end }}
@@ -242,18 +244,18 @@
 {{ if $.Profile.ShowFollowing }}
 <div>
   {{ if eq $.Profile.Type "External" }}
-    <a href="/externalFollowing?uri={{ $.Profile.URI }}"><strong>{{ tr $.Ctx "ProfileFollowingLinkTitle" }}</strong><br/>{{ $.Profile.NFollowing }}</a>
+    <a href="/externalFollowing?uri={{ $.Profile.URI }}"><strong>{{ tr $.Ctx "ProfileFollowingLinkTitle" | trimSuffix ":" }}</strong><br/>{{ $.Profile.NFollowing }}</a>
   {{ else }}
-    <a href="/user/{{ $.Profile.Nick }}/following"><strong>{{ tr $.Ctx "ProfileFollowingLinkTitle" }}</strong><br/>{{ $.Profile.NFollowing }}</a>
+    <a href="/user/{{ $.Profile.Nick }}/following"><strong>{{ tr $.Ctx "ProfileFollowingLinkTitle" | trimSuffix ":" }}</strong><br/>{{ $.Profile.NFollowing }}</a>
   {{ end }}
 </div>
 {{ end }}
 {{ if $.Profile.ShowFollowers }}
 <div>
   {{ if eq $.Profile.Type "External" }}
-    <a href="#" title="{{ tr . "FeedsExternalDetailsNotAvailable" }}"><strong>{{ tr $.Ctx "ProfileFollowersLinkTitle" }}</strong><br/>{{ $.Profile.NFollowers }}</a>
+    <a href="#" title="Details on followers are not available on external feeds"><strong>{{ tr $.Ctx "ProfileFollowersLinkTitle" | trimSuffix ":" }}</strong><br/>{{ $.Profile.NFollowers }}</a>
   {{ else }}
-    <a href="/user/{{ $.Profile.Nick }}/followers"><strong>{{ tr $.Ctx "ProfileFollowersLinkTitle" }}</strong><br/>{{ $.Profile.NFollowers }}</a>
+    <a href="/user/{{ $.Profile.Nick }}/followers"><strong>{{ tr $.Ctx "ProfileFollowersLinkTitle" | trimSuffix ":" }}</strong><br/>{{ $.Profile.NFollowers }}</a>
   {{ end }}
 </div>
 {{ end }}
@@ -262,6 +264,6 @@
 {{ define "profileLinks" }}
 <a target="_blank" href="{{ $.Profile.URI }}"><i class="ti ti-link-profile"></i> {{ tr $.Ctx "ProfileTwtxtLinkTitle" }}</a>
 <a target="_blank" href="{{ $.Profile.URI | trimSuffix "/twtxt.txt" }}/atom.xml"><i class="ti ti-rss-profile"></i> {{ tr $.Ctx "ProfileAtomLinkTitle" }}</a>
-<a href="{{ $.Profile.URI | trimSuffix "/twtxt.txt" }}/bookmarks"><i class="ti ti-bookmarks"></i> {{ tr $.Ctx "ProfileBookmarksLinkTitle" }}</a>
+<a href="{{ $.Profile.URI | trimSuffix "/twtxt.txt" }}/bookmarks"><i class="ti ti-bookmarks"></i> {{ tr $.Ctx "ProfileBookmarksLinkTitle" | trimSuffix ":" }}</a>
 <a target="_blank" href="{{ $.Profile.URI | trimSuffix "/twtxt.txt" }}/config.yaml"><i class="ti ti-settings"></i> {{ tr $.Ctx "ProfileConfigLinkTitle" }}</a>
 {{ end }}
