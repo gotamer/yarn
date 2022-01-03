@@ -20,6 +20,7 @@ import (
 	"git.mills.io/yarnsocial/yarn"
 	"git.mills.io/yarnsocial/yarn/types"
 	"github.com/dustin/go-humanize"
+	"github.com/rcrowley/go-metrics"
 	sync "github.com/sasha-s/go-deadlock"
 	log "github.com/sirupsen/logrus"
 )
@@ -1210,50 +1211,57 @@ func (cache *Cache) Refresh() {
 		discoverTwts types.Twts
 	)
 
-	twtMap := make(map[string]types.Twt)
+	byHash := make(map[string]types.Twt)
+	byTags := make(map[string]types.Twts)
+	bySubjects := make(map[string]types.Twts)
 
-	isLocalURL := IsLocalURLFactory(cache.conf)
 	filterOutFeedsAndBots := FilterOutFeedsAndBotsFactory(cache.conf)
 	for _, twt := range allTwts {
-		twtMap[twt.Hash()] = twt
+		byHash[twt.Hash()] = twt
 
-		if isLocalURL(twt.Twter().URI) {
+		if cache.conf.IsLocalURL(twt.Twter().URI) {
 			localTwts = append(localTwts, twt)
 		}
 
 		if filterOutFeedsAndBots(twt) {
 			discoverTwts = append(discoverTwts, twt)
 		}
+
+		for _, k := range GroupByTag(twt) {
+			byTags[k] = append(byTags[k], twt)
+		}
+
+		for _, k := range GroupBySubject(twt) {
+			bySubjects[k] = append(bySubjects[k], twt)
+		}
 	}
 
-	tags := GroupTwtsBy(allTwts, GroupByTag)
-	subjects := GroupTwtsBy(allTwts, GroupBySubject)
-
-	// XXX: I _think_ this is a bit of a hack.
 	// Insert at the top of all subject views the original Twt (if any)
 	// This is mostly to support "forked" conversations
-	for k, v := range subjects {
+	for k, v := range bySubjects {
 		hash := ExtractHashFromSubject(k)
-		if twt, ok := twtMap[hash]; ok {
+		if twt, ok := byHash[hash]; ok {
 			if len(v) > 0 && v[(len(v)-1)].Hash() != twt.Hash() {
-				subjects[k] = append(subjects[k], twt)
+				bySubjects[k] = append(bySubjects[k], twt)
 			}
 		}
 	}
 
 	cache.mu.Lock()
 	cache.List = NewCachedTwts(allTwts, "")
-	cache.Map = twtMap
+	cache.Map = byHash
 	cache.Views = map[string]*Cached{
 		localViewKey:    NewCachedTwts(localTwts, ""),
 		discoverViewKey: NewCachedTwts(discoverTwts, ""),
 	}
-	for k, v := range tags {
+	for k, v := range byTags {
 		cache.Views["tag:"+k] = NewCachedTwts(v, "")
 	}
-	for k, v := range subjects {
+	for k, v := range bySubjects {
 		cache.Views["subject:"+k] = NewCachedTwts(v, "")
 	}
+
+	// Cleanup dead Peers
 	for k, peer := range cache.Peers {
 		if (peer.LastSeen.Sub(peer.LastUpdated)) > (podInfoUpdateTTL/2) || time.Since(peer.LastUpdated) > podInfoUpdateTTL {
 			delete(cache.Peers, k)
