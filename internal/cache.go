@@ -329,31 +329,26 @@ func (p *Peer) makeJsonRequest(conf *Config, path string) ([]byte, error) {
 
 	res, err := Request(conf, http.MethodGet, p.URI+path, headers)
 	if err != nil {
-		log.WithError(err).Errorf("error making %s request to pod running at %s", path, p.URI)
 		return nil, err
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode/100 != 2 {
-		log.Errorf("HTTP %s response for %s of pod running at %s", res.Status, path, p.URI)
 		return nil, fmt.Errorf("non-success HTTP %s response for %s%s", res.Status, p.URI, path)
 	}
 
 	if ctype := res.Header.Get("Content-Type"); ctype != "" {
 		mediaType, _, err := mime.ParseMediaType(ctype)
 		if err != nil {
-			log.WithError(err).Errorf("error parsing content type header '%s' for %s of pod running at %s", ctype, path, p.URI)
 			return nil, err
 		}
 		if mediaType != "application/json" {
-			log.Errorf("non-JSON response '%s' for %s of pod running at %s", ctype, path, p.URI)
 			return nil, fmt.Errorf("non-JSON response content type '%s' for %s%s", ctype, p.URI, path)
 		}
 	}
 
 	data, err := io.ReadAll(res.Body)
 	if err != nil {
-		log.WithError(err).Errorf("error reading response body for %s of pod running at %s", path, p.URI)
 		return nil, err
 	}
 
