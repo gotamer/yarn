@@ -770,10 +770,10 @@ func (twt *Twt) LiteralText() string {
 	}
 	return b.String()
 }
-func (twt Twt) Clone() types.Twt {
+func (twt *Twt) Clone() types.Twt {
 	return twt.CloneTwt()
 }
-func (twt Twt) CloneTwt() *Twt {
+func (twt *Twt) CloneTwt() *Twt {
 	msg := make([]Elem, len(twt.msg))
 	for i := range twt.msg {
 		msg[i] = twt.msg[i].Clone()
@@ -823,7 +823,7 @@ func (twt *Twt) GobDecode(data []byte) error {
 
 	return nil
 }
-func (twt Twt) MarshalJSON() ([]byte, error) {
+func (twt *Twt) MarshalJSON() ([]byte, error) {
 	tags := twt.Tags()
 	return json.Marshal(struct {
 		Twter        types.Twter `json:"twter"`
@@ -885,7 +885,7 @@ func DecodeJSON(data []byte) (types.Twt, error) {
 
 	return twt, nil
 }
-func (twt Twt) Format(state fmt.State, c rune) {
+func (twt *Twt) Format(state fmt.State, c rune) {
 	if state.Flag('+') || state.Flag('#') {
 		fmt.Fprint(state, twt.dt.Literal())
 		state.Write([]byte("\t"))
@@ -900,11 +900,11 @@ func (twt Twt) Format(state fmt.State, c rune) {
 	}
 }
 
-func (twt Twt) FormatTwt() string {
+func (twt *Twt) FormatTwt() string {
 	return fmt.Sprintf("%+t\n", twt)
 }
-func (twt Twt) FormatText(mode types.TwtTextFormat, opts types.FmtOpts) string {
-	twt = *twt.CloneTwt()
+func (twt *Twt) FormatText(mode types.TwtTextFormat, opts types.FmtOpts) string {
+	twt = twt.CloneTwt()
 	twt.ExpandMentions(opts, nil)
 	twt.ExpandTags(opts, nil)
 	if opts != nil {
@@ -981,36 +981,36 @@ func (twt *Twt) ExpandMentions(opts types.FmtOpts, lookup types.FeedLookup) {
 		twt.mentions[i] = m
 	}
 }
-func (twt Twt) String() string     { return strings.ReplaceAll(twt.Literal(), "\u2028", "\n") }
-func (twt Twt) Created() time.Time { return twt.dt.DateTime() }
-func (twt Twt) Mentions() types.MentionList {
+func (twt *Twt) String() string     { return strings.ReplaceAll(twt.Literal(), "\u2028", "\n") }
+func (twt *Twt) Created() time.Time { return twt.dt.DateTime() }
+func (twt *Twt) Mentions() types.MentionList {
 	lis := make([]types.TwtMention, len(twt.mentions))
 	for i := range twt.mentions {
 		lis[i] = twt.mentions[i]
 	}
 	return lis
 }
-func (twt Twt) Tags() types.TagList {
+func (twt *Twt) Tags() types.TagList {
 	lis := make([]types.TwtTag, len(twt.tags))
 	for i := range twt.tags {
 		lis[i] = twt.tags[i]
 	}
 	return lis
 }
-func (twt Twt) Links() types.LinkList {
+func (twt *Twt) Links() types.LinkList {
 	lis := make([]types.TwtLink, len(twt.links))
 	for i := range twt.links {
 		lis[i] = twt.links[i]
 	}
 	return lis
 }
-func (twt Twt) Twter() types.Twter {
+func (twt *Twt) Twter() types.Twter {
 	if twt.twter == nil {
 		return types.Twter{}
 	}
 	return *twt.twter
 }
-func (twt Twt) Hash() string {
+func (twt *Twt) Hash() string {
 	if twt.hash != "" {
 		return twt.hash
 	}
@@ -1035,7 +1035,7 @@ func (twt Twt) Hash() string {
 
 	return twt.hash
 }
-func (twt Twt) Subject() types.Subject {
+func (twt *Twt) Subject() types.Subject {
 	if twt.subject == nil {
 		twt.subject = NewSubjectTag(twt.Hash(), "")
 	}

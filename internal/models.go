@@ -304,6 +304,13 @@ func (f *Feed) Profile(baseURL string, viewer *User) types.Profile {
 	}
 }
 
+func (f *Feed) Twter(conf *Config) types.Twter {
+	return types.Twter{
+		Nick: f.Name,
+		URI:  conf.URLForUser(f.Name),
+	}
+}
+
 func (f *Feed) Bytes() ([]byte, error) {
 	data, err := json.Marshal(f)
 	if err != nil {
@@ -547,8 +554,11 @@ func (u *User) Profile(baseURL string, viewer *User) types.Profile {
 	}
 }
 
-func (u *User) Twter() types.Twter {
-	return types.Twter{Nick: u.Username, URI: u.URL}
+func (u *User) Twter(conf *Config) types.Twter {
+	return types.Twter{
+		Nick: u.Username,
+		URI:  conf.URLForUser(u.Username),
+	}
 }
 
 func (u *User) Filter(twts []types.Twt) (filtered []types.Twt) {

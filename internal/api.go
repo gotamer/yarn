@@ -391,18 +391,18 @@ func (a *API) PostEndpoint() httprouter.Handle {
 		switch req.PostAs {
 		case "", me:
 			sources = user.Source()
-			_, err = AppendTwt(a.config, a.db, user, "", text)
+			_, err = AppendTwt(a.config, a.db, user, nil, text)
 		default:
 			if user.OwnsFeed(req.PostAs) {
-				if feed, err := a.db.GetFeed(req.PostAs); err == nil {
-					sources = feed.Source()
-				} else {
+				feed, feedErr := a.db.GetFeed(req.PostAs)
+				if feedErr != nil {
 					log.WithError(err).Error("error posting twt")
 					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 					return
 				}
+				sources = feed.Source()
 
-				_, err = AppendTwt(a.config, a.db, user, req.PostAs, text)
+				_, err = AppendTwt(a.config, a.db, user, feed, text)
 			} else {
 				err = ErrFeedImposter
 			}

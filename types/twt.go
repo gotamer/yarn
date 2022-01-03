@@ -338,37 +338,39 @@ const (
 	HTMLFmt
 	// TextFmt to use for og:description
 	TextFmt
+	// LiteralFmt is the raw literal format as written/read to/from a feed
+	LiteralFmt
 )
 
-var NilTwt = nilTwt{}
-
 type nilTwt struct{}
+
+var NilTwt = &nilTwt{}
 
 var _ Twt = NilTwt
 var _ gob.GobEncoder = NilTwt
 var _ gob.GobDecoder = NilTwt
 
-func (nilTwt) IsZero() bool { return true }
-func (nilTwt) Clone() Twt   { return NilTwt }
+func (*nilTwt) IsZero() bool { return true }
+func (*nilTwt) Clone() Twt   { return NilTwt }
 
-func (nilTwt) Twter() Twter       { return Twter{} }
-func (nilTwt) Created() time.Time { return time.Now() }
-func (nilTwt) Text() string       { return "" }
+func (*nilTwt) Twter() Twter       { return Twter{} }
+func (*nilTwt) Created() time.Time { return time.Now() }
+func (*nilTwt) Text() string       { return "" }
 
-func (nilTwt) Hash() string          { return "" }
-func (nilTwt) Subject() Subject      { return nil }
-func (nilTwt) Mentions() MentionList { return nil }
-func (nilTwt) Tags() TagList         { return nil }
-func (nilTwt) Links() LinkList       { return nil }
+func (*nilTwt) Hash() string          { return "" }
+func (*nilTwt) Subject() Subject      { return nil }
+func (*nilTwt) Mentions() MentionList { return nil }
+func (*nilTwt) Tags() TagList         { return nil }
+func (*nilTwt) Links() LinkList       { return nil }
 
-func (nilTwt) ExpandMentions(FmtOpts, FeedLookup)       {}
-func (nilTwt) Format(state fmt.State, c rune)           {}
-func (nilTwt) FormatTwt() string                        { return "" }
-func (nilTwt) FormatText(TwtTextFormat, FmtOpts) string { return "" }
+func (*nilTwt) ExpandMentions(FmtOpts, FeedLookup)       {}
+func (*nilTwt) Format(state fmt.State, c rune)           {}
+func (*nilTwt) FormatTwt() string                        { return "" }
+func (*nilTwt) FormatText(TwtTextFormat, FmtOpts) string { return "" }
 
-func (nilTwt) String() string             { return "" }
-func (nilTwt) GobDecode([]byte) error     { return ErrNotImplemented }
-func (nilTwt) GobEncode() ([]byte, error) { return nil, ErrNotImplemented }
+func (*nilTwt) String() string             { return "" }
+func (*nilTwt) GobDecode([]byte) error     { return ErrNotImplemented }
+func (*nilTwt) GobEncode() ([]byte, error) { return nil, ErrNotImplemented }
 
 func init() {
 	gob.Register(&nilTwt{})

@@ -43,7 +43,7 @@ func DeleteLastTwt(conf *Config, user *User) error {
 	return f.Truncate(int64(n))
 }
 
-func AppendTwt(conf *Config, db Store, user *User, feed, text string, args ...interface{}) (types.Twt, error) {
+func AppendTwt(conf *Config, db Store, user *User, feed *Feed, text string, args ...interface{}) (types.Twt, error) {
 	text = strings.TrimSpace(text)
 	if text == "" {
 		return types.NilTwt, fmt.Errorf("cowardly refusing to twt empty text, or only spaces")
@@ -55,15 +55,18 @@ func AppendTwt(conf *Config, db Store, user *User, feed, text string, args ...in
 		return types.NilTwt, err
 	}
 
-	if feed != "" && !user.OwnsFeed(feed) {
+	if feed != nil && !user.OwnsFeed(feed.Name) {
 		log.Warnf("unauthorized attempt to post to feed %s from user %s", user, feed)
 		return types.NilTwt, fmt.Errorf("unauthorized attempt to post to feed %s from user %s", user, feed)
 	}
-	if feed == "" {
-		feed = user.Username
-	}
 
-	fn := filepath.Join(p, feed)
+	var fn string
+
+	if feed == nil {
+		fn = filepath.Join(p, user.Username)
+	} else {
+		fn = filepath.Join(p, feed.Name)
+	}
 
 	f, err := os.OpenFile(fn, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
@@ -79,9 +82,20 @@ func AppendTwt(conf *Config, db Store, user *User, feed, text string, args ...in
 		}
 	}
 
-	twt := types.MakeTwt(user.Twter(), now, strings.TrimSpace(text))
+	var twter types.Twter
 
-	twt.ExpandMentions(conf, NewFeedLookup(conf, db, user))
+	if feed == nil {
+		twter = user.Twter(conf)
+	} else {
+		twter = feed.Twter(conf)
+	}
+
+	// XXX: This is a bit convoluted @xuu can we improve this somehow?
+	tmpTwt := types.MakeTwt(twter, now, strings.TrimSpace(text))
+	tmpTwt.ExpandMentions(conf, NewFeedLookup(conf, db, user))
+	newText := tmpTwt.FormatText(types.LiteralFmt, conf)
+	twt := types.MakeTwt(twter, now, newText)
+
 	if _, err = fmt.Fprintf(f, "%+l\n", twt); err != nil {
 		return types.NilTwt, err
 	}
@@ -120,7 +134,7 @@ func GetLastTwt(conf *Config, user *User) (twt types.Twt, offset int, err error)
 		return
 	}
 
-	twter := user.Twter()
+	twter := user.Twter(conf)
 	twt, err = types.ParseLine(string(data), &twter)
 
 	return

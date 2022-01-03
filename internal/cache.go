@@ -177,7 +177,7 @@ func NewCachedTwts(twts types.Twts, lastModified string) *Cached {
 }
 
 // Inject ...
-func (cached *Cached) Inject(url string, twt types.Twt) {
+func (cached *Cached) Inject(twt types.Twt) {
 	cached.mu.Lock()
 	defer cached.mu.Unlock()
 
@@ -188,7 +188,7 @@ func (cached *Cached) Inject(url string, twt types.Twt) {
 }
 
 // Update ...
-func (cached *Cached) Update(url, lastmodiied string, twts types.Twts) {
+func (cached *Cached) Update(lastmodiied string, twts types.Twts) {
 	// Avoid overwriting a cached Feed with no Twts
 	if len(twts) == 0 {
 		return
@@ -1210,50 +1210,57 @@ func (cache *Cache) Refresh() {
 		discoverTwts types.Twts
 	)
 
-	twtMap := make(map[string]types.Twt)
+	byHash := make(map[string]types.Twt)
+	byTags := make(map[string]types.Twts)
+	bySubjects := make(map[string]types.Twts)
 
-	isLocalURL := IsLocalURLFactory(cache.conf)
 	filterOutFeedsAndBots := FilterOutFeedsAndBotsFactory(cache.conf)
 	for _, twt := range allTwts {
-		twtMap[twt.Hash()] = twt
+		byHash[twt.Hash()] = twt
 
-		if isLocalURL(twt.Twter().URI) {
+		if cache.conf.IsLocalURL(twt.Twter().URI) {
 			localTwts = append(localTwts, twt)
 		}
 
 		if filterOutFeedsAndBots(twt) {
 			discoverTwts = append(discoverTwts, twt)
 		}
+
+		for _, k := range GroupByTag(twt) {
+			byTags[k] = append(byTags[k], twt)
+		}
+
+		for _, k := range GroupBySubject(twt) {
+			bySubjects[k] = append(bySubjects[k], twt)
+		}
 	}
 
-	tags := GroupTwtsBy(allTwts, GroupByTag)
-	subjects := GroupTwtsBy(allTwts, GroupBySubject)
-
-	// XXX: I _think_ this is a bit of a hack.
 	// Insert at the top of all subject views the original Twt (if any)
 	// This is mostly to support "forked" conversations
-	for k, v := range subjects {
+	for k, v := range bySubjects {
 		hash := ExtractHashFromSubject(k)
-		if twt, ok := twtMap[hash]; ok {
+		if twt, ok := byHash[hash]; ok {
 			if len(v) > 0 && v[(len(v)-1)].Hash() != twt.Hash() {
-				subjects[k] = append(subjects[k], twt)
+				bySubjects[k] = append(bySubjects[k], twt)
 			}
 		}
 	}
 
 	cache.mu.Lock()
 	cache.List = NewCachedTwts(allTwts, "")
-	cache.Map = twtMap
+	cache.Map = byHash
 	cache.Views = map[string]*Cached{
 		localViewKey:    NewCachedTwts(localTwts, ""),
 		discoverViewKey: NewCachedTwts(discoverTwts, ""),
 	}
-	for k, v := range tags {
+	for k, v := range byTags {
 		cache.Views["tag:"+k] = NewCachedTwts(v, "")
 	}
-	for k, v := range subjects {
+	for k, v := range bySubjects {
 		cache.Views["subject:"+k] = NewCachedTwts(v, "")
 	}
+
+	// Cleanup dead Peers
 	for k, peer := range cache.Peers {
 		if (peer.LastSeen.Sub(peer.LastUpdated)) > (podInfoUpdateTTL/2) || time.Since(peer.LastUpdated) > podInfoUpdateTTL {
 			delete(cache.Peers, k)
@@ -1264,6 +1271,10 @@ func (cache *Cache) Refresh() {
 
 // InjectFeed ...
 func (cache *Cache) InjectFeed(url string, twt types.Twt) {
+	if _, inCache := cache.Lookup(twt.Hash()); inCache {
+		return
+	}
+
 	cache.mu.RLock()
 	cached, ok := cache.Feeds[url]
 	cache.mu.RUnlock()
@@ -1273,7 +1284,61 @@ func (cache *Cache) InjectFeed(url string, twt types.Twt) {
 		cache.Feeds[url] = NewCachedTwts(types.Twts{twt}, time.Now().Format(http.TimeFormat))
 		cache.mu.Unlock()
 	} else {
-		cached.Inject(url, twt)
+		cached.Inject(twt)
+	}
+
+	// Update the Cache directly
+	// XXX: This code was directly lifed from Cache.Refresh()
+	// but designed to work with just a single Twt.
+
+	cache.mu.Lock()
+	defer cache.mu.Unlock()
+
+	// Update Cache.Map (ahsh -> Twt)
+	cache.Map[twt.Hash()] = twt
+
+	// Update Cache.List ([]Twt)
+	cache.List.Inject(twt)
+
+	// Update Cache.Views (Local)
+	if cache.conf.IsLocalURL(twt.Twter().URI) {
+		cache.Views[localViewKey].Inject(twt)
+	}
+
+	// Update Cache.Views (Discover)
+	if FilterOutFeedsAndBotsFactory(cache.conf)(twt) {
+		cache.Views[discoverViewKey].Inject(twt)
+	}
+
+	//
+	// Update Cache.Views (tags and subjects)
+	//
+
+	tags := GroupByTag(twt)
+	subjects := GroupBySubject(twt)
+
+	for _, tag := range tags {
+		key := "tag:" + tag
+		if _, ok := cache.Views[key]; !ok {
+			cache.Views[key] = NewCached()
+		}
+		cache.Views[key].Inject(twt)
+	}
+	for _, subject := range subjects {
+		key := "subject:" + subject
+
+		if _, ok := cache.Views[key]; !ok {
+			cache.Views[key] = NewCached()
+		}
+
+		// Insert at the top of all subject views the original Twt (if any)
+		// This is mostly to support "forked" conversations
+		hash := ExtractHashFromSubject(subject)
+		if rootTwt, ok := cache.Map[hash]; ok {
+			cache.Views[key].Inject(rootTwt)
+		}
+
+		cache.Views[key].Inject(twt)
 	}
 }
 
@@ -1338,7 +1403,7 @@ func (cache *Cache) UpdateFeed(url, lastmodified string, twts types.Twts) {
 		cache.Feeds[url] = NewCachedTwts(twts, lastmodified)
 		cache.mu.Unlock()
 	} else {
-		cached.Update(url, lastmodified, twts)
+		cached.Update(lastmodified, twts)
 	}
 }
 
@@ -1609,9 +1674,14 @@ func (cache *Cache) SetTwter(uri string, twter *types.Twter) {
 // DeleteUserViews ...
 func (cache *Cache) DeleteUserViews(u *User) {
 	cache.mu.Lock()
-	delete(cache.Views, fmt.Sprintf("user:%s", u.Username))
-	delete(cache.Views, fmt.Sprintf("discover:%s", u.Username))
-	delete(cache.Views, fmt.Sprintf("mentions:%s", u.Username))
+	for key := range cache.Views {
+		if strings.HasPrefix(key, fmt.Sprintf("%s:", u.Username)) {
+			delete(cache.Views, key)
+		}
+		if strings.HasSuffix(key, fmt.Sprintf(":%s", u.Username)) {
+			delete(cache.Views, key)
+		}
+	}
 	cache.mu.Unlock()
 }
 

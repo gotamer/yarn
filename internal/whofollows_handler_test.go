@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net"
@@ -43,7 +44,7 @@ func TestWhoFollowsResource(t *testing.T) {
 	}
 	router.GET("/whoFollows", server.WhoFollowsHandler())
 	defer func() {
-		assert.NoError(t, server.server.Shutdown(nil), "shutting down server failed")
+		assert.NoError(t, server.server.Shutdown(context.Background()), "shutting down server failed")
 	}()
 
 	followingThisFeed := map[string]string{"this": "https://example.com/twtxt.txt"}
@@ -116,7 +117,7 @@ func TestWhoFollowsResource(t *testing.T) {
 			router.ServeHTTP(res, req)
 
 			assert.Equal(t, testCase.expectedStatusCode, res.Code, "HTTP status code mismatch")
-			assert.Equal(t, testCase.expectedContentType, res.HeaderMap.Get("Content-Type"), "Content-Type header mismatch")
+			assert.Equal(t, testCase.expectedContentType, res.Header().Get("Content-Type"), "Content-Type header mismatch")
 			actualRawBody := res.Body.String()
 			if testCase.expectedRawBody != "" {
 				assert.Equal(t, testCase.expectedRawBody, actualRawBody, "raw response body mismatch")
