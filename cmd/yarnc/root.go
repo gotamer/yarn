@@ -72,17 +72,17 @@ func init() {
 	)
 
 	RootCmd.PersistentFlags().BoolP(
-		"debug", "d", false,
+		"debug", "D", false,
 		"Enable debug logging",
 	)
 
 	RootCmd.PersistentFlags().StringP(
-		"uri", "u", client.DefaultURI,
+		"uri", "U", client.DefaultURI,
 		"Pod URL to connect to",
 	)
 
 	RootCmd.PersistentFlags().StringP(
-		"token", "t", fmt.Sprintf("$%s_TOKEN", DefaultEnvPrefix),
+		"token", "T", fmt.Sprintf("$%s_TOKEN", DefaultEnvPrefix),
 		"yarnd API token to use to authenticate to endpoints",
 	)
 
