@@ -31,14 +31,14 @@
     <div>
       <label for="avatar">
         {{ tr . "SettingsFormChangeAvatarTitle" }}
-        <input id="avatar_upload" type="file" accept="image/png, image/jpeg" name="avatar_file" aria-label="Upload Avatar" />
+        <input id="avatar_upload" type="file" accept="image/png, image/jpeg" name="avatar_file" aria-label="{{ tr . "SettingsFormLabelUploadAvatar" }}" />
       </label>
     </div>
     <div class="grid">
       <div>
         <label for="tagline">
           {{ tr . "SettingsFormChangeTaglineTitle" }}
-          <input id="tagline" type="text" name="tagline" placeholder="{{ tr . "SettingsFormChangeTagline" }}" aria-label="Tagline" value="{{ .User.Tagline }}" />
+          <input id="tagline" type="text" name="tagline" placeholder="{{ tr . "SettingsFormChangeTagline" }}" aria-label="{{ tr . "SettingsFormLabelTagline" }}" value="{{ .User.Tagline }}" />
         </label>
       </div>
     </div>
@@ -46,13 +46,13 @@
       <div>
         <label for="password">
           {{ tr . "SettingsFormChangePasswordTitle" }}
-          <input id="password" type="password" name="password" placeholder="{{ tr . "SettingsFormChangePassword" }}" aria-label="Password" autocomplete="current-password">
+          <input id="password" type="password" name="password" placeholder="{{ tr . "SettingsFormChangePassword" }}" aria-label="{{ tr . "SettingsFormLabelPassword" }}" autocomplete="current-password">
         </label>
       </div>
       <div>
         <label for="email">
           {{ tr . "SettingsFormChangeEmailTitle" }}
-          <input id="email" type="email" name="email" placeholder="{{ tr . "SettingsFormChangeEmail" }}" aria-label="Email">
+          <input id="email" type="email" name="email" placeholder="{{ tr . "SettingsFormChangeEmail" }}" aria-label="{{ tr . "SettingsFormLabelEmail" }}">
           <small>
             {{ (tr . "SettingsFormChangeEmailSummary") | html }}
           </small>
@@ -102,15 +102,15 @@
         <fieldset>
           <legend>{{ tr . "SettingsFormPrivacySettingsTitle" }}</legend>
           <label for="isBookmarksPubliclyVisible">
-            <input id="isBookmarksPubliclyVisible" type="checkbox" name="isBookmarksPubliclyVisible" aria-label="Show bookmarks publicly" role="switch" {{ if .User.IsBookmarksPubliclyVisible }}checked{{ end }}>
+            <input id="isBookmarksPubliclyVisible" type="checkbox" name="isBookmarksPubliclyVisible" aria-label="{{ tr . "SettingsFormPrivacySettingsShowBookmarksLabel" }}" role="switch" {{ if .User.IsBookmarksPubliclyVisible }}checked{{ end }}>
             {{ tr . "SettingsFormPrivacySettingsShowBookmarks" }}
           </label>
           <label for="isFollowersPubliclyVisible">
-            <input id="isFollowersPubliclyVisible" type="checkbox" name="isFollowersPubliclyVisible" aria-label="Show followers publicly" role="switch" {{ if .User.IsFollowersPubliclyVisible }}checked{{ end }}>
+            <input id="isFollowersPubliclyVisible" type="checkbox" name="isFollowersPubliclyVisible" aria-label="{{ tr . "SettingsFormPrivacySettingsShowFollowersLabel" }}" role="switch" {{ if .User.IsFollowersPubliclyVisible }}checked{{ end }}>
             {{ tr . "SettingsFormPrivacySettingsShowFollowers" }}
           </label>
           <label for="isFollowingPubliclyVisible">
-            <input id="isFollowingPubliclyVisible" type="checkbox" name="isFollowingPubliclyVisible" aria-label="Show user/feed followings publicly" role="switch" {{ if .User.IsFollowingPubliclyVisible }}checked{{ end }}>
+            <input id="isFollowingPubliclyVisible" type="checkbox" name="isFollowingPubliclyVisible" aria-label="{{ tr . "SettingsFormPrivacySettingsShowFollowingsLabel" }}" role="switch" {{ if .User.IsFollowingPubliclyVisible }}checked{{ end }}>
             {{ tr . "SettingsFormPrivacySettingsShowFollowings" }}
           </label>
         </fieldset>

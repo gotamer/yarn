@@ -2,13 +2,13 @@
   <article class="grid">
     <div>
       <hgroup>
-        <h2>Import Feeds</h2>
-        <h3>Import feeds to follow multiple users or feeds or import from another client</h3>
+        <h2>{{ tr . "ImportFeedTitle" }}</h2>
+        <h3>{{ tr . "ImportFeedSummary" }}</h3>
       </hgroup>
       <form action="/import" method="POST">
         <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
         <textarea id="feeds" name="feeds" placeholder="Feeds in nick: url, one per line" rows=24 autofocus required></textarea>
-        <button type="submit" class="primary">Import</button>
+        <button type="submit" class="primary">{{ tr . "Import" }}</button>
       </form>
     </div>
     <div></div>

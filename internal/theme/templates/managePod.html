@@ -2,64 +2,64 @@
   <article class="grid bump-up">
     <div>
       <hgroup>
-        <h2>Manage Pod<h2>
-        <h3>Administer your Pod and update settings here</h3>
+        <h2>{{ tr . "ManagePodLinkTitle" }}<h2>
+        <h3>{{ tr . "ManagePodLinkSummary" }}</h3>
       </hgroup>
       <div class="manage-users">
-        <a href="/manage/jobs"><i class="ti ti-heartbeat"></i> Manage Jobs</a><br /><br />
-        <a href="/manage/peers"><i class="ti ti-affiliate"></i> Manage Peers</a><br /><br />
-        <a href="/manage/users"><i class="ti ti-users"></i> Manage Users</a><br /><br />
-        <a href="/manage/refreshcache" onclick="return confirm('Are you sure you want to delete and refresh ths cache?')"><i class="ti ti-rotate-clockwise-2"></i> Refresh Cache</a>
+        <a href="/manage/jobs"><i class="ti ti-heartbeat"></i> {{ tr . "ManageJobsLinkTitle" }}</a><br /><br />
+        <a href="/manage/peers"><i class="ti ti-affiliate"></i> {{ tr . "ManagePeersLinkTitle" }}</a><br /><br />
+        <a href="/manage/users"><i class="ti ti-users"></i> {{ tr . "ManageUsersLinkTitle" }}</a><br /><br />
+        <a href="/manage/refreshcache" onclick="return confirm('{{ tr . "ManageRefreshCachePrompt" }}')"><i class="ti ti-rotate-clockwise-2"></i> {{ tr . "ManageRefreshCacheTitle" }}</a>
       </div>
       <form action="/manage/pod" enctype="multipart/form-data" method="POST">
         <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
         <label for="podName">
-          Pod Name:
-          <input id="podName" type="text" name="podName" placeholder="Pod Name" aria-label="podName" value="{{ .InstanceName }}">
+          {{ tr . "SettingsFormPodNameTitle" }}:
+          <input id="podName" type="text" name="podName" placeholder="{{ tr . "SettingsFormPodNameTitle" }}" aria-label="{{ tr . "SettingsFormPodNameTitle" }}" value="{{ .InstanceName }}">
         </label>
         <label for="podDescription">
-          Pod Description:
-          <input id="podDescription" type="text" name="podDescription" placeholder="Pod Description" aria-label="podDescription" value="{{ .Meta.Description }}">
+          {{ tr . "SettingsFormPodDescriptionTitle" }}:
+          <input id="podDescription" type="text" name="podDescription" placeholder="{{ tr . "SettingsFormPodDescriptionTitle" }}" aria-label="{{ tr . "SettingsFormPodDescriptionTitle" }}" value="{{ .Meta.Description }}">
         </label>
         <label for="logo">
-          Change Logo:
+          {{ tr . "SettingsFormLogoTitle" }}:
           <textarea id="logo" name="podLogo" rows=10>{{ $.Logo }}</textarea>
         </label>
-        <p>You can use the template variable <pre>{{"{{"}} .PodName {{"}}"}}</pre> in your logo</p>
+        <p>{{ tr . "SettingsFormLogoTemplateVariable" }}</p>
         <div class="grid">
           <div>
             <label for="maxTwtLength">
-              Max Twt Length:
-              <input id="maxTwtLength" type="number" name="maxTwtLength" placeholder="Max Twt Length" aria-label="maxTwtLength" value="{{ .MaxTwtLength }}">
+              {{ tr . "SettingsFormMaxTwtLengthTitle" }}:
+              <input id="maxTwtLength" type="number" name="maxTwtLength" placeholder="{{ tr . "SettingsFormMaxTwtLengthTitle" }}" aria-label="{{ tr . "SettingsFormMaxTwtLengthTitle" }}" value="{{ .MaxTwtLength }}">
             </label>
           </div>
           <div>
-            <legend>Other settings:</legend>
+            <legend>{{ tr . "SettingsFormOtherSettingsTitle" }}:</legend>
             <label for="enableOpenRegistrations">
-              <input id="enableOpenRegistrations" type="checkbox" name="enableOpenRegistrations" aria-label="Allow open registrations" role="switch" {{ if not .RegisterDisabled }}checked{{ end }} />
-              Allow open registrations
+              <input id="enableOpenRegistrations" type="checkbox" name="enableOpenRegistrations" aria-label="{{ tr . "SettingsFormAllowOpenRegistrationsTitle" }}" role="switch" {{ if not .RegisterDisabled }}checked{{ end }} />
+              {{ tr . "SettingsFormAllowOpenRegistrationsTitle" }}
             </label>
             <label for="enableOpenProfiles">
-              <input id="enableOpenProfiles" type="checkbox" name="enableOpenProfiles" aria-label="Allow open profiles" role="switch" {{ if .OpenProfiles }}checked{{ end }} />
-              Allow open profiles
+              <input id="enableOpenProfiles" type="checkbox" name="enableOpenProfiles" aria-label="{{ tr . "SettingsFormAllowOpenProfilesTitle" }}" role="switch" {{ if .OpenProfiles }}checked{{ end }} />
+              {{ tr . "SettingsFormAllowOpenProfilesTitle" }}
             </label>
           </div>
         </div>
         <label for="whitelistedImages">
-          Whitelisted Image Domains:
+          {{ tr . "SettingsFormWhitelistedImageDomainsTitle" }}:
           <textarea id="whitelistedImages" name="whitelistedImages" rows=5>{{ $.WhitelistedImages | join "\r\n" }}</textarea>
         </label>
         <label for="blacklistedFeeds">
-          Blacklisted Feeds:
+          {{ tr . "SettingsFormBlacklistedFeedsTitle" }}:
           <textarea id="blacklistedFeeds" name="blacklistedFeeds" rows=5>{{ $.BlacklistedFeeds | join "\r\n" }}</textarea>
         </label>
         <label for="enabledFeatures">
-          Enabled Optional Features
+          {{ tr . "SettingsFormEnabledOptionalFeaturesTitle" }}:
           <textarea id="enabledFeatures" name="enabledFeatures" rows=3>{{ $.EnabledFeatures | join "\r\n" }}</textarea>
         </label>
         <div class="grid">
           <label for="displayDatesInTimezone">
-            {{tr . "SettingsFormTimezoneTitle"}}
+            {{ tr . "SettingsFormTimezoneTitle" }}:
             <select id="displayDatesInTimezone" name="displayDatesInTimezone">
               {{ range .Timezones }}
               <option value="{{ .TzName }}" {{ if eq $.DisplayDatesInTimezone .TzName }}selected{{ end }}>{{ .NameWithOffset }}</option>
@@ -67,7 +67,7 @@
             </select>
           </label>
           <fieldset>
-            <legend>{{tr . "SettingsFormTimePreferenceTitle"}}</legend>
+            <legend>{{ tr . "SettingsFormTimePreferenceTitle" }}:</legend>
             <label for="12h">
               <input type="radio" name="displayTimePreference" value="12h" {{ if eq $.DisplayTimePreference "12h" }}checked{{ end }}>
               12hr
@@ -78,18 +78,18 @@
             </label>
           </fieldset>
           <fieldset>
-            <legend>{{ tr . "SettingsFormOpenLinksInPreferenceTitle" }}</legend>
+            <legend>{{ tr . "SettingsFormOpenLinksInPreferenceTitle" }}:</legend>
             <label for="samewindow">
               <input type="radio" name="openLinksInPreference" value="samewindow" {{ if eq $.OpenLinksInPreference "samewindow" }}checked{{ end }}>
-              Same Window
+              {{ tr . "SettingsFormOpenLinksInPreferenceSameWindow" }}
             </label>
             <label for="newwindow">
               <input type="radio" name="openLinksInPreference" value="newwindow" {{ if eq $.OpenLinksInPreference "newwindow" }}checked{{ end }}>
-              New Window (default)
+              {{ tr . "SettingsFormOpenLinksInPreferenceNewWindow" }}
             </label>
           </fieldset>
         </div>
-        <button type="submit" class="primary">Update</button>
+        <button type="submit" class="primary">{{ tr . "SettingsFormUpdate" }}</button>
       </form>
     </div>
   </article>

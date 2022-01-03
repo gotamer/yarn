@@ -1,17 +1,17 @@
 {{ define "content" }}
   <article class="container-fluid">
     <hgroup>
-      <h2>{{ .InstanceName }} Information</h2>
+      <h2>{{ .InstanceName }} {{ tr . "InfoTitle" }}</h2>
     </hgroup>
     <table>
-      <tr><td>Name</td><td>{{ .InstanceName }}</td></tr>
-      <tr><td>Software</td><td>{{ .SoftwareVersion.Software }}</td></tr>
-      <tr><td>FullVersion</td><td>{{ .SoftwareVersion.FullVersion }}</td></tr>
-      <tr><td>Version</td><td>{{ .SoftwareVersion.Version }}</td></tr>
-      <tr><td>Commit</td><td>{{ .SoftwareVersion.Commit }}</td></tr>
-      <tr><td>Author</td><td>{{ .SoftwareVersion.Author }}</td></tr>
-      <tr><td>License</td><td>{{ .SoftwareVersion.License }}</td></tr>
-      <tr><td>Copyright</td><td>{{ .SoftwareVersion.Copyright }}</td></tr>
+      <tr><td>{{ tr . "InfoName" }}</td><td>{{ .InstanceName }}</td></tr>
+      <tr><td>{{ tr . "InfoSoftware" }}</td><td>{{ .SoftwareVersion.Software }}</td></tr>
+      <tr><td>{{ tr . "InfoFullVersion" }}</td><td>{{ .SoftwareVersion.FullVersion }}</td></tr>
+      <tr><td>{{ tr . "InfoVersion" }}</td><td>{{ .SoftwareVersion.Version }}</td></tr>
+      <tr><td>{{ tr . "InfoCommit" }}</td><td>{{ .SoftwareVersion.Commit }}</td></tr>
+      <tr><td>{{ tr . "InfoAuthor" }}</td><td>{{ .SoftwareVersion.Author }}</td></tr>
+      <tr><td>{{ tr . "InfoLicense" }}</td><td>{{ .SoftwareVersion.License }}</td></tr>
+      <tr><td>{{ tr . "InfoCopyright" }}</td><td>{{ .SoftwareVersion.Copyright }}</td></tr>
     </table>
   </article>
 {{ end }}
