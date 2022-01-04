@@ -1634,6 +1634,7 @@ func (cache *Cache) GetByUser(u *User, refresh bool) types.Twts {
 		}
 		sort.Sort(sort.Reverse(yarns))
 		twts = yarns.AsTwts()
+		sort.Sort(twts)
 	}
 
 	cache.mu.Lock()
