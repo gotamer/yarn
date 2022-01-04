@@ -1623,12 +1623,17 @@ func (cache *Cache) GetByUser(u *User, refresh bool) types.Twts {
 	sort.Sort(twts)
 
 	if u.HideRepliesPreference {
+		var yarns types.Yarns
 		subjects := GroupTwtsBy(twts, GroupBySubject)
-		twts = nil
 		for _, chain := range subjects {
-			twts = append(twts, LastTwt(chain))
+			yarn := types.Yarn{Root: chain[0]}
+			if len(chain) > 1 {
+				yarn.Twts = chain[1:]
+			}
+			yarns = append(yarns, yarn)
 		}
-		sort.Sort(twts)
+		sort.Sort(sort.Reverse(yarns))
+		twts = yarns.AsTwts()
 	}
 
 	cache.mu.Lock()
