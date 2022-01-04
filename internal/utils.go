@@ -1210,6 +1210,11 @@ func (ua *MultiUserAgent) Followers(conf *Config) types.Followers {
 
 	kv := make(map[string]string)
 	if err := json.Unmarshal(data, &kv); err != nil {
+		// XXX: This only exists for backwards compatibility in 0.11.x where this got changed.
+		// TODOL Remove post 0.12.x and adhere to the spec (map of nick -> uri)
+		if err := json.Unmarshal(data, &followers); err == nil {
+			return followers
+		}
 		log.WithError(err).Errorf("error deserializing whoFollows response from %s", ua)
 		return nil
 	}
