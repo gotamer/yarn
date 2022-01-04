@@ -20,7 +20,7 @@ func (yarns Yarns) AsTwts() Twts {
 	var twts Twts
 
 	for _, yarn := range yarns {
-		twts = append(twts, yarn.GetLastTwt())
+		twts = append(twts, yarn.Root)
 	}
 
 	return twts
