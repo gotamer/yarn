@@ -306,8 +306,9 @@ func (f *Feed) Profile(baseURL string, viewer *User) types.Profile {
 
 func (f *Feed) Twter(conf *Config) types.Twter {
 	return types.Twter{
-		Nick: f.Name,
-		URI:  conf.URLForUser(f.Name),
+		Nick:   f.Name,
+		URI:    conf.URLForUser(f.Name),
+		Avatar: conf.URLForAvatar(f.Name, f.AvatarHash),
 	}
 }
 
@@ -556,8 +557,9 @@ func (u *User) Profile(baseURL string, viewer *User) types.Profile {
 
 func (u *User) Twter(conf *Config) types.Twter {
 	return types.Twter{
-		Nick: u.Username,
-		URI:  conf.URLForUser(u.Username),
+		Nick:   u.Username,
+		URI:    conf.URLForUser(u.Username),
+		Avatar: conf.URLForAvatar(u.Username, u.AvatarHash),
 	}
 }
 
