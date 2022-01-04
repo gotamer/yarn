@@ -44,9 +44,12 @@ func (s *Server) SettingsHandler() httprouter.Handle {
 		password := r.FormValue("password")
 
 		theme := r.FormValue("theme")
+
 		displayDatesInTimezone := r.FormValue("displayDatesInTimezone")
 		displayTimePreference := r.FormValue("displayTimePreference")
 		openLinksInPreference := r.FormValue("openLinksInPreference")
+		hideRepliesPreference := r.FormValue("hideRepliesPreference") == "on"
+
 		isFollowersPubliclyVisible := r.FormValue("isFollowersPubliclyVisible") == "on"
 		isFollowingPubliclyVisible := r.FormValue("isFollowingPubliclyVisible") == "on"
 		isBookmarksPubliclyVisible := r.FormValue("isBookmarksPubliclyVisible") == "on"
@@ -105,9 +108,17 @@ func (s *Server) SettingsHandler() httprouter.Handle {
 		user.Tagline = tagline
 
 		user.Theme = theme
+
 		user.DisplayDatesInTimezone = displayDatesInTimezone
 		user.DisplayTimePreference = displayTimePreference
 		user.OpenLinksInPreference = openLinksInPreference
+
+		if hideRepliesPreference != user.HideRepliesPreference {
+			// Force User Views to be recalculated
+			s.cache.DeleteUserViews(ctx.User)
+		}
+		user.HideRepliesPreference = hideRepliesPreference
+
 		user.IsFollowersPubliclyVisible = isFollowersPubliclyVisible
 		user.IsFollowingPubliclyVisible = isFollowingPubliclyVisible
 		user.IsBookmarksPubliclyVisible = isBookmarksPubliclyVisible

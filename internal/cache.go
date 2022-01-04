@@ -146,6 +146,20 @@ func ChunkTwts(twts types.Twts, chunkSize int) []types.Twts {
 	return chunks
 }
 
+func FirstTwt(twts types.Twts) types.Twt {
+	if len(twts) > 0 {
+		return twts[0]
+	}
+	return types.NilTwt
+}
+
+func LastTwt(twts types.Twts) types.Twt {
+	if len(twts) > 0 {
+		return twts[len(twts)-1]
+	}
+	return types.NilTwt
+}
+
 func FirstNTwts(twts types.Twts, n int) types.Twts {
 	if n > len(twts) {
 		return twts
@@ -1607,6 +1621,15 @@ func (cache *Cache) GetByUser(u *User, refresh bool) types.Twts {
 	}
 	twts = FilterTwts(u, twts)
 	sort.Sort(twts)
+
+	if u.HideRepliesPreference {
+		subjects := GroupTwtsBy(twts, GroupBySubject)
+		twts = nil
+		for _, chain := range subjects {
+			twts = append(twts, LastTwt(chain))
+		}
+		sort.Sort(twts)
+	}
 
 	cache.mu.Lock()
 	cache.Views[key] = NewCachedTwts(twts, "")

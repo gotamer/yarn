@@ -49,16 +49,19 @@ type User struct {
 	CreatedAt  time.Time
 	LastSeenAt time.Time
 
-	Theme                      string `default:"auto"`
-	Lang                       string `default:""`
-	Recovery                   string `default:""`
-	AvatarHash                 string `default:""`
-	DisplayDatesInTimezone     string `default:"UTC"`
-	DisplayTimePreference      string `default:"24h"`
-	OpenLinksInPreference      string `default:"newwindow"`
-	IsFollowersPubliclyVisible bool   `default:"true"`
-	IsFollowingPubliclyVisible bool   `default:"true"`
-	IsBookmarksPubliclyVisible bool   `default:"true"`
+	Theme      string `default:"auto"`
+	Lang       string `default:""`
+	Recovery   string `default:""`
+	AvatarHash string `default:""`
+
+	DisplayDatesInTimezone string `default:"UTC"`
+	DisplayTimePreference  string `default:"24h"`
+	OpenLinksInPreference  string `default:"newwindow"`
+	HideRepliesPreference  bool   `default:"false"`
+
+	IsFollowersPubliclyVisible bool `default:"true"`
+	IsFollowingPubliclyVisible bool `default:"true"`
+	IsBookmarksPubliclyVisible bool `default:"true"`
 
 	Feeds []string `default:"[]"`
 
