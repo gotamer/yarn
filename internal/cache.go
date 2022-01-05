@@ -1626,6 +1626,7 @@ func (cache *Cache) GetByUser(u *User, refresh bool) types.Twts {
 		var yarns types.Yarns
 		subjects := GroupTwtsBy(twts, GroupBySubject)
 		for _, chain := range subjects {
+			sort.Sort(sort.Reverse(chain))
 			yarn := types.Yarn{Root: chain[0]}
 			if len(chain) > 1 {
 				yarn.Twts = chain[1:]
