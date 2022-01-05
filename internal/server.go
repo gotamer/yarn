@@ -617,10 +617,10 @@ func (s *Server) initRoutes() {
 	s.router.POST("/register", httproutermiddleware.Handler("register", s.RegisterHandler(), mdlw))
 
 	// Reset Password
-	s.router.GET("/resetPassword", httproutermiddleware.Handler("resetPassword", s.am.MustAuth(s.ResetPasswordHandler()), mdlw))
-	s.router.POST("/resetPassword", httproutermiddleware.Handler("resetPassword", s.am.MustAuth(s.ResetPasswordHandler()), mdlw))
-	s.router.GET("/newPassword", httproutermiddleware.Handler("resetPassword", s.am.MustAuth(s.ResetPasswordMagicLinkHandler()), mdlw))
-	s.router.POST("/newPassword", httproutermiddleware.Handler("newPassword", s.am.MustAuth(s.NewPasswordHandler()), mdlw))
+	s.router.GET("/resetPassword", httproutermiddleware.Handler("resetPassword", s.ResetPasswordHandler(), mdlw))
+	s.router.POST("/resetPassword", httproutermiddleware.Handler("resetPassword", s.ResetPasswordHandler(), mdlw))
+	s.router.GET("/newPassword", httproutermiddleware.Handler("resetPassword", s.ResetPasswordMagicLinkHandler(), mdlw))
+	s.router.POST("/newPassword", httproutermiddleware.Handler("newPassword", s.NewPasswordHandler(), mdlw))
 
 	// Media Handling
 	s.router.GET("/media/:name", httproutermiddleware.Handler("media", s.MediaHandler(), mdlw))
