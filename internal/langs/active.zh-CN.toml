@@ -1110,6 +1110,14 @@ other = "主题"
 hash = "sha1-60943c74c5d7bee85b570834fed90fd6d303ac9b"
 other = "显示时间："
 
+[SettingsFormTimelineHideRepliesPreference]
+hash = "sha1-5b937ab3095e70b47cc9583cef7f5545d3951bf0"
+other = "Hide replies"
+
+[SettingsFormTimelinePreferencesTitle]
+hash = "sha1-ea21d1cc3d87fe31130f1df72e829036475bc0b5"
+other = "Timeline options:"
+
 [SettingsFormTimezoneTitle]
 hash = "sha1-cc6b7d5a9e6ad370824bc702023b0d2e44d5eb2b"
 other = "时区"
