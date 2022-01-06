@@ -436,3 +436,28 @@ func TestCache_Counts(t *testing.T) {
 		assert.Equal(t, 2, cache.FeedCount())
 	})
 }
+
+func TestCache_InjectAndSnipe(t *testing.T) {
+	cache := NewCache(testConfig)
+	cache.UpdateFeed(testExternalFeed, "", testExternalTwts)
+	cache.Refresh()
+	assert.Equal(t, 1, cache.FeedCount())
+
+	// Inject twt1.
+	twt1 := types.MakeTwt(testExternalTwter, time.Time{}, "Hello world")
+	cache.InjectFeed(testExternalTwter.URL, twt1)
+	assert.Equal(t, 3, cache.TwtCount())
+
+	// Inject twt2.
+	twt2 := types.MakeTwt(testExternalTwter, time.Time{}, "Yo world")
+	cache.InjectFeed(testExternalTwter.URL, twt2)
+	assert.Equal(t, 4, cache.TwtCount())
+
+	// Snipe twt1.
+	cache.SnipeFeed(twt2.Twter().URL, twt2)
+	assert.Equal(t, 3, cache.TwtCount())
+
+	// Snipe twt2.
+	cache.SnipeFeed(twt1.Twter().URL, twt1)
+	assert.Equal(t, 2, cache.TwtCount())
+}

@@ -201,6 +201,25 @@ func (cached *Cached) Inject(twt types.Twt) {
 	cached.Twts = twts
 }
 
+// Snipe deletes a twt from a Cached.
+func (cached *Cached) Snipe(twt types.Twt) {
+	cached.mu.Lock()
+	defer cached.mu.Unlock()
+
+	hash := twt.Hash()
+	var twts types.Twts
+	for _, t := range cached.Twts {
+		if t.Hash() != hash {
+			twts = append(twts, t)
+		}
+	}
+
+	twts = UniqTwts(twts)
+	sort.Sort(twts)
+
+	cached.Twts = twts
+}
+
 // Update ...
 func (cached *Cached) Update(lastmodiied string, twts types.Twts) {
 	// Avoid overwriting a cached Feed with no Twts
@@ -1303,7 +1322,7 @@ func (cache *Cache) InjectFeed(url string, twt types.Twt) {
 	cache.mu.Lock()
 	defer cache.mu.Unlock()
 
-	// Update Cache.Map (ahsh -> Twt)
+	// Update Cache.Map (hash -> Twt)
 	cache.Map[twt.Hash()] = twt
 
 	// Update Cache.List ([]Twt)
@@ -1348,6 +1367,51 @@ func (cache *Cache) InjectFeed(url string, twt types.Twt) {
 		}
 
 		cache.Views[key].Inject(twt)
+	}
+}
+
+
+// SnipeFeed deletes a twt from a Cache.
+func (cache *Cache) SnipeFeed(url string, twt types.Twt) {
+	if _, inCache := cache.Lookup(twt.Hash()); !inCache {
+		return
+	}
+
+	cache.mu.Lock()
+	defer cache.mu.Unlock()
+
+	// Update Cache.Map (hash -> Twt)
+	delete(cache.Map, twt.Hash())
+
+	// Update Cache.List ([]Twt)
+	cache.List.Snipe(twt)
+
+	// Update Cache.Views (Local)
+	if cache.conf.IsLocalURL(twt.Twter().URI) {
+		cache.Views[localViewKey].Snipe(twt)
+	}
+
+	// Update Cache.Views (Discover)
+	if FilterOutFeedsAndBotsFactory(cache.conf)(twt) {
+		cache.Views[discoverViewKey].Snipe(twt)
+	}
+
+	// Update Cache.Views (tags)
+	tags := GroupByTag(twt)
+	for _, tag := range tags {
+		key := "tag:" + tag
+		if _, ok := cache.Views[key]; ok {
+			cache.Views[key].Snipe(twt)
+		}
+	}
+
+	// Update Cache.Views (subjects)
+	subjects := GroupBySubject(twt)
+	for _, subject := range subjects {
+		key := "subject:" + subject
+		if _, ok := cache.Views[key]; ok {
+			cache.Views[key].Snipe(twt)
+		}
 	}
 }
 
