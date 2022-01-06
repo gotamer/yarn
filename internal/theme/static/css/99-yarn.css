@@ -557,15 +557,20 @@ article .p-summary a small, small.twt-context {
 small.twt-context {
   display: block;
   font-size: small;
-  margin-top: -0.25rem;
-  padding-bottom: 0.25rem;
+  margin-top: -0.3rem;
+  padding-bottom: 0.5rem;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+  border-bottom: dashed 1px var(--form-element-border-color);
 }
 
 small.twt-context strong {
   font-weight: 300;
+}
+
+.p-summary p:nth-of-type(1) {
+  padding-top: 0.25rem;
 }
 
 .settingsBtn, .logoutBtn {
