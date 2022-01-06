@@ -75,7 +75,7 @@ func (a *DiskArchiver) makePath(hash string) (string, error) {
 	}
 
 	// Produces a path structure of:
-	// ./data/archive/[0-9a-f]{2,}0/[0-9a-f]+.json
+	// ./data/archive/[0-9a-f]{2,}/[0-9a-f]+.json
 	components := []string{a.path, fmt.Sprintf("%x", bs[0:1]), fmt.Sprintf("%x.json", bs[1:])}
 
 	return filepath.Join(components...), nil

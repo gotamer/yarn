@@ -32,12 +32,15 @@ func (s *Server) PermalinkHandler() httprouter.Handle {
 			http.Error(w, "Bad Request", http.StatusBadRequest)
 			return
 		}
-
-		_, err := DecodeHash(hash)
-		if err != nil {
+		if len(hash) < types.TwtHashLength {
 			http.Error(w, "Bad Request", http.StatusBadRequest)
 			return
+		}
 
+		bs, err := DecodeHash(hash)
+		if err != nil || len(bs) < 2 {
+			http.Error(w, "Bad Request", http.StatusBadRequest)
+			return
 		}
 
 		twt, inCache := s.cache.Lookup(hash)
