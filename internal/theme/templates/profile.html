@@ -1,5 +1,7 @@
 {{ define "content" }}
 
+  {{ template "post" (dict "Authenticated" $.Authenticated "User" $.User "TwtPrompt" $.TwtPrompt "MaxTwtLength" $.MaxTwtLength "Reply" $.Reply "AutoFocus" true "CSRFToken" $.CSRFToken "Ctx" .) }}
+
   <div class="profile-name">
     <span class="p-name p-name-profile">{{ .Profile.Nick }}</span>
     <span class="p-org p-org-profile">{{ .Profile.URI | hostnameFromURL }}</span>
