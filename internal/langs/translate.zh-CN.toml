@@ -1,19 +1,7 @@
-[ProfileDoesNotFollowYou]
-hash = "sha1-4c0c8a13e9d3be9b9493e9f970f6c1feb51bc509"
-other = "does not follow you (<i>your replies may go unnoticed.</i>)"
+[SettingsFormTimelineHideRepliesPreference]
+hash = "sha1-5b937ab3095e70b47cc9583cef7f5545d3951bf0"
+other = "Hide replies"
 
-[ThemeDark]
-hash = "sha1-60c6abbfc36bba55c1e4edb03714191eaa82238d"
-other = "Pico Dark"
-
-[ThemeDarkClassic]
-hash = "sha1-63c444fda42d9dc96f92d0dc5c347b5a0666f44a"
-other = "Yarn.Social Dark"
-
-[ThemeLight]
-hash = "sha1-8e40c7069dd442c9c4e462b02bcb49bbafaec64f"
-other = "Pico Light"
-
-[ThemeLightClassic]
-hash = "sha1-0b89cf1bf3d43dd4a6b6338a196e0edfd3705933"
-other = "Yarn.Social Light"
+[SettingsFormTimelinePreferencesTitle]
+hash = "sha1-ea21d1cc3d87fe31130f1df72e829036475bc0b5"
+other = "Timeline options:"
