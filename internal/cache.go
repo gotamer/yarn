@@ -426,6 +426,7 @@ type Cache struct {
 
 	Followers map[string]types.Followers
 	Twters    map[string]*types.Twter
+	Events    map[string]*Cached
 }
 
 func NewCache(conf *Config) *Cache {
@@ -441,6 +442,7 @@ func NewCache(conf *Config) *Cache {
 
 		Followers: make(map[string]types.Followers),
 		Twters:    make(map[string]*types.Twter),
+		Events:    make(map[string]*Cached),
 	}
 }
 
@@ -605,6 +607,10 @@ func LoadCache(conf *Config) (*Cache, error) {
 		return cleanupCorruptCache()
 	}
 
+	if err := dec.Decode(&cache.Events); err != nil {
+		log.WithError(err).Warn("error decoding cache.Events, removing corrupt file")
+	}
+
 	log.Infof("Cache version %d", cache.Version)
 
 	return cache, nil
@@ -647,6 +653,11 @@ func (cache *Cache) Store(conf *Config) error {
 
 	if err := enc.Encode(cache.Twters); err != nil {
 		log.WithError(err).Error("error encoding cache.Twters")
+		return err
+	}
+
+	if err := enc.Encode(cache.Events); err != nil {
+		log.WithError(err).Error("error encoding cache.Evetns")
 		return err
 	}
 
@@ -1197,10 +1208,12 @@ func (cache *Cache) Converge(archive Archiver) {
 			missingTwt types.Twt
 		)
 		for _, possiblePeer := range peers {
-			if twt, err := possiblePeer.GetTwt(cache.conf, hash); err == nil {
-				missingTwt = twt
-				peer = possiblePeer
-				break
+			if !cache.conf.IsLocalURL(possiblePeer.URI) {
+				if twt, err := possiblePeer.GetTwt(cache.conf, hash); err == nil {
+					missingTwt = twt
+					peer = possiblePeer
+					break
+				}
 			}
 		}
 		if missingTwt != nil {
@@ -1297,6 +1310,25 @@ func (cache *Cache) Refresh() {
 	cache.mu.Unlock()
 }
 
+// AddEvent ...
+func (cache *Cache) AddEvent(u *User, f *Feed, text string) {
+	defer cache.DeleteUserViews(u)
+
+	cache.mu.RLock()
+	events, hasEvents := cache.Events[u.Username]
+	cache.mu.RUnlock()
+
+	twt := types.MakeTwt(f.Twter(cache.conf), time.Now(), CleanTwt(text))
+
+	if !hasEvents {
+		cache.mu.Lock()
+		cache.Events[u.Username] = NewCachedTwts(types.Twts{twt}, time.Now().Format(http.TimeFormat))
+		cache.mu.Unlock()
+	} else {
+		events.Inject(twt)
+	}
+}
+
 // InjectFeed ...
 func (cache *Cache) InjectFeed(url string, twt types.Twt) {
 	if _, inCache := cache.Lookup(twt.Hash()); inCache {
@@ -1369,7 +1401,6 @@ func (cache *Cache) InjectFeed(url string, twt types.Twt) {
 		cache.Views[key].Inject(twt)
 	}
 }
-
 
 // SnipeFeed deletes a twt from a Cache.
 func (cache *Cache) SnipeFeed(url string, twt types.Twt) {
@@ -1679,6 +1710,15 @@ func (cache *Cache) GetByUser(u *User, refresh bool) types.Twts {
 	}
 
 	var twts types.Twts
+
+	// Grab User Events (per-User private event feed)
+	cache.mu.RLock()
+	events, hasEvents := cache.Events[u.Username]
+	cache.mu.RUnlock()
+
+	if hasEvents {
+		twts = append(twts, events.Twts...)
+	}
 
 	for feed := range u.Sources() {
 		twts = append(twts, cache.GetByURL(feed.URL)...)

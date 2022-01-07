@@ -15,6 +15,8 @@ import (
 
 // RegisterHandler ...
 func (s *Server) RegisterHandler() httprouter.Handle {
+	isAdminUser := IsAdminUserFactory(s.config)
+
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		ctx := NewContext(s, r)
 
@@ -99,6 +101,34 @@ func (s *Server) RegisterHandler() httprouter.Handle {
 			log.WithError(err).Error("error saving user object for new user")
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
+		}
+
+		// Onboarding: Welcome new User and notify Poderator
+
+		// TODO: Make this async?
+		if s.config.Features.IsEnabled(FeatureInternalEvents) {
+			if admin, err := s.db.GetUser(s.config.AdminUser); err == nil && !isAdminUser(user) {
+				if twtxt, err := s.db.GetFeed(twtxtBot); err == nil {
+					// TODO: Make this configurable?
+					welcomeUserText := fmt.Sprintf(
+						"Hey @<%s %s/twtxt.txt> 👋 Wwelcme to %s a [Yarn.social](https://yarn.social) Pod! 🤗\n\n"+
+							"To get started you may want to check out [Discover](/discover)\n\n"+
+							"To follow new feeds or users see [Feeds](/feeds) and [Follow](/follow)\n\n"+
+							"Welcome! 🤗",
+						user.Username, s.config.URLForUser(user.Username),
+						s.config.Name,
+					)
+					newUserText := fmt.Sprintf(
+						"Hey @<%s %s/twtxt.txt> 👋\n\n"+
+							"A user @<%s %s/twtxt.txt> has joined your pod %s 🥳",
+						admin.Username, s.config.URLForUser(admin.Username),
+						user.Username, s.config.URLForUser(user.Username),
+						s.config.Name,
+					)
+					s.cache.AddEvent(user, twtxt, welcomeUserText)
+					s.cache.AddEvent(admin, twtxt, newUserText)
+				}
+			}
 		}
 
 		http.Redirect(w, r, "/login", http.StatusFound)
