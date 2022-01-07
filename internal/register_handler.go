@@ -116,16 +116,12 @@ func (s *Server) RegisterHandler() httprouter.Handle {
 				if twtxt, err := s.db.GetFeed(twtxtBot); err == nil {
 					// TODO: Make this configurable?
 					welcomeUserText := fmt.Sprintf(
-						"Hey @<%s %s/twtxt.txt> 👋 Wwelcme to %s a [Yarn.social](https://yarn.social) Pod! 🤗\n\n"+
-							"To get started you may want to check out [Discover](/discover)\n\n"+
-							"To follow new feeds or users see [Feeds](/feeds) and [Follow](/follow)\n\n"+
-							"Welcome! 🤗",
+						"👋 Hey @<%s %s/twtxt.txt>, welcome to %s, a [Yarn.social](https://yarn.social) Pod! To get started you may want to check out the pod's [Discover](/discover) feed. To follow a new feed or user check out [Feeds](/feeds) and [Follow](/follow). Once again, welcome! 🤗",
 						user.Username, s.config.URLForUser(user.Username),
 						s.config.Name,
 					)
 					newUserText := fmt.Sprintf(
-						"Hey @<%s %s/twtxt.txt> 👋\n\n"+
-							"A user @<%s %s/twtxt.txt> has joined your pod %s 🥳",
+						"👋 Hey @<%s %s/twtxt.txt>, a new user (@<%s %s/twtxt.txt>) has joined your pod %s! 🥳",
 						admin.Username, s.config.URLForUser(admin.Username),
 						user.Username, s.config.URLForUser(user.Username),
 						s.config.Name,
