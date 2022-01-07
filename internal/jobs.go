@@ -88,10 +88,15 @@ type StatsJob struct {
 	cache   *Cache
 	archive Archiver
 	db      Store
+
+	appendTwt AppendTwtFunc
 }
 
 func NewStatsJob(conf *Config, cache *Cache, archive Archiver, db Store) Job {
-	return &StatsJob{conf: conf, cache: cache, archive: archive, db: db}
+	return &StatsJob{
+		conf: conf, cache: cache, archive: archive, db: db,
+		appendTwt: AppendTwtFactory(conf, db),
+	}
 }
 
 func (job *StatsJob) String() string { return "Stats" }
@@ -166,7 +171,7 @@ func (job *StatsJob) Run() {
 		len(users), len(feeds), twts, archiveSize, job.cache.TwtCount(), len(followers), len(following),
 	)
 
-	if _, err := AppendTwt(job.conf, job.db, adminUser, statsFeed, text); err != nil {
+	if _, err := job.appendTwt(adminUser, statsFeed, text); err != nil {
 		log.WithError(err).Warn("error updating stats feed")
 	}
 }

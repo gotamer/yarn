@@ -43,64 +43,79 @@ func DeleteLastTwt(conf *Config, user *User) error {
 	return f.Truncate(int64(n))
 }
 
-func AppendTwt(conf *Config, db Store, user *User, feed *Feed, text string, args ...interface{}) (types.Twt, error) {
-	text = strings.TrimSpace(text)
-	if text == "" {
-		return types.NilTwt, fmt.Errorf("cowardly refusing to twt empty text, or only spaces")
-	}
+type AppendTwtFunc func(user *User, feed *Feed, text string, args ...interface{}) (types.Twt, error)
 
-	p := filepath.Join(conf.Data, feedsDir)
-	if err := os.MkdirAll(p, 0755); err != nil {
-		log.WithError(err).Error("error creating feeds directory")
-		return types.NilTwt, err
-	}
-
-	if feed != nil && !user.OwnsFeed(feed.Name) {
-		log.Warnf("unauthorized attempt to post to feed %s from user %s", user, feed)
-		return types.NilTwt, fmt.Errorf("unauthorized attempt to post to feed %s from user %s", user, feed)
-	}
-
-	var fn string
-
-	if feed == nil {
-		fn = filepath.Join(p, user.Username)
-	} else {
-		fn = filepath.Join(p, feed.Name)
-	}
-
-	f, err := os.OpenFile(fn, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
-	if err != nil {
-		return types.NilTwt, err
-	}
-	defer f.Close()
-
-	// Support replacing/editing an existing Twt whilst preserving Created Timestamp
-	now := time.Now()
-	if len(args) == 1 {
-		if t, ok := args[0].(time.Time); ok {
-			now = t
+func AppendTwtFactory(conf *Config, db Store) AppendTwtFunc {
+	isAdminUser := IsAdminUserFactory(conf)
+	canPostAsFeed := func(user *User, feed *Feed) bool {
+		if user.OwnsFeed(feed.Name) {
+			return true
 		}
+		if IsSpecialFeed(feed.Name) && isAdminUser(user) {
+			return true
+		}
+		return false
 	}
 
-	var twter types.Twter
+	return func(user *User, feed *Feed, text string, args ...interface{}) (types.Twt, error) {
+		text = strings.TrimSpace(text)
+		if text == "" {
+			return types.NilTwt, fmt.Errorf("cowardly refusing to twt empty text, or only spaces")
+		}
 
-	if feed == nil {
-		twter = user.Twter(conf)
-	} else {
-		twter = feed.Twter(conf)
+		p := filepath.Join(conf.Data, feedsDir)
+		if err := os.MkdirAll(p, 0755); err != nil {
+			log.WithError(err).Error("error creating feeds directory")
+			return types.NilTwt, err
+		}
+
+		if feed != nil && !canPostAsFeed(user, feed) {
+			log.Warnf("unauthorized attempt to post to feed %s from user %s", feed, user)
+			return types.NilTwt, fmt.Errorf("unauthorized attempt to post to feed %s from user %s", feed, user)
+		}
+
+		var fn string
+
+		if feed == nil {
+			fn = filepath.Join(p, user.Username)
+		} else {
+			fn = filepath.Join(p, feed.Name)
+		}
+
+		f, err := os.OpenFile(fn, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+		if err != nil {
+			return types.NilTwt, err
+		}
+		defer f.Close()
+
+		// Support replacing/editing an existing Twt whilst preserving Created Timestamp
+		now := time.Now()
+		if len(args) == 1 {
+			if t, ok := args[0].(time.Time); ok {
+				now = t
+			}
+		}
+
+		var twter types.Twter
+
+		if feed == nil {
+			twter = user.Twter(conf)
+		} else {
+			twter = feed.Twter(conf)
+		}
+
+		// XXX: This is a bit convoluted @xuu can we improve this somehow?
+		tmpTwt := types.MakeTwt(twter, now, strings.TrimSpace(text))
+		tmpTwt.ExpandMentions(conf, NewFeedLookup(conf, db, user))
+		newText := tmpTwt.FormatText(types.LiteralFmt, conf)
+		twt := types.MakeTwt(twter, now, newText)
+
+		if _, err = fmt.Fprintf(f, "%+l\n", twt); err != nil {
+			return types.NilTwt, err
+		}
+
+		return twt, nil
 	}
-
-	// XXX: This is a bit convoluted @xuu can we improve this somehow?
-	tmpTwt := types.MakeTwt(twter, now, strings.TrimSpace(text))
-	tmpTwt.ExpandMentions(conf, NewFeedLookup(conf, db, user))
-	newText := tmpTwt.FormatText(types.LiteralFmt, conf)
-	twt := types.MakeTwt(twter, now, newText)
-
-	if _, err = fmt.Fprintf(f, "%+l\n", twt); err != nil {
-		return types.NilTwt, err
-	}
-
-	return twt, nil
 }
 
 func FeedExists(conf *Config, username string) bool {

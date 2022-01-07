@@ -370,6 +370,8 @@ func (a *API) AuthEndpoint() httprouter.Handle {
 
 // PostEndpoint ...
 func (a *API) PostEndpoint() httprouter.Handle {
+	appendTwt := AppendTwtFactory(a.config, a.db)
+
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		user := r.Context().Value(UserContextKey).(*User)
 
@@ -391,7 +393,7 @@ func (a *API) PostEndpoint() httprouter.Handle {
 		switch req.PostAs {
 		case "", me:
 			sources = user.Source()
-			_, err = AppendTwt(a.config, a.db, user, nil, text)
+			_, err = appendTwt(user, nil, text)
 		default:
 			if user.OwnsFeed(req.PostAs) {
 				feed, feedErr := a.db.GetFeed(req.PostAs)
@@ -402,7 +404,7 @@ func (a *API) PostEndpoint() httprouter.Handle {
 				}
 				sources = feed.Source()
 
-				_, err = AppendTwt(a.config, a.db, user, feed, text)
+				_, err = appendTwt(user, feed, text)
 			} else {
 				err = ErrFeedImposter
 			}

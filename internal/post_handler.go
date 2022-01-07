@@ -15,6 +15,8 @@ import (
 func (s *Server) PostHandler() httprouter.Handle {
 	//isLocalURL := IsLocalURLFactory(s.config)
 
+	appendTwt := AppendTwtFactory(s.config, s.db)
+
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		ctx := NewContext(s, r)
 
@@ -100,9 +102,9 @@ func (s *Server) PostHandler() httprouter.Handle {
 			feedURL = s.config.URLForUser(user.Username)
 
 			if hash != "" && lastTwt.Hash() == hash {
-				twt, err = AppendTwt(s.config, s.db, user, nil, text, lastTwt.Created())
+				twt, err = appendTwt(user, nil, text, lastTwt.Created())
 			} else {
-				twt, err = AppendTwt(s.config, s.db, user, nil, text)
+				twt, err = appendTwt(user, nil, text)
 			}
 		default:
 			if user.OwnsFeed(postAs) {
@@ -118,9 +120,9 @@ func (s *Server) PostHandler() httprouter.Handle {
 				feedURL = s.config.URLForUser(postAs)
 
 				if hash != "" && lastTwt.Hash() == hash {
-					twt, err = AppendTwt(s.config, s.db, user, feed, text, lastTwt.Created)
+					twt, err = appendTwt(user, feed, text, lastTwt.Created)
 				} else {
-					twt, err = AppendTwt(s.config, s.db, user, feed, text)
+					twt, err = appendTwt(user, feed, text)
 				}
 			} else {
 				err = ErrFeedImposter
