@@ -97,6 +97,11 @@ func (s *Server) RegisterHandler() httprouter.Handle {
 		user.URL = URLForUser(s.config.BaseURL, username)
 		user.CreatedAt = time.Now()
 
+		// Default Feeds
+		user.Follow(newsSpecialUser, s.config.URLForUser(newsSpecialUser)+"/twtxt.txt")
+		user.Follow(supportSpecialUser, s.config.URLForUser(supportSpecialUser)+"/twtxt.txt")
+		user.Follow(helpSpecialUser, s.config.URLForUser(helpSpecialUser)+"/twtxt.txt")
+
 		if err := s.db.SetUser(username, user); err != nil {
 			log.WithError(err).Error("error saving user object for new user")
 			http.Error(w, err.Error(), http.StatusInternalServerError)
