@@ -366,11 +366,12 @@ func (p *parser) ParseElem() Elem {
 		e = p.parseSubjectOrText()
 		p.skipSubject = true
 	case TokHASH:
-		p.skipSubject = true
 		e = p.ParseTag()
+		p.skipSubject = true
 	case TokAT:
 		e = p.ParseMention()
 	case TokNL, TokEOF:
+		p.skipSubject = true
 		return nil
 	default:
 		if p.curTokenIs(TokSTRING) && p.peekTokenIs(TokSCHEME) {
@@ -378,12 +379,18 @@ func (p *parser) ParseElem() Elem {
 			p.skipSubject = true
 		} else {
 			e = p.ParseText()
+			if text, ok := e.(*Text); ok && !text.IsSpace() {
+				p.skipSubject = true
+			}
 		}
 	}
 
 	// If parsing above failed convert to Text
 	if e == nil || e.IsNil() {
 		e = p.ParseText()
+		if text, ok := e.(*Text); ok && !text.IsSpace() {
+			p.skipSubject = true
+		}
 	}
 
 	return e

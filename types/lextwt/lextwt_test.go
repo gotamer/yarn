@@ -641,9 +641,7 @@ func TestParseTwt(t *testing.T) {
 			twt: lextwt.NewTwt(
 				twter,
 				lextwt.NewDateTime(parseTime("2021-02-04T12:54:21Z"), "2021-02-04T12:54:21Z"),
-				lextwt.NewText("a twt witn "),
-				lextwt.NewSubject("not a"),
-				lextwt.NewText(" subject"),
+				lextwt.NewText("a twt witn (not a) subject"),
 			),
 		},
 
@@ -722,7 +720,22 @@ func TestParseTwt(t *testing.T) {
 				lextwt.NewMedia("alt", "https://example.com/image.png", `"a title"`),
 			),
 		},
+
+		// "👋 Hey @<%s %s/twtxt.txt>, a new user (@<%s %s/twtxt.txt>) has joined your pod %s! 🥳"
+		{
+			lit: `2021-11-05T22:00:00+01:00	👋 Hey @<foo http://example.com/twtxt.txt>, a new user (@<bar http://example.com/twtxt.txt>) has joined your pod binbaz! 🥳`,
+			twt: lextwt.NewTwt(
+				twter,
+				lextwt.NewDateTime(parseTime("2021-11-05T22:00:00+01:00"), "2021-11-05T22:00:00+01:00"),
+				lextwt.NewText("👋 Hey "),
+				lextwt.NewMention("foo", "http://example.com/twtxt.txt"),
+				lextwt.NewText(", a new user ("),
+				lextwt.NewMention("bar", "http://example.com/twtxt.txt"),
+				lextwt.NewText(") has joined your pod binbaz! 🥳"),
+			),
+		},
 	}
+
 	fmtOpts := mockFmtOpts{"http://example.org"}
 	for i, tt := range tests {
 		t.Run(fmt.Sprintf("TestParseTwt %d", i), func(t *testing.T) {
@@ -738,6 +751,8 @@ func TestParseTwt(t *testing.T) {
 
 			assert.True(twt != nil)
 			if twt != nil {
+				assert.Equal(fmt.Sprintf("%L", twt), fmt.Sprintf("%L", tt.twt))
+
 				testParseTwt(t, tt.twt, twt)
 			}
 			if tt.text != "" {
