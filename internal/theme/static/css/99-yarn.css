@@ -456,6 +456,12 @@ video {
   border-bottom: none;
 }
 
+.feed-gap .p-summary {
+  margin-top: -0.5rem;
+  padding-bottom: 1.25rem;
+  padding-left: 0.25rem;
+}
+
 #cookie-law{
   background-color: rgb(50, 50, 50) !important;
   padding-top: 10px;
