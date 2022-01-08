@@ -70,6 +70,9 @@
       </li>
     </ul>
   </details>
+  <div class="profile-post">
+    {{ template "post" (dict "Authenticated" $.Authenticated "User" $.User "TwtPrompt" $.TwtPrompt "MaxTwtLength" $.MaxTwtLength "PostText" $.PostText "Reply" $.Reply "AutoFocus" false "CSRFToken" $.CSRFToken "Ctx" .) }}
+  </div>
   {{ end }}
 
   <div class="profile-recent">

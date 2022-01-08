@@ -729,6 +729,9 @@ footer.container {
     font-size: 0.0009rem;
     color: var(--background-color);
   }
+  .profile-post {
+    padding-top: 1rem;
+  }
   .ti-circle-plus, .ti-circle-minus, .ti-settings, .ti-link-profile, .ti-rss-profile, .ti-bookmarks {
     font-size: 1.3rem;
     color: var(--primary) !important;

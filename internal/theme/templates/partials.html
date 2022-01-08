@@ -42,7 +42,7 @@
   <input type="hidden" id="replyTo" name="reply" value="{{ $.Reply }}" />
   <input type="hidden" id="title" name="title" placeholder="{{tr $.Ctx "TwtFormTitle"}}" value="" />
   <div class="textarea-container">
-    <textarea id="text" name="text" placeholder="{{ $.TwtPrompt }}" rows=3 maxlength={{ $.MaxTwtLength }} {{ if $.AutoFocus }}autofocus{{ end }} required></textarea>
+    <textarea id="text" name="text" placeholder="{{ $.TwtPrompt }}" rows=3 maxlength={{ $.MaxTwtLength }} {{ if $.AutoFocus }}autofocus{{ end }} required>{{ $.PostText }}</textarea>
     <div id="mentioned-list" class="users-list">
       <div id="mentioned-list-content" class="mentioned-list-content">
       </div>

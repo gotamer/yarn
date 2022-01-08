@@ -126,6 +126,9 @@ type Context struct {
 
 	// Login Referer
 	Referer string
+
+	// Profile post box user handle
+	PostText string
 }
 
 func NewContext(s *Server, req *http.Request) *Context {

@@ -62,6 +62,7 @@ func (s *Server) ProfileHandler() httprouter.Handle {
 		profile.FollowedBy = s.cache.FollowedBy(ctx.User, profile.URI)
 
 		ctx.Profile = profile
+		ctx.PostText = fmt.Sprintf("@%s ", profile.Nick)
 
 		ctx.Links = append(ctx.Links, Link{
 			Href: fmt.Sprintf("%s/webmention", UserURL(profile.URI)),

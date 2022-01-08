@@ -127,6 +127,8 @@ func (s *Server) ExternalHandler() httprouter.Handle {
 			ctx.Profile.LastPostedAt = twts[0].Created()
 		}
 
+		ctx.PostText = fmt.Sprintf("@<%s %s> ", ctx.Profile.Nick, ctx.Profile.URI)
+
 		follower := s.cache.GetFollowerByURI(ctx.User, uri)
 		if follower != nil {
 			ctx.Profile.LastSeenAt = follower.LastSeenAt
