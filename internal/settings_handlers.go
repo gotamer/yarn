@@ -80,8 +80,8 @@ func (s *Server) SettingsHandler() httprouter.Handle {
 		if avatarFile != nil {
 			opts := &ImageOptions{
 				Resize: true,
-				Width:  AvatarResolution,
-				Height: AvatarResolution,
+				Width:  s.config.AvatarResolution,
+				Height: s.config.AvatarResolution,
 			}
 			_, err = StoreUploadedImage(
 				s.config, avatarFile,

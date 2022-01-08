@@ -34,6 +34,20 @@
             </label>
           </div>
           <div>
+            <label for="avatarResolution">
+              Avatar Resolution
+              <input id="avatarResolution" type="number" name="avatarResolution" placeholder="Avatar Resolution in pixels" aria-label="avatarResolution" value="{{ .AvatarResolution }}">
+            </label>
+          </div>
+          <div>
+            <label for="mediaResolution">
+              Media Resolution
+              <input id="mediaResolution" type="number" name="mediaResolution" placeholder="Media Resolution in pixels" aria-label="mediaResolution" value="{{ .MediaResolution }}">
+            </label>
+          </div>
+        </div>
+        <div class="grid">
+          <div>
             <legend>Other settings:</legend>
             <label for="enableOpenRegistrations">
               <input id="enableOpenRegistrations" type="checkbox" name="enableOpenRegistrations" aria-label="Allow open registrations" role="switch" {{ if not .RegisterDisabled }}checked{{ end }} />

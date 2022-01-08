@@ -21,10 +21,6 @@ import (
 )
 
 const (
-	MediaResolution  = 850 // 850px width (maintaining aspect ratio)
-	AvatarResolution = 360 // 360px width (maintaining aspect ratio)
-	AsyncTaskLimit   = 5
-
 	bookmarkletTemplate = `(function(){window.location.href="%s/?title="+document.title+"&url="+document.URL;})();`
 )
 
@@ -162,7 +158,7 @@ func (s *Server) AvatarHandler() httprouter.Handle {
 			return
 		}
 
-		img, err := GenerateAvatar(s.config.Name, nick)
+		img, err := GenerateAvatar(s.config, nick)
 		if err != nil {
 			log.WithError(err).Errorf("error generating avatar for %s", nick)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)

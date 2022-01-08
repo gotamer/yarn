@@ -278,7 +278,7 @@ func (s *Server) ExternalAvatarHandler() httprouter.Handle {
 				domainNick = twter.DomainNick()
 			}
 
-			img, err := GenerateAvatar(s.config.Name, domainNick)
+			img, err := GenerateAvatar(s.config, domainNick)
 			if err != nil {
 				log.WithError(err).Errorf("error generating external avatar for %s", uri)
 				http.Error(w, "Internal Server Error", http.StatusInternalServerError)

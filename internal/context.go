@@ -53,6 +53,8 @@ type Context struct {
 	TwtsPerPage       int
 	TwtPrompt         string
 	MaxTwtLength      int
+	AvatarResolution  int
+	MediaResolution   int
 	RegisterDisabled  bool
 	OpenProfiles      bool
 	DisableMedia      bool
@@ -153,6 +155,8 @@ func NewContext(s *Server, req *http.Request) *Context {
 		TwtsPerPage:       conf.TwtsPerPage,
 		TwtPrompt:         conf.RandomTwtPrompt(),
 		MaxTwtLength:      conf.MaxTwtLength,
+		AvatarResolution:  conf.AvatarResolution,
+		MediaResolution:   conf.MediaResolution,
 		RegisterDisabled:  !conf.OpenRegistrations,
 		OpenProfiles:      conf.OpenProfiles,
 		DisableMedia:      conf.DisableMedia,

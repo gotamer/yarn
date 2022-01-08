@@ -178,8 +178,8 @@ func Slugify(uri string) string {
 	return slug.Make(fmt.Sprintf("%s/%s", u.Hostname(), u.Path))
 }
 
-func GenerateAvatar(podName, domainNick string) (image.Image, error) {
-	ig, err := identicon.New(podName, 7, 4)
+func GenerateAvatar(conf *Config, domainNick string) (image.Image, error) {
+	ig, err := identicon.New(conf.Name, 7, 4)
 	if err != nil {
 		log.WithError(err).Error("error creating identicon generator")
 		return nil, err
@@ -191,7 +191,7 @@ func GenerateAvatar(podName, domainNick string) (image.Image, error) {
 		return nil, err
 	}
 
-	return ii.Image(AvatarResolution), nil
+	return ii.Image(conf.AvatarResolution), nil
 }
 
 func ReplaceExt(fn, newExt string) string {
@@ -257,7 +257,7 @@ func GetExternalAvatar(conf *Config, twter types.Twter) {
 			return
 		}
 
-		opts := &ImageOptions{Resize: true, Width: AvatarResolution, Height: AvatarResolution}
+		opts := &ImageOptions{Resize: true, Width: conf.AvatarResolution, Height: conf.AvatarResolution}
 		if _, err := DownloadImage(conf, u.String(), externalDir, slug, opts); err != nil {
 			log.WithError(err).Errorf("error downloading external avatar: %s", u)
 			return

@@ -44,7 +44,9 @@ type Settings struct {
 	Logo        string `yaml:"pod_logo"`
 	Description string `yaml:"pod_description"`
 
-	MaxTwtLength int `yaml:"max_twt_length"`
+	MaxTwtLength     int `yaml:"max_twt_length"`
+	MediaResolution  int `yaml:"media_resolution"`
+	AvatarResolution int `yaml:"avatar_resolution"`
 
 	OpenProfiles      bool `yaml:"open_profiles"`
 	OpenRegistrations bool `yaml:"open_registrations"`
@@ -96,6 +98,8 @@ type Config struct {
 	TwtsPerPage       int
 	MaxUploadSize     int64
 	MaxTwtLength      int
+	MediaResolution   int
+	AvatarResolution  int
 	MaxCacheTTL       time.Duration
 	FetchInterval     string
 	MaxCacheItems     int
