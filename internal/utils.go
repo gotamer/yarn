@@ -661,6 +661,31 @@ func receiveFile(r io.Reader, filePattern string) (*os.File, error) {
 	return tf, nil
 }
 
+func copyFile(src, dst string) (int64, error) {
+	sourceFileStat, err := os.Stat(src)
+	if err != nil {
+		return 0, err
+	}
+
+	if !sourceFileStat.Mode().IsRegular() {
+		return 0, fmt.Errorf("%s is not a regular file", src)
+	}
+
+	source, err := os.Open(src)
+	if err != nil {
+		return 0, err
+	}
+	defer source.Close()
+
+	destination, err := os.Create(dst)
+	if err != nil {
+		return 0, err
+	}
+	defer destination.Close()
+	nBytes, err := io.Copy(destination, source)
+	return nBytes, err
+}
+
 func TranscodeAudio(conf *Config, ifn string, resource, name string, opts *AudioOptions) (string, error) {
 	defer os.Remove(ifn)
 
@@ -765,13 +790,23 @@ func ProcessImage(conf *Config, ifn string, resource, name string, opts *ImageOp
 		return "", err
 	}
 
-	var ofn string
+	var (
+		ofn string
+		tfn string
+	)
 
 	if name == "" {
 		uuid := shortuuid.New()
-		ofn = filepath.Join(p, fmt.Sprintf("%s.png", uuid))
+		tfn = filepath.Join(p, fmt.Sprintf("%s.png", uuid))
+		ofn = filepath.Join(p, fmt.Sprintf("%s.orig.png", uuid))
 	} else {
-		ofn = fmt.Sprintf("%s.png", filepath.Join(p, name))
+		tfn = fmt.Sprintf("%s.png", filepath.Join(p, name))
+		ofn = fmt.Sprintf("%s.orig.png", filepath.Join(p, name))
+	}
+
+	if _, err := copyFile(ifn, ofn); err != nil {
+		log.WithError(err).Error("error copying input file")
+		return "", err
 	}
 
 	f, err := os.Open(ifn)
@@ -801,9 +836,9 @@ func ProcessImage(conf *Config, ifn string, resource, name string, opts *ImageOp
 
 	g.Draw(newImg, img)
 
-	of, err := os.OpenFile(ofn, os.O_WRONLY|os.O_CREATE, 0644)
+	of, err := os.OpenFile(tfn, os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
-		log.WithError(err).Error("error opening output file")
+		log.WithError(err).Error("error opening thumbnail file")
 		return "", err
 	}
 	defer of.Close()
@@ -816,7 +851,7 @@ func ProcessImage(conf *Config, ifn string, resource, name string, opts *ImageOp
 	return fmt.Sprintf(
 		"%s/%s/%s",
 		strings.TrimSuffix(conf.BaseURL, "/"),
-		resource, strings.TrimSuffix(filepath.Base(ofn), filepath.Ext(ofn)),
+		resource, filepath.Base(tfn),
 	), nil
 }
 
@@ -1636,7 +1671,7 @@ func CleanTwt(text string) string {
 }
 
 // RenderAudio ...
-func RenderAudio(conf *Config, uri string) string {
+func RenderAudio(conf *Config, uri, title string) string {
 	isLocalURL := IsLocalURLFactory(conf)
 
 	if isLocalURL(uri) {
@@ -1648,20 +1683,42 @@ func RenderAudio(conf *Config, uri string) string {
 
 		mp3URI := u.String()
 
-		return fmt.Sprintf(`<audio controls="controls">
+		return fmt.Sprintf(`<audio controls="controls" title="%s">
   <source type="audio/mp3" src="%s"></source>
   Your browser does not support the audio element.
-</audio>`, mp3URI)
+</audio>`, title, mp3URI)
 	}
 
-	return fmt.Sprintf(`<audio controls="controls">
+	return fmt.Sprintf(`<audio controls="controls" title="%s">
   <source type="audio/mp3" src="%s"></source>
   Your browser does not support the audio element.
-</audio>`, uri)
+</audio>`, title, uri)
+}
+
+// RenderImage ...
+func RenderImage(conf *Config, uri, title string) string {
+	isLocalURL := IsLocalURLFactory(conf)
+
+	if isLocalURL(uri) {
+		u, err := url.Parse(uri)
+		if err != nil {
+			log.WithError(err).Warnf("error parsing uri: %s", uri)
+			return ""
+		}
+
+		imgURI := u.String()
+
+		return fmt.Sprintf(
+			`<a href="%s?full=1" title="Click to open original quality version of %s" target="_blank"><img loading=lazy title="%s" src="%s" /></a>`,
+			imgURI, title, title, imgURI,
+		)
+	}
+
+	return fmt.Sprintf(`<img loading=lazy src="%s" />`, uri)
 }
 
 // RenderVideo ...
-func RenderVideo(conf *Config, uri string) string {
+func RenderVideo(conf *Config, uri, title string) string {
 	isLocalURL := IsLocalURLFactory(conf)
 
 	if isLocalURL(uri) {
@@ -1674,16 +1731,16 @@ func RenderVideo(conf *Config, uri string) string {
 		u.Path = ReplaceExt(u.Path, "")
 		posterURI := u.String()
 
-		return fmt.Sprintf(`<video controls playsinline preload="auto" poster="%s">
+		return fmt.Sprintf(`<video controls playsinline preload="auto" title="%s" poster="%s">
     <source type="video/mp4" src="%s" />
     Your browser does not support the video element.
-  </video>`, posterURI, uri)
+  </video>`, title, posterURI, uri)
 	}
 
-	return fmt.Sprintf(`<video controls playsinline preload="auto">
+	return fmt.Sprintf(`<video controls playsinline preload="auto" title="%s">
     <source type="video/mp4" src="%s" />
     Your browser does not support the video element.
-    </video>`, uri)
+    </video>`, title, uri)
 }
 
 // PreprocessMedia ...
@@ -1706,12 +1763,11 @@ func PreprocessMedia(conf *Config, u *url.URL, title string) string {
 
 		switch filepath.Ext(u.Path) {
 		case ".mp4":
-			html = RenderVideo(conf, u.String())
+			html = RenderVideo(conf, u.String(), title)
 		case ".mp3":
-			html = RenderAudio(conf, u.String())
+			html = RenderAudio(conf, u.String(), title)
 		default:
-			src := u.String()
-			html = fmt.Sprintf(`<img title="%s" src="%s" loading=lazy>`, title, src)
+			html = RenderImage(conf, u.String(), title)
 		}
 	} else {
 		src := u.String()

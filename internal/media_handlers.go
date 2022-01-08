@@ -22,28 +22,39 @@ func (s *Server) MediaHandler() httprouter.Handle {
 			return
 		}
 
+		dir := filepath.Join(s.config.Data, mediaDir)
+
+		ext := filepath.Ext(name)
+
 		var fn string
 
-		switch filepath.Ext(name) {
+		switch ext {
 		case ".png":
-			metrics.Counter("media", "old_media").Inc()
 			w.Header().Set("Content-Type", "image/png")
-			fn = filepath.Join(s.config.Data, mediaDir, name)
+			fn = filepath.Join(dir, name)
 		case ".mp4":
 			w.Header().Set("Content-Type", "video/mp4")
-			fn = filepath.Join(s.config.Data, mediaDir, name)
+			fn = filepath.Join(dir, name)
 		case ".mp3":
 			w.Header().Set("Content-Type", "audio/mp3")
-			fn = filepath.Join(s.config.Data, mediaDir, name)
+			fn = filepath.Join(dir, name)
 		default:
 			metrics.Counter("media", "old_media").Inc()
 			w.Header().Set("Content-Type", "image/png")
-			fn = filepath.Join(s.config.Data, mediaDir, fmt.Sprintf("%s.png", name))
+			fn = filepath.Join(dir, fmt.Sprintf("%s.png", name))
 		}
 
 		if !FileExists(fn) {
 			http.Error(w, "Media Not Found", http.StatusNotFound)
 			return
+		}
+
+		// Handle original full quality
+		if r.URL.Query().Get("full") == "1" {
+			base := strings.TrimSuffix(name, ext)
+			if ofn := filepath.Join(dir, fmt.Sprintf("%s.orig%s", base, ext)); FileExists(ofn) {
+				fn = ofn
+			}
 		}
 
 		fileInfo, err := os.Stat(fn)
