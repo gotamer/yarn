@@ -239,7 +239,8 @@ u("#post").on("click", function(e) {
   e.preventDefault();
   localStorage.setItem('title', '');
   localStorage.setItem('text', '');
-  u("#post").html('<i class="ti ti-rotate-clockwise-2 icon-rotate"></i>&nbsp;Posting...');
+  u("#post").html('Posting...');
+  u("#post").attr("aria-busy", true);
   u("#post").attr("disabled", true);
   u("#form").first().submit();
 });
@@ -649,10 +650,8 @@ function pollForTask(taskURL, delay, maxDelay, timeout, errorCallback, successCa
 }
 
 u("#uploadMedia").on("change", function(e) {
-  u("#uploadMediaButton").removeClass("ti-camera");
-  u("#uploadMediaButton").addClass("ti-rotate-clockwise-2 icon-rotate");
+  u("#uploadMediaButton").attr("aria-busy",true);
   u("#uploadMediaForm").data("tooltip", "Uploading...");
-  u("#uploadMedia").html('<i class="ti ti-rotate-clockwise-2 icon-rotate"></i>');
 
   Twix.ajax({
     type: "POST",
@@ -669,8 +668,7 @@ u("#uploadMedia").on("change", function(e) {
         Date.now() + maxTaskWait,
 
         function(errorData) {
-          u("#uploadMediaButton").removeClass("ti-rotate-clockwise-2 icon-rotate");
-          u("#uploadMediaButton").addClass("ti-camera");
+          u("#uploadMediaButton").attr("aria-busy",false);
           alert("An error occurred uploading your media: " + errorData.error)
         },
 
@@ -682,8 +680,7 @@ u("#uploadMedia").on("change", function(e) {
           var size = el.text().length;
           text.setSelectionRange(size, size);
 
-          u("#uploadMediaButton").removeClass("ti-rotate-clockwise-2 icon-rotate");
-          u("#uploadMediaButton").addClass("ti-camera");
+          u("#uploadMediaButton").attr("aria-busy",false);
           u("#uploadMedia").data("tooltip", "Upload");
         }
 
@@ -691,8 +688,7 @@ u("#uploadMedia").on("change", function(e) {
     },
 
     error: function(statusCode, statusText) {
-      u("#uploadMediaButton").removeClass("ti-rotate-clockwise-2 icon-rotate");
-      u("#uploadMediaButton").addClass("ti-camera");
+      u("#uploadMediaButton").attr("aria-busy",false);
       alert("An error occurred uploading your media: " + statusCode + " " + statusText);
     },
 

@@ -268,11 +268,6 @@ nav.pagination-nav a {
   word-break: break-all;
 }
 
-.icon-rotate {
-  display: inline-block;
-  animation: 2s linear infinite rotate;
-}
-
 .manage-users {
   margin-bottom: 1rem;
 }
@@ -302,16 +297,16 @@ video {
   text-align: center;
 }
 
-#uploadImageButton, #uploadAudioButton, #uploadVideoButton{
+#uploadMediaButton{
   cursor: pointer;
   color: var(--primary);
 }
 
-#uploadImageButton:hover, #uploadAudioButton:hover, #uploadVideoButton:hover{
+#uploadMediaButton:hover {
   color: var(--primary-hover);
 }
 
-#uploadImageButton:focus, #uploadAudioButton:focus, #uploadVideoButton:focus{
+#uploadMediaButton:focus {
   background-color: var(--primary-focus);
 }
 
@@ -910,11 +905,5 @@ footer.container {
   }
   #convJoinSummary {
     margin: 0.25rem 0 -1.25rem 0 !important;
-  }
-}
-
-@keyframes rotate {
-  100% {
-    transform: rotate(360deg);
   }
 }

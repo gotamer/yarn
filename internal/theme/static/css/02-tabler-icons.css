@@ -46,10 +46,6 @@
   content: "\ed08";
 }
 
-.ti-camera:before {
-  content: "\ea54";
-}
-
 .ti-caret-left:before {
   content: "\eb5e";
 }
@@ -134,20 +130,12 @@
   content: "\eb6c";
 }
 
-.ti-microphone:before {
-  content: "\eaf0";
-}
-
 .ti-moon:before {
   content: "\eaf8";
 }
 
 .ti-photo:before {
   content: "\eb0a";
-}
-
-.ti-rotate-clockwise-2:before {
-  content: "\ebb5";
 }
 
 .ti-rss:before {
@@ -198,6 +186,10 @@
   content: "\eb48";
 }
 
+.ti-upload:before {
+  content: "\eb47";
+}
+
 .ti-user-check:before {
   content: "\eb49";
 }
@@ -212,10 +204,6 @@
 
 .ti-users:before {
   content: "\ebf2";
-}
-
-.ti-video:before {
-  content: "\ed22";
 }
 
 .ti-volume:before {

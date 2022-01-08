@@ -13,7 +13,7 @@
     <li class="toolbar-form-button-media">
       <form id="mediaUploadForm" action="/upload" enctype="multipart/form-data" method="POST" title="Upload Media">
         <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
-        <label for="uploadMedia"><i id="uploadMediaButton" class="ti ti-camera"></i></label>
+        <label for="uploadMedia"><i id="uploadMediaButton" class="ti ti-upload"></i></label>
         <input id="uploadMedia" class="invisible width-none" type="file" accept="image/*{{ if not $.Ctx.DisableFfmpeg }},audio/*,video/*{{ end }}" name="media_file" />
       </form>
     </li>
