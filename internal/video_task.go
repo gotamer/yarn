@@ -2,7 +2,6 @@ package internal
 
 import (
 	"fmt"
-	"os"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -37,10 +36,6 @@ func (t *VideoTask) Run() error {
 		return t.Fail(err)
 	}
 	log.Infof("video transcode complete for %s with uri %s", t.fn, mediaURI)
-
-	if err := os.Remove(t.fn); err != nil {
-		log.WithError(err).Warn("error removing temporary video file")
-	}
 
 	t.SetData("mediaURI", mediaURI)
 

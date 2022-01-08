@@ -2,7 +2,6 @@ package internal
 
 import (
 	"fmt"
-	"os"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -37,10 +36,6 @@ func (t *ImageTask) Run() error {
 		return t.Fail(err)
 	}
 	log.Infof("image processing complete for %s with uri %s", t.fn, mediaURI)
-
-	if err := os.Remove(t.fn); err != nil {
-		log.WithError(err).Warn("error removing temporary image file")
-	}
 
 	t.SetData("mediaURI", mediaURI)
 

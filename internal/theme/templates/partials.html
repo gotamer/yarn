@@ -11,28 +11,12 @@
     <li class="toolbar-form-button"><a id="imgBtn" href="#" title="Image"><i class="ti ti-photo"></i></a></li>
     {{ if not $.Ctx.DisableMedia }}
     <li class="toolbar-form-button-media">
-      <form id="imageUploadForm" action="/upload" enctype="multipart/form-data" method="POST" title="Upload image">
+      <form id="mediaUploadForm" action="/upload" enctype="multipart/form-data" method="POST" title="Upload Media">
         <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
-        <label for="uploadImage"><i id="uploadImageButton" class="ti ti-camera"></i></label>
-        <input id="uploadImage" class="invisible width-none" type="file" accept="image/*" name="media_file" />
+        <label for="uploadMedia"><i id="uploadMediaButton" class="ti ti-camera"></i></label>
+        <input id="uploadMedia" class="invisible width-none" type="file" accept="image/*{{ if not $.Ctx.DisableFfmpeg }},audio/*,video/*{{ end }}" name="media_file" />
       </form>
     </li>
-    {{ if not $.Ctx.DisableFfmpeg }}
-    <li class="toolbar-form-button-media">
-      <form id="audioUploadForm" action="/upload" enctype="multipart/form-data" method="POST" title="Upload audio">
-        <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
-        <label for="uploadAudio"><i id="uploadAudioButton" class="ti ti-microphone"></i></label>
-        <input id="uploadAudio" class="invisible width-none" type="file" accept="audio/*" name="media_file" />
-      </form>
-    </li>
-    <li class="toolbar-form-button-media">
-      <form id="videoUploadForm" action="/upload" enctype="multipart/form-data" method="POST" title="Upload video">
-        <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
-        <label for="uploadVideo"><i id="uploadVideoButton" class="ti ti-video"></i></label>
-        <input id="uploadVideo" class="invisible width-none" type="file" accept="video/*" name="media_file" />
-      </form>
-    </li>
-    {{ end }}
     {{ end }}
   </ul>
 </nav>

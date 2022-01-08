@@ -648,16 +648,16 @@ function pollForTask(taskURL, delay, maxDelay, timeout, errorCallback, successCa
   });
 }
 
-u("#uploadImage").on("change", function(e) {
-  u("#uploadImageButton").removeClass("ti-camera");
-  u("#uploadImageButton").addClass("ti-rotate-clockwise-2 icon-rotate");
-  u("#uploadImageForm").data("tooltip", "Uploading...");
+u("#uploadMedia").on("change", function(e) {
+  u("#uploadMediaButton").removeClass("ti-camera");
+  u("#uploadMediaButton").addClass("ti-rotate-clockwise-2 icon-rotate");
+  u("#uploadMediaForm").data("tooltip", "Uploading...");
+  u("#uploadMedia").html('<i class="ti ti-rotate-clockwise-2 icon-rotate"></i>');
 
-  u("#uploadImage").html('<i class="ti ti-rotate-clockwise-2 icon-rotate"></i>');
   Twix.ajax({
     type: "POST",
-    url: u("#imageUploadForm").attr("action"),
-    data: new FormData(u("#imageUploadForm").first()),
+    url: u("#mediaUploadForm").attr("action"),
+    data: new FormData(u("#mediaUploadForm").first()),
     success: function(data) {
       var el = u("textarea#text");
       var text = document.getElementById("text");
@@ -667,14 +667,13 @@ u("#uploadImage").on("change", function(e) {
         1000,
         30000,
         Date.now() + maxTaskWait,
+
         function(errorData) {
-          u("#uploadImageButton").removeClass("ti-rotate-clockwise-2 icon-rotate");
-          u("#uploadImageButton").addClass("ti-camera");
-          alert(
-            "An error occurred uploading your image: " +
-            errorData.error
-          )
+          u("#uploadMediaButton").removeClass("ti-rotate-clockwise-2 icon-rotate");
+          u("#uploadMediaButton").addClass("ti-camera");
+          alert("An error occurred uploading your media: " + errorData.error)
         },
+
         function(successData) {
           text.value += " ![](" + successData.data.mediaURI + ") ";
           el.scroll();
@@ -683,131 +682,22 @@ u("#uploadImage").on("change", function(e) {
           var size = el.text().length;
           text.setSelectionRange(size, size);
 
-          u("#uploadImageButton").removeClass("ti-rotate-clockwise-2 icon-rotate");
-          u("#uploadImageButton").addClass("ti-camera");
-          u("#uploadImage").data("tooltip", "Upload");
+          u("#uploadMediaButton").removeClass("ti-rotate-clockwise-2 icon-rotate");
+          u("#uploadMediaButton").addClass("ti-camera");
+          u("#uploadMedia").data("tooltip", "Upload");
         }
+
       );
     },
+
     error: function(statusCode, statusText) {
-      u("#uploadImageButton").removeClass("ti-rotate-clockwise-2 icon-rotate");
-      u("#uploadImageButton").addClass("ti-camera");
-      alert(
-        "An error occurred uploading your image: " +
-        statusCode +
-        " " +
-        statusText
-      );
+      u("#uploadMediaButton").removeClass("ti-rotate-clockwise-2 icon-rotate");
+      u("#uploadMediaButton").addClass("ti-camera");
+      alert("An error occurred uploading your media: " + statusCode + " " + statusText);
     },
+
   });
-});
 
-u("#uploadAudio").on("change", function(e) {
-  u("#uploadAudioButton").removeClass("ti-microphone");
-  u("#uploadAudioButton").addClass("ti-rotate-clockwise-2 icon-rotate");
-  u("#uploadAudioForm").data("tooltip", "Uploading...");
-
-  u("#uploadAudio").html('<i class="ti ti-rotate-clockwise-2 icon-rotate"></i>');
-  Twix.ajax({
-    type: "POST",
-    url: u("#audioUploadForm").attr("action"),
-    data: new FormData(u("#audioUploadForm").first()),
-    success: function(data) {
-      var el = u("textarea#text");
-      var text = document.getElementById("text");
-
-      pollForTask(
-        data.Path,
-        1000,
-        30000,
-        Date.now() + maxTaskWait,
-        function(errorData) {
-          u("#uploadAudioButton").removeClass("ti-rotate-clockwise-2 icon-rotate");
-          u("#uploadAudioButton").addClass("ti-microphone");
-          alert(
-            "An error occurred uploading your audio: " +
-            errorData.error
-          )
-        },
-        function(successData) {
-          text.value += " ![](" + successData.data.mediaURI + ") ";
-          el.scroll();
-          text.focus();
-
-          var size = el.text().length;
-          text.setSelectionRange(size, size);
-
-          u("#uploadAudioButton").removeClass("ti-rotate-clockwise-2 icon-rotate");
-          u("#uploadAudioButton").addClass("ti-microphone");
-          u("#uploadAudio").data("tooltip", "Upload");
-        }
-      );
-    },
-    error: function(statusCode, statusText) {
-      u("#uploadAudioButton").removeClass("ti-rotate-clockwise-2 icon-rotate");
-      u("#uploadAudioButton").addClass("ti-microphone");
-      alert(
-        "An error occurred uploading your audio: " +
-        statusCode +
-        " " +
-        statusText
-      );
-    },
-  });
-});
-
-u("#uploadVideo").on("change", function(e) {
-  u("#uploadVideoButton").removeClass("ti-video");
-  u("#uploadVideoButton").addClass("ti-rotate-clockwise-2 icon-rotate");
-  u("#uploadVideoForm").data("tooltip", "Uploading...");
-
-  u("#uploadVideo").html('<i class="ti ti-rotate-clockwise-2 icon-rotate"></i>');
-  Twix.ajax({
-    type: "POST",
-    url: u("#videoUploadForm").attr("action"),
-    data: new FormData(u("#videoUploadForm").first()),
-    success: function(data) {
-      var el = u("textarea#text");
-      var text = document.getElementById("text");
-
-      pollForTask(
-        data.Path,
-        1000,
-        30000,
-        Date.now() + maxTaskWait,
-        function(errorData) {
-          u("#uploadVideoButton").removeClass("ti-rotate-clockwise-2 icon-rotate");
-          u("#uploadVideoButton").addClass("ti-video");
-          alert(
-            "An error occurred uploading your video: " +
-            errorData.error
-          )
-        },
-        function(successData) {
-          text.value += " ![](" + successData.data.mediaURI + ") ";
-          el.scroll();
-          text.focus();
-
-          var size = el.text().length;
-          text.setSelectionRange(size, size);
-
-          u("#uploadVideoButton").removeClass("ti-rotate-clockwise-2 icon-rotate");
-          u("#uploadVideoButton").addClass("ti-video");
-          u("#uploadVideo").data("tooltip", "Upload");
-        }
-      );
-    },
-    error: function(statusCode, statusText) {
-      u("#uploadVideoButton").removeClass("ti-rotate-clockwise-2 icon-rotate");
-      u("#uploadVideoButton").addClass("ti-video");
-      alert(
-        "An error occurred uploading your video: " +
-        statusCode +
-        " " +
-        statusText
-      );
-    },
-  });
 });
 
 u("#register > button").first().disabled = true;
