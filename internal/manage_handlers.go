@@ -420,6 +420,59 @@ func (s *Server) DelUserHandler() httprouter.Handle {
 	}
 }
 
+// DelFeedHandler ...
+func (s *Server) DelFeedHandler() httprouter.Handle {
+	isAdminUser := IsAdminUserFactory(s.config)
+
+	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		ctx := NewContext(s, r)
+
+		if !isAdminUser(ctx.User) {
+			ctx.Error = true
+			ctx.Message = "You are not a Pod Owner!"
+			s.render("403", w, ctx)
+			return
+		}
+
+		name := NormalizeFeedName(r.FormValue("name"))
+
+		feed, err := s.db.GetFeed(name)
+		if err != nil {
+			log.WithError(err).Errorf("error loading feed object for %s", name)
+			ctx.Error = true
+			ctx.Message = "Error deleting feed"
+			s.render("error", w, ctx)
+			return
+		}
+
+		// Delete feed
+		if err := s.db.DelFeed(feed.Name); err != nil {
+			ctx.Error = true
+			ctx.Message = "An error occured whilst deleting the feed"
+			s.render("error", w, ctx)
+			return
+		}
+
+		// Delete feeds's twtxt.txt
+		fn := filepath.Join(s.config.Data, feedsDir, name)
+		if FileExists(fn) {
+			if err := os.Remove(fn); err != nil {
+				log.WithError(err).Error("error removing feed")
+				ctx.Error = true
+				ctx.Message = "An error occured whilst deleting the feed"
+				s.render("error", w, ctx)
+			}
+		}
+
+		// Delete feed from cache
+		s.cache.DeleteFeeds(feed.Source())
+
+		ctx.Error = false
+		ctx.Message = "Successfully deleted account"
+		s.render("error", w, ctx)
+	}
+}
+
 // RstUserHandler ...
 func (s *Server) RstUserHandler() httprouter.Handle {
 	isAdminUser := IsAdminUserFactory(s.config)

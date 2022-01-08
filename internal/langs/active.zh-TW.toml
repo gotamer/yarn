@@ -1023,8 +1023,8 @@ hash = "sha1-f6fdbe48dc54dd86f63097a03bd24094dedd713a"
 other = "刪除"
 
 [SettingsDeleteAccountSummary]
-hash = "sha1-c2508c59a9a2da262ded2de1889ab258ab122241"
-other = "<b>警告:</b>&nbsp;這是永久刪除且無法恢復！\n(<i>沒有確認操作！</i>)"
+hash = "sha1-41ca954236b0b07da7e04fb4880a5ab6718c65f8"
+other = "<b>WARNING:</b>&nbsp;This is permanent and cannot be undone!"
 
 [SettingsDeleteAccountTitle]
 hash = "sha1-1753c2061c676db8dd89101b51b92f09a277f51c"

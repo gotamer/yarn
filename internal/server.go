@@ -661,6 +661,7 @@ func (s *Server) initRoutes() {
 
 	s.router.GET("/manage/users", httproutermiddleware.Handler("manager_users", s.am.MustAuth(s.ManageUsersHandler()), mdlw))
 	s.router.POST("/manage/adduser", httproutermiddleware.Handler("adduser", s.am.MustAuth(s.AddUserHandler()), mdlw))
+	s.router.POST("/manage/delfeed", httproutermiddleware.Handler("delfeed", s.am.MustAuth(s.DelFeedHandler()), mdlw))
 	s.router.POST("/manage/deluser", httproutermiddleware.Handler("deluser", s.am.MustAuth(s.DelUserHandler()), mdlw))
 	s.router.POST("/manage/rstuser", httproutermiddleware.Handler("rstuser", s.am.MustAuth(s.RstUserHandler()), mdlw))
 
