@@ -215,9 +215,9 @@ func (s *Server) ManageFeedHandler() httprouter.Handle {
 	}
 }
 
-// ArchiveFeedHandler...
-func (s *Server) ArchiveFeedHandler() httprouter.Handle {
-	canArchiveFeed := func(feed string, u *User) bool {
+// DeleteFeedHandler...
+func (s *Server) DeleteFeedHandler() httprouter.Handle {
+	canDeleteFeed := func(feed string, u *User) bool {
 		if IsSpecialFeed(feed) {
 			return false
 		}
@@ -249,113 +249,22 @@ func (s *Server) ArchiveFeedHandler() httprouter.Handle {
 			return
 		}
 
-		if !canArchiveFeed(feed.Name, ctx.User) {
+		if !canDeleteFeed(feed.Name, ctx.User) {
 			ctx.Error = true
 			s.render("401", w, ctx)
 			return
 		}
 
-		if err := DetachFeedFromOwner(s.db, ctx.User, feed); err != nil {
-			log.WithError(err).Warnf("Error detaching feed owner %s from feed %s", ctx.User.Username, feed.Name)
+		if err := DeleteFeed(s.db, ctx.User, feed); err != nil {
+			log.WithError(err).Warnf("Error deleting feed %s", feed)
 			ctx.Error = true
-			ctx.Message = s.tr(ctx, "ErrorArchivingFeed")
+			ctx.Message = s.tr(ctx, "ErrorDeletingFeed")
 			s.render("error", w, ctx)
 			return
 		}
 
 		ctx.Error = false
-		ctx.Message = s.tr(ctx, "MsgArchiveFeedSuccess")
+		ctx.Message = s.tr(ctx, "MsgDeleteFeedSuccess")
 		s.render("error", w, ctx)
-	}
-}
-
-// TransferFeedHandler...
-func (s *Server) TransferFeedHandler() httprouter.Handle {
-	canTransferFeed := func(feed string, u *User) bool {
-		if IsSpecialFeed(feed) {
-			return false
-		}
-		return u.OwnsFeed(feed)
-	}
-
-	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s, r)
-		feedName := NormalizeFeedName(p.ByName("name"))
-		transferToName := NormalizeFeedName(p.ByName("transferTo"))
-
-		if feedName == "" {
-			ctx.Error = true
-			ctx.Message = s.tr(ctx, "ErrorNoFeed")
-			s.render("error", w, ctx)
-			return
-		}
-
-		if transferToName == "" {
-			// Get feed followers list
-			if s.db.HasFeed(feedName) {
-				feed, err := s.db.GetFeed(feedName)
-				if err != nil {
-					log.WithError(err).Errorf("Error loading feed object for %s", feedName)
-					ctx.Error = true
-					ctx.Message = s.tr(ctx, "ErrorGetFeed")
-					s.render("error", w, ctx)
-					return
-				}
-
-				ctx.Profile = feed.Profile(s.config.BaseURL, ctx.User)
-				s.render("transferFeed", w, ctx)
-				return
-			}
-		}
-
-		// Get feed
-		if s.db.HasFeed(feedName) {
-			feed, err := s.db.GetFeed(feedName)
-			if err != nil {
-				log.WithError(err).Errorf("Error loading feed object for %s", feedName)
-				ctx.Error = true
-				ctx.Message = s.tr(ctx, "ErrorGetFeed")
-				s.render("error", w, ctx)
-				return
-			}
-
-			if !canTransferFeed(feed.Name, ctx.User) {
-				ctx.Error = true
-				s.render("401", w, ctx)
-				return
-			}
-
-			// Get FromUser
-			fromUser, err := s.db.GetUser(ctx.User.Username)
-			if err != nil {
-				log.WithError(err).Errorf("Error loading user")
-				ctx.Error = true
-				ctx.Message = s.tr(ctx, "ErrorGetFeed")
-				s.render("error", w, ctx)
-				return
-			}
-
-			// Get ToUser
-			toUser, err := s.db.GetUser(transferToName)
-			if err != nil {
-				log.WithError(err).Errorf("Error loading user")
-				ctx.Error = true
-				ctx.Message = s.tr(ctx, "ErrorGetUser")
-				s.render("error", w, ctx)
-				return
-			}
-
-			// Transfer ownerships
-			_ = RemoveFeedOwnership(s.db, fromUser, feed)
-			_ = AddFeedOwnership(s.db, toUser, feed)
-
-			ctx.Error = false
-			ctx.Message = s.tr(ctx, "MsgTransferFeedSuccess")
-			s.render("error", w, ctx)
-		} else {
-			ctx.Error = true
-			ctx.Message = s.tr(ctx, "ErrorFeedNotFound")
-			s.render("404", w, ctx)
-		}
 	}
 }

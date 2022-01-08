@@ -601,7 +601,7 @@ func (s *Server) initRoutes() {
 
 	s.router.GET("/feed/:name/manage", httproutermiddleware.Handler("feed_manage", s.am.MustAuth(s.ManageFeedHandler()), mdlw))
 	s.router.POST("/feed/:name/manage", httproutermiddleware.Handler("feed_manage", s.am.MustAuth(s.ManageFeedHandler()), mdlw))
-	s.router.POST("/feed/:name/archive", httproutermiddleware.Handler("feed_archive", s.am.MustAuth(s.ArchiveFeedHandler()), mdlw))
+	s.router.POST("/feed/:name/delete", httproutermiddleware.Handler("feed_delete", s.am.MustAuth(s.DeleteFeedHandler()), mdlw))
 
 	s.router.GET("/login", httproutermiddleware.Handler("login", s.am.HasAuth(s.LoginHandler()), mdlw))
 	s.router.POST("/login", httproutermiddleware.Handler("login", s.LoginHandler(), mdlw))
@@ -647,9 +647,6 @@ func (s *Server) initRoutes() {
 	s.router.GET("/unmute", httproutermiddleware.Handler("unmute", s.am.MustAuth(s.UnmuteHandler()), mdlw))
 	s.router.POST("/unmute", httproutermiddleware.Handler("unmute", s.am.MustAuth(s.UnmuteHandler()), mdlw))
 
-	s.router.GET("/transferFeed/:name", httproutermiddleware.Handler("transferFeed", s.am.MustAuth(s.TransferFeedHandler()), mdlw))
-	s.router.GET("/transferFeed/:name/:transferTo", httproutermiddleware.Handler("transferFeed", s.am.MustAuth(s.TransferFeedHandler()), mdlw))
-
 	s.router.GET("/settings", httproutermiddleware.Handler("settings", s.am.MustAuth(s.SettingsHandler()), mdlw))
 	s.router.POST("/settings", httproutermiddleware.Handler("settings", s.am.MustAuth(s.SettingsHandler()), mdlw))
 
@@ -667,8 +664,7 @@ func (s *Server) initRoutes() {
 	s.router.POST("/manage/deluser", httproutermiddleware.Handler("deluser", s.am.MustAuth(s.DelUserHandler()), mdlw))
 	s.router.POST("/manage/rstuser", httproutermiddleware.Handler("rstuser", s.am.MustAuth(s.RstUserHandler()), mdlw))
 
-	s.router.GET("/deleteFeeds", httproutermiddleware.Handler("deleteFeeds", s.am.MustAuth(s.DeleteAccountHandler()), mdlw))
-	s.router.POST("/delete", httproutermiddleware.Handler("delete", s.am.MustAuth(s.DeleteAllHandler()), mdlw))
+	s.router.POST("/delete", httproutermiddleware.Handler("delete", s.am.MustAuth(s.DeleteHandler()), mdlw))
 
 	// Support / Report Abuse handlers
 

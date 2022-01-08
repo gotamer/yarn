@@ -523,8 +523,8 @@ func (s *Server) PodConfigHandler() httprouter.Handle {
 	}
 }
 
-// DeleteAllHandler ...
-func (s *Server) DeleteAllHandler() httprouter.Handle {
+// DeleteHandler ...
+func (s *Server) DeleteHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		ctx := NewContext(s, r)
 
@@ -678,32 +678,5 @@ func (s *Server) DeleteAllHandler() httprouter.Handle {
 		ctx.Error = false
 		ctx.Message = s.tr(ctx, "MsgDeleteAccountSuccess")
 		s.render("error", w, ctx)
-	}
-}
-
-// DeleteAccountHandler ...
-func (s *Server) DeleteAccountHandler() httprouter.Handle {
-	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		ctx := NewContext(s, r)
-		user := ctx.User
-
-		allFeeds, err := s.db.GetAllFeeds()
-		if err != nil {
-			ctx.Error = true
-			ctx.Message = s.tr(ctx, "ErrorLoadingFeeds")
-			s.render("error", w, ctx)
-			return
-		}
-
-		var userFeeds []*Feed
-
-		for _, feed := range allFeeds {
-			if user.OwnsFeed(feed.Name) {
-				userFeeds = append(userFeeds, feed)
-			}
-		}
-
-		ctx.UserFeeds = userFeeds
-		s.render("deleteAccount", w, ctx)
 	}
 }

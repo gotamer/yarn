@@ -1,7 +1,11 @@
-[SettingsFormTimelineHideRepliesPreference]
-hash = "sha1-5b937ab3095e70b47cc9583cef7f5545d3951bf0"
-other = "Hide replies"
+[ManageFeedDeleteSummary]
+hash = "sha1-fe87884b05a6d6092b978938bcdba1dcbe2027af"
+other = "Your feed will be deleted permanently!"
 
-[SettingsFormTimelinePreferencesTitle]
-hash = "sha1-ea21d1cc3d87fe31130f1df72e829036475bc0b5"
-other = "Timeline options:"
+[ManageFeedDeleteTitle]
+hash = "sha1-cdf081498909a5f915c8a8e2b9740d02c1f5c8e9"
+other = "Delete Feed"
+
+[MsgDeleteFeedSuccess]
+hash = "sha1-9075948e33bebcc514e6618482fa388e6dd2deb5"
+other = "Successfully deleted feed"

@@ -1,23 +1,3 @@
-[ArchiveFeedFormArchive]
-hash = "sha1-2621c6fd51a58e1d1d5c491aac71488647b20224"
-other = "存檔"
-
-[ArchiveFeedFormConfirm]
-hash = "sha1-0266d9038845229bd15eee4636111a56b819ecee"
-other = "您確定要將 Feed 存檔嗎？此操作無法撤消！"
-
-[ArchiveFeedSummary]
-hash = "sha1-23568e3ecc2d0c16a6db4567828ecf66e7e4e036"
-other = "這裏可以存檔您的 Feed"
-
-[ArchiveFeedTitle]
-hash = "sha1-dc1c26a2070ba568260585707ed217b4548b3c4e"
-other = "Feed 存檔"
-
-[ArchiveFeedWarning]
-hash = "sha1-1fdf4e2632b57ead37eb8d434231c69174c80d9e"
-other = "<b>警告：</b>&nbsp; 這是個永久性操作，無法撤消且沒有確認操作！"
-
 [BlogCommentJoinSummary]
 hash = "sha1-a9f494cea249198e7e7e25947a7ce7a6d94a06ba"
 other = "You must be <a href=\"/login\" referrerpolicy=\"same-origin\">Logged in</a> to comment."
@@ -590,6 +570,14 @@ other = "<p> You may also login via your Email account by simply supplying your 
 hash = "sha1-44d1e821e75d13e05d7122c05a0af3a06a0dbdf9"
 other = "Login with your Username and Password"
 
+[ManageFeedDeleteSummary]
+hash = "sha1-fe87884b05a6d6092b978938bcdba1dcbe2027af"
+other = "Your feed will be deleted permanently!"
+
+[ManageFeedDeleteTitle]
+hash = "sha1-cdf081498909a5f915c8a8e2b9740d02c1f5c8e9"
+other = "Delete Feed"
+
 [ManageFeedFormChangeAvatarTitle]
 hash = "sha1-60f2e98ebe1b8c0c354734b807e898fd56146b83"
 other = "修改頭像"
@@ -698,10 +686,6 @@ other = "您收到的訊息列表"
 hash = "sha1-e5204fc48e8ac1f01ba1f391a69aa88ba367d672"
 other = "訊息"
 
-[MsgArchiveFeedSuccess]
-hash = "sha1-64e4e8ba0cb0e8f74058e0ef263a173df2d2b2cb"
-other = "Feed 歸檔成功"
-
 [MsgCreateFeedSuccess]
 hash = "sha1-6c4ce8b4a48e6461594c84e727c722730f967af1"
 other = "創建 {{.Feed}} 成功！"
@@ -709,6 +693,10 @@ other = "創建 {{.Feed}} 成功！"
 [MsgDeleteAccountSuccess]
 hash = "sha1-ccbff76316ef62fbbfc9257e5ca8e6c69401175c"
 other = "賬號刪除成功"
+
+[MsgDeleteFeedSuccess]
+hash = "sha1-9075948e33bebcc514e6618482fa388e6dd2deb5"
+other = "Successfully deleted feed"
 
 [MsgDeleteTokenSuccess]
 hash = "sha1-065262182c05fd1ffe90891963591d5589fc1581"

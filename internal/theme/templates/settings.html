@@ -152,9 +152,9 @@
   <details>
     <summary>{{ tr . "SettingsDeleteAccountTitle" }}</summary>
     <p>{{ (tr . "SettingsDeleteAccountSummary") | html }}</p>
-    <form action="/deleteFeeds" method="GET">
+    <form action="/delete" method="POST">
       <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
-      <button type="submit" class="contrast">{{ tr . "SettingsDeleteAccountFormDelete" }}</button>
+      <button type="submit" class="contrast" onclick="return confirm('Are you sure you want to delete your account?')">{{ tr . "SettingsDeleteAccountFormDelete" }}</button>
     </form>
   </details>
 </article>

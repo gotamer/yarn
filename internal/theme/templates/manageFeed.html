@@ -18,28 +18,16 @@
         <button type="submit">{{ tr . "ManageFeedFormUpdate" }}</button>
       </form>
       {{ if not (isSpecialFeed $.Profile.Nick) }}
-        <hgroup>
-          <h2>{{ tr . "ArchiveFeedTitle" }}</h2>
-          <h3>{{ tr . "ArchiveFeedSummary" }}</h3>
-        </hgroup>
-        <p>
-        {{ (tr . "ArchiveFeedWarning") | html }}
-        </p>
-        <form action="/feed/{{  .Profile.Nick }}/archive" method="POST" onsubmit="return confirm('{{ tr . "ArchiveFeedFormConfirm"}} ');">
-          <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
-          <button type="submit" class="contrast">{{ tr . "ArchiveFeedFormArchive" }}</button>
-        </form>
-        <hgroup>
-          <h2>{{ tr . "TransferFeedTitle" }}</h2>
-          <h3>{{ tr . "TransferFeedSummary" }}</h3>
-        </hgroup>
-        <p>
-        {{ (tr . "TransferFeedWarning") | html }}
-        </p>
-        <form action="/transferFeed/{{  .Profile.Nick }}" method="GET">
-          <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
-          <button type="submit" class="contrast">{{ tr . "TransferFeedFormTransfer" }}</button>
-        </form>
+        <article class="grid no-tb">
+          <details>
+            <summary>{{ tr . "ManageFeedDeleteTitle" }}</summary>
+            <p>{{ (tr . "ManageFeedDeleteSummary") | html }}</p>
+            <form action="/feed/{{ .Profile.Nick }}/delete" method="POST">
+              <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
+              <button type="submit" class="contrast" onclick="return confirm('Are you sure you want to delete this feed?')">{{ tr . "SettingsDeleteAccountFormDelete" }}</button>
+            </form>
+          </details>
+        </article>
       {{ end }}
     </div>
   </article>
