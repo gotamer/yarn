@@ -273,6 +273,14 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("cache fetch interval cannot be lower than %s for production pods", MinimumCacheFetchInterval)
 	}
 
+	// Automatically correct missing AvatarResolution and MediaResolution
+	if c.AvatarResolution <= 0 {
+		c.AvatarResolution = DefaultAvatarResolution
+	}
+	if c.MediaResolution <= 0 {
+		c.MediaResolution = DefaultMediaResolution
+	}
+
 	return nil
 }
 
