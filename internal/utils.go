@@ -1707,18 +1707,23 @@ func RenderAudio(conf *Config, uri, title string) string {
 func RenderImage(conf *Config, uri, title string) string {
 	isLocalURL := IsLocalURLFactory(conf)
 
+	u, err := url.Parse(uri)
+	if err != nil {
+		log.WithError(err).Warnf("error parsing uri: %s", uri)
+		return ""
+	}
+
 	if isLocalURL(uri) {
-		u, err := url.Parse(uri)
-		if err != nil {
-			log.WithError(err).Warnf("error parsing uri: %s", uri)
-			return ""
-		}
-
-		imgURI := u.String()
-
 		return fmt.Sprintf(
 			`<a href="%s?full=1" title="Click to open original quality version of %s" target="_blank"><img loading=lazy title="%s" src="%s" /></a>`,
-			imgURI, title, title, imgURI,
+			u.String(), title, title, u.String(),
+		)
+	}
+
+	if matched, err := regexp.MatchString(`\/media\/[a-zA-Z0-9]+\.png`, u.Path); err == nil && matched {
+		return fmt.Sprintf(
+			`<a href="%s" title="Click to view media on %s" target="_blank"><img loading=lazy title="%s" src="%s" /></a>`,
+			u.String(), u.Hostname(), title, title, u.String(),
 		)
 	}
 
