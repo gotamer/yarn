@@ -37,10 +37,6 @@ var openModal = function openModal(modal) {
     document.documentElement.classList.remove(openingClass);
   }, animationDuration);
   modal.setAttribute('open', true);
-  modal.addEventListener("click", function(e) {
-    e.preventDefault();
-    closeModal(modal);
-  });
 }; // Close modal
 
 

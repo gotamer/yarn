@@ -514,6 +514,13 @@ u(".img-orig-open").on("click", function(e) {
   toggleModal(e);
 });
 
+u("dialog img").on("click", function(e) {
+  e.preventDefault();
+  if (visibleModal != null) {
+    closeModal(visibleModal);
+  }
+});
+
 u("#bBtn").on("click", function(e) {
   e.preventDefault();
   formatText(u("textarea#text"), "**");

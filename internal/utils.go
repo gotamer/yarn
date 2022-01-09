@@ -1747,10 +1747,11 @@ func RenderImage(conf *Config, uri, caption string) string {
 		 <dialog id="%s">
         <article class="modal-image">
           <img loading=lazy src="%s?full=1" />
+		  <a href="%s?full=1" download>Download</a>
           <footer><p>%s</p></footer>
         </article>
       </dialog>`,
-		u.String(), title, isCaption, u.String(), uuid, uuid, u.String(), caption,
+		u.String(), title, isCaption, u.String(), uuid, uuid, u.String(), u.String(), caption,
 	)
 }
 
