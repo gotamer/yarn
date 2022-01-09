@@ -1970,7 +1970,7 @@ func FormatTwtFactory(conf *Config, cache *Cache, archive Archiver) func(twt typ
 		p.AllowAttrs("style").OnElements("a", "code", "img", "p", "pre", "span")
 		html := p.SanitizeBytes(maybeUnsafeHTML)
 
-		if (user != nil && user.DisplayImagesPreference == "gallery") || (user == nil && conf.DisplayImagesPreference == "gallery") && (len(up.Images) > 0) {
+		if len(up.Images) > 0 && ((user != nil && user.DisplayImagesPreference == "gallery") || (user == nil && conf.DisplayImagesPreference == "gallery")) {
 			html = append(html, []byte(`<div class="image-gallery">`)...)
 			html = append(html, []byte(strings.Join(up.Images, ""))...)
 			html = append(html, []byte(`</div>`)...)
