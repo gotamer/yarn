@@ -1713,10 +1713,37 @@ func RenderImage(conf *Config, uri, title string) string {
 		return ""
 	}
 
-	if isLocalURL(uri) {
-		return fmt.Sprintf(
-			`<a href="%s?full=1" title="Click to open original quality version of %s" target="_blank"><img loading=lazy title="%s" src="%s" /></a>`,
-			u.String(), title, title, u.String(),
+	imgModal := u.String()
+	imgCode := strings.TrimSuffix(strings.Split(u.Path, "/")[2], ".png")
+
+	if title == "" {
+		title = "Click to open original quality version"
+	}
+	noTitle := strings.Replace(title, "Click to open original quality version", "", -1)
+
+  imgModal = fmt.Sprintf(
+    `<dialog id="%s">
+       <article>
+         <a id="img-orig-close" href="#close" aria-label="Close" class="close" data-target="%s"></a>
+           <img loading=lazy title="%s" src="%s?full=1" />
+           <footer>
+             <p>%s</p>
+           </footer>
+       </article>
+     </dialog>`,
+	 	imgCode, imgCode, noTitle, u.String(), noTitle,
+	)
+
+  if isLocalURL(uri) {
+    return fmt.Sprintf(
+      `<div class="center-cropped caption-wrap">
+         <a id="img-orig-open" href="%s?full=1" title="%s" target="_blank">
+           <div class="caption" data-target="%s">%s</div>
+           <img loading=lazy title="%s" src="%s" data-target="%s" />
+         </a>
+       </div>
+       %s`,
+			u.String(), title, imgCode, title, title, u.String(), imgCode, imgModal,
 		)
 	}
 
@@ -1921,12 +1948,13 @@ func FormatTwtFactory(conf *Config, cache *Cache, archive Archiver) func(twt typ
 		maybeUnsafeHTML := markdown.ToHTML(md, mdParser, renderer)
 
 		p := bluemonday.UGCPolicy()
+		p.AllowAttrs("id").OnElements("dialog")
 		p.AllowAttrs("id", "controls").OnElements("audio")
 		p.AllowAttrs("id", "controls", "playsinline", "preload", "poster").OnElements("video")
 		p.AllowAttrs("src", "type").OnElements("source")
-		p.AllowAttrs("target").OnElements("a")
-		p.AllowAttrs("class").OnElements("i")
-		p.AllowAttrs("alt", "loading").OnElements("a", "img")
+		p.AllowAttrs("aria-label", "class", "data-target", "target").OnElements("a")
+		p.AllowAttrs("class", "data-target").OnElements("i", "div")
+		p.AllowAttrs("alt", "loading", "data-target").OnElements("a", "img")
 		p.AllowAttrs("style").OnElements("a", "code", "img", "p", "pre", "span")
 		html := p.SanitizeBytes(maybeUnsafeHTML)
 

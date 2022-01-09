@@ -509,6 +509,11 @@ function getUsers(searchStr) {
 
 var mentions = [];
 
+u("#img-orig-open").on("click", function(e) {
+  e.preventDefault();
+  toggleModal(event);
+});
+
 u("#bBtn").on("click", function(e) {
   e.preventDefault();
   formatText(u("textarea#text"), "**");
