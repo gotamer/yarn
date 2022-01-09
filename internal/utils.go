@@ -1723,7 +1723,7 @@ func RenderImage(conf *Config, uri, title string) string {
 	if matched, err := regexp.MatchString(`\/media\/[a-zA-Z0-9]+\.png`, u.Path); err == nil && matched {
 		return fmt.Sprintf(
 			`<a href="%s" title="Click to view media on %s" target="_blank"><img loading=lazy title="%s" src="%s" /></a>`,
-			u.String(), u.Hostname(), title, title, u.String(),
+			u.String(), u.Hostname(), title, u.String(),
 		)
 	}
 
