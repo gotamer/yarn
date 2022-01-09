@@ -160,6 +160,7 @@ func (c *Config) UserURL(url string) string             { return UserURL(url) }
 func (c *Config) URLForUser(user string) string         { return URLForUser(c.BaseURL, user) }
 func (c *Config) URLForTag(tag string) string           { return URLForTag(c.BaseURL, tag) }
 func (c *Config) URLForAvatar(name, hash string) string { return URLForAvatar(c.BaseURL, name, hash) }
+func (c *Config) URLForMedia(name string) string        { return URLForMedia(c.BaseURL, name) }
 
 // Settings returns a `Settings` struct containing pod settings that can
 // then be persisted to disk to override some configuration options.

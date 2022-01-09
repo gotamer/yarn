@@ -242,7 +242,7 @@ func TestFormatTwtFactory(t *testing.T) {
 		lextwt.NewMedia("This is Image", "https://example.com/hot.png", ""),
 	), NewUser())
 
-	is.Equal(string(txt), `<p><img title="This is Image" src="//example.com/hot.png" loading="lazy"></p>`+"\n")
+	is.Equal(string(txt), `<p><img title="This is Image" src="//example.com/hot.png" loading="lazy"/></p>`+"\n")
 }
 
 func parseTime(s string) time.Time {

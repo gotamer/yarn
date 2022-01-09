@@ -1422,6 +1422,14 @@ func UserURL(url string) string {
 	return url
 }
 
+func URLForMedia(baseURL, name string) string {
+	return fmt.Sprintf(
+		"%s/media/%s",
+		strings.TrimSuffix(baseURL, "/"),
+		name,
+	)
+}
+
 func URLForPage(baseURL, page string) string {
 	return fmt.Sprintf(
 		"%s/%s",
@@ -1714,7 +1722,7 @@ func RenderImage(conf *Config, uri, title string) string {
 		)
 	}
 
-	return fmt.Sprintf(`<img loading=lazy src="%s" />`, uri)
+	return fmt.Sprintf(`<img title="%s" src="%s" loading=lazy />`, title, uri)
 }
 
 // RenderVideo ...

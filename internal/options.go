@@ -134,7 +134,7 @@ const (
 
 	// DefaultMediaResolution is the default resolution used to downscale media (iamges)
 	// (the original is also preserved and accessible via adding the query string ?full=1)
-	DefaultMediaResolution = 850 // 850px width (maintaining aspect ratio)
+	DefaultMediaResolution = 240 // 240px width (maintaining aspect ratio)
 
 	// DefaultAvatarResolution is the default resolution used to downscale avatars (profiles)
 	DefaultAvatarResolution = 360 // 360px width (maintaining aspect ratio)

@@ -3,18 +3,24 @@ package internal
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/dustin/go-humanize"
 	"github.com/julienschmidt/httprouter"
+	"github.com/rickb777/accept"
 	log "github.com/sirupsen/logrus"
 )
 
 // MediaHandler ...
 func (s *Server) MediaHandler() httprouter.Handle {
+	dir := filepath.Join(s.config.Data, mediaDir)
+
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		name := p.ByName("name")
 		if name == "" {
@@ -22,9 +28,59 @@ func (s *Server) MediaHandler() httprouter.Handle {
 			return
 		}
 
-		dir := filepath.Join(s.config.Data, mediaDir)
-
 		ext := filepath.Ext(name)
+
+		if accept.PreferredContentTypeLike(r.Header, "text/html") == "text/html" && !strings.Contains(r.Header.Get("referer"), name) {
+			ctx := NewContext(s, r)
+
+			w.Header().Set("Content-Type", "text/html")
+
+			if ext != ".png" {
+				ctx.Error = true
+				ctx.Message = fmt.Sprintf("The media view only supports images not %s", ext)
+				s.render("error", w, ctx)
+				return
+			}
+
+			fn := filepath.Join(dir, name)
+			if !FileExists(fn) {
+				ctx.Error = true
+				ctx.Message = "Media Not Found"
+				s.render("404", w, ctx)
+			}
+
+			mediaURI := s.config.URLForMedia(name)
+			u, err := url.Parse(mediaURI)
+			if err != nil {
+				log.WithError(err).Error("error reading media file info")
+				ctx.Error = true
+				ctx.Message = "Error parsing media uri"
+				s.render("error", w, ctx)
+				return
+			}
+
+			ctx.Title = name
+			ctx.Content = template.HTML(PreprocessMedia(s.config, u, name))
+
+			base := strings.TrimSuffix(name, ext)
+			if ofn := filepath.Join(dir, fmt.Sprintf("%s.orig%s", base, ext)); FileExists(ofn) {
+				fileInfo, err := os.Stat(ofn)
+				if err != nil {
+					log.WithError(err).Error("error reading media file info")
+					ctx.Error = true
+					ctx.Message = "Error loading media"
+					return
+				}
+
+				bytes := humanize.Bytes(uint64(fileInfo.Size()))
+				ctx.Message = fmt.Sprintf("Click to view original quality meida (%s)", bytes)
+			} else {
+				ctx.Message = "Original quality not available"
+			}
+
+			s.render("media", w, ctx)
+			return
+		}
 
 		var fn string
 
