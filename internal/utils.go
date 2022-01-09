@@ -1704,7 +1704,7 @@ func RenderAudio(conf *Config, uri, title string) string {
 }
 
 // RenderImage ...
-func RenderImage(conf *Config, uri, title string) string {
+func RenderImage(conf *Config, uri, caption string) string {
 	isLocalURL := IsLocalURLFactory(conf)
 
 	u, err := url.Parse(uri)
@@ -1713,48 +1713,45 @@ func RenderImage(conf *Config, uri, title string) string {
 		return ""
 	}
 
-	imgModal := u.String()
-	imgCode := strings.TrimSuffix(strings.Split(u.Path, "/")[2], ".png")
+	title := "Open to view original quality"
 
-	if title == "" {
-		title = "Click to open original quality version"
+	var uuid string
+	if matched, err := regexp.MatchString(`\/media\/[a-zA-Z0-9]+(\.png)?`, u.Path); err == nil && matched {
+		uuid = strings.TrimSuffix(strings.Split(u.Path, "/")[2], ".png")
+	} else {
+		uuid = u.Path
 	}
-	noTitle := strings.Replace(title, "Click to open original quality version", "", -1)
 
-  imgModal = fmt.Sprintf(
-    `<dialog id="%s">
-       <article>
-         <a id="img-orig-close" href="#close" aria-label="Close" class="close" data-target="%s"></a>
-           <img loading=lazy title="%s" src="%s?full=1" />
-           <footer>
-             <p>%s</p>
-           </footer>
-       </article>
-     </dialog>`,
-	 	imgCode, imgCode, noTitle, u.String(), noTitle,
+	if !isLocalURL(uri) {
+		title = fmt.Sprintf(
+			`%s on %s`,
+			title, u.Hostname(),
+		)
+	}
+
+	isCaption := ""
+	if caption != "" {
+		isCaption = fmt.Sprintf(
+			`<div class="caption" data-target="%s">%s</div>`,
+			uuid, caption,
+		)
+	}
+
+	return fmt.Sprintf(
+		`<div class="center-cropped caption-wrap">
+			 <a class="img-orig-open" href="%s" title="%s" target="_blank">
+				 %s
+				 <img loading=lazy src="%s" data-target="%s" />
+			 </a>
+		 </div>
+		 <dialog id="%s">
+        <article class="modal-image">
+          <img loading=lazy src="%s?full=1" />
+          <footer><p>%s</p></footer>
+        </article>
+      </dialog>`,
+		u.String(), title, isCaption, u.String(), uuid, uuid, u.String(), caption,
 	)
-
-  if isLocalURL(uri) {
-    return fmt.Sprintf(
-      `<div class="center-cropped caption-wrap">
-         <a id="img-orig-open" href="%s?full=1" title="%s" target="_blank">
-           <div class="caption" data-target="%s">%s</div>
-           <img loading=lazy title="%s" src="%s" data-target="%s" />
-         </a>
-       </div>
-       %s`,
-			u.String(), title, imgCode, title, title, u.String(), imgCode, imgModal,
-		)
-	}
-
-	if matched, err := regexp.MatchString(`\/media\/[a-zA-Z0-9]+\.png`, u.Path); err == nil && matched {
-		return fmt.Sprintf(
-			`<a href="%s" title="Click to view media on %s" target="_blank"><img loading=lazy title="%s" src="%s" /></a>`,
-			u.String(), u.Hostname(), title, u.String(),
-		)
-	}
-
-	return fmt.Sprintf(`<img title="%s" src="%s" loading=lazy />`, title, uri)
 }
 
 // RenderVideo ...
@@ -1844,65 +1841,78 @@ func FormatForDateTime(t time.Time, timeFormat string) string {
 	return fmt.Sprintf(dateTimeFormat, timeFormat)
 }
 
-// FormatTwtFactory formats a twt into a valid HTML snippet
-func FormatTwtFactory(conf *Config, cache *Cache, archive Archiver) func(twt types.Twt, u *User) template.HTML {
-	return func(twt types.Twt, u *User) template.HTML {
-		renderHookProcessURLs := func(w io.Writer, node ast.Node, entering bool) (ast.WalkStatus, bool) {
-			// Ensure only whitelisted ![](url) images
-			image, ok := node.(*ast.Image)
-			if ok && entering {
-				u, err := url.Parse(string(image.Destination))
-				if err != nil {
-					log.WithError(err).Warn("TwtFactory: error parsing url")
-					return ast.GoToNext, false
-				}
+type URLProcessor struct {
+	conf *Config
+	user *User
 
-				html := PreprocessMedia(conf, u, string(image.Title))
+	Images []string
+}
 
-				_, _ = io.WriteString(w, html)
-
-				return ast.SkipChildren, true
-			}
-
-			span, ok := node.(*ast.HTMLSpan)
-			if !ok {
-				return ast.GoToNext, false
-			}
-
-			leaf := span.Leaf
-			doc, err := goquery.NewDocumentFromReader(bytes.NewReader(leaf.Literal))
-			if err != nil {
-				log.WithError(err).Warn("error parsing HTMLSpan")
-				return ast.GoToNext, false
-			}
-
-			// Ensure only whitelisted img src=(s) and fix non-secure links
-			img := doc.Find("img")
-			if img.Length() > 0 {
-				src, ok := img.Attr("src")
-				if !ok {
-					return ast.GoToNext, false
-				}
-
-				alt, _ := img.Attr("alt")
-
-				u, err := url.Parse(src)
-				if err != nil {
-					log.WithError(err).Warn("error parsing URL")
-					return ast.GoToNext, false
-				}
-
-				html := PreprocessMedia(conf, u, alt)
-
-				_, _ = io.WriteString(w, html)
-
-				return ast.GoToNext, true
-			}
-
-			// Let it go! Lget it go!
+func (p *URLProcessor) RenderNodeHook(w io.Writer, node ast.Node, entering bool) (ast.WalkStatus, bool) {
+	// Ensure only whitelisted ![](url) images
+	image, ok := node.(*ast.Image)
+	if ok && entering {
+		u, err := url.Parse(string(image.Destination))
+		if err != nil {
+			log.WithError(err).Warn("TwtFactory: error parsing url")
 			return ast.GoToNext, false
 		}
 
+		html := PreprocessMedia(p.conf, u, string(image.Title))
+		if (p.user != nil && p.user.DisplayImagesPreference == "gallery") || (p.user == nil && p.conf.DisplayImagesPreference == "gallery") {
+			p.Images = append(p.Images, html)
+		} else {
+			_, _ = io.WriteString(w, html)
+		}
+
+		return ast.SkipChildren, true
+	}
+
+	span, ok := node.(*ast.HTMLSpan)
+	if !ok {
+		return ast.GoToNext, false
+	}
+
+	leaf := span.Leaf
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(leaf.Literal))
+	if err != nil {
+		log.WithError(err).Warn("error parsing HTMLSpan")
+		return ast.GoToNext, false
+	}
+
+	// Ensure only whitelisted img src=(s) and fix non-secure links
+	img := doc.Find("img")
+	if img.Length() > 0 {
+		src, ok := img.Attr("src")
+		if !ok {
+			return ast.GoToNext, false
+		}
+
+		alt, _ := img.Attr("alt")
+
+		u, err := url.Parse(src)
+		if err != nil {
+			log.WithError(err).Warn("error parsing URL")
+			return ast.GoToNext, false
+		}
+
+		html := PreprocessMedia(p.conf, u, alt)
+		if (p.user != nil && p.user.DisplayImagesPreference == "gallery") || (p.user == nil && p.conf.DisplayImagesPreference == "gallery") {
+			p.Images = append(p.Images, html)
+		} else {
+			_, _ = io.WriteString(w, html)
+		}
+
+		return ast.GoToNext, true
+	}
+
+	// Let it go! Lget it go!
+	return ast.GoToNext, false
+}
+
+// FormatTwtFactory formats a twt into a valid HTML snippet
+func FormatTwtFactory(conf *Config, cache *Cache, archive Archiver) func(twt types.Twt, u *User) template.HTML {
+	return func(twt types.Twt, user *User) template.HTML {
 		extensions := parser.NoIntraEmphasis | parser.FencedCode |
 			parser.Autolink | parser.Strikethrough | parser.SpaceHeadings |
 			parser.NoEmptyLineBeforeBlock | parser.HardLineBreak
@@ -1912,18 +1922,20 @@ func FormatTwtFactory(conf *Config, cache *Cache, archive Archiver) func(twt typ
 		htmlFlags := html.Smartypants | html.SmartypantsDashes | html.SmartypantsLatexDashes
 
 		openLinksIn := conf.OpenLinksInPreference
-		if u != nil {
-			openLinksIn = u.OpenLinksInPreference
+		if user != nil {
+			openLinksIn = user.OpenLinksInPreference
 		}
 
 		if strings.ToLower(openLinksIn) == "newwindow" {
 			htmlFlags = htmlFlags | html.HrefTargetBlank
 		}
 
+		up := &URLProcessor{conf: conf, user: user}
+
 		opts := html.RendererOptions{
 			Flags:          htmlFlags,
 			Generator:      "",
-			RenderNodeHook: renderHookProcessURLs,
+			RenderNodeHook: up.RenderNodeHook,
 		}
 
 		renderer := html.NewRenderer(opts)
@@ -1957,6 +1969,12 @@ func FormatTwtFactory(conf *Config, cache *Cache, archive Archiver) func(twt typ
 		p.AllowAttrs("alt", "loading", "data-target").OnElements("a", "img")
 		p.AllowAttrs("style").OnElements("a", "code", "img", "p", "pre", "span")
 		html := p.SanitizeBytes(maybeUnsafeHTML)
+
+		if (user != nil && user.DisplayImagesPreference == "gallery") || (user == nil && conf.DisplayImagesPreference == "gallery") {
+			html = append(html, []byte(`<div class="image-gallery">`)...)
+			html = append(html, []byte(strings.Join(up.Images, ""))...)
+			html = append(html, []byte(`</div>`)...)
+		}
 
 		return template.HTML(html)
 	}

@@ -242,7 +242,10 @@ func TestFormatTwtFactory(t *testing.T) {
 		lextwt.NewMedia("This is Image", "https://example.com/hot.png", ""),
 	), NewUser())
 
-	is.Equal(string(txt), `<p><img title="This is Image" src="//example.com/hot.png" loading="lazy"/></p>`+"\n")
+	actual := string(txt)
+	fmt.Printf("actual: %q", actual)
+	expected := "<p><div class=\"center-cropped caption-wrap\">\n\t\t\t <a class=\"img-orig-open\" href=\"//example.com/hot.png\" title=\"Open to view original quality on example.com\" target=\"_blank\" rel=\"nofollow noopener\">\n\t\t\t\t <div class=\"caption\" data-target=\"/hot.png\">This is Image</div>\n\t\t\t\t <img loading=\"lazy\" src=\"//example.com/hot.png\" data-target=\"/hot.png\"/>\n\t\t\t </a>\n\t\t </div>\n\t\t <dialog id=\"/hot.png\">\n        <article>\n          <img loading=\"lazy\" src=\"//example.com/hot.png?full=1\"/>\n          <p>This is Image</p>\n        </article>\n      </dialog></p>\n"
+	is.Equal(actual, expected)
 }
 
 func parseTime(s string) time.Time {

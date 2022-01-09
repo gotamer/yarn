@@ -509,9 +509,9 @@ function getUsers(searchStr) {
 
 var mentions = [];
 
-u("#img-orig-open").on("click", function(e) {
+u(".img-orig-open").on("click", function(e) {
   e.preventDefault();
-  toggleModal(event);
+  toggleModal(e);
 });
 
 u("#bBtn").on("click", function(e) {

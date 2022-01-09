@@ -73,9 +73,10 @@ type Context struct {
 	Authenticated bool
 	IsAdmin       bool
 
-	DisplayDatesInTimezone string
-	DisplayTimePreference  string
-	OpenLinksInPreference  string
+	DisplayDatesInTimezone  string
+	DisplayTimePreference   string
+	OpenLinksInPreference   string
+	DisplayImagesPreference string
 
 	Error       bool
 	Message     string
@@ -166,9 +167,10 @@ func NewContext(s *Server, req *http.Request) *Context {
 		BlacklistedFeeds:  conf.BlacklistedFeeds,
 		EnabledFeatures:   conf.Features.AsStrings(),
 
-		DisplayDatesInTimezone: conf.DisplayDatesInTimezone,
-		DisplayTimePreference:  conf.DisplayTimePreference,
-		OpenLinksInPreference:  conf.OpenLinksInPreference,
+		DisplayDatesInTimezone:  conf.DisplayDatesInTimezone,
+		DisplayTimePreference:   conf.DisplayTimePreference,
+		OpenLinksInPreference:   conf.OpenLinksInPreference,
+		DisplayImagesPreference: conf.DisplayImagesPreference,
 
 		Commit:      yarn.Commit,
 		Theme:       conf.Theme,
@@ -195,9 +197,10 @@ func NewContext(s *Server, req *http.Request) *Context {
 
 		// Assume all users are anonymous (overridden below if Authenticated)
 		User: &User{
-			DisplayDatesInTimezone: conf.DisplayDatesInTimezone,
-			DisplayTimePreference:  conf.DisplayTimePreference,
-			OpenLinksInPreference:  conf.OpenLinksInPreference,
+			DisplayDatesInTimezone:  conf.DisplayDatesInTimezone,
+			DisplayTimePreference:   conf.DisplayTimePreference,
+			OpenLinksInPreference:   conf.OpenLinksInPreference,
+			DisplayImagesPreference: conf.DisplayImagesPreference,
 		},
 		Twter: types.Twter{},
 

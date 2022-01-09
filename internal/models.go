@@ -54,10 +54,11 @@ type User struct {
 	Recovery   string `default:""`
 	AvatarHash string `default:""`
 
-	DisplayDatesInTimezone string `default:"UTC"`
-	DisplayTimePreference  string `default:"24h"`
-	OpenLinksInPreference  string `default:"newwindow"`
-	HideRepliesPreference  bool   `default:"false"`
+	DisplayDatesInTimezone  string `default:"UTC"`
+	DisplayTimePreference   string `default:"24h"`
+	OpenLinksInPreference   string `default:"newwindow"`
+	HideRepliesPreference   bool   `default:"false"`
+	DisplayImagesPreference string `default:"inline"`
 
 	IsFollowersPubliclyVisible bool `default:"true"`
 	IsFollowingPubliclyVisible bool `default:"true"`

@@ -83,6 +83,8 @@
           </label>
         </fieldset>
       </div>
+    </div>
+    <div class="grid">
       <div>
         <fieldset>
           <legend>{{ tr . "SettingsFormOpenLinksInPreferenceTitle" }}</legend>
@@ -105,9 +107,21 @@
           </label>
         </fieldset>
       </div>
-
     </div>
     <div class="grid">
+      <div>
+        <fieldset>
+          <legend>{{ tr . "SettingsFormDisplayImagesPreferenceTitle" }}</legend>
+          <label for="inline">
+            <input id="inline" type="radio" name="displayImagesPreference" value="inline" {{ if eq $.User.DisplayImagesPreference "inline" }}checked{{ end }}>
+            {{ tr . "SettingsFormDisplayImagesPreferenceInline" }}
+          </label>
+          <label for="gallery">
+            <input id="gallery" type="radio" name="displayImagesPreference" value="gallery" {{ if eq $.User.DisplayImagesPreference "gallery" }}checked{{ end }}>
+            {{ tr . "SettingsFormDisplayImagesPreferenceGallery" }}
+          </label>
+        </fieldset>
+      </div>
       <div>
         <fieldset>
           <legend>{{ tr . "SettingsFormPrivacySettingsTitle" }}</legend>
@@ -125,6 +139,8 @@
           </label>
         </fieldset>
       </div>
+    </div>
+    <div class="grid">
       <div>
         <fieldset id="theme">
           <legend>{{ tr . "SettingsFormThemeTitle" }}</legend>

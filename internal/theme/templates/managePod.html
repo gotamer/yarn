@@ -48,6 +48,19 @@
         </div>
         <div class="grid">
           <div>
+            <fieldset>
+              <legend>{{ tr . "SettingsFormDisplayImagesPreferenceTitle" }}</legend>
+              <label for="inline">
+                <input id="inline" type="radio" name="displayImagesPreference" value="inline" {{ if eq $.DisplayImagesPreference "inline" }}checked{{ end }}>
+                {{ tr . "SettingsFormDisplayImagesPreferenceInline" }}
+              </label>
+              <label for="gallery">
+                <input id="gallery" type="radio" name="displayImagesPreference" value="gallery" {{ if eq $.DisplayImagesPreference "gallery" }}checked{{ end }}>
+                {{ tr . "SettingsFormDisplayImagesPreferenceGallery" }}
+              </label>
+            </fieldset>
+          </div>
+          <div>
             <legend>Other settings:</legend>
             <label for="enableOpenRegistrations">
               <input id="enableOpenRegistrations" type="checkbox" name="enableOpenRegistrations" aria-label="Allow open registrations" role="switch" {{ if not .RegisterDisabled }}checked{{ end }} />

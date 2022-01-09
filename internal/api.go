@@ -736,6 +736,7 @@ func (a *API) SettingsEndpoint() httprouter.Handle {
 		// API clients such as Goryon (the Flutter iOS/Android app) have their own mechanisms.
 		// user.Theme = theme
 		// user.DisplayDatesInTimezone = displayDatesInTimezone
+		// user.DisplayImagesPreferences = displayImagesPreference
 
 		user.IsFollowersPubliclyVisible = isFollowersPubliclyVisible
 		user.IsFollowingPubliclyVisible = isFollowingPubliclyVisible

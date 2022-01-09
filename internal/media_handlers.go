@@ -3,17 +3,13 @@ package internal
 import (
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"net/http"
-	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
-	"github.com/dustin/go-humanize"
 	"github.com/julienschmidt/httprouter"
-	"github.com/rickb777/accept"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -30,6 +26,8 @@ func (s *Server) MediaHandler() httprouter.Handle {
 
 		ext := filepath.Ext(name)
 
+		/* XXX; This has weird caching behaviour that I can't figure out :/
+		// TODO: Figure out a better way for external users.
 		if accept.PreferredContentTypeLike(r.Header, "text/html") == "text/html" && !strings.Contains(r.Header.Get("referer"), name) {
 			ctx := NewContext(s, r)
 
@@ -73,7 +71,7 @@ func (s *Server) MediaHandler() httprouter.Handle {
 				}
 
 				bytes := humanize.Bytes(uint64(fileInfo.Size()))
-				ctx.Message = fmt.Sprintf("Click to view original quality meida (%s)", bytes)
+				ctx.Message = fmt.Sprintf("Click to view original quality media (%s)", bytes)
 			} else {
 				ctx.Message = "Original quality not available"
 			}
@@ -81,6 +79,7 @@ func (s *Server) MediaHandler() httprouter.Handle {
 			s.render("media", w, ctx)
 			return
 		}
+		*/
 
 		var fn string
 

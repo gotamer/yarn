@@ -134,11 +134,10 @@ const (
 
 	// DefaultMediaResolution is the default resolution used to downscale media (iamges)
 	// (the original is also preserved and accessible via adding the query string ?full=1)
-	DefaultMediaResolution = 240 // 240px width (maintaining aspect ratio)
+	DefaultMediaResolution = 850 // 850px width (maintaining aspect ratio)
 
 	// DefaultAvatarResolution is the default resolution used to downscale avatars (profiles)
 	DefaultAvatarResolution = 360 // 360px width (maintaining aspect ratio)
-
 )
 
 var (
@@ -191,6 +190,10 @@ var (
 
 	// DefaultOpenLinksInPreference is the default Pod level behaviour for opening external links (overridable by Users).
 	DefaultOpenLinksInPreference = "newwindow"
+
+	// DisplayImagesPreference is the default Pod-level image display behaviour
+	// (inline or gallery) for displaying images (overridable by Users).
+	DefaultDisplayImagesPreference = "inline"
 )
 
 func NewConfig() *Config {
@@ -198,37 +201,38 @@ func NewConfig() *Config {
 		Version: version,
 		Debug:   DefaultDebug,
 
-		Name:                   DefaultName,
-		Logo:                   DefaultLogo,
-		Description:            DefaultMetaDescription,
-		Store:                  DefaultStore,
-		Theme:                  DefaultTheme,
-		BaseURL:                DefaultBaseURL,
-		AdminUser:              DefaultAdminUser,
-		FeedSources:            DefaultFeedSources,
-		RegisterMessage:        DefaultRegisterMessage,
-		CookieSecret:           DefaultCookieSecret,
-		TwtPrompts:             DefaultTwtPrompts,
-		TwtsPerPage:            DefaultTwtsPerPage,
-		MaxTwtLength:           DefaultMaxTwtLength,
-		AvatarResolution:       DefaultAvatarResolution,
-		MediaResolution:        DefaultMediaResolution,
-		OpenProfiles:           DefaultOpenProfiles,
-		OpenRegistrations:      DefaultOpenRegistrations,
-		DisableGzip:            DefaultDisableGzip,
-		DisableLogger:          DefaultDisableLogger,
-		DisableFfmpeg:          DefaultDisableFfmpeg,
-		DisableMedia:           DefaultDisableMedia,
-		Features:               NewFeatureFlags(),
-		DisplayDatesInTimezone: DefaultDisplayDatesInTimezone,
-		DisplayTimePreference:  DefaultDisplayTimePreference,
-		OpenLinksInPreference:  DefaultOpenLinksInPreference,
-		SessionExpiry:          DefaultSessionExpiry,
-		MagicLinkSecret:        DefaultMagicLinkSecret,
-		SMTPHost:               DefaultSMTPHost,
-		SMTPPort:               DefaultSMTPPort,
-		SMTPUser:               DefaultSMTPUser,
-		SMTPPass:               DefaultSMTPPass,
+		Name:                    DefaultName,
+		Logo:                    DefaultLogo,
+		Description:             DefaultMetaDescription,
+		Store:                   DefaultStore,
+		Theme:                   DefaultTheme,
+		BaseURL:                 DefaultBaseURL,
+		AdminUser:               DefaultAdminUser,
+		FeedSources:             DefaultFeedSources,
+		RegisterMessage:         DefaultRegisterMessage,
+		CookieSecret:            DefaultCookieSecret,
+		TwtPrompts:              DefaultTwtPrompts,
+		TwtsPerPage:             DefaultTwtsPerPage,
+		MaxTwtLength:            DefaultMaxTwtLength,
+		AvatarResolution:        DefaultAvatarResolution,
+		MediaResolution:         DefaultMediaResolution,
+		OpenProfiles:            DefaultOpenProfiles,
+		OpenRegistrations:       DefaultOpenRegistrations,
+		DisableGzip:             DefaultDisableGzip,
+		DisableLogger:           DefaultDisableLogger,
+		DisableFfmpeg:           DefaultDisableFfmpeg,
+		DisableMedia:            DefaultDisableMedia,
+		Features:                NewFeatureFlags(),
+		DisplayDatesInTimezone:  DefaultDisplayDatesInTimezone,
+		DisplayTimePreference:   DefaultDisplayTimePreference,
+		OpenLinksInPreference:   DefaultOpenLinksInPreference,
+		DisplayImagesPreference: DefaultDisplayImagesPreference,
+		SessionExpiry:           DefaultSessionExpiry,
+		MagicLinkSecret:         DefaultMagicLinkSecret,
+		SMTPHost:                DefaultSMTPHost,
+		SMTPPort:                DefaultSMTPPort,
+		SMTPUser:                DefaultSMTPUser,
+		SMTPPass:                DefaultSMTPPass,
 	}
 }
 

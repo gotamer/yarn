@@ -106,8 +106,8 @@
           &gt;
           {{ formatTwtContext $.Twt $.User }}
         </small>
-      {{- end -}}
-    {{- end -}}
+      {{ end }}
+    {{ end }}
     {{ formatTwt $.Twt $.User }}
   </div>
   <hr />
@@ -136,13 +136,11 @@
           <li><a class="deleteBtn" href="#" data-hash="{{ $.Twt.Hash }}"><i class="ti ti-trash" data-hash="{{ $.Twt.Hash }}"></i> {{tr $.Ctx "TwtDeleteLinkTitle"}}</a></li>
         {{ end }}
       {{ end }}
-
       {{ if and (eq $.view "conv") (not (eq $.view "rootconv")) }}
         {{ if gt (getForkLength $.Twt $.User) 0 }}
           <li><a class="convBtn" href="{{ urlForFork $.Twt }}"><i class="ti ti-messages"></i> {{tr $.Ctx "TwtForkLinkTitle"}}<span class="yarn-count-badge">{{ getForkLength $.Twt $.User }}</span></a></li>
         {{ end }}
       {{ end }}
-
       {{ if eq $.view "rootconv" }}
         {{ with urlForRootConv $.Twt }}
           <li><a class="convBtn" href="{{ urlForRootConv $.Twt }}"><i class="ti ti-message"></i> Root</a></li>
@@ -202,7 +200,7 @@
     </li>
   </ul>
   <ul>
-      <li><small>{{tr $.Ctx "PagerTwtsSummary" (dict "Page" $.Pager.Page "PageNums" $.Pager.PageNums "Nums" $.Pager.Nums)}}</small></li>
+    <li><small>{{tr $.Ctx "PagerTwtsSummary" (dict "Page" $.Pager.Page "PageNums" $.Pager.PageNums "Nums" $.Pager.Nums)}}</small></li>
   </ul>
   <ul>
     <li>

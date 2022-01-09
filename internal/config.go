@@ -56,9 +56,10 @@ type Settings struct {
 	Features          *FeatureFlags `yaml:"features"`
 
 	// Pod Level Settings (overridable by Users)
-	DisplayDatesInTimezone string `yaml:"display_dates_in_timezone"`
-	DisplayTimePreference  string `yaml:"display_time_preference"`
-	OpenLinksInPreference  string `yaml:"open_links_in_preference"`
+	DisplayDatesInTimezone  string `yaml:"display_dates_in_timezone"`
+	DisplayTimePreference   string `yaml:"display_time_preference"`
+	OpenLinksInPreference   string `yaml:"open_links_in_preference"`
+	DisplayImagesPreference string `yaml:"display_images_preference"`
 }
 
 // SoftwareConfig contains the server version information
@@ -138,9 +139,10 @@ type Config struct {
 	Features *FeatureFlags
 
 	// Pod Level Settings (overridable by Users)
-	DisplayDatesInTimezone string
-	DisplayTimePreference  string
-	OpenLinksInPreference  string
+	DisplayDatesInTimezone  string
+	DisplayTimePreference   string
+	OpenLinksInPreference   string
+	DisplayImagesPreference string
 
 	// requestTimeout defines the timeout for outgoing HTTP requests.
 	requestTimeout time.Duration
