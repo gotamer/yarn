@@ -243,8 +243,7 @@ func TestFormatTwtFactory(t *testing.T) {
 	), NewUser())
 
 	actual := string(txt)
-	fmt.Printf("actual: %q", actual)
-	expected := "<p><div class=\"center-cropped caption-wrap\">\n\t\t\t <a class=\"img-orig-open\" href=\"//example.com/hot.png\" title=\"Open to view original quality on example.com\" target=\"_blank\" rel=\"nofollow noopener\">\n\t\t\t\t <div class=\"caption\" data-target=\"/hot.png\">This is Image</div>\n\t\t\t\t <img loading=\"lazy\" src=\"//example.com/hot.png\" data-target=\"/hot.png\"/>\n\t\t\t </a>\n\t\t </div>\n\t\t <dialog id=\"/hot.png\">\n        <article>\n          <img loading=\"lazy\" src=\"//example.com/hot.png?full=1\"/>\n          <p>This is Image</p>\n        </article>\n      </dialog></p>\n"
+	expected := "<p><img loading=\"lazy\" src=\"//example.com/hot.png\" title=\"This is Image\"/></p>\n"
 	is.Equal(actual, expected)
 }
 
