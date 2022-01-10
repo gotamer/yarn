@@ -1677,7 +1677,9 @@ func CleanTwt(text string) string {
 }
 
 // RenderAudio ...
-func RenderAudio(conf *Config, uri, title string) string {
+func RenderAudio(conf *Config, uri, title, renderAs string) string {
+	// XXX: `renderAs` is ignored for Audio right now
+
 	isLocalURL := IsLocalURLFactory(conf)
 
 	if isLocalURL(uri) {
@@ -1702,7 +1704,11 @@ func RenderAudio(conf *Config, uri, title string) string {
 }
 
 // RenderImage ...
-func RenderImage(conf *Config, uri, caption string) string {
+func RenderImage(conf *Config, uri, caption, renderAs string) string {
+	if renderAs == "" || renderAs == "inline" {
+		return fmt.Sprintf(`<img loading=lazy src="%s" title="%s" />`, uri, caption)
+	}
+
 	isLocalURL := IsLocalURLFactory(conf)
 
 	u, err := url.Parse(uri)
@@ -1754,7 +1760,9 @@ func RenderImage(conf *Config, uri, caption string) string {
 }
 
 // RenderVideo ...
-func RenderVideo(conf *Config, uri, title string) string {
+func RenderVideo(conf *Config, uri, title, renderAs string) string {
+	// XXX: `renderAs` is ignored for Video right now
+
 	isLocalURL := IsLocalURLFactory(conf)
 
 	if isLocalURL(uri) {
@@ -1780,7 +1788,7 @@ func RenderVideo(conf *Config, uri, title string) string {
 }
 
 // PreprocessMedia ...
-func PreprocessMedia(conf *Config, u *url.URL, title string) string {
+func PreprocessMedia(conf *Config, u *url.URL, title, renderAs string) string {
 	var html string
 
 	// Normalize the domain name
@@ -1799,11 +1807,11 @@ func PreprocessMedia(conf *Config, u *url.URL, title string) string {
 
 		switch filepath.Ext(u.Path) {
 		case ".mp4":
-			html = RenderVideo(conf, u.String(), title)
+			html = RenderVideo(conf, u.String(), title, renderAs)
 		case ".mp3":
-			html = RenderAudio(conf, u.String(), title)
+			html = RenderAudio(conf, u.String(), title, renderAs)
 		default:
-			html = RenderImage(conf, u.String(), title)
+			html = RenderImage(conf, u.String(), title, renderAs)
 		}
 	} else {
 		src := u.String()
@@ -1848,6 +1856,18 @@ type URLProcessor struct {
 }
 
 func (p *URLProcessor) RenderNodeHook(w io.Writer, node ast.Node, entering bool) (ast.WalkStatus, bool) {
+	// renderAs (one of inline, lightbox or gallery)
+	var renderAs string
+	if (p.user != nil && p.user.DisplayImagesPreference == "gallery") || (p.user == nil && p.conf.DisplayImagesPreference == "gallery") {
+		renderAs = "gallery"
+	} else if (p.user != nil && p.user.DisplayImagesPreference == "lightbox") || (p.user == nil && p.conf.DisplayImagesPreference == "lightbox") {
+		renderAs = "lightbox"
+	} else if (p.user != nil && p.user.DisplayImagesPreference == "inline") || (p.user == nil && p.conf.DisplayImagesPreference == "inline") {
+		renderAs = "inline"
+	} else {
+		renderAs = "inline"
+	}
+
 	// Ensure only whitelisted ![](url) images
 	image, ok := node.(*ast.Image)
 	if ok && entering {
@@ -1857,8 +1877,9 @@ func (p *URLProcessor) RenderNodeHook(w io.Writer, node ast.Node, entering bool)
 			return ast.GoToNext, false
 		}
 
-		html := PreprocessMedia(p.conf, u, string(image.Title))
-		if (p.user != nil && p.user.DisplayImagesPreference == "gallery") || (p.user == nil && p.conf.DisplayImagesPreference == "gallery") {
+		html := PreprocessMedia(p.conf, u, string(image.Title), renderAs)
+		// TODO: Use a const?
+		if renderAs == "gallary" {
 			p.Images = append(p.Images, html)
 		} else {
 			_, _ = io.WriteString(w, html)
@@ -1895,8 +1916,8 @@ func (p *URLProcessor) RenderNodeHook(w io.Writer, node ast.Node, entering bool)
 			return ast.GoToNext, false
 		}
 
-		html := PreprocessMedia(p.conf, u, alt)
-		if (p.user != nil && p.user.DisplayImagesPreference == "gallery") || (p.user == nil && p.conf.DisplayImagesPreference == "gallery") {
+		html := PreprocessMedia(p.conf, u, alt, renderAs)
+		if renderAs == "gallery" {
 			p.Images = append(p.Images, html)
 		} else {
 			_, _ = io.WriteString(w, html)

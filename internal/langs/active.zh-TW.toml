@@ -1062,6 +1062,22 @@ other = "關於您的簡短描述，標語或口號"
 hash = "sha1-3547a41d0344427489dfcd825bfb6578a88672b3"
 other = "標語"
 
+[SettingsFormDisplayImagesPreferenceGallery]
+hash = "sha1-9c30a3485a5887f1ba5abd2a291d304a01863e55"
+other = "Gallery"
+
+[SettingsFormDisplayImagesPreferenceInline]
+hash = "sha1-526541172435aecfc742e92a92c1cb66d9c303da"
+other = "Inline (default)"
+
+[SettingsFormDisplayImagesPreferenceLightbox]
+hash = "sha1-99f6a030c5134d53253c7442cb05c1be14229565"
+other = "Lightbox"
+
+[SettingsFormDisplayImagesPreferenceTitle]
+hash = "sha1-5d428d87d94503379f6512b29f24a4e5c0a0ebb4"
+other = "Display images as:"
+
 [SettingsFormOpenLinksInPreferenceNewWindow]
 hash = "sha1-7eecda05e76aae1ed5a63efd76922671016394ea"
 other = "New Window (default)"
