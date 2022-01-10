@@ -576,6 +576,7 @@ article.no-tb:nth-of-type(3) {
 }
 
 article .p-summary {
+  margin-bottom: -1rem;
   padding-top: 0.6rem;
   overflow-wrap: break-word;
   word-wrap: break-word;
