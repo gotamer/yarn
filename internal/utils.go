@@ -1016,14 +1016,12 @@ func ValidateFeed(conf *Config, nick, url string) (types.TwtFile, error) {
 	if strings.HasPrefix(url, "gopher://") {
 		res, err := RequestGopher(conf, url)
 		if err != nil {
-			log.WithError(err).Errorf("error fetching feed %s", url)
 			return nil, err
 		}
 		body = res.Body
 	} else {
 		res, err := Request(conf, http.MethodGet, url, nil)
 		if err != nil {
-			log.WithError(err).Errorf("error fetching feed %s", url)
 			return nil, err
 		}
 		if res.StatusCode != 200 {

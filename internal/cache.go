@@ -391,13 +391,11 @@ func (p *Peer) makeJsonRequest(conf *Config, path string) ([]byte, error) {
 func (p *Peer) GetTwt(conf *Config, hash string) (types.Twt, error) {
 	data, err := p.makeJsonRequest(conf, "/twt/"+hash)
 	if err != nil {
-		log.WithError(err).Errorf("error making /twt request for %s to peering pod %s", hash, p.URI)
 		return nil, err
 	}
 
 	twt, err := types.DecodeJSON(data)
 	if err != nil {
-		log.WithError(err).Errorf("error deserializing Twt %s from peering pod %s", hash, p.URI)
 		return nil, err
 	}
 
