@@ -77,6 +77,8 @@ type Context struct {
 	DisplayTimePreference   string
 	OpenLinksInPreference   string
 	DisplayImagesPreference string
+	DisplayMedia            bool
+	OriginalMedia           bool
 
 	Error       bool
 	Message     string
@@ -171,6 +173,8 @@ func NewContext(s *Server, req *http.Request) *Context {
 		DisplayTimePreference:   conf.DisplayTimePreference,
 		OpenLinksInPreference:   conf.OpenLinksInPreference,
 		DisplayImagesPreference: conf.DisplayImagesPreference,
+		DisplayMedia:            conf.DisplayMedia,
+		OriginalMedia:           conf.OriginalMedia,
 
 		Commit:      yarn.Commit,
 		Theme:       conf.Theme,
@@ -201,6 +205,8 @@ func NewContext(s *Server, req *http.Request) *Context {
 			DisplayTimePreference:   conf.DisplayTimePreference,
 			OpenLinksInPreference:   conf.OpenLinksInPreference,
 			DisplayImagesPreference: conf.DisplayImagesPreference,
+			DisplayMedia:            conf.DisplayMedia,
+			OriginalMedia:           conf.OriginalMedia,
 		},
 		Twter: types.Twter{},
 

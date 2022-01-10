@@ -1677,8 +1677,9 @@ func CleanTwt(text string) string {
 }
 
 // RenderAudio ...
-func RenderAudio(conf *Config, uri, title, renderAs string) string {
+func RenderAudio(conf *Config, uri, title, renderAs string, full bool) string {
 	// XXX: `renderAs` is ignored for Audio right now
+	// XXX: `full` is ignored for Audio right now
 
 	isLocalURL := IsLocalURLFactory(conf)
 
@@ -1704,8 +1705,11 @@ func RenderAudio(conf *Config, uri, title, renderAs string) string {
 }
 
 // RenderImage ...
-func RenderImage(conf *Config, uri, caption, renderAs string) string {
+func RenderImage(conf *Config, uri, caption, renderAs string, full bool) string {
 	if renderAs == "" || renderAs == "inline" {
+		if full {
+			return fmt.Sprintf(`<img loading=lazy src="%s?full=1" title="%s" />`, uri, caption)
+		}
 		return fmt.Sprintf(`<img loading=lazy src="%s" title="%s" />`, uri, caption)
 	}
 
@@ -1715,6 +1719,10 @@ func RenderImage(conf *Config, uri, caption, renderAs string) string {
 	if err != nil {
 		log.WithError(err).Warnf("error parsing uri: %s", uri)
 		return ""
+	}
+	imgURI := u.String()
+	if full {
+		imgURI += "?full=1"
 	}
 
 	title := "Open to view original quality"
@@ -1755,13 +1763,14 @@ func RenderImage(conf *Config, uri, caption, renderAs string) string {
           <footer><p>%s</p></footer>
         </article>
       </dialog>`,
-		u.String(), title, isCaption, u.String(), uuid, uuid, u.String(), u.String(), caption,
+		imgURI, title, isCaption, imgURI, uuid, uuid, imgURI, imgURI, caption,
 	)
 }
 
 // RenderVideo ...
-func RenderVideo(conf *Config, uri, title, renderAs string) string {
+func RenderVideo(conf *Config, uri, title, renderAs string, full bool) string {
 	// XXX: `renderAs` is ignored for Video right now
+	// XXX: `full` is ignored for for Video right now
 
 	isLocalURL := IsLocalURLFactory(conf)
 
@@ -1788,7 +1797,7 @@ func RenderVideo(conf *Config, uri, title, renderAs string) string {
 }
 
 // PreprocessMedia ...
-func PreprocessMedia(conf *Config, u *url.URL, title, renderAs string) string {
+func PreprocessMedia(conf *Config, u *url.URL, title, renderAs string, display, full bool) string {
 	var html string
 
 	// Normalize the domain name
@@ -1796,7 +1805,7 @@ func PreprocessMedia(conf *Config, u *url.URL, title, renderAs string) string {
 
 	whitelisted, local := conf.WhitelistedImage(domain)
 
-	if whitelisted {
+	if whitelisted && display {
 		if local {
 			// Ensure all local links match our BaseURL scheme
 			u.Scheme = conf.baseURL.Scheme
@@ -1807,18 +1816,25 @@ func PreprocessMedia(conf *Config, u *url.URL, title, renderAs string) string {
 
 		switch filepath.Ext(u.Path) {
 		case ".mp4":
-			html = RenderVideo(conf, u.String(), title, renderAs)
+			html = RenderVideo(conf, u.String(), title, renderAs, full)
 		case ".mp3":
-			html = RenderAudio(conf, u.String(), title, renderAs)
+			html = RenderAudio(conf, u.String(), title, renderAs, full)
 		default:
-			html = RenderImage(conf, u.String(), title, renderAs)
+			html = RenderImage(conf, u.String(), title, renderAs, full)
 		}
 	} else {
 		src := u.String()
-		html = fmt.Sprintf(
-			`<a href="%s" title="%s" target="_blank"><i class="external-image"></i></a>`,
-			src, title,
-		)
+		if full {
+			html = fmt.Sprintf(
+				`<a href="%s?full=1" title="%s" target="_blank"><i class="external-image"></i></a>`,
+				src, title,
+			)
+		} else {
+			html = fmt.Sprintf(
+				`<a href="%s" title="%s" target="_blank"><i class="external-image"></i></a>`,
+				src, title,
+			)
+		}
 	}
 
 	return html
@@ -1868,6 +1884,16 @@ func (p *URLProcessor) RenderNodeHook(w io.Writer, node ast.Node, entering bool)
 		renderAs = "inline"
 	}
 
+	display := p.conf.DisplayMedia
+	if p.user != nil {
+		display = p.user.DisplayMedia
+	}
+
+	full := p.conf.OriginalMedia
+	if p.user != nil {
+		full = p.user.OriginalMedia
+	}
+
 	// Ensure only whitelisted ![](url) images
 	image, ok := node.(*ast.Image)
 	if ok && entering {
@@ -1877,9 +1903,9 @@ func (p *URLProcessor) RenderNodeHook(w io.Writer, node ast.Node, entering bool)
 			return ast.GoToNext, false
 		}
 
-		html := PreprocessMedia(p.conf, u, string(image.Title), renderAs)
+		html := PreprocessMedia(p.conf, u, string(image.Title), renderAs, display, full)
 		// TODO: Use a const?
-		if renderAs == "gallary" {
+		if display && renderAs == "gallary" {
 			p.Images = append(p.Images, html)
 		} else {
 			_, _ = io.WriteString(w, html)
@@ -1916,8 +1942,8 @@ func (p *URLProcessor) RenderNodeHook(w io.Writer, node ast.Node, entering bool)
 			return ast.GoToNext, false
 		}
 
-		html := PreprocessMedia(p.conf, u, alt, renderAs)
-		if renderAs == "gallery" {
+		html := PreprocessMedia(p.conf, u, alt, renderAs, display, full)
+		if display && renderAs == "gallery" {
 			p.Images = append(p.Images, html)
 		} else {
 			_, _ = io.WriteString(w, html)

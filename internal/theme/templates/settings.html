@@ -128,6 +128,19 @@
       </div>
       <div>
         <fieldset>
+          <legend>Media settings:</legend>
+          <label for="displayMedia">
+            <input id="displayMedia" type="checkbox" name="displayMedia" aria-label="Display media at all" role="switch" {{ if .User.DisplayMedia }}checked{{ end }} />
+            Display Media
+          </label>
+          <label for="originalMedia">
+            <input id="originalMedia" type="checkbox" name="originalMedia" aria-label="Use original media" role="switch" {{ if .User.OriginalMedia }}checked{{ end }} />
+            Use Original Media
+          </label>
+        </fieldset>
+      </div>
+      <div>
+        <fieldset>
           <legend>{{ tr . "SettingsFormPrivacySettingsTitle" }}</legend>
           <label for="isBookmarksPubliclyVisible">
             <input id="isBookmarksPubliclyVisible" type="checkbox" name="isBookmarksPubliclyVisible" aria-label="Show bookmarks publicly" role="switch" {{ if .User.IsBookmarksPubliclyVisible }}checked{{ end }}>

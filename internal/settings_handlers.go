@@ -50,6 +50,8 @@ func (s *Server) SettingsHandler() httprouter.Handle {
 		openLinksInPreference := r.FormValue("openLinksInPreference")
 		hideRepliesPreference := r.FormValue("hideRepliesPreference") == "on"
 		displayImagesPreference := r.FormValue("displayImagesPreference")
+		displayMedia := r.FormValue("displayMedia") == "on"
+		originalMedia := r.FormValue("originalMedia") == "on"
 
 		isFollowersPubliclyVisible := r.FormValue("isFollowersPubliclyVisible") == "on"
 		isFollowingPubliclyVisible := r.FormValue("isFollowingPubliclyVisible") == "on"
@@ -114,6 +116,8 @@ func (s *Server) SettingsHandler() httprouter.Handle {
 		user.DisplayTimePreference = displayTimePreference
 		user.OpenLinksInPreference = openLinksInPreference
 		user.DisplayImagesPreference = displayImagesPreference
+		user.DisplayMedia = displayMedia
+		user.OriginalMedia = originalMedia
 
 		if hideRepliesPreference != user.HideRepliesPreference {
 			// Force User Views to be recalculated

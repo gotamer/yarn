@@ -49,6 +49,8 @@ func (s *Server) ManagePodHandler() httprouter.Handle {
 		displayTimePreference := r.FormValue("displayTimePreference")
 		openLinksInPreference := r.FormValue("openLinksInPreference")
 		displayImagesPreference := r.FormValue("displayImagesPreference")
+		displayMedia := r.FormValue("displayMedia") == "on"
+		originalMedia := r.FormValue("originalMedia") == "on"
 
 		// Clean lines from DOS (\r\n) to UNIX (\n)
 		logo = strings.ReplaceAll(logo, "\r\n", "\n")
@@ -135,6 +137,8 @@ func (s *Server) ManagePodHandler() httprouter.Handle {
 		s.config.DisplayTimePreference = displayTimePreference
 		s.config.OpenLinksInPreference = openLinksInPreference
 		s.config.DisplayImagesPreference = displayImagesPreference
+		s.config.DisplayMedia = displayMedia
+		s.config.OriginalMedia = originalMedia
 
 		// Save config file
 		if err := s.config.Settings().Save(filepath.Join(s.config.Data, "settings.yaml")); err != nil {

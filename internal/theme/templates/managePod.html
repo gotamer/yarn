@@ -65,6 +65,17 @@
             </fieldset>
           </div>
           <div>
+            <legend>Media settings:</legend>
+            <label for="displayMedia">
+              <input id="displayMedia" type="checkbox" name="displayMedia" aria-label="Display media at all" role="switch" {{ if .DisplayMedia }}checked{{ end }} />
+              Display Media
+            </label>
+            <label for="originalMedia">
+              <input id="originalMedia" type="checkbox" name="originalMedia" aria-label="Use original media" role="switch" {{ if .OriginalMedia }}checked{{ end }} />
+              Use Original Media
+            </label>
+          </div>
+          <div>
             <legend>Other settings:</legend>
             <label for="enableOpenRegistrations">
               <input id="enableOpenRegistrations" type="checkbox" name="enableOpenRegistrations" aria-label="Allow open registrations" role="switch" {{ if not .RegisterDisabled }}checked{{ end }} />

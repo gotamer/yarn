@@ -59,6 +59,8 @@ type User struct {
 	OpenLinksInPreference   string `default:"newwindow"`
 	HideRepliesPreference   bool   `default:"false"`
 	DisplayImagesPreference string `default:"inline"`
+	DisplayMedia            bool   `default:"true"`
+	OriginalMedia           bool   `default:"false"`
 
 	IsFollowersPubliclyVisible bool `default:"true"`
 	IsFollowingPubliclyVisible bool `default:"true"`

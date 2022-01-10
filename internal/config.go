@@ -60,6 +60,8 @@ type Settings struct {
 	DisplayTimePreference   string `yaml:"display_time_preference"`
 	OpenLinksInPreference   string `yaml:"open_links_in_preference"`
 	DisplayImagesPreference string `yaml:"display_images_preference"`
+	DisplayMedia            bool   `yaml:"display_media"`
+	OriginalMedia           bool   `yaml:"original_media"`
 }
 
 // SoftwareConfig contains the server version information
@@ -143,6 +145,8 @@ type Config struct {
 	DisplayTimePreference   string
 	OpenLinksInPreference   string
 	DisplayImagesPreference string
+	DisplayMedia            bool
+	OriginalMedia           bool
 
 	// requestTimeout defines the timeout for outgoing HTTP requests.
 	requestTimeout time.Duration

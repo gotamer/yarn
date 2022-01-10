@@ -192,8 +192,14 @@ var (
 	DefaultOpenLinksInPreference = "newwindow"
 
 	// DisplayImagesPreference is the default Pod-level image display behaviour
-	// (inline or gallery) for displaying images (overridable by Users).
+	// (inline or gallery) for displaying images (overridable by Users).j
 	DefaultDisplayImagesPreference = "inline"
+
+	// DisplayMedia is the default for whether or not to display media at all or just link it
+	DefaultDisplayMedia = true
+
+	// OriginalMedia is the default for whether to link or display original media or not
+	OriginalMedia bool
 )
 
 func NewConfig() *Config {
