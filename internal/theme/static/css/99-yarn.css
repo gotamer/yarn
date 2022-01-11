@@ -715,6 +715,19 @@ footer.container {
   padding-bottom: 1rem;
 }
 
+code, kbd {
+  padding: 0.2rem 0.3rem;
+}
+
+pre {
+  margin-top: -1rem !important;
+  margin-bottom: 0.25rem !important;
+}
+
+pre > code {
+  padding: 0.25rem 0.5rem;
+}
+
 @media (max-width: 576px) {
   main.container {
     margin-top: -3rem;
@@ -994,8 +1007,8 @@ footer.container {
     margin: -1rem 1rem -2.5rem 1rem;
   }
   #podLogo {
-    margin-top: -0.05rem;
-    margin-left: 0.9rem;
+    margin-top:1rem;
+    margin-left:-0.5rem
   }
   #convJoinSummary {
     margin: 0.25rem 0 -1.25rem 0 !important;
