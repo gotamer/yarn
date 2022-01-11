@@ -1705,12 +1705,16 @@ func RenderAudio(conf *Config, uri, title, renderAs string, full bool) string {
 }
 
 // RenderImage ...
-func RenderImage(conf *Config, uri, caption, renderAs string, full bool) string {
+func RenderImage(conf *Config, uri, caption, alt, renderAs string, full bool) string {
+	if alt != "" {
+		alt = ` alt="` + alt + `"`
+	}
+
 	if renderAs == "" || renderAs == "inline" {
 		if full {
-			return fmt.Sprintf(`<img loading=lazy src="%s?full=1" title="%s" />`, uri, caption)
+			return fmt.Sprintf(`<img loading=lazy src="%s?full=1" title="%s"%s/>`, uri, caption, alt)
 		}
-		return fmt.Sprintf(`<img loading=lazy src="%s" title="%s" />`, uri, caption)
+		return fmt.Sprintf(`<img loading=lazy src="%s" title="%s"%s/>`, uri, caption, alt)
 	}
 
 	isLocalURL := IsLocalURLFactory(conf)
@@ -1751,7 +1755,7 @@ func RenderImage(conf *Config, uri, caption, renderAs string, full bool) string 
 
 	return fmt.Sprintf(
 		`<div class="center-cropped caption-wrap">
-			 <a class="img-orig-open" href="%s" title="%s" target="_blank">
+			 <a class="img-orig-open" href="%s" title="%s"%s target="_blank">
 				 %s
 				 <img loading=lazy src="%s" data-target="%s" />
 			 </a>
@@ -1763,7 +1767,7 @@ func RenderImage(conf *Config, uri, caption, renderAs string, full bool) string 
           <footer><p>%s</p></footer>
         </article>
       </dialog>`,
-		imgURI, title, isCaption, imgURI, uuid, uuid, imgURI, imgURI, caption,
+		imgURI, title, alt, isCaption, imgURI, uuid, uuid, imgURI, imgURI, caption,
 	)
 }
 
@@ -1797,7 +1801,7 @@ func RenderVideo(conf *Config, uri, title, renderAs string, full bool) string {
 }
 
 // PreprocessMedia ...
-func PreprocessMedia(conf *Config, u *url.URL, title, renderAs string, display, full bool) string {
+func PreprocessMedia(conf *Config, u *url.URL, title, alt, renderAs string, display, full bool) string {
 	var html string
 
 	// Normalize the domain name
@@ -1820,19 +1824,22 @@ func PreprocessMedia(conf *Config, u *url.URL, title, renderAs string, display, 
 		case ".mp3":
 			html = RenderAudio(conf, u.String(), title, renderAs, full)
 		default:
-			html = RenderImage(conf, u.String(), title, renderAs, full)
+			html = RenderImage(conf, u.String(), title, alt, renderAs, full)
 		}
 	} else {
+		if alt != "" {
+			alt = ` alt="` + alt + `"`
+		}
 		src := u.String()
 		if full {
 			html = fmt.Sprintf(
-				`<a href="%s?full=1" title="%s" target="_blank"><i class="external-image"></i></a>`,
-				src, title,
+				`<a href="%s?full=1" title="%s"%s target="_blank"><i class="external-image"></i></a>`,
+				src, title, alt,
 			)
 		} else {
 			html = fmt.Sprintf(
-				`<a href="%s" title="%s" target="_blank"><i class="external-image"></i></a>`,
-				src, title,
+				`<a href="%s" title="%s"%s target="_blank"><i class="external-image"></i></a>`,
+				src, title, alt,
 			)
 		}
 	}
@@ -1903,7 +1910,16 @@ func (p *URLProcessor) RenderNodeHook(w io.Writer, node ast.Node, entering bool)
 			return ast.GoToNext, false
 		}
 
-		html := PreprocessMedia(p.conf, u, string(image.Title), renderAs, display, full)
+		alt := string(image.Title)
+		if children := image.Container.GetChildren(); len(children) > 0 {
+			for _, c := range children {
+				if txt, ok := c.(*ast.Text); ok {
+					alt = string(txt.Literal)
+				}
+			}
+		}
+
+		html := PreprocessMedia(p.conf, u, string(image.Title), alt, renderAs, display, full)
 		// TODO: Use a const?
 		if display && renderAs == "gallary" {
 			p.Images = append(p.Images, html)
@@ -1935,6 +1951,7 @@ func (p *URLProcessor) RenderNodeHook(w io.Writer, node ast.Node, entering bool)
 		}
 
 		alt, _ := img.Attr("alt")
+		title, _ := img.Attr("title")
 
 		u, err := url.Parse(src)
 		if err != nil {
@@ -1942,7 +1959,7 @@ func (p *URLProcessor) RenderNodeHook(w io.Writer, node ast.Node, entering bool)
 			return ast.GoToNext, false
 		}
 
-		html := PreprocessMedia(p.conf, u, alt, renderAs, display, full)
+		html := PreprocessMedia(p.conf, u, title, alt, renderAs, display, full)
 		if display && renderAs == "gallery" {
 			p.Images = append(p.Images, html)
 		} else {
@@ -2073,10 +2090,22 @@ func FormatTwtContextFactory(conf *Config, cache *Cache, archive Archiver) func(
 					return ast.GoToNext, false
 				}
 
+				alt := string(image.Title)
+				if children := image.Container.GetChildren(); len(children) > 0 {
+					for _, c := range children {
+						if txt, ok := c.(*ast.Text); ok {
+							alt = string(txt.Literal)
+						}
+					}
+				}
+				if alt != "" {
+					alt = ` alt="` + alt + `"`
+				}
+
 				src := u.String()
 				html := fmt.Sprintf(
-					`<a href="%s" alt="%s" target="_blank"><i class="external-image"></i></a>`,
-					src, image.Title,
+					`<a href="%s" title="%s"%s target="_blank"><i class="external-image"></i></a>`,
+					src, image.Title, alt,
 				)
 
 				_, _ = io.WriteString(w, html)

@@ -9,7 +9,6 @@ import (
 
 	"git.mills.io/yarnsocial/yarn/types"
 	"git.mills.io/yarnsocial/yarn/types/lextwt"
-	"github.com/matryer/is"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -228,7 +227,7 @@ func TestIsLocalURL(t *testing.T) {
 }
 
 func TestFormatTwtFactory(t *testing.T) {
-	is := is.New(t)
+	assert := assert.New(t)
 
 	cfg := NewConfig()
 	cfg.baseURL = &url.URL{Host: "example.com"}
@@ -239,12 +238,12 @@ func TestFormatTwtFactory(t *testing.T) {
 	}
 	txt := factory(lextwt.NewTwt(twter,
 		lextwt.NewDateTime(parseTime("2021-01-24T02:19:54Z"), "2021-01-24T02:19:54Z"),
-		lextwt.NewMedia("This is Image", "https://example.com/hot.png", ""),
+		lextwt.NewMedia("This is alt", "https://example.com/hot.png", "'This is title'"),
 	), NewUser())
 
 	actual := string(txt)
-	expected := "<p><img loading=\"lazy\" src=\"//example.com/hot.png\" title=\"This is Image\"/></p>\n"
-	is.Equal(actual, expected)
+	expected := "<p><img loading=\"lazy\" src=\"//example.com/hot.png\" title=\"This is title\" alt=\"This is alt\"/></p>\n"
+	assert.Equal(actual, expected)
 }
 
 func parseTime(s string) time.Time {
