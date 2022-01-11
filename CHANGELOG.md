@@ -1,4 +1,49 @@
 
+<a name="0.12.0"></a>
+## [0.12.0](https://git.mills.io/yarnsocial/yarn/compare/0.11.0...0.12.0) (2022-01-11)
+
+### Bug Fixes
+
+* Fix logo alignment. Fix gap issues with code/pre tags. (#680)
+* Fix CI
+* Fix bad commit in f7db6f9
+* Fix StatsJob() and posting stats as the statsBot via the adminUser
+* Fix sort order of Hide Replies (I think)
+* Fix JSON response of Who Follows Resource (#639)
+* Fix language used in ManageJobs() on successful job queue
+* Fix the URL for user urls in /whoFollows response
+* Fix stupid  bugs caused by c14cebb
+* Fix size of icon for profiles with no avatar
+* Fix language for ProfileDoesNotFollowYou to be more neutral
+* Fix code colouring (#636)
+* Fix duplicate followers bug
+* Fix bug with updating Follower.LastSeenAt (pointer mishap)
+
+### Features
+
+* Add Release Notes for v0.12.0 (Thanks @Ullarah)
+* Add support for Pod-level and User-level Display Media and Original Media settings
+* Add support back for original inline image display as a DisplayImagesPreference (inline)
+* Add Download link to Image modal dialog to download original quality media
+* Add c content-negogiated media view to access original quality media cross-pod (#666)
+* Add support for preserving original quality images and serving thumbnail + link to original (#661)
+* Add support for configurable pod-level avatar and media resolutions (#663)
+* Add support for deleting feed in Manage Pod -> Manage Users
+* Add FeatureInternalEvents (internal_events) and basic Onboarding flow for new users
+* Add support for Hide Replies user settings (Closes #549)
+* Add Avatar to Twter object for User/Feed models so injected Twts injected directly in the cache show the User/Feed's Avatar
+* Add temporary backwards compatibility for yarnd 0.11.x for the fucked up /whoFollows response in MultiUserAgent().Follows() logic
+* Add a yarnc hash command for constructing Twt Hashes by hand (useful for tests and older/legacy clients)
+* Add support for actually nuking the cache with the Refresh Cache admin UI with a Javascript confirmation
+* Add Release Notes for v0.11.0
+
+### Updates
+
+* Update Pod Logo and Favicon to simpler colors (#658)
+* Update translations
+* Update 'AUTHORS' file (#634)
+
+
 <a name="0.11.0"></a>
 ## [0.11.0](https://git.mills.io/yarnsocial/yarn/compare/0.10.0...0.11.0) (2022-01-01)
 
@@ -47,6 +92,7 @@
 
 ### Updates
 
+* Update CHANGELOG for 0.11.0
 * Update .gitignore
 
 
